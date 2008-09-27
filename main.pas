@@ -2,17 +2,17 @@
 Модификация L2PacketHack 3.2.0 by CODERX.RU
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Принимали участие в написании кода:
-Xkor;
-NLObP;
-Wanick;
-QaK.
+  Xkor;
+  NLObP;
+  Wanick;
+  QaK.
 }
-{ TODO -oNLObP : разобраться с правильностью создания/освобождения потоков }
-{ TODO -oNLObP : надо найти, что-то два раза освобождается, после работы с клиентами, когда выходим из программы падает с ошибкой }
-{ TODO -oNLObP : проверить правильность логики вкл/выкл кнопок на вкладке "скрипты" }
-{ TODO -oNLObP : исправить find/replace - заменяет не текущее вхождение, а следующее }
-{ TODO -oNLObP : есть TfsSyntaxMemo почему его не юзаем для скриптов? }
-
+{ TODO 1 -cThreads -oNLObP : разобраться с правильностью создания/освобождения потоков }
+{ TODO 1 -cThreads -oNLObP : надо найти, что-то два раза освобождается, после работы с клиентами, когда выходим из программы падает с ошибкой }
+{ DONE 5 -cInterface -owanick : проверить правильность логики вкл/выкл кнопок на вкладке "скрипты" }
+{ TODO 5 -cEditor -oNLObP : исправить find/replace - заменяет не текущее вхождение, а следующее }
+{ TODO 5 -cEditor -owanick : есть TfsSyntaxMemo почему его не юзаем для скриптов? }
+{ TODO 5 -owanick -cScripts :  Вынести все вспомогательные методы и функции в отдельную Dll если такое получится}
 unit main;
 
 interface
@@ -154,14 +154,14 @@ type
     TabSheet6: TTabSheet;
     Splitter3: TSplitter;
     Panel19: TPanel;
-    Button17: TButton;
+    ButtonCheckSyntex: TButton;
     Button18: TButton;
-    Button19: TButton;
-    Button20: TButton;
+    ButtonLoadNew: TButton;
+    ButtonSave: TButton; // кнопка сохранить
     GroupBox3: TGroupBox;
-    CheckListBox2: TCheckListBox;
-    Button15: TButton;
-    Button16: TButton;
+    ScriptsList: TCheckListBox;
+    ButtonDelete: TButton;
+    ButtonRename: TButton;
     Button26: TButton;
     Button27: TButton;
     Button28: TButton;
@@ -219,7 +219,7 @@ type
     procedure Button13Click(Sender: TObject);
     procedure ListViewChange(Item: TListItem; Memo, memo2: TJvRichEdit);
     procedure Label12Click(Sender: TObject);
-    procedure Button17Click(Sender: TObject);
+    procedure ButtonCheckSyntexClick(Sender: TObject);
     procedure ListView1Click(Sender: TObject);
     procedure Button14Click(Sender: TObject);
     procedure BtnSaveLogClick(Sender: TObject);
@@ -230,8 +230,8 @@ type
     procedure RefreshScripts;
     procedure RefreshPrecompile(var fsScript: TfsScript);
     procedure Button28Click(Sender: TObject);
-    procedure CheckListBox2ClickCheck(Sender: TObject);
-    procedure CheckListBox2Click(Sender: TObject);
+    procedure ScriptsListClickCheck(Sender: TObject);
+    procedure ScriptsListClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -241,10 +241,10 @@ type
     procedure ListView5KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ListView5KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ListView2Click(Sender: TObject);
-    procedure Button16Click(Sender: TObject);
-    procedure Button15Click(Sender: TObject);
-    procedure Button20Click(Sender: TObject);
-    procedure Button19Click(Sender: TObject);
+    procedure ButtonRenameClick(Sender: TObject);
+    procedure ButtonDeleteClick(Sender: TObject);
+    procedure ButtonSaveClick(Sender: TObject);
+    procedure ButtonLoadNewClick(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure Memo6Change(Sender: TObject);
@@ -537,8 +537,8 @@ begin
   id:=msg.LParamHi;
   SetCurrentDir(ExtractFilePath(ParamStr(0)));
   //EnterCriticalSection(_cs);
-  for i:=0 to CheckListBox2.Count-1 do begin
-    if CheckListBox2.Checked[i] then begin
+  for i:=0 to ScriptsList.Count-1 do begin
+    if ScriptsList.Checked[i] then begin
       //по очереди посылаем всем включенным скриптам
       Scripts[i].fsScript.Variables['pck']:=pstr(msg.WParam)^;
       Scripts[i].fsScript.Variables['ConnectID']:=id;
@@ -1036,7 +1036,7 @@ end;
 
 procedure TL2PacketHackMain.JvHLEditor1Change(Sender: TObject);
 begin
-  Button20.Enabled:=True;
+  ButtonSave.Enabled:=True;
 end;
 
 procedure FindWords;
@@ -1055,9 +1055,9 @@ procedure TL2PacketHackMain.JvHLEditor1KeyDown(Sender: TObject; var Key: Word; S
 begin
   JvHLEditor1.SelBackColor:=clHighlight;
   // добавили комбинацию клавиш 'сохранить файл' - ctrl+s
-  if(Key in [Ord('S'), Ord('s')])and(Shift=[ssCtrl]) then Button20Click(Sender) else
+  if(Key in [Ord('S'), Ord('s')])and(Shift=[ssCtrl]) then ButtonSaveClick(Sender) else
   // добавили комбинацию клавиш 'проверить синтаксис' - ctrl+f9
-  if(Key=VK_F9)and(Shift=[ssCtrl]) then Button17Click(Sender);
+  if(Key=VK_F9)and(Shift=[ssCtrl]) then ButtonCheckSyntexClick(Sender);
   // добавили комбинацию клавиш 'поиск' - ctrl+f
   if(Key in [Ord('F'), Ord('f')])and(Shift=[ssCtrl]) then FindWords;
   if(Key in [Ord('R'), Ord('r')])and(Shift=[ssCtrl]) then ReplaceWords;
@@ -2639,15 +2639,15 @@ var
   dt: TScript;
   ind:integer;
 begin
-  if CheckListBox2.ItemIndex>0 then begin
-    ind:=CheckListBox2.ItemIndex;
-    dt:=scripts[CheckListBox2.ItemIndex];
-    scripts[CheckListBox2.ItemIndex]:=scripts[CheckListBox2.ItemIndex-1];
-    scripts[CheckListBox2.ItemIndex-1]:=dt;
-    CheckListBox2.Items.Move(CheckListBox2.ItemIndex, CheckListBox2.ItemIndex-1);
-    CheckListBox2.ItemIndex:=ind-1;
-    if CheckListBox2.ItemIndex>0 then Button9.Enabled:=True else Button9.Enabled:=False;
-    if CheckListBox2.ItemIndex<CheckListBox2.Items.Count-1 then Button10.Enabled:=True else Button10.Enabled:=False;
+  if ScriptsList.ItemIndex>0 then begin
+    ind:=ScriptsList.ItemIndex;
+    dt:=scripts[ScriptsList.ItemIndex];
+    scripts[ScriptsList.ItemIndex]:=scripts[ScriptsList.ItemIndex-1];
+    scripts[ScriptsList.ItemIndex-1]:=dt;
+    ScriptsList.Items.Move(ScriptsList.ItemIndex, ScriptsList.ItemIndex-1);
+    ScriptsList.ItemIndex:=ind-1;
+    if ScriptsList.ItemIndex>0 then Button9.Enabled:=True else Button9.Enabled:=False;
+    if ScriptsList.ItemIndex<ScriptsList.Items.Count-1 then Button10.Enabled:=True else Button10.Enabled:=False;
   end;
 end;
 
@@ -2656,15 +2656,15 @@ var
   dt: TScript;
   ind:integer;
 begin
-  if (CheckListBox2.ItemIndex>=0)and(CheckListBox2.ItemIndex<CheckListBox2.Items.Count-1) then begin
-    ind:=CheckListBox2.ItemIndex;
-    dt:=scripts[CheckListBox2.ItemIndex];
-    scripts[CheckListBox2.ItemIndex]:=scripts[CheckListBox2.ItemIndex+1];
-    scripts[CheckListBox2.ItemIndex+1]:=dt;
-    CheckListBox2.Items.Move(CheckListBox2.ItemIndex, CheckListBox2.ItemIndex+1);
-    CheckListBox2.ItemIndex:=ind+1;
-    if CheckListBox2.ItemIndex>0 then Button9.Enabled:=True else Button9.Enabled:=False;
-    if CheckListBox2.ItemIndex<CheckListBox2.Items.Count-1 then Button10.Enabled:=True else Button10.Enabled:=False;
+  if (ScriptsList.ItemIndex>=0)and(ScriptsList.ItemIndex<ScriptsList.Items.Count-1) then begin
+    ind:=ScriptsList.ItemIndex;
+    dt:=scripts[ScriptsList.ItemIndex];
+    scripts[ScriptsList.ItemIndex]:=scripts[ScriptsList.ItemIndex+1];
+    scripts[ScriptsList.ItemIndex+1]:=dt;
+    ScriptsList.Items.Move(ScriptsList.ItemIndex, ScriptsList.ItemIndex+1);
+    ScriptsList.ItemIndex:=ind+1;
+    if ScriptsList.ItemIndex>0 then Button9.Enabled:=True else Button9.Enabled:=False;
+    if ScriptsList.ItemIndex<ScriptsList.Items.Count-1 then Button10.Enabled:=True else Button10.Enabled:=False;
   end;
 end;
 
@@ -2701,41 +2701,51 @@ begin
   ListView1Click(Sender);
 end;
 
-procedure TL2PacketHackMain.Button15Click(Sender: TObject);
-begin
-  if CheckListBox2.ItemIndex<>-1 then
-    if MessageDlg('Вы уверены что хотите удалить скрипт '+Scripts[CheckListBox2.ItemIndex].Name+'?'
-      +sLineBreak+'Это действие необратимо и приведёт к утрате файла со скриптом.',mtConfirmation,[mbYes, mbNo],0)=mrYes then begin
-    DeleteFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[CheckListBox2.ItemIndex].Name+'.txt');
-{/*by wanick*/}
 {
-  при удалении, нельзя удалять скрипт из списка потому, что нужно будет делать смещение
-  в массиве Scripts, запомненый скрипт до обнавления можно будет посмотреть еще
-  раз, мало ли что, но включить его уже будет нельзя.
+  нажата кнопка "Удалить"
 }
-    CheckListBox2.ItemEnabled[CheckListBox2.ItemIndex] := false;
-{/*by wanick*/}
-    JvHLEditor1.Lines.Clear;
-  end;
-end;
-
-procedure TL2PacketHackMain.Button16Click(Sender: TObject);
-var
-  s:string;
+procedure TL2PacketHackMain.ButtonDeleteClick(Sender: TObject);
 begin
-  if CheckListBox2.ItemIndex<>-1 then begin
-    s:=InputBox('Переименование скрипта','Пожалуйста, укажите новое название',Scripts[CheckListBox2.ItemIndex].Name);
-    RenameFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[CheckListBox2.ItemIndex].Name+'.txt',ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt');
-    CheckListBox2.Items.Strings[CheckListBox2.ItemIndex]:=s;
-    Scripts[CheckListBox2.ItemIndex].Name:=s;
+  if ScriptsList.ItemIndex<>-1 then
+    if MessageDlg('Вы уверены что хотите удалить скрипт '+Scripts[ScriptsList.ItemIndex].Name+'?'
+      +sLineBreak+'Это действие необратимо и приведёт к утрате файла со скриптом.',mtConfirmation,[mbYes, mbNo],0)=mrYes then begin
+    DeleteFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[ScriptsList.ItemIndex].Name+'.txt');
+    ScriptsList.ItemEnabled[ScriptsList.ItemIndex] := false; // отключаем текущий ScriptsList.ItemIndex
+    ButtonDelete.Enabled := false; // отключаем кнопку Удалить, зачем удалять уже удаленный
   end;
 end;
 
-procedure TL2PacketHackMain.Button17Click(Sender: TObject);
+{
+  нажали кнопку переименовать
+}
+procedure TL2PacketHackMain.ButtonRenameClick(Sender: TObject);
+var
+  s: string;
+  r: Boolean;
+begin
+  if ScriptsList.ItemIndex<>-1 then begin
+    s:= Scripts[ScriptsList.ItemIndex].Name;
+    r:= true;
+    // переименовываем пока скрипт с таким именем есть или не нажата кнопка Cancel
+    while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt') AND r  do
+    begin
+      r:= InputQuery('Переименование скрипта','Пожалуйста, укажите новое название',s);
+      if not r then exit;
+    end;
+    RenameFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[ScriptsList.ItemIndex].Name+'.txt',ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt');
+    ScriptsList.Items.Strings[ScriptsList.ItemIndex]:=s;
+    Scripts[ScriptsList.ItemIndex].Name:=s;
+  end;
+end;
+
+procedure TL2PacketHackMain.ButtonCheckSyntexClick(Sender: TObject);
 begin
   Compile(fsScript1,JvHLEditor1);
 end;
 
+{
+  Нажата кнопка "Новый скрипт"
+}
 procedure TL2PacketHackMain.Button18Click(Sender: TObject);
 var
   s: string;
@@ -2765,28 +2775,42 @@ begin
     'begin'+sLineBreak+sLineBreak+
     'end.';
   JvHLEditor1.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt');
-  CheckListBox2.ItemIndex:=CheckListBox2.Items.Add(s);
-  Scripts[CheckListBox2.ItemIndex].Name:=s;
-  Scripts[CheckListBox2.ItemIndex].fsScript.Lines:=JvHLEditor1.Lines;
+  ScriptsList.ItemIndex:=ScriptsList.Items.Add(s);
+  Scripts[ScriptsList.ItemIndex].Name:=s;
+  Scripts[ScriptsList.ItemIndex].fsScript.Lines:=JvHLEditor1.Lines;
+  // отключаем потомучто только что созданном скрипе сохранять нечего
+  ButtonSave.Enabled := false;
 end;
 
-procedure TL2PacketHackMain.Button19Click(Sender: TObject);
+{
+  Нажата кнопка "Загрузить новый"
+}
+procedure TL2PacketHackMain.ButtonLoadNewClick(Sender: TObject);
 var
   s: string;
+  r: Boolean;// для проверки не нажат ли Cancel
 begin
-  if (CheckListBox2.ItemIndex<>-1)and Button20.Enabled then if MessageDlg('Желаете сохранить изменения в текущем скрипте прежде чем создадите новый?',mtConfirmation,[mbYes, mbNo],0)=mrYes then Button20Click(Sender);
+  if (ScriptsList.ItemIndex<>-1)and ButtonSave.Enabled then if MessageDlg('Желаете сохранить изменения в текущем скрипте прежде чем создадите новый?',mtConfirmation,[mbYes, mbNo],0)=mrYes then ButtonSaveClick(Sender);
   if OpenDialog2.Execute then begin
     JvHLEditor1.Lines.LoadFromFile(OpenDialog2.FileName);
     s:=ExtractFileName(OpenDialog2.FileName);
     s:=Copy(s,1,LastDelimiter('.',s)-1);
-    if CheckListBox2.Items.IndexOf(s)<>-1 then if MessageDlg('Скрипт с таким названием уже существует, хотите го заменить?',mtConfirmation,[mbYes, mbNo],0)=mrNo then begin
-      s:=InputBox('Переименование скрипта','Пожалуйста, укажите новое название',s+'2');
-      CheckListBox2.ItemIndex:=CheckListBox2.Items.Add(s);
-      end else CheckListBox2.ItemIndex:=CheckListBox2.Items.IndexOf(s)
-    else CheckListBox2.ItemIndex:=CheckListBox2.Items.Add(s);
+    if ScriptsList.Items.IndexOf(s)<>-1 then if MessageDlg('Скрипт с таким названием уже существует, хотите его заменить?',mtConfirmation,[mbYes, mbNo],0)=mrNo then begin
+      r := true;
+      // будем проверять пока ненажат Cancel или файла с таким именем нету
+      while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt') AND r do
+      begin
+        r := InputQuery('Переименование скрипта','Такой скрипт существует'+sLineBreak+'Пожалуйста, укажите новое название', s);
+        if not r then exit;
+      end;
+      ScriptsList.ItemIndex:=ScriptsList.Items.Add(s);
+      end else ScriptsList.ItemIndex:=ScriptsList.Items.IndexOf(s)
+    else ScriptsList.ItemIndex:=ScriptsList.Items.Add(s);
     JvHLEditor1.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt');
-    Scripts[CheckListBox2.ItemIndex].Name:=s;
-    Scripts[CheckListBox2.ItemIndex].fsScript.Lines:=JvHLEditor1.Lines;
+    Scripts[ScriptsList.ItemIndex].Name:=s;
+    Scripts[ScriptsList.ItemIndex].fsScript.Lines:=JvHLEditor1.Lines;
+    // отключаем потомучто в только что загруженном скрипе сохранять нечего
+    ButtonSave.Enabled := false;
   end;
 end;
 
@@ -2802,13 +2826,13 @@ begin
   ListView1Click(Sender);
 end;
 
-procedure TL2PacketHackMain.Button20Click(Sender: TObject);
+procedure TL2PacketHackMain.ButtonSaveClick(Sender: TObject);
 begin
-  if CheckListBox2.ItemIndex<>-1 then begin
-    JvHLEditor1.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[CheckListBox2.ItemIndex].Name+'.txt');
-    Scripts[CheckListBox2.ItemIndex].fsScript.Lines:=JvHLEditor1.Lines;
-    Scripts[CheckListBox2.ItemIndex].Compilled:=False;
-    Button20.Enabled:=False;
+  if ScriptsList.ItemIndex<>-1 then begin
+    JvHLEditor1.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[ScriptsList.ItemIndex].Name+'.txt');
+    Scripts[ScriptsList.ItemIndex].fsScript.Lines:=JvHLEditor1.Lines;
+    Scripts[ScriptsList.ItemIndex].Compilled:=False;
+    ButtonSave.Enabled:=False;
     StatusBar1.SimpleText:='Скрипт сохранен';
   end;
 end;
@@ -2861,17 +2885,17 @@ begin
   if not Button27.Enabled then begin
     fsScript1.CallFunction('Free',0);
     Button26.Enabled:=False;
-    Button17.Enabled:=True;
+    ButtonCheckSyntex.Enabled:=True;
     Button27.Enabled:=True;
     Button18.Enabled:=True;
-    Button16.Enabled:=True;
-    Button19.Enabled:=True;
-    Button15.Enabled:=True;
-//    Button20.Enabled:=True;
+    ButtonRename.Enabled:=True;
+    ButtonLoadNew.Enabled:=True;
+    ButtonDelete.Enabled:=True;
+//    ButtonSave.Enabled:=True;
     Button28.Enabled:=True;
     Button9.Enabled:=True;
     Button10.Enabled:=True;
-    CheckListBox2.Enabled:=True;
+    ScriptsList.Enabled:=True;
     JvHLEditor1.ReadOnly:=False;
   end;
 end;
@@ -2881,17 +2905,17 @@ begin
   if Compile(fsScript1,JvHLEditor1) then begin
     fsScript1.CallFunction('Init',0);
     Button26.Enabled:=True;
-    Button17.Enabled:=False;
+    ButtonCheckSyntex.Enabled:=False;
     Button27.Enabled:=False;
     Button18.Enabled:=False;
-    Button16.Enabled:=False;
-    Button19.Enabled:=False;
-    Button15.Enabled:=False;
-//    Button20.Enabled:=False;
+    ButtonRename.Enabled:=False;
+    ButtonLoadNew.Enabled:=False;
+    ButtonDelete.Enabled:=False;
+//    ButtonSave.Enabled:=False;
     Button28.Enabled:=False;
     Button9.Enabled:=False;
     Button10.Enabled:=False;
-    CheckListBox2.Enabled:=False;
+    ScriptsList.Enabled:=False;
     JvHLEditor1.ReadOnly:=True;
   end;
 end;
@@ -3233,12 +3257,12 @@ begin
   if MethodName = 'CALLSF' then begin
     Res:= -1;
     i:=-1;
-    while ((i <= CheckListBox2.Count-1) AND (Res < 0)) do
+    while ((i <= ScriptsList.Count-1) AND (Res < 0)) do
     begin
       i := i + 1;
       if Scripts[i].Name = Params[0] then Res := i;
     end;
-    if not CheckListBox2.Checked[Res] OR not Scripts[Res].Compilled then
+    if not ScriptsList.Checked[Res] OR not Scripts[Res].Compilled then
     begin
       sendMSG ('Скрипт к которому вы обращаетесь не включен!');
       Result := '-1';
@@ -3375,44 +3399,63 @@ begin
   Panel2.Visible:=CheckBox4.Checked;
 end;
 
-procedure TL2PacketHackMain.CheckListBox2Click(Sender: TObject);
+{
+ Вызывается при выборе скрипта в списке
+}
+procedure TL2PacketHackMain.ScriptsListClick(Sender: TObject);
 begin
-  if (CheckListBox2.ItemIndex>=0) then begin
-    JvHLEditor1.Lines:=Scripts[CheckListBox2.ItemIndex].fsScript.Lines;
-    Button20.Enabled:=False;
-{/*by wanick*/}
-    if CheckListBox2.Checked[CheckListBox2.ItemIndex] then Button15.Enabled:=false else Button15.Enabled:=true;
-    if CheckListBox2.Checked[CheckListBox2.ItemIndex] then Button16.Enabled:=false else Button16.Enabled:=true;
-{/*by wanick*/}
-    JvHLEditor1.ReadOnly:=CheckListBox2.Checked[CheckListBox2.ItemIndex];
-    if CheckListBox2.ItemIndex>0 then Button9.Enabled:=True else Button9.Enabled:=False;
-    if CheckListBox2.ItemIndex<CheckListBox2.Items.Count-1 then Button10.Enabled:=True else Button10.Enabled:=False;
+  if ScriptsList.ItemIndex >= 0 then begin
+    JvHLEditor1.Lines := Scripts[ScriptsList.ItemIndex].fsScript.Lines;
+    ButtonSave.Enabled := not ButtonSave.Enabled AND not ScriptsList.ItemEnabled[ScriptsList.ItemIndex];
+    ButtonDelete.Enabled := not ScriptsList.Checked[ScriptsList.ItemIndex] AND ScriptsList.ItemEnabled[ScriptsList.ItemIndex];
+    ButtonRename.Enabled := not ScriptsList.Checked[ScriptsList.ItemIndex];
+    Button9.Enabled := ScriptsList.ItemIndex > 0;
+    Button10.Enabled := ScriptsList.ItemIndex<ScriptsList.Items.Count-1;
+
+    if not ScriptsList.ItemEnabled[ScriptsList.ItemIndex] then
+      JvHLEditor1.ReadOnly := true
+    else JvHLEditor1.ReadOnly:=ScriptsList.Checked[ScriptsList.ItemIndex];
   end;
 end;
 
-procedure TL2PacketHackMain.CheckListBox2ClickCheck(Sender: TObject);
+{
+  Вызывается при включении скрипта
+}
+procedure TL2PacketHackMain.ScriptsListClickCheck(Sender: TObject);
 var
   i: integer;
 begin
-  if (CheckListBox2.ItemIndex>=0)and(not CheckListBox2.Checked[CheckListBox2.ItemIndex]) then
-    Scripts[CheckListBox2.ItemIndex].fsScript.CallFunction('Free',0);
-  if (CheckListBox2.ItemIndex>=0)and(CheckListBox2.Checked[CheckListBox2.ItemIndex]) then
-    if not Scripts[CheckListBox2.ItemIndex].Compilled then begin
-      RefreshPrecompile(Scripts[CheckListBox2.ItemIndex].fsScript);
-      if not Scripts[CheckListBox2.ItemIndex].fsScript.Compile then begin
-        CheckListBox2.Checked[CheckListBox2.ItemIndex]:=False;
-        Button17Click(Sender);
+  // если не включен и менялся спрашиваем сохранят или нет если не сохранять перезугружаем старую версию
+  if ScriptsList.Checked[ScriptsList.ItemIndex] AND ButtonSave.Enabled then
+    if MessageDlg('Сохранить изменения перед запуском?',mtConfirmation,[mbYes, mbNo],0) = mrYes then
+      ButtonSaveClick(Sender) else JvHLEditor1.Lines:=Scripts[ScriptsList.ItemIndex].fsScript.Lines;
+
+  // далее выполняем скрипт
+  if (ScriptsList.ItemIndex>=0)and(not ScriptsList.Checked[ScriptsList.ItemIndex]) then
+    Scripts[ScriptsList.ItemIndex].fsScript.CallFunction('Free',0);
+  if (ScriptsList.ItemIndex>=0)and(ScriptsList.Checked[ScriptsList.ItemIndex]) then
+    if not Scripts[ScriptsList.ItemIndex].Compilled then begin
+      RefreshPrecompile(Scripts[ScriptsList.ItemIndex].fsScript);
+      if not Scripts[ScriptsList.ItemIndex].fsScript.Compile then begin
+        ScriptsList.Checked[ScriptsList.ItemIndex]:=False;
+        ButtonCheckSyntexClick(Sender);
       end else begin
-        Scripts[CheckListBox2.ItemIndex].Compilled:=True;
-        Scripts[CheckListBox2.ItemIndex].fsScript.CallFunction('Init',0);
+        Scripts[ScriptsList.ItemIndex].Compilled:=True;
+        Scripts[ScriptsList.ItemIndex].fsScript.CallFunction('Init',0);
       end;
-    end else Scripts[CheckListBox2.ItemIndex].fsScript.CallFunction('Init',0);
+    end else Scripts[ScriptsList.ItemIndex].fsScript.CallFunction('Init',0);
 {/*by wanick*/}
+{
+ может просто сделать чтобы была глабальная переменная
+ есть включеный скрипт или нет
+ тогда можно будет пробегатся по скриптам только в этом методе
+ вроде еще где-то перебирается 
+}
     i:=0;
     Button28.Enabled := true;
-    while (i <= CheckListBox2.Count-1) AND Button28.Enabled do
+    while (i <= ScriptsList.Count-1) AND Button28.Enabled do
     begin
-      if CheckListBox2.Checked[i] then Button28.Enabled:=false;
+      if ScriptsList.Checked[i] then Button28.Enabled:=false;
       i:= i + 1;
     end;
 {/*by wanick*/}
@@ -3546,14 +3589,14 @@ var
   Mask: string;
   i: Byte;
 begin
-  Button16.Enabled:=False;
-  Button15.Enabled:=False;
-  Button20.Enabled:=False;
+  ButtonRename.Enabled:=False;
+  ButtonDelete.Enabled:=False;
+  ButtonSave.Enabled:=False;
   Button10.Enabled:=False;
   Button9.Enabled:=False;
   Mask := ExtractFilePath(ParamStr(0))+'Scripts\*.txt';
   i:=0;
-  CheckListBox2.Clear;
+  ScriptsList.Clear;
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
@@ -3564,7 +3607,7 @@ begin
           Scripts[i].fsScript.Clear;
           Scripts[i].Name:=Copy(SearchRec.Name,1,Length(SearchRec.Name)-4);
           Scripts[i].Compilled:=False;
-          CheckListBox2.Items.Add(Scripts[i].Name);
+          ScriptsList.Items.Add(Scripts[i].Name);
           Inc(i);
         end;
       end;
@@ -3875,12 +3918,12 @@ var
   i, id : integer;
 begin
   id:=msg.LParam;
-  for i:=0 to CheckListBox2.Count-1 do
-    if(CheckListBox2.Checked[i])then
+  for i:=0 to ScriptsList.Count-1 do
+    if(ScriptsList.Checked[i])then
       if not Scripts[i].Compilled then begin
         RefreshPrecompile(Scripts[i].fsScript);
         if not Scripts[i].fsScript.Compile then begin
-          CheckListBox2.Checked[i]:=False;
+          ScriptsList.Checked[i]:=False;
         end else begin
           Scripts[i].Compilled:=True;
           Scripts[i].fsScript.Variables['ConnectID']:=id;
@@ -3901,12 +3944,12 @@ var
 begin
   id:=msg.LParam;
   //инициируем переменные ConnectID и OnConnect в скрипте
-  for i:=0 to CheckListBox2.Count-1 do
-    if(CheckListBox2.Checked[i])then
+  for i:=0 to ScriptsList.Count-1 do
+    if(ScriptsList.Checked[i])then
       if not Scripts[i].Compilled then begin
         RefreshPrecompile(Scripts[i].fsScript);
         if not Scripts[i].fsScript.Compile then begin
-          CheckListBox2.Checked[i]:=False;
+          ScriptsList.Checked[i]:=False;
         end else begin
           Scripts[i].Compilled:=True;
           Scripts[i].fsScript.Variables['ConnectID']:=id;
