@@ -4,9 +4,14 @@
 Принимали участие в написании кода:
 Xkor;
 NLObP;
-Wanich;
+Wanick;
 QaK.
 }
+{ TODO -oNLObP : разобраться с правильностью создания/освобождения потоков }
+{ TODO -oNLObP : надо найти, что-то два раза освобождается, после работы с клиентами, когда выходим из программы падает с ошибкой }
+{ TODO -oNLObP : проверить правильность логики вкл/выкл кнопок на вкладке "скрипты" }
+{ TODO -oNLObP : исправить find/replace - заменяет не текущее вхождение, а следующее }
+{ TODO -oNLObP : есть TfsSyntaxMemo почему его не юзаем для скриптов? }
 
 unit main;
 
@@ -2539,7 +2544,7 @@ procedure TL2PacketHackMain.ToolButton6Click(Sender: TObject);
 //  data: array[0..255] of Byte;
 //  temp: string;
 begin
-  if ToolButton6.Down then begin
+  if ToolButton6.Down then begin                     
     ToolButton6.Down:=true;
   end else begin
     ToolButton6.Down:=false;
@@ -2695,7 +2700,6 @@ begin
   end;
   ListView1Click(Sender);
 end;
-
 
 procedure TL2PacketHackMain.Button15Click(Sender: TObject);
 begin

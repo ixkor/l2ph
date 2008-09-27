@@ -641,6 +641,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet4: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel15: TPanel
         Left = 522
         Top = 0
@@ -660,6 +664,10 @@ object L2PacketHackMain: TL2PacketHackMain
           TabOrder = 0
           object TabSheet1: TTabSheet
             Caption = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object ListView1: TListView
               Left = 0
               Top = 0
@@ -1092,6 +1100,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet3: TTabSheet
       Caption = #1055#1086#1089#1099#1083#1082#1072
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox7: TGroupBox
         Left = 0
         Top = 0
@@ -1199,11 +1211,10 @@ object L2PacketHackMain: TL2PacketHackMain
           Left = 672
           Top = 0
           Width = 67
-          Height = 19
+          Height = 13
           Align = alRight
           Caption = ' '#1084#1080#1083#1080#1089#1077#1082#1091#1085#1076' '
           Layout = tlCenter
-          ExplicitHeight = 13
         end
         object Button11: TButton
           Left = 0
@@ -1292,6 +1303,10 @@ object L2PacketHackMain: TL2PacketHackMain
       AlignWithMargins = True
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel7: TPanel
         Left = 0
         Top = 353
@@ -1636,6 +1651,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet6: TTabSheet
       Caption = #1057#1082#1088#1080#1087#1090#1099
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter3: TSplitter
         Left = 601
         Top = 0
