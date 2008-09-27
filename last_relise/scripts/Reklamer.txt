@@ -1,0 +1,42 @@
+var
+  m: TMemo;
+  i: Integer;
+  Message, Name: String;
+
+procedure Init;
+begin
+  ShowTab;
+  m:=TMemo.Create(UserTab);
+  m.parent:=UserTab;
+  m.align:=alClient;
+  m.ReadOnly:=true;
+  m.ScrollBars:=ssBoth;
+  Message:='hi!';  //  <<---- Текст рекламного сообщения.
+end;
+
+procedure Free;
+begin
+  m.Free;
+  HideTab;
+end;
+
+procedure SendPrivate(Name: string);
+begin
+  buf:=#$38;
+  WriteS(Message);
+  WriteD(2);
+  WriteS(Name);
+  SendToServer;
+end;
+
+begin
+if FromServer and (pck[1]=#$03) then
+  begin
+   i:=22;
+   Name:=ReadS(i);
+   if m.Lines.IndexOf(Name)=-1 then begin
+     SendPrivate(Name);
+     m.Lines.Add(Name);
+   end;
+  end;
+end.
