@@ -1,171 +1,11 @@
 {
-                Модификация L2PacketHack 3.2.0 by NLObP
-                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                     Что нового в последней версии
-                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-[!] Важное замечание
-[+] Нововведение
-[-] Исправлена ошибка
-[*] Изменения
-
----------------------------------------------------------------------------
-L2PBX 3.3.9 (23.09.2008)
----------------------------------------------------------------------------
-3.3.9 от 23.09.2008
-by wanick
-[+] теперь включенный скрипт нельзя удалить;
-[+] при удалении скрипта не вызывается процедура RefreshScripts (она полностью
-    обновляет список скриптов при этом скидывает "галочки" остальных);
-[+] процедура sendMSG(msg), для вывода сообщений в окно лога;
-[+] новая функция CallSF, которая дает возможность взаимодействия между скриптами;
-
-by NLObP
-[+] заменил сообщения для вывода в окно лога на константы, спс. Argot;
-[+] освобождаются хэндлы завершившихся потоков, спс. Argot;
-[+] устранил несоответствие во всплывающих подсказках (Completion.Identifiers.Strings)
-    для вкладки "дополнительно" и "скрипты", спс wanick;
-[+] устранил мелкие ошибки в коде;
-
-3.3.8 от 16.09.2008
-[+] устранил утечки памяти (не все), спс. Argot;
-[!] inject.dll by ratvier;
-
-3.3.7 от 12.09.2008
-[+] немного ускорил загрузку лога из файла;
-[+] сохраняем выбранный метод внедрения;
-[+] на вкладке "просмотр" в списке паrетов, можно поставить первым столбцом номер пакета;
-[+] сделал раскраску расшифровки пакета на вкладке "посылка", при дабл-клике в поле
-    разбора выделяется кусок пакета соответствующий этой строке;
-
-3.3.6 от 05.09.2008
-[-] вернул newxor.dpr как в версии 3.2.0;
-[+] заменен TTRrayIcon на TJvTrayIcon;
-
-3.3.5 от 02.09.2008
-[+] дополнил имя лога временем записи;
-[+] добавил проверку на отсутствие папки logs;
-[+] добавил проверку на превышение в папке scripts более 64 скриптов;
-
-3.3.4 от 30.08.2008
-[+] при дабл-клике в поле разбора выделяется кусок пакета соответствующий этой строке
-[+] исправил работу 'заменить все' (съедался конец строки);
-[+] дополнил, если включено запоминать пакеты, то при отключении от сервера пишем лог
-    пакетов в папку 'logs\'+Thread[ID].Name+'_'+datetostr(now)+'.txt');
-
-3.3.3 от 29.08.2008
-[+] в редакторе скриптов горячие клавиши:
-    ctrl-S - сохранение,
-    ctrl-F - поиск,
-    ctrl-R - поиск с заменой,
-    ctrl+F9 проверка скрипта;
-[!] после поиска с заменой undo невозможна;
-[+] если запоминать пакеты включено, то при отключении от сервера пишем лог
-    пакетов в папку .\logs\имя_соединения.txt;
-
-3.3.2 от 23.08.2008
-[+] исправил - В скрипте убиваю пакет от сервера, но он всё равно приходит клиенту;
-
-3.3.1 от 22.08.2008
-[+] в расшифровке пакетов смещение значений теперь в HEX для выравнивания;
-[+] изменил вызов скриптов;
-[+] заменил по возможности чекбоксы на глобальные переменные;
-
-3.3.0 от 19.08.2008
-[!] отдельная ветка с правкой потоков;
-[+] заменил все непосредственные обращения к формам на SendMessage;
-[+] все обращения к общим переменным в критических секциях;
-[+] сохраняем выбранный протокол;
-[+] берем имя соединения из пакетов CharSelected, теперь при рестарте и выборе нового
-    чара, имя соединения корректно меняется;
-[+] Стало показывать имя соединения на Камаеле, раньше не показывало из-за того,
-    что имя бралось из UserInfo, а он в камаеле имеет другой Id.
-[+] закрываем отработанные потоки;
-[+] небольшая правка ошибок кода;
-
-3.2.15 от 17.08.2008
-[+] в расшифровке пакетов добавил вывод смещения значений;
-[+] поправил: левое поле хекс преобразований немного съехало влево, и часть текста
-    в нем не видно), спс. Emocean;
-[+] исправил, отменив перенос строк - в правом нижнем окне бывает сбивка раскраски
-    из-за переноса строк.
-
-3.2.14 от 14.08.2008
-[!] разбираюсь с потоками;
-[+] исправил скрытие пакетов заданного типа из лога пакетов;
-
-3.2.13 от 13.08.2008
-[+] сделал раскраску расшифровки пакетов. В правом нижнем окне бывает сбивка раскраски
-    из-за переноса строк. Надо просто раздвинуть окно и снова щёлкнуть по выбранному пакету;
-[+] добавил в newxor.dpr - CryptoInit: Boolean; //Добавил новый флаг by PanAm;
-
-3.2.12 от 09.08.2008
-[+] в поиске назначил кнопки по умолчанию enter/esc;
-
-3.2.11 от 09.08.2008
-[+] сохранение фильтра пакетов в файл, только из packets??.ini, неизвестные пакеты
-    не сохраняются в фильтре;
-[+] очищаем список пакетов и их расшифровку при отключении сервера/клиента, если
-    только не noFreeOnClientDisconnect/noFreeOnServerDisconnect;
-[+] при удалении скрипта на вкладке "Скрипты", очищается окно от текста самого скрипта;
-
-3.2.10 от 08.08.2008
-[!] убрал по ProtoсolVersion грузим разные packets.ini (C4, С5, T0, T1)
-    (ответственность теперь лежит на пользователе);
-[+] тул-кнопки вместо чекбоксов на панели Просмотр;
-[+] добавил тул-кнопки - "перечитать все инишки" и выбора инишек С4(по умолчанию)/С5/Т0/Т1;
-[+] вывод значений в просмотре пакетов, кроме float и quad, в HEX виде - (0x00000436);
-[+] добавил отлов ошибки выхода за границу разбираемого пакета, например в UserInfo
-    цикл cubics при неверно выбранном протоколе игры;
-
-3.2.9 от 07.08.2008
-[+] в редакторе скриптов горячие клавиши: ctrl-F поиск;
-
-3.2.8 от 06.08.2008
-[-] исправил замеченные ошибки;
-[!] модифицированная инишка для Т1 by YuLaw
-[+] дополнил парсер для packetst1.ini - Камаель;
-//  Автор: YuLaw
-//  здесь в куске d(ListSize:Loop.0003.00065)
-//  ListSize - количество повторов цикла
-//  Loop - означает что будет цикл
-//  0003 - элемент пакета с которого начинать цикл
-//  00065 - сколько элементов циклить
-
-3.2.7 от 04.08.2008
-[+] пропустил сначала, а теперь добавил загрузку packetsС5.ini (C5);
-
-3.2.6 от 04.08.2008
-[!] модифицированные инишки by Sauron
-[+] по ProtoсolVersion грузим разные packets.ini (C4, T0, T1)
-    (при загрузке из файла первый пакет должен быть всегда ProtoсolVersion,
-    иначе сбой определения протокола);
-
-3.2.5 от 04.08.2008
-[+] сохраняет размеры окна в конфиге
-[+] парсер пакетов использует циклы и функции в packets.ini by Sauron
-[+] kID=1000000 в конфиге для Get.NpcID - возвращает текст по его ID из значения аргумента
-[+] Get.ClassID - профа
-[+] Get.FSup - Status Update ID
-
-3.2.4 от 02.08.2008
-[+] парсер пакетов использует циклы и функции в packets.ini by Sauron
-    Get.Skill - возвращает название скила по его ID из значения аргумента
-    Get.MsgID - возвращает текст по его ID из значения аргумента
-    Get.Func01 - возвращает название Item'а по его ID из значения аргумента
-    Get.Func02 - возвращает тип Say2
-    Get.Func09 - разное
-
-3.2.3 от 01.08.2008
-[+] при запуске программы загрузка packets.ini или packetst1.ini в зависимости от галочки Камаель;
-[+] при установки/снятии галочки Камаель перечитываем packets.ini или packetst1.ini;
-[+] парсер понимает одно и двухбайтные коды пакетов;
-[+] в редакторе скриптов горячие клавиши: ctrl-S сохранение, ctrl-F9 проверка скрипта;
-[!] иконки сервера и клиента by KyberPrizrak;
-
-3.2.1
-[+] поддержка ДЛЛ by QaK
-[*] небольшая оптимизации кода by OllyDebug;
+Модификация L2PacketHack 3.2.0 by CODERX.RU
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Принимали участие в написании кода:
+Xkor;
+NLObP;
+Wanich;
+QaK.
 }
 
 unit main;
@@ -194,6 +34,7 @@ const
   WM_SetDisconnect = WM_APP+105;    //
   WM_UpdateComboBox1 = WM_APP+106;  //
   WM_ClearPacketsLog = WM_APP+107;  //
+  WM_Finished = WM_APP+108;         //закрытие хэндла потока
 
 type
   TL2PacketHackMain = class(TForm)
@@ -352,6 +193,7 @@ type
     RadioButton8: TRadioButton;
     RadioButton9: TRadioButton;
     JvTrayIcon1: TJvTrayIcon;
+    Splitter6: TSplitter;
     procedure SpeedButton1Click(Sender: TObject);
     procedure LabeledEdit2Change(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
@@ -459,6 +301,7 @@ type
     procedure Log(var msg: TMessage); Message WM_ListBox3_Log;
     procedure UpdateComboBox1(var msg: TMessage); Message WM_UpdateComboBox1;
     procedure ClearPacketsLog(var msg: TMessage); Message WM_ClearPacketsLog;
+    procedure WmFinished(var msg: TMessage); Message WM_Finished;
   end;
 //TMessage = packed record
 //  Msg: Cardinal;
@@ -485,12 +328,13 @@ type
 
   procedure SendPacket(Size: Word; pck: string; tid: Byte; ToServer: Boolean);
 
+  //потоки
   procedure ServerListen(PSock: Pointer);
   procedure Server(Param: Pointer);
   procedure Client(Param: Pointer);
   function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
   procedure DeInitSocket(const hSocket: Integer);
-  function WaitClient(var hSocket, NewSocet: TSocket): Boolean;
+  function WaitClient(var hSocket, NewSocket: TSocket): Boolean;
   function GetSocketData(Socket: TSocket; var Data; const Size: Word): Boolean;
 
   function WideStringToString(const ws: WideString; codePage: Word): AnsiString;
@@ -498,13 +342,12 @@ type
   function SymbolEntersCount(s: string): string;
   function HexToString(Hex:String):String;
   function StringToHex(str1,Separator:String):String;
-  function ParceData(str:string): String;
+//  function ParceData(str:string): String;
 //  procedure ExecuteScriptsM(var packet:string; FromServer: Boolean; id: Byte);
   function ByteArrayToHex(str1:array of Byte; size: Word):String;
   procedure PacketProcesor(PacketData: array of Byte; SendSocket: TSocket; id, From: Byte);
   procedure GetMsgFromDLL(name:pchar;messageBuf:pointer;messageLen:dword;answerBuf:pointer;answerLen:dword); stdcall;
   procedure sendMSG (msg: String);
-
 
 const
   {The name of the debug info support L2phx}
@@ -571,6 +414,8 @@ var
   typ0: string;
   SelStart, SelLength: integer;
   SelAttributes: TColor;
+  //считаем потоки
+  CountThread : integer;
 
 implementation
 
@@ -578,7 +423,7 @@ uses StrUtils, Types, FindReplaceUnit;
 
 {$R *.dfm}
 
-//скрываем сообщение от FastScript об том, что его желательно купить
+//скрываем сообщение о том, что желательно купить FastScript
 procedure ShowMessageNew(const Msg: string);
 begin
   if Msg<>'Unregistered version of FastScript.' then
@@ -615,46 +460,46 @@ begin
   until P=0;
 end;
 //разбор пакета
-function ParceData(str:String): String;
-var
-  I, Octets, PartOctets: Integer;
-  DumpData, LD: String;
-  Size: Integer;
-begin
-  I:=0;
-  Octets:=0;
-  PartOctets:=0;
-  DumpData:='';
-  Size:=Length(str);
-  while I<Size do
-  begin
-    case PartOctets of
-      0: LD:=LD+IntToHex(Octets,3)+'0 | ';
-      17:
-      begin
-        Inc(Octets, 1);
-        PartOctets:=-1;
-        LD:=LD+'| ' + DumpData + sLineBreak;
-        DumpData := '';
-      end;
-    else
-      begin
-        LD:=LD+IntToHex(Byte(str[I+1]),2)+' ';
-        if Byte(str[I+1]) in [$19..$FF] then
-          DumpData:=DumpData+str[I+1]
-        else
-          DumpData:=DumpData+'.';
-        Inc(i);
-      end;
-    end;
-    Inc(PartOctets);
-  end;
-  if PartOctets<>0 then begin
-    PartOctets:=(16-Length(DumpData))*3;
-    LD:=LD+StringOfChar(' ', PartOctets)+'| '+DumpData+sLineBreak;
-  end else LD:=LD+sLineBreak;
-  Result:=LD;
-end;
+//function ParceData(str:String): String;
+//var
+//  I, Octets, PartOctets: Integer;
+//  DumpData, LD: String;
+//  Size: Integer;
+//begin
+//  I:=0;
+//  Octets:=0;
+//  PartOctets:=0;
+//  DumpData:='';
+//  Size:=Length(str);
+//  while I<Size do
+//  begin
+//    case PartOctets of
+//      0: LD:=LD+IntToHex(Octets,3)+'0 | ';
+//      17:
+//      begin
+//        Inc(Octets, 1);
+//        PartOctets:=-1;
+//        LD:=LD+'| ' + DumpData + sLineBreak;
+//        DumpData := '';
+//      end;
+//    else
+//      begin
+//        LD:=LD+IntToHex(Byte(str[I+1]),2)+' ';
+//        if Byte(str[I+1]) in [$19..$FF] then
+//          DumpData:=DumpData+str[I+1]
+//        else
+//          DumpData:=DumpData+'.';
+//        Inc(i);
+//      end;
+//    end;
+//    Inc(PartOctets);
+//  end;
+//  if PartOctets<>0 then begin
+//    PartOctets:=(16-Length(DumpData))*3;
+//    LD:=LD+StringOfChar(' ', PartOctets)+'| '+DumpData+sLineBreak;
+//  end else LD:=LD+sLineBreak;
+//  Result:=LD;
+//end;
 
 procedure AntiLIIC4(var data: array of Byte);
 var
@@ -686,10 +531,10 @@ begin
   FromServer:=Boolean(msg.LParamLo);
   id:=msg.LParamHi;
   SetCurrentDir(ExtractFilePath(ParamStr(0)));
-  EnterCriticalSection(_cs);
+  //EnterCriticalSection(_cs);
   for i:=0 to CheckListBox2.Count-1 do begin
     if CheckListBox2.Checked[i] then begin
-      //по очереди посылаем всем скриптам
+      //по очереди посылаем всем включенным скриптам
       Scripts[i].fsScript.Variables['pck']:=pstr(msg.WParam)^;
       Scripts[i].fsScript.Variables['ConnectID']:=id;
       Scripts[i].fsScript.Variables['ConnectName']:=Thread[id].Name;
@@ -699,7 +544,7 @@ begin
       pstr(msg.WParam)^:=Scripts[i].fsScript.Variables['pck'];
     end;
   end;
-  LeaveCriticalSection(_cs);
+  //LeaveCriticalSection(_cs);
 end;
 
 procedure PacketProcesor(PacketData: array of Byte; SendSocket: TSocket; id, From: Byte);
@@ -730,12 +575,12 @@ begin
   if (Packet.Size>2) then begin
     case From of
       1,2: begin                     //от ЛС, к ЛС
-        EnterCriticalSection(_cs);
+        //EnterCriticalSection(_cs);
         Thread[id].InitXOR:=False;
-        LeaveCriticalSection(_cs);
+        //LeaveCriticalSection(_cs);
       end;
       3: begin                       //от ГС
-        EnterCriticalSection(_cs);
+        //EnterCriticalSection(_cs);
         InitX:=Thread[id].InitXOR;
         Inc(Thread[id].pckCount);
         if isChangeXor and (Thread[id].pckCount=4) then begin
@@ -753,11 +598,12 @@ begin
           Move(tmp[1], PacketB[0], Packet.Size);
         end;
         if InitX and (not isNoDecryptTraf) then Thread[id].xorS.DecryptGP(PacketC.DataC, Packet.Size-2);
-        LeaveCriticalSection(_cs);
+        //LeaveCriticalSection(_cs);
         SetLength(temp, Packet.Size-2);
         Move(PacketC.DataC, temp[1], Packet.Size-2);
         //>>>>>>>>!!!!!!!!!<<<<<<<<
         //пакет от сервера - клиенту
+        //sendMSG('Пришёл пакет от ГС, посылаем его скриптам на обработку...');
         a.a:=Word(true);
         a.b:=id;
         SendMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
@@ -767,7 +613,7 @@ begin
           Move(temp[1], PacketC.DataC, Packet.Size-2);
           if (not isNoDecryptTraf) then case PacketB[2] of
             $00: begin
-              EnterCriticalSection(_cs);
+              //EnterCriticalSection(_cs);
               if not Thread[id].InitXOR then begin
                 Thread[id].isInterlude:=(Packet.Size>19);
                 Thread[id].xorC.InitKey(Packet.DataB[2], Thread[id].isInterlude);
@@ -776,11 +622,11 @@ begin
                 Thread[id].InitXOR:=True;
                 CanSend:=False;
               end;
-              LeaveCriticalSection(_cs);
+              //LeaveCriticalSection(_cs);
             end;
             //UserInfo
 //            $04: begin
-//              EnterCriticalSection(_cs);
+//              //EnterCriticalSection(_cs);
 //              if Thread[id].Name='' then begin
 //                ii:=5*4+1;
 //                while not ((Packet.DataB[ii]=0) and (Packet.DataB[ii+1]=0)) do Inc(ii);
@@ -797,38 +643,42 @@ begin
 //                L2PacketHackMain.ComboBox1.ItemIndex:=iii;
 //                L2PacketHackMain.ComboBox1.Items.EndUpdate;
 //              end;
-//              LeaveCriticalSection(_cs);
+//              //LeaveCriticalSection(_cs);
 //            end;
             //CharSelected
             $15: begin
               if not isCamael then begin //and (Thread[id].pckCount=7)
+                  sendMSG('Считываем имя соединения...');
                   ii:=1;
                   while not ((Packet.DataB[ii]=0) and (Packet.DataB[ii+1]=0)) do Inc(ii);
                   SetLength(WStr, ii div 2);
                   Move(Packet.DataB[1], WStr[1], ii);
-                  EnterCriticalSection(_cs);
+                  //EnterCriticalSection(_cs);
                   Thread[id].Name:=WideStringToString(WStr, 1251);
-                  LeaveCriticalSection(_cs);
+                  sendMSG('Имя соединения:'+Thread[id].Name);
+                  //LeaveCriticalSection(_cs);
                   //обновляем Список соединений
-                  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
-              end;
+//                  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+                  SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);              end;
             end;
             //CharSelected
             $0B: begin
               if isCamael then begin // and (Thread[id].pckCount=6)
+                  sendMSG('Считываем имя соединения...');
                   ii:=1;
                   while not ((Packet.DataB[ii]=0) and (Packet.DataB[ii+1]=0)) do Inc(ii);
                   SetLength(WStr, ii div 2);
                   Move(Packet.DataB[1], WStr[1], ii);
-                  EnterCriticalSection(_cs);
+                  //EnterCriticalSection(_cs);
                   Thread[id].Name:=WideStringToString(WStr, 1251);
-                  LeaveCriticalSection(_cs);
+                  sendMSG('Имя соединения:'+Thread[id].Name);
+                  //LeaveCriticalSection(_cs);
                   //обновляем Список соединений
-                  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
-              end;
+//                  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+                  SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);              end;
             end;
             $2e: begin
-              EnterCriticalSection(_cs);
+              //EnterCriticalSection(_cs);
               if (not Thread[id].InitXOR) and isCamael then begin
                 Thread[id].isInterlude:=True;
                 Thread[id].xorC.InitKey(Packet.DataB[2], Thread[id].isInterlude);
@@ -837,7 +687,7 @@ begin
                 Thread[id].InitXOR:=True;
                 CanSend:=False;
               end;
-              LeaveCriticalSection(_cs);
+              //LeaveCriticalSection(_cs);
             end;
           end;
         end else begin
@@ -845,7 +695,7 @@ begin
         end;
       end;
       4: begin                    //к ГС
-        EnterCriticalSection(_cs);
+        //EnterCriticalSection(_cs);
         InitX:=Thread[id].InitXOR;
         Inc(Thread[id].pckCount);
         if isChangeXor and (Thread[id].pckCount=3) then begin
@@ -853,11 +703,12 @@ begin
           Move(PacketB, Thread[id].temp[1], Packet.Size);
         end;
         if InitX and (not isNoDecryptTraf) then Thread[id].xorC.DecryptGP(PacketC.DataC,Packet.Size-2);
-        LeaveCriticalSection(_cs);
+        //LeaveCriticalSection(_cs);
         SetLength(temp,Packet.Size-2);
         Move(PacketC.DataC,temp[1],Packet.Size-2);
         //>>>>>>>>!!!!!!!!!<<<<<<<<
         //пакет от клиента - серверу
+        //sendMSG('Пришёл пакет к ГС, посылаем его скриптам на обработку...');
         a.a:=Word(false);
         a.b:=id;
         SendMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
@@ -951,6 +802,7 @@ var
   ee:OFSTRUCT;
 //  temp: string;
 begin
+  sendMsg('Стартует L2phx...  ');
   typ0:='я'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
   Processes:=TStringList.Create;
@@ -978,10 +830,10 @@ begin
   CloseHandle(sFile);
   PageControl1.ActivePageIndex:=0;
   Application.Icon:=L2PacketHackMain.Icon;
-  //скрываем сообщение от FastScript об том, что его желательно купить
+  //скрываем сообщение о том, что желательно купить FastScript
   HookCode(@ShowMessage,@ShowMessageNew,@ShowMessageOld);
   Memo1.Text:='Поддержать проект можно сюда:'+sLineBreak+'Z245193560959, R183025505328'+sLineBreak+'E360790044610, U392200550010';
-  //скрываем
+  //скрываем закладку "пользовательская"
   TabSheet10.TabVisible:=False;
   //считываем Options.ini в память
   Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'Options.ini');
@@ -1105,8 +957,8 @@ begin
   JvHLEditor1.CurrentLineHighlight:=$e6fffa;
   JvHLEditor2.CurrentLineHighlight:=$e6fffa;
   //запускаем главный поток
-  IsMultiThread:=true; //надо?
   SLh:=BeginThread(nil, 0, @ServerListen, nil, 0, SLth);
+  sendMsg('Thread Start: основной поток ServerListen '+inttostr(SLh)+'/'+inttostr(SLth));
 end;
 
 procedure TL2PacketHackMain.FormDestroy(Sender: TObject);
@@ -1115,20 +967,6 @@ var
   data: array[0..255] of Byte;
   temp: string;
 begin
-  DeInitSocket(SLSock);
-  WSACleanup;
-  Processes.Free;
-  PacketsNames.Free;
-  PacketsFromS.Free;
-  PacketsFromC.Free;
-  SysMsgIdList.Free;
-  ItemsList.Free;
-  NpcIdList.Free;
-  ClassIdList.Free;
-  SkillList.Free;
-  PacketsINI.free;
-  if Lib<>0 then FreeLibrary(Lib);
-  DeleteCriticalSection(_cs);
   //сохраняем фильтр в файл
   for i:=0 to (ListView2.Items.Count div 8)-1 do begin
     data[i]:=0;
@@ -1166,8 +1004,21 @@ begin
   for i:=0 to MaxThr-1 do begin
     Thread[i].Dump.Free;
   end;
+  WSACleanup;
+  Processes.Free;
+  PacketsNames.Free;
+  PacketsFromS.Free;
+  PacketsFromC.Free;
+  SysMsgIdList.Free;
+  ItemsList.Free;
+  NpcIdList.Free;
+  ClassIdList.Free;
+  SkillList.Free;
+  PacketsINI.free;
+  if Lib<>0 then FreeLibrary(Lib);
   FreeMem(dllScr);
-
+  DeleteCriticalSection(_cs);
+  sendMsg('Завершил работу L2phx... ');
 end;
 
 procedure TL2PacketHackMain.isKamaelClick(Sender: TObject);
@@ -1298,7 +1149,7 @@ begin
   //расшифровываем лог пакетов
   ListView5.Items.BeginUpdate;
   ListView5.Items.Clear;
-  EnterCriticalSection(_cs);
+  //EnterCriticalSection(_cs);
   for i := 0 to Thread[CID].Dump.Count-1 do begin
 
     //смотрим второй байт в каждом пакете
@@ -1310,7 +1161,7 @@ begin
     msg.LParam:=i;
     PacketSend(msg);
   end;
-  LeaveCriticalSection(_cs);
+  //LeaveCriticalSection(_cs);
   ListView5.Items.EndUpdate;
 end;
 //-------------
@@ -1717,10 +1568,10 @@ var
 begin
   if (Item.SubItems.Count>0)and(Item.Selected) then begin
     sid:=StrToInt(Item.SubItems.Strings[0]);
-    EnterCriticalSection(_cs);
+    //EnterCriticalSection(_cs);
     //строка пакета, sid номер пакета, cid номер соединения
     PktStr:=HexToString(Thread[cid].Dump.Strings[sid]);
-    LeaveCriticalSection(_cs);
+    //LeaveCriticalSection(_cs);
     Move(PktStr[2],ptime,8);
     Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10]);
     id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
@@ -1987,7 +1838,7 @@ begin
  end;
 end;
 
-//страница "посылка"
+//закладка "посылка"
 procedure TL2PacketHackMain.Memo4Change(Sender: TObject);
 var
   i,k:Integer;
@@ -2295,128 +2146,9 @@ begin
    Memo5.SelAttributes.BackColor:=clBlue;
    Memo5.SelAttributes.Color:=clWhite;
  except;
-   //сообщение об ошибке
+   //игнорим сообщение об ошибке
  end;
 end;
-
-//procedure TL2PacketHackMain.RadioButton1Click(Sender: TObject);
-//var
-//  i, d: Integer;
-//  id: Byte;
-//  Size, p: Word;
-//  temp, types, tmp: string;
-//  pch: WideString;
-//  BColor: TColor;
-//
-//  function GetType(const s:string; var k: Integer):string;
-//  begin
-//    Result:='';
-//    if s[k-1]='(' then while (s[k]<>')')and(k<Length(s)) do begin
-//      Result:=Result+s[k];
-//      Inc(k);
-//    end;
-//  end;
-//
-//begin
-//  temp:=StringOfChar(' ',11)+HexToString(Memo4.Lines[Memo4.CaretPos.Y]);
-//  Size:=Length(temp)-9;
-//  if Size>2 then begin
-//    id:=Byte(temp[12]);
-//    Memo5.Lines.BeginUpdate;
-//    Memo5.Clear;
-//    Memo5.Lines.Add(StringToHex(Copy(temp,12,Length(temp)-11),' '));
-//    if RadioButton2.Checked then types:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow')
-//      else types:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow');
-//    i:=Pos(':',types);
-//    GroupBox9.Caption:='Выделенный пакет: тип - 0x'+IntToHex(id,2)+', '+Copy(types,1,i-1)+', размер - '+IntToStr(Size);
-//    p:=13;
-//    Inc(i);
-//    Memo8.Lines.BeginUpdate;
-//    Memo8.Clear;
-//    BColor:=clWhite;
-//    while (i>1)and(i<Length(types))and(p<Size+10) do begin
-//      case types[i] of
-//        'b':begin
-//          Inc(i,2);
-//          tmp:='b '+{sLineBreak+StringToHex(Copy(temp,p,1),' ')+sLineBreak+}GetType(types,i)+': '+IntToStr(Byte(temp[p]));
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=2;
-//          BColor:=$aaaadf;
-//          Inc(p);
-//        end;
-//        '-':begin
-//          Inc(i,2);
-//          d:=StrToInt(GetType(types,i));
-//          tmp:='- '+{sLineBreak+StringToHex(Copy(temp,p,d),' ')+sLineBreak+}'Пропущено: '+IntToStr(d);
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=d;
-//          BColor:=clWhite;
-//          Inc(p,d);
-//        end;
-//        'd':begin
-//          Inc(i,2);
-//          tmp:='d '+{sLineBreak+StringToHex(Copy(temp,p,4),' ')+sLineBreak+}GetType(types,i)+': '+IntToStr(PInteger(@temp[p])^);
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=11;
-//          BColor:=$aadfdf;
-//          Inc(p,4);
-//        end;
-//        'i':begin
-//          Inc(i,2);
-//          tmp:='i '+{sLineBreak+StringToHex(Copy(temp,p,4),' ')+sLineBreak+}GetType(types,i)+': '+IntToStr(PInteger(@temp[p])^)+' ('+ItemsList.Values[IntToStr(PInteger(@temp[p])^)]+')';
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=11;
-//          BColor:=$aadfaa;
-//          Inc(p,4);
-//        end;
-//        'f':begin
-//          Inc(i,2);
-//          tmp:='f '+{sLineBreak+StringToHex(Copy(temp,p,8),' ')+sLineBreak+}GetType(types,i)+': '+FloatToStr(PDouble(@temp[p])^);
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=23;
-//          BColor:=$dfaaaa;
-//          Inc(p,8);
-//        end;
-//        'h':begin
-//          Inc(i,2);
-//          tmp:='h '+{sLineBreak+StringToHex(Copy(temp,p,4),' ')+sLineBreak+}GetType(types,i)+': 0x'+IntToHex(PInteger(@temp[p])^,4);
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=11;
-//          BColor:=$dfaadf;
-//          Inc(p,4);
-//        end;
-//        's':begin
-//          Inc(i,2);
-//          d:=PosEx(#0#0,temp,p)-p;
-//          if (d mod 2)=1 then Inc(d);
-//          if d<0 then Break;
-//          SetLength(pch,d div 2);
-//          if d>=2 then Move(temp[p],pch[1],d) else d:=0;
-//          tmp:='s '+{sLineBreak+StringToHex(Copy(temp,p,d+2),' ')+sLineBreak+}GetType(types,i)+': '+WideStringToString(pch,1251);
-//          Memo5.SelStart:=(p-12)*3;
-//          Memo5.SelLength:=(d+2)*3-1;
-//          BColor:=$dfdfaa;
-//          Inc(p,d+2);
-//        end;
-//      end;
-//      d:=Memo8.GetTextLen-Memo8.Lines.Count;
-//      Memo8.Lines.Add(tmp);
-//      Memo8.SelStart:=d;
-//      Memo8.SelLength:=1;
-//      Memo8.SelAttributes.Name:='Courier New';
-//      Memo8.SelAttributes.Color:=clGray;
-//      Memo8.SelAttributes.BackColor:=BColor;
-//      Memo5.SelAttributes.BackColor:=BColor;
-//      Inc(i);
-//    end;
-//    Memo8.Lines.EndUpdate;
-//    Memo5.Lines.EndUpdate;
-//  end else begin
-//    Memo8.Clear;
-//    Memo5.Clear;
-//    GroupBox9.Caption:='Выделенный пакет:';
-//  end;
-//end;
 
 procedure TL2PacketHackMain.Memo6Change(Sender: TObject);
 begin
@@ -2442,9 +2174,9 @@ begin
   if tid=CID then begin
     from:=Byte((msg.WParam shr 8) and $FF); //клиент=1, сервер=0
     //для ускорения работы берем только 4 байта с ID пакета
-    EnterCriticalSection(_cs);
+    //EnterCriticalSection(_cs);
     PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
-    LeaveCriticalSection(_cs);
+    //LeaveCriticalSection(_cs);
     id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
     //------------------------------------------------------------------------
@@ -2661,9 +2393,9 @@ begin
   for i:=0 to ListView5.SelCount-1 do begin
     from:=Thread[CID].Dump.Strings[cid][PckCount]; //клиент=4, сервер=3
     //для ускорения работы берем только 4 байта с ID пакета
-    EnterCriticalSection(_cs);
+    //EnterCriticalSection(_cs);
     PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
-    LeaveCriticalSection(_cs);
+    //LeaveCriticalSection(_cs);
     id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
     if from='4' then begin
@@ -2975,7 +2707,7 @@ begin
 {
   при удалении, нельзя удалять скрипт из списка потому, что нужно будет делать смещение
   в массиве Scripts, запомненый скрипт до обнавления можно будет посмотреть еще
-  раз, мало ли что, но включить его уже будет нельзя. 
+  раз, мало ли что, но включить его уже будет нельзя.
 }
     CheckListBox2.ItemEnabled[CheckListBox2.ItemIndex] := false;
 {/*by wanick*/}
@@ -3085,19 +2817,19 @@ end;
 procedure TL2PacketHackMain.Button23Click(Sender: TObject);
 begin
   if OpenDialog2.Execute then begin
-    EnterCriticalSection(_cs);
+    //EnterCriticalSection(_cs);
 //    isForceLoad:=true;
     Thread[CID].Dump.LoadFromFile(OpenDialog2.FileName);
-    LeaveCriticalSection(_cs);
+    //LeaveCriticalSection(_cs);
     ListView1Click(Sender);
   end;
 end;
 
 procedure TL2PacketHackMain.BtnClearLogClick(Sender: TObject);
 begin
-  EnterCriticalSection(_cs);
+  //EnterCriticalSection(_cs);
   Thread[CID].Dump.Clear;
-  LeaveCriticalSection(_cs);
+  //LeaveCriticalSection(_cs);
   Memo3.Clear;
   Memo2.Clear;
   ListView1Click(Sender);
@@ -3108,9 +2840,9 @@ procedure TL2PacketHackMain.BtnSaveLogClick(Sender: TObject);
 begin
   SaveDialog1.FilterIndex:=2;
   if SaveDialog1.Execute then begin
-    EnterCriticalSection(_cs);
+    //EnterCriticalSection(_cs);
     Thread[CID].Dump.SaveToFile(SaveDialog1.FileName);
-    LeaveCriticalSection(_cs);
+    //LeaveCriticalSection(_cs);
   end;
   SaveDialog1.FilterIndex:=1;
 end;
@@ -3281,7 +3013,7 @@ var
   TimeStep: TDateTime;
   TimeStepB: array [0..7] of Byte;
 begin
-  EnterCriticalSection(_cs);
+  //EnterCriticalSection(_cs);
   if Thread[tid].NoUsed then begin
     L2PacketHackMain.StatusBar1.SimpleText:='Нет соединения!'+sLineBreak+'Возможно вы выбрали пустое соединение.'+
                 sLineBreak+'Выберете в списке соединений ваш ник.';
@@ -3307,7 +3039,7 @@ begin
       if send(Thread[tid].SSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].SSock);
     end;
   end;
-  LeaveCriticalSection(_cs);
+  //LeaveCriticalSection(_cs);
 end;
 
 function TL2PacketHackMain.CallMethod(Instance: TObject; ClassType: TClass; const MethodName: String; var Params: Variant): Variant;
@@ -3852,13 +3584,13 @@ var
   tmpItm: TListItem;
 begin
   tmpItm:=ListView5.Selected;
-  EnterCriticalSection(_cs);
+  //EnterCriticalSection(_cs);
   for i:=1 to ListView5.SelCount do begin
     k:=StrToInt(tmpItm.SubItems.Strings[0])-i+1;
     Thread[cid].Dump.Delete(k);
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
-  LeaveCriticalSection(_cs);
+  //LeaveCriticalSection(_cs);
   ListView1Click(Sender);
 end;
 
@@ -3991,11 +3723,9 @@ var
 begin
   move(Pointer(MSG.lParam)^,P,SizeOf(PChar));
   ListBox3.Lines.Add(p);
+  ListBox3.Lines.SaveToFile('l2phx.log');
 end;
 //....................
-///////////////////////////////////////////////////////////////////////////////
-//                   вызываются из главного потока
-///////////////////////////////////////////////////////////////////////////////
 {/*by wanick*/}
 procedure sendMSG (msg: string);
 var
@@ -4005,9 +3735,35 @@ begin
   SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@LogMsg));
 end;
 {/*by wanick*/}
+//....................
+{/*by Argot*/}
+function WaitForData(Socket:TSocket; Timeout: Longint): Boolean;
+var
+  FDSet: TFDSet;
+  TimeVal: TTimeVal;
+begin
+  TimeVal.tv_sec := Timeout div 1000;
+  TimeVal.tv_usec := (Timeout mod 1000) * 1000;
+  FD_ZERO(FDSet);
+  FD_SET(Socket, FDSet);
+  Result := select(0, @FDSet, nil, nil, @TimeVal) > 0;
+end;
+//....................
+procedure TL2PacketHackMain.WmFinished(var msg: TMessage);
+var
+  h1:integer;
+begin
+  h1:=msg.LParam; // хендел отработаного потока
+  CloseHandle(h1);
+end;
+{/*by Argot*/}
+//....................
 
+///////////////////////////////////////////////////////////////////////////////
+//                   вызываются из главного потока
+///////////////////////////////////////////////////////////////////////////////
 //ожидаем подключения клиента
-function WaitClient(var hSocket, NewSocet: TSocket): Boolean;
+function WaitClient(var hSocket, NewSocket: TSocket): Boolean;
 var
   Addr_in: sockaddr_in;
   AddrSize: Integer;
@@ -4023,11 +3779,11 @@ begin
   Addr_in.sin_addr.s_addr:=inet_addr(PChar('0.0.0.0'));
   Addr_in.sin_port:=HToNS(0);
   AddrSize:=SizeOf(Addr_in);
-  NewSocet:=accept(hSocket,@Addr_in,@AddrSize);
-  if NewSocet>0 then Result:=True;
+  NewSocket:=accept(hSocket,@Addr_in,@AddrSize);
+  if NewSocket>0 then Result:=True;
   if not Result then DeInitSocket(hSocket);
 end;
-//....................
+
 ///////////////////////////////////////////////////////////////////////////////
 //                      главный VCL поток
 ///////////////////////////////////////////////////////////////////////////////
@@ -4036,74 +3792,55 @@ procedure ServerListen(PSock: Pointer);
 var
   NewSocket: TSocket;
   id: Byte;
-//  LogMsg: Pchar;
-  msg: string;
 begin
   try
     //локальный сервер создан? TRUE при запуске программы
     while NoServer do Sleep(1);  //пока true ждем
     if not InitSocket(SLSock,ntohs(LPortConst),'0.0.0.0') then begin
       //посылаем соообщение записать в лог
-//      tmp:='Неудалось зарегистрировать локальный сервер на порте '+IntToStr(ntohs(LPortConst))
-//      +sLineBreak+'Возможно этот порт занят другим приложением';
-//      tmp:='Неудалось зарегистрировать локальный сервер.'
-//      +sLineBreak+'Возможно порт занят другим приложением.';
-      msg:=format(FailedLocalServer,[ntohs(LPortConst)]);
-      sendMSG (msg);
-//      LogMsg:=PChar(tmp);
-//      SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@LogMsg));
-      EndThread(0);
+      sendMSG(format(FailedLocalServer,[ntohs(LPortConst)]));
     end else begin
       //создаем локальный сервер
-//      tmp:='На '+IntToStr(ntohs(LPortConst))+' зарегистрирован локальный сервер';
-//      tmp:='Зарегистрирован локальный сервер.';
-//      tmp := format('На %d зарегистрирован локальный сервер',[ntohs(LPortConst)]);
-      msg:=format(StartLocalServer,[ntohs(LPortConst)]);
-      sendMSG (msg);
-//      LogMsg:=PChar(tmp);
-//      SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@LogMsg));
-      //SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@tmp[1]));
+      sendMSG(format(StartLocalServer,[ntohs(LPortConst)]));
       //ждём соединения с клиентом
       while WaitClient(SLSock, NewSocket) do begin
         //ищем свободный поток
-        EnterCriticalSection(_cs);
         for id:=0 to MaxThr-1 do begin
           //как здесь?
           if Thread[id].NoUsed then begin
-            if Assigned(CreateXorIn)
-              then CreateXorIn(@Thread[id].xorS)
-              else Thread[id].xorS:=L2Xor.Create;
-            if Assigned(CreateXorOut)
-              then CreateXorOut(@Thread[id].xorC)
-              else Thread[id].xorC:=L2Xor.Create;
-            //инициализируем поток
-            Thread[id].Connect:=False;
-            Thread[id].IP:=CurentIP;
-            Thread[id].Port:=CurentPort;
-            Thread[id].InitXOR:=False;
-            Thread[id].SSock:=NewSocket;
-            Thread[id].Dump.Clear;
+            //EnterCriticalSection(_cs);
+              if Assigned(CreateXorIn)
+                then CreateXorIn(@Thread[id].xorS)
+                else Thread[id].xorS:=L2Xor.Create;
+              if Assigned(CreateXorOut)
+                then CreateXorOut(@Thread[id].xorC)
+                else Thread[id].xorC:=L2Xor.Create;
+              //инициализируем поток
+              Thread[id].Connect:=False;
+              Thread[id].IP:=CurentIP;
+              Thread[id].Port:=CurentPort;
+              Thread[id].InitXOR:=False;
+              Thread[id].SSock:=NewSocket;
+              Thread[id].Dump.Clear;
+            //LeaveCriticalSection(_cs);
             //запускаем поток ожидания сервера i:=0..9
             Thread[id].SH:=BeginThread(nil, 0, @Server, Pointer(id), 0, Thread[id].STH);
-            //tmp:='Создано новое соединение - '+IntToStr(id);
-            msg:=format(CreateNewConnect,[id]);
-            sendMSG (msg);
-//            LogMsg:=PChar(tmp);
-//            SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@LogMsg));
-            Break;
+            inc(CountThread);
+//            sendMSG(format(CreateNewConnect,[id]));
+            sendMSG('Thread Start: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
+
+            break; //прерываем цикл for
           end;
         end;
-        LeaveCriticalSection(_cs);
       end;
     end;
   finally
+    dec(CountThread);
+    sendMSG('На '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер '+inttostr(SLH)+'/'+inttostr(SLTH));
     //закрываем сокет локального сервера
     DeInitSocket(SLSock);
-    CloseHandle(SLH);
-//    tmp:='На '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер';
-//    LogMsg:=PChar(tmp);
-//    SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@LogMsg));
-    //закрытие потока
+    //закрытие основного потока
+    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, SLH);
     EndThread(0);
   end;
 end;
@@ -4213,65 +3950,58 @@ var
   x: integer;
 begin
   id:=Byte(Param);
-  EnterCriticalSection(_cs);
   SSockl:=Thread[id].SSock;
-  Thread[id].noFreeOnServerDisconnect:=False;
-  Thread[id].noFreeOnClientDisconnect:=False;
-  Thread[id].IsGame:=True;
-  Thread[id].pckCount:=0;
-  Thread[id].AutoPing:=False;
-  Thread[id].NoUsed:=False;
-  //запускаем поток подключения клиента
+  //EnterCriticalSection(_cs);
+    Thread[id].noFreeOnServerDisconnect:=False;
+    Thread[id].noFreeOnClientDisconnect:=False;
+    Thread[id].IsGame:=True;
+    Thread[id].pckCount:=0;
+    Thread[id].AutoPing:=False;
+    Thread[id].NoUsed:=False;
+  //LeaveCriticalSection(_cs);
+  inc(CountThread);
+  //запускаем поток к клиенту
   Thread[id].CH:=BeginThread(nil, 0, @Client, Param, 0, Thread[id].CTH);
-  LeaveCriticalSection(_cs);
+  sendMSG('Thread Start: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+
   //инициируем переменные ConnectID и OnConnect в скрипте
-  SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
-
-   //здесь вроде тоже надо критическую секцию?
+  PostMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
+  //здесь вроде тоже надо критическую секцию?
   //ждем подключения
-//  EnterCriticalSection(_cs);
   while not Thread[id].Connect do Sleep(1);
-//  LeaveCriticalSection(_cs);
-
   //подключились
-  EnterCriticalSection(_cs);
   CSockl:=Thread[id].CSock;
   GetSocketData(SSockl,Packet,2);
   if Thread[id].IsGame then Thread[id].AutoPing:=True;
   IsGamel:=Thread[id].IsGame;
-  Thread[id].NoUsed:=False;
-  LeaveCriticalSection(_cs);
   //пропускать логин?
-//  if L2PacketHackMain.CheckBox2.Checked and (not IsGamel) then begin
-  //если пропускать логин и мы не в игре
+  //если (пропускать логин и мы не в игре)
   if isPassLogin and (not IsGamel) then begin
     //отсылаем данные, сначала длину, а потом сам пакет
     send(CSockl,PacketB,2,0);
     repeat until send(CSockl,PacketB,recv(SSockl,PacketB,$FFFF,0),0)<=0;
   end else begin
-  //иначе пропускать логин и мы в игре
+    //иначе (пропускать логин и мы в игре)
     //прием пакетов
     repeat
-      if not GetSocketData(SSockl,Packet.DataB,Packet.Size-2) then Break;
+      if not GetSocketData(SSockl,Packet.DataB,Packet.Size-2) then break;
       if IsGamel
          then PacketProcesor(PacketB,CSockl,id,4)
          else PacketProcesor(PacketB,CSockl,id,2);
-      if not GetSocketData(SSockl,Packet,2) then Break;
+      if not GetSocketData(SSockl,Packet,2) then break;
     until False;
   end;
-  //сюда попадаем когда отвалился клиент
+  //сюда попадаем когда отвалился сервер
   //инициируем переменные ConnectID и OnDisconnect в скрипте
-  SendMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
+  PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
+  sendMSG('Disconnect: отвалился сервер Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
 
   //не разрываем связь если отключен сервер и noFreeOnServerDisconnect
-//  EnterCriticalSection(_cs);
   while Thread[id].noFreeOnServerDisconnect do Sleep(1);
-//  LeaveCriticalSection(_cs);
-  //закрываем сокеты
-  DeInitSocket(SSockl);
-  DeInitSocket(CSockl);
-  EnterCriticalSection(_cs);
-  //сохраняем в файл
+  dec(CountThread);
+  sendMSG('Thread Exit: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
+
+  //сохраняем лог пакетов в файл
   try
     if isSaveLog and (Thread[ID].Name<>'') then begin
       msg:='logs\'+Thread[ID].Name+'_'+datetostr(now)+'_'+timetostr(time)+'.txt';
@@ -4288,22 +4018,23 @@ begin
       Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+msg);
     end;
   except
-    //пропускаем если ошибка при записи
+    //пропускаем ошибки при записи
   end;
-  //чистим запись
-  CloseHandle(Thread[id].SH);
-  Thread[id].NoUsed:=True;
-  Thread[ID].Dump.Clear;
-  LeaveCriticalSection(_cs);
   //чистим лог пакетов
+  Thread[ID].Dump.Clear;
   SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
-  //L2PacketHackMain.ListBox3.Lines.Add('Соединение '+IntToStr(id)+' разорвано');
-  //tmp:='Соединение '+IntToStr(id)+' разорвано';
-  msg:=format(ConnectBreak,[id]);
-  sendMSG (msg);
-//  LogMsg:=PChar(tmp);
-//  SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@LogMsg));
+
+  //закрываем сокеты
+  DeInitSocket(SSockl);
+  DeInitSocket(CSockl);
+  Thread[id].NoUsed:=True;
+  sendMSG(format(ConnectBreak,[id]));
+
+  //обновляем Список соединений
+  SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+
   //закрытие потока
+  PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
   EndThread(0);
 end;
 //....................
@@ -4363,58 +4094,79 @@ var
   IsGamel: Boolean;
 begin
   id:=Byte(Param);
-  EnterCriticalSection(_cs);
   SSockl:=Thread[id].SSock;
-  LeaveCriticalSection(_cs);
-  if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then EndThread(0);
-  if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then EndThread(0);
+  if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then
+  begin
+    Thread[id].NoUsed:=True;
+    dec(CountThread);
+    sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+    PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+    EndThread(0);
+  end;
+  if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then
+  begin
+    Thread[id].NoUsed:=True;
+    dec(CountThread);
+    sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+    PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+    EndThread(0);
+  end;
   //инициируем переменные ConnectID и OnConnect в скрипте
   SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
   //ждем подключения
-//  EnterCriticalSection(_cs);
-  Thread[id].Connect:=True;
-  Thread[id].Name:='';
-  CSockl:=Thread[id].CSock;
-  GetSocketData(CSockl,Packet,2);
-  if not Thread[id].AutoPing then begin
-    Thread[id].IsGame:=False;
-  end;
+//    EnterCriticalSection(_cs);
+    Thread[id].Connect:=True;
+    Thread[id].Name:='';
+    CSockl:=Thread[id].CSock;
+    GetSocketData(CSockl,Packet,2);
+    if not Thread[id].AutoPing then begin
+      Thread[id].IsGame:=False;
+    end;
+//    LeaveCriticalSection(_cs);
   IsGamel:=Thread[id].IsGame;
-//  LeaveCriticalSection(_cs);
-
-  //цикл приема пакетов от клиента
+  //если (пропускать логин и мы не в игре)
   if isPassLogin and (not IsGamel) then begin
+    //отсылаем данные, сначала длину, а потом сам пакет
     send(SSockl,PacketB,2,0);
     repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
-  end else repeat
-    if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then Break;
-    if IsGamel then PacketProcesor(PacketB,SSockl,id,3)
+  end else
+  repeat
+    //иначе (пропускать логин и мы в игре)
+    //прием пакетов
+    if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
+    if IsGamel
+      then PacketProcesor(PacketB,SSockl,id,3)
       else PacketProcesor(PacketB,SSockl,id,1);
-    if not GetSocketData(CSockl,Packet,2) then Break;
+    if not GetSocketData(CSockl,Packet,2) then break;
   until False;
   //сюда попадаем когда отвалился клиент
   //инициируем переменные ConnectID и OnDisconnect в скрипте
-  SendMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
+  sendMSG('Disconnect: отвалился клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+  PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
 
   //не разрываем связь если отключен клиент и noFreeOnClientDisconnect
-//  EnterCriticalSection(_cs);
   while Thread[id].noFreeOnClientDisconnect do Sleep(1);
-//  LeaveCriticalSection(_cs);
+
   //закрываем сокеты
-//  DeInitSocket(SSockl);
-//  DeInitSocket(CSockl);
-//  EnterCriticalSection(_cs);
-//  Thread[id].NoUsed:=True;
-//  Thread[ID].Dump.Clear;
-//  LeaveCriticalSection(_cs);
+  DeInitSocket(SSockl);
+  DeInitSocket(CSockl);
+  Thread[id].NoUsed:=True;
+
+  dec(CountThread);
+  sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+
+  {нельзя чистить, нечего будет сохранять в файл в потоке сервера}
   //чистим лог пакетов
+//  Thread[ID].Dump.Clear;
 //  SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+
   //обновляем Список соединений
-//  SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+
   //закрытие потока
-  EnterCriticalSection(_cs);
-  CloseHandle(Thread[id].CH);
-  LeaveCriticalSection(_cs);
+  PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
   EndThread(0);
 end;
 //....................
