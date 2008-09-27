@@ -3003,8 +3003,13 @@ end;
 procedure TL2PacketHackMain.Button18Click(Sender: TObject);
 var
   s: string;
+  r:Boolean;
 begin
-  s:=InputBox('Новый скрипт','Пожалуйста, укажите название для создаваемого скрипта','NewScript');
+  s:='NewScript';
+  if not InputQuery('Новый скрипт', 'Пожалуйста, укажите название для создаваемого скрипта',s )then exit;
+  r:= true;
+  while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt') AND r do
+     if not InputQuery('Новый скрипт','Такой скрипт существует'+sLineBreak+'Пожалуйста, укажите название для создаваемого скрипта', s) then exit;
   JvHLEditor1.Lines.Clear;
   JvHLEditor1.Lines.Text:=
     'procedure Init; //Вызывается при включении скрипта'+sLineBreak+
