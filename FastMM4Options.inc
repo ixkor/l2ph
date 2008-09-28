@@ -141,7 +141,7 @@ Set the default options for FastMM here.
 
   {Deletes the error log file on startup. No effect if LogErrorsToFile is not
    also set.}
-  {.$define ClearLogFileOnStartup}
+  {$define ClearLogFileOnStartup}
 
   {Loads the FASTMM_FullDebugMode.dll dynamically. If the DLL cannot be found
    then stack traces will not be available. Note that this may cause problems
@@ -177,7 +177,7 @@ Set the default options for FastMM here.
 
   {Set this option to require the program to be run inside the IDE debugger to
    report memory leaks. This option has no effect if the option
-   "EnableMemoryLeakReporting" is not also set. Note that this option does not 
+   "EnableMemoryLeakReporting" is not also set. Note that this option does not
    work with libraries, only EXE projects.}
   {$define RequireDebuggerPresenceForLeakReporting}
 
@@ -264,16 +264,16 @@ Set the default options for FastMM here.
 {Group the options you use for release and debug versions below}
 {$ifdef Release}
   {Specify the options you use for release versions below}
-  {.$undef FullDebugMode}
-  {.$undef CheckHeapForCorruption}
-  {.$define ASMVersion}
-  {.$undef EnableMemoryLeakReporting}
-  {.$undef UseOutputDebugString}
+  {$undef FullDebugMode}
+  {$undef CheckHeapForCorruption}
+  {$define ASMVersion}
+  {$undef EnableMemoryLeakReporting}
+  {$undef UseOutputDebugString}
 {$else}
   {Specify the options you use for debugging below}
-  {.$define FullDebugMode}
-  {.$define EnableMemoryLeakReporting}
-  {.$define UseOutputDebugString}
+  {$define FullDebugMode}
+  {$define EnableMemoryLeakReporting}
+  {$define UseOutputDebugString}
 {$endif}
 
 {--------------------Compilation Options For borlndmm.dll---------------------}
