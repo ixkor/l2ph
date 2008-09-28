@@ -733,11 +733,11 @@ begin
     begin
       exit;
     end;
-    for i:=0 to count div 4 - 1 do if procs[i]<>4 then
+    for i:=0 to (count div 4) - 1 do if procs[i] <> 4 then
     begin
       EnablePrivilegeEx(INVALID_HANDLE_VALUE,'SeDebugPrivilege');
       ph := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_READ, false, procs[i]);
-      if ph>0 then
+      if ph > 0 then
       begin
         EnumProcessModules(ph, @mh, 4, cm);
         GetModuleFileNameEx(ph, mh, ModName, sizeof(ModName));
@@ -1104,6 +1104,9 @@ procedure TL2PacketHackMain.LabeledEdit1Change(Sender: TObject);
 begin
   Options.WriteString('General','Clients',LabeledEdit1.Text);
   Options.UpdateFile;
+  // при изменении поля очищаем список запомненых процессов
+  // обнавляется список нужных процессов
+  ListBox1.Clear;
 end;
 
 procedure TL2PacketHackMain.LabeledEdit2Change(Sender: TObject);
@@ -2409,17 +2412,30 @@ var
   tmp: TStrings;
   i,k: Integer;
   cc: Cardinal;
+  ListSearch: string; // список процессов которые будем искать
 begin
+  ListSearch := ';'+LowerCase(LabeledEdit1.Text); // в нижний регистр
+  // убираем все пробелы
+  ListSearch := StringReplace (ListSearch, ' ', '', [rfReplaceAll]);
+  // наслучай если пользователь использует ,  меняем ее на ;
+  // и добавляем в конец строки ;  в поиске он нам не помешает а вот если его нет,
+  // то процесс не найдется
+  ListSearch := StringReplace (ListSearch, ',', ';', [rfReplaceAll])+';';
+
   tmp:=TStringList.Create;
   GetProcessList(tmp);
   for i:=0 to tmp.Count-1 do begin
-    if (ListBox1.Items.IndexOf(tmp.ValueFromIndex[i]+' ('+tmp.Names[i]+')')=-1)or (tmp.Count<>ListBox1.Items.Count) then begin
+    // ненадо проверять по количеству процессов (tmp.Count <> ListBox1.Items.Count)
+    // наслучай если поле было отредактировано
+    if (ListBox1.Items.IndexOf(tmp.ValueFromIndex[i]+' ('+tmp.Names[i]+')')=-1) then begin
       ListBox1.Items.Clear;
       ListBox2.Items.Clear;
       for k := 0 to tmp.Count - 1 do begin
+        // добавляем в лист запущеных процессов
         ListBox1.Items.Add(tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+')');
         //сравниваем найденные программы со списком необходимых программ
-        if Pos(';'+tmp.ValueFromIndex[k]+';',';'+LowerCase(LabeledEdit1.Text)+';')>0 then begin
+        if AnsiPos(';'+tmp.ValueFromIndex[k]+';', ListSearch) > 0  then
+        begin
           if isIntercept and (Processes.Values[tmp.Names[k]]='') then begin
             Processes.Values[tmp.Names[k]]:='error';
             cc:=OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(tmp.Names[k]));
