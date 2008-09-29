@@ -2717,6 +2717,7 @@ begin
     DeleteFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Scripts[ScriptsList.ItemIndex].Name+'.txt');
     ScriptsList.ItemEnabled[ScriptsList.ItemIndex] := false; // отключаем текущий ScriptsList.ItemIndex
     ButtonDelete.Enabled := false; // отключаем кнопку Удалить, зачем удалять уже удаленный
+    ButtonSave.Enabled := false; // нельзя сохранять удаленный скрипт
   end;
 end;
 
@@ -2800,7 +2801,7 @@ begin
     JvHLEditor1.Lines.LoadFromFile(OpenDialog2.FileName);
     s:=ExtractFileName(OpenDialog2.FileName);
     s:=Copy(s,1,LastDelimiter('.',s)-1);
-    if ScriptsList.Items.IndexOf(s)<>-1 then if MessageDlg('Скрипт с таким названием уже существует, хотите его заменить?',mtConfirmation,[mbYes, mbNo],0)=mrNo then begin
+    if fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt') then if MessageDlg('Скрипт с таким названием уже существует, хотите его заменить?',mtConfirmation,[mbYes, mbNo],0)=mrNo then begin
       r := true;
       // будем проверять пока ненажат Cancel или файла с таким именем нету
       while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.txt') AND r do

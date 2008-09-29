@@ -163,7 +163,7 @@ var
   tmp_y: integer;
 begin
   tmp_y:=y;    //номер строки
-  x0:=x+1; // новое смещение для поиска
+  x0:=x-1; // новое смещение для поиска
   if Replace then exit
   else begin
     inc(tmp_y); // продолжим со следующей строки
