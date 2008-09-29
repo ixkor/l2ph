@@ -13,6 +13,7 @@
 { TODO 5 -cEditor -oNLObP : исправить find/replace - замен€ет не текущее вхождение, а следующее }
 { TODO 5 -cEditor -owanick : есть TfsSyntaxMemo почему его не юзаем дл€ скриптов? }
 { TODO 5 -owanick -cScripts :  ¬ынести все вспомогательные методы и функции в отдельную Dll если такое получитс€}
+{ DONE 5 -oNLObP -cGeneral : возможность произвольных имен файлов дл€ newxor и inject, значени€ берем из options.ini }
 unit main;
 
 interface
@@ -415,6 +416,9 @@ var
 
   kId:integer; //коэфф преобразовани€ NpcID
   isLoad, isForceLoad: boolean; //true если дл€ текущего соединени€ уже грузили Packets.ini
+  //возможность изменить им€ дл€ dll
+  isNewxor, isInject: string;
+
   //раскрашиваем
   typ0: string;
   SelStart, SelLength: integer;
@@ -499,13 +503,13 @@ begin
   for i:=0 to ScriptsList.Count-1 do begin
     if ScriptsList.Checked[i] then begin
       //по очереди посылаем всем включенным скриптам
-      EnterCriticalSection(_cs);
+      //EnterCriticalSection(_cs);
       Scripts[i].fsScript.Variables['pck']:=pstr(msg.WParam)^;
       Scripts[i].fsScript.Variables['ConnectID']:=id;
       Scripts[i].fsScript.Variables['ConnectName']:=Thread[id].Name;
       Scripts[i].fsScript.Variables['FromServer']:=FromServer;
       Scripts[i].fsScript.Variables['FromClient']:=not FromServer;
-      LeaveCriticalSection(_cs);
+      //LeaveCriticalSection(_cs);
       Scripts[i].fsScript.Execute;
       pstr(msg.WParam)^:=Scripts[i].fsScript.Variables['pck'];
     end;
@@ -774,8 +778,8 @@ end;
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 var
   WSA: TWSAData;
-  h1: Byte;
-  i: Integer;
+  //h1: Byte;
+  i, j: Integer;
   sFile, Size: THandle;
   ee:OFSTRUCT;
 //  temp: string;
@@ -793,15 +797,25 @@ begin
   PacketsNames:=TStringList.Create;
   PacketsFromS:=TStringList.Create; //будем сохран€ть названи€ пакетов от сервера
   PacketsFromC:=TStringList.Create; //будем сохран€ть названи€ пакетов от клиента
+  //считываем Options.ini в пам€ть
+  Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'Options.ini');
 
   InitializeCriticalSection(_cs);
-  Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+'newxor.dll'));
+  //грузим из options.ini названи€ используемых библиотек
+  isNewxor:=Options.ReadString('General','isNewxor','newxor.dll');
+  isInject:=Options.ReadString('General','isInject','inject.dll');
+
+//  Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+'newxor.dll'));
+  Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+isNewxor));
   if Lib>0 then begin
+    sendMSG('”спешно загрузили '+isNewxor);
     @CreateXorIn:=GetProcAddress(Lib,'CreateCoding');
     @CreateXorOut:=GetProcAddress(Lib,'CreateCodingOut');
     if @CreateXorOut=nil then CreateXorOut:=CreateXorIn;
-  end;
-  sFile := OpenFile(PChar(ExtractFilePath(Application.ExeName)+'inject.dll'),ee,OF_READ);
+  end else sendMSG('Ѕиблиотека '+isNewxor+' отсутствует');
+//  sFile := OpenFile(PChar(ExtractFilePath(Application.ExeName)+'inject.dll'),ee,OF_READ);
+  sFile := OpenFile(PChar(ExtractFilePath(Application.ExeName)+isInject),ee,OF_READ);
+  sendMSG('”спешно загрузили '+isInject);
   Size := GetFileSize(sFile, nil);
   GetMem(dllScr, Size);
   ReadFile(sFile, dllScr^, Size, Size, nil);
@@ -813,8 +827,6 @@ begin
   Memo1.Text:='ѕоддержать проект можно сюда:'+sLineBreak+'Z245193560959, R183025505328'+sLineBreak+'E360790044610, U392200550010';
   //скрываем закладку "пользовательска€"
   TabSheet10.TabVisible:=False;
-  //считываем Options.ini в пам€ть
-  Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'Options.ini');
   //грузим packets.ini
   ProtocolVersion:=strtoint(Options.ReadString('Snifer','ProtocolVersion','560'));
 //  ProtocolVersion:=560; //C4
@@ -859,10 +871,10 @@ begin
   filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
 
   //обновл€ем чекбоксы пакетов
-  for i:=0 to (ListView2.Items.Count div 8)-1 do for h1:=0 to 7 do
-    ListView2.Items.Item[i*8+h1].Checked:=Boolean((Byte(filterS[i+1])shr h1) and 1);
-  for i:=0 to (ListView1.Items.Count div 8)-1 do for h1:=0 to 7 do
-    ListView1.Items.Item[i*8+h1].Checked:=Boolean((Byte(filterC[i+1])shr h1) and 1);
+  for i:=0 to (ListView2.Items.Count div 8)-1 do for j:=0 to 7 do
+    ListView2.Items.Item[i*8+j].Checked:=Boolean((Byte(filterS[i+1])shr j) and 1);
+  for i:=0 to (ListView1.Items.Count div 8)-1 do for j:=0 to 7 do
+    ListView1.Items.Item[i*8+j].Checked:=Boolean((Byte(filterC[i+1])shr j) and 1);
 
   LabeledEdit1.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe');
   MaxThr:=Options.ReadInteger('General','MaxConections',5);
@@ -870,10 +882,10 @@ begin
   ComboBox1.Items.BeginUpdate;
   ComboBox1.Items.Clear;
   //готовим потоки
-  for h1:=0 to MaxThr-1 do begin
-    Thread[h1].NoUsed:=True;
-    Thread[h1].Dump:=TStringList.Create;
-    ComboBox1.Items.Add(IntToStr(h1)+' - пусто');
+  for i:=0 to MaxThr-1 do begin
+    Thread[i].NoUsed:=True;
+    Thread[i].Dump:=TStringList.Create;
+    ComboBox1.Items.Add(IntToStr(i)+' - пусто');
   end;
   ComboBox1.ItemIndex:=0;
   ComboBox1.Items.EndUpdate;
@@ -976,6 +988,8 @@ begin
   Options.WriteInteger('General','Heigth',Height);
   Options.WriteInteger('Snifer','ProtocolVersion',ProtocolVersion);
   Options.WriteInteger('General','HookMethod',isHookMethod);
+//  Options.WriteString('General','isNewxor',isNewxor);
+//  Options.WriteString('General','isInject',isInject);
   Options.UpdateFile;
   Options.Free;
   //потоки
@@ -2836,19 +2850,19 @@ end;
 procedure TL2PacketHackMain.Button23Click(Sender: TObject);
 begin
   if OpenDialog2.Execute then begin
-    //EnterCriticalSection(_cs);
+    EnterCriticalSection(_cs);
 //    isForceLoad:=true;
     Thread[CID].Dump.LoadFromFile(OpenDialog2.FileName);
-    //LeaveCriticalSection(_cs);
+    LeaveCriticalSection(_cs);
     ListView1Click(Sender);
   end;
 end;
 
 procedure TL2PacketHackMain.BtnClearLogClick(Sender: TObject);
 begin
-  //EnterCriticalSection(_cs);
+  EnterCriticalSection(_cs);
   Thread[CID].Dump.Clear;
-  //LeaveCriticalSection(_cs);
+  LeaveCriticalSection(_cs);
   Memo3.Clear;
   Memo2.Clear;
   ListView1Click(Sender);
@@ -2859,9 +2873,9 @@ procedure TL2PacketHackMain.BtnSaveLogClick(Sender: TObject);
 begin
   SaveDialog1.FilterIndex:=2;
   if SaveDialog1.Execute then begin
-    //EnterCriticalSection(_cs);
+    EnterCriticalSection(_cs);
     Thread[CID].Dump.SaveToFile(SaveDialog1.FileName);
-    //LeaveCriticalSection(_cs);
+    LeaveCriticalSection(_cs);
   end;
   SaveDialog1.FilterIndex:=1;
 end;
@@ -3621,13 +3635,13 @@ var
   tmpItm: TListItem;
 begin
   tmpItm:=ListView5.Selected;
-  //EnterCriticalSection(_cs);
   for i:=1 to ListView5.SelCount do begin
     k:=StrToInt(tmpItm.SubItems.Strings[0])-i+1;
+    EnterCriticalSection(_cs);
     Thread[cid].Dump.Delete(k);
+    LeaveCriticalSection(_cs);
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
-  //LeaveCriticalSection(_cs);
   ListView1Click(Sender);
 end;
 
@@ -3760,7 +3774,7 @@ var
 begin
   move(Pointer(MSG.lParam)^,P,SizeOf(PChar));
   ListBox3.Lines.Add(p);
-  ListBox3.Lines.SaveToFile('l2phx.log');
+  ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx.log');
 end;
 //....................
 {/*by wanick*/}
@@ -3879,8 +3893,6 @@ begin
     sendMSG('Ќа '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер '+inttostr(SLH)+'/'+inttostr(SLTH));
     //закрываем сокет локального сервера
     DeInitSocket(SLSock);
-    //закрытие основного потока
-    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, SLH);
     EndThread(0);
   end;
 end;
@@ -4079,7 +4091,7 @@ begin
   //обновл€ем —писок соединений
   SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
 
-  //закрытие потока
+  //дождемс€ закрыти€ потока
   PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
   EndThread(0);
 end;
@@ -4218,7 +4230,7 @@ begin
   //обновл€ем —писок соединений
   PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
 
-  //закрытие потока
+  //дождемс€ закрыти€ потока
   PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
   EndThread(0);
 end;
