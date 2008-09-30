@@ -94,7 +94,6 @@ type
     RadioGroup1: TRadioGroup;
     ChkNoDecrypt: TCheckBox;
     JvSpinEdit1: TJvSpinEdit;
-    ChkXORfix: TCheckBox;
     isKamael: TCheckBox;
     TabSheet4: TTabSheet;
     Panel15: TPanel;
@@ -200,6 +199,16 @@ type
     RadioButton9: TRadioButton;
     JvTrayIcon1: TJvTrayIcon;
     Splitter6: TSplitter;
+    GroupBox2: TGroupBox;
+    ChkXORfix: TCheckBox;
+    isNewxor: TLabeledEdit;
+    isInject: TLabeledEdit;
+    iNewxor: TCheckBox;
+    iInject: TCheckBox;
+    procedure isInjectChange(Sender: TObject);
+    procedure isNewxorChange(Sender: TObject);
+    procedure iInjectClick(Sender: TObject);
+    procedure iNewxorClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure LabeledEdit2Change(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
@@ -209,6 +218,8 @@ type
     procedure Timer1Timer(Sender: TObject);
     procedure ApplicationEvents1Activate(Sender: TObject);
     procedure TrayIcon1Click(Sender: TObject);
+    procedure LoadLibraryXor (const name: string);
+    procedure LoadLibraryInject (const name: string);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ApplicationEvents1Hint(Sender: TObject);
@@ -417,7 +428,7 @@ var
   kId:integer; //коэфф преобразования NpcID
   isLoad, isForceLoad: boolean; //true если для текущего соединения уже грузили Packets.ini
   //возможность изменить имя для dll
-  isNewxor, isInject: string;
+//  isNewxor, isInject: string;
 
   //раскрашиваем
   typ0: string;
@@ -775,13 +786,67 @@ begin
   if (ik=Length(s))and(s[ik]<>':') then Result:=Result+s[ik];
 end;
 
+// загружаем XOR dll
+procedure TL2PacketHackMain.LoadLibraryXor (const name: string);
+begin
+  Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+name));
+  if Lib>0 then begin
+    sendMSG('Успешно загрузили '+name);
+    @CreateXorIn:=GetProcAddress(Lib,'CreateCoding');
+    @CreateXorOut:=GetProcAddress(Lib,'CreateCodingOut');
+    if @CreateXorOut=nil then CreateXorOut:=CreateXorIn;
+  end else sendMSG('Библиотека '+name+' отсутствует');
+end;
+
+procedure TL2PacketHackMain.iNewxorClick(Sender: TObject);
+begin
+    if iNewxor.Checked then begin
+      isNewxor.Enabled := false;
+      loadLibraryXOR (isNewxor.Text)
+    end else begin
+      if Lib > 0 then begin
+        FreeLibrary(Lib);
+        sendMsg('Библиотека '+ isNewxor.Text +' успешно выгружена');
+      end;
+      isNewxor.Enabled := true;
+    end;
+end;
+
+procedure  TL2PacketHackMain.LoadLibraryInject (const name: string);
+var sFile, Size: THandle;
+    ee:OFSTRUCT;
+    tmp:PChar;
+begin
+  tmp:=PChar(ExtractFilePath(Application.ExeName)+name);
+  if fileExists (tmp) then begin
+    sFile := OpenFile(tmp,ee,OF_READ);
+    sendMSG('Успешно загрузили '+name);
+    Size := GetFileSize(sFile, nil);
+    GetMem(dllScr, Size);
+    ReadFile(sFile, dllScr^, Size, Size, nil);
+    CloseHandle(sFile);
+  end else sendMSG('Библиотека '+name+' отсутствует');
+end;
+// инициируем загрузку или выгрузку Inject
+procedure TL2PacketHackMain.iInjectClick(Sender: TObject);
+begin
+    if iInject.Checked then begin
+      isInject.Enabled := false;
+      LoadLibraryInject (isInject.Text)
+    end else begin
+      if Lib > 0 then begin
+        FreeMem(dllScr);
+        sendMsg('Библиотека '+ isInject.Text +' успешно выгружена');
+      end;
+      isInject.Enabled := true;
+    end;
+end;
+
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 var
   WSA: TWSAData;
   //h1: Byte;
   i, j: Integer;
-  sFile, Size: THandle;
-  ee:OFSTRUCT;
 //  temp: string;
 begin
   sendMsg('Стартует L2phx...  ');
@@ -802,24 +867,19 @@ begin
 
   InitializeCriticalSection(_cs);
   //грузим из options.ini названия используемых библиотек
-  isNewxor:=Options.ReadString('General','isNewxor','newxor.dll');
-  isInject:=Options.ReadString('General','isInject','inject.dll');
+  isNewxor.Text:=Options.ReadString('General','isNewxor','newxor.dll');
+  isInject.Text:=Options.ReadString('General','isInject','inject.dll');
 
-//  Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+'newxor.dll'));
-  Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+isNewxor));
-  if Lib>0 then begin
-    sendMSG('Успешно загрузили '+isNewxor);
-    @CreateXorIn:=GetProcAddress(Lib,'CreateCoding');
-    @CreateXorOut:=GetProcAddress(Lib,'CreateCodingOut');
-    if @CreateXorOut=nil then CreateXorOut:=CreateXorIn;
-  end else sendMSG('Библиотека '+isNewxor+' отсутствует');
-//  sFile := OpenFile(PChar(ExtractFilePath(Application.ExeName)+'inject.dll'),ee,OF_READ);
-  sFile := OpenFile(PChar(ExtractFilePath(Application.ExeName)+isInject),ee,OF_READ);
-  sendMSG('Успешно загрузили '+isInject);
-  Size := GetFileSize(sFile, nil);
-  GetMem(dllScr, Size);
-  ReadFile(sFile, dllScr^, Size, Size, nil);
-  CloseHandle(sFile);
+  if 	Length(isNewxor.Text) > 0 then begin
+    isNewxor.Enabled := false;
+    iNewxor.Checked := true;
+  end;
+
+  if 	Length(isInject.Text) > 0 then begin
+    isInject.Enabled := false;
+    iInject.Checked := true;
+  end;
+
   PageControl1.ActivePageIndex:=0;
   Application.Icon:=L2PacketHackMain.Icon;
   //скрываем сообщение о том, что желательно купить FastScript
@@ -1015,12 +1075,22 @@ begin
   sendMsg('Завершил работу L2phx... ');
 end;
 
+procedure TL2PacketHackMain.isInjectChange(Sender: TObject);
+begin
+   Options.WriteString('General', 'isInject', isInject.Text);
+end;
+
 procedure TL2PacketHackMain.isKamaelClick(Sender: TObject);
 {если нажали галочку isKamael}
 begin
   Options.WriteBool('General','isKamael',isKamael.Checked);
   Options.UpdateFile;
   isCamael:=isKamael.Checked;
+end;
+
+procedure TL2PacketHackMain.isNewxorChange(Sender: TObject);
+begin
+   Options.WriteString('General', 'isNewxor', isNewxor.Text);
 end;
 
 procedure TL2PacketHackMain.JvHLEditor1Change(Sender: TObject);
