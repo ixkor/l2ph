@@ -403,7 +403,7 @@ object L2PacketHackMain: TL2PacketHackMain
         BevelInner = bvNone
         BevelOuter = bvNone
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         ItemIndex = 0
         TabOrder = 0
         Text = '0 '
@@ -644,10 +644,6 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet4: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel15: TPanel
         Left = 522
         Top = 0
@@ -667,10 +663,6 @@ object L2PacketHackMain: TL2PacketHackMain
           TabOrder = 0
           object TabSheet1: TTabSheet
             Caption = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object ListView1: TListView
               Left = 0
               Top = 0

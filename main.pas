@@ -998,7 +998,7 @@ begin
   end;
   //скрипты
   for i:=0 to 63 do Scripts[i].fsScript.Destroy;
-  WSACleanup;
+//  WSACleanup;
   Processes.Free;
   PacketsNames.Free;
   PacketsFromS.Free;
@@ -3845,6 +3845,10 @@ var
   NewSocket: TSocket;
   id: Byte;
 begin
+{
+Q :На 56574 зарегистрирован локальный сервер? Что это за порт? Какое его назначение?
+A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить их на сервер.
+}
   try
     //локальный сервер создан? TRUE при запуске программы
     while NoServer do Sleep(1);  //пока true ждем
@@ -3881,8 +3885,7 @@ begin
             LeaveCriticalSection(_cs);
 //            sendMSG(format(CreateNewConnect,[id]));
             sendMSG('Thread Start: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
-
-            break; //прерываем цикл for
+            break; //прерываем цикл, как только находим свободный поток
           end;
         end;
       end;
@@ -3893,8 +3896,9 @@ begin
     LeaveCriticalSection(_cs);
     sendMSG('На '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер '+inttostr(SLH)+'/'+inttostr(SLTH));
     //закрываем сокет локального сервера
+    DeInitSocket(NewSocket);
     DeInitSocket(SLSock);
-    EndThread(0);
+    //EndThread(0);
   end;
 end;
 //....................
@@ -4094,7 +4098,7 @@ begin
 
   //дождемся закрытия потока
   PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
-  EndThread(0);
+  //EndThread(0);
 end;
 //....................
 //конец - 1-й рабочий поток
@@ -4233,7 +4237,7 @@ begin
 
   //дождемся закрытия потока
   PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
-  EndThread(0);
+  //EndThread(0);
 end;
 //....................
 //конец - 2-й рабочий поток
