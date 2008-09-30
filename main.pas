@@ -435,7 +435,7 @@ var
   SelStart, SelLength: integer;
   SelAttributes: TColor;
   //считаем потоки
-  CountThread : integer;
+//  CountThread : integer;
 
 implementation
 
@@ -3950,9 +3950,9 @@ A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить и
             LeaveCriticalSection(_cs);
             //запускаем поток ожидания сервера i:=0..9
             Thread[id].SH:=BeginThread(nil, 0, @Server, Pointer(id), 0, Thread[id].STH);
-            EnterCriticalSection(_cs);
-            inc(CountThread);
-            LeaveCriticalSection(_cs);
+//            EnterCriticalSection(_cs);
+//            inc(CountThread);
+//            LeaveCriticalSection(_cs);
 //            sendMSG(format(CreateNewConnect,[id]));
             sendMSG('Thread Start: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
             break; //прерываем цикл, как только находим свободный поток
@@ -3961,9 +3961,9 @@ A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить и
       end;
     end;
   finally
-    EnterCriticalSection(_cs);
-    dec(CountThread);
-    LeaveCriticalSection(_cs);
+//    EnterCriticalSection(_cs);
+//    dec(CountThread);
+//    LeaveCriticalSection(_cs);
     sendMSG('На '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер '+inttostr(SLH)+'/'+inttostr(SLTH));
     //закрываем сокет локального сервера
     DeInitSocket(NewSocket);
@@ -4085,7 +4085,7 @@ begin
   Thread[id].pckCount:=0;
   Thread[id].AutoPing:=False;
   Thread[id].NoUsed:=False;
-  inc(CountThread);
+//  inc(CountThread);
   LeaveCriticalSection(_cs);
   //запускаем поток к клиенту
   Thread[id].CH:=BeginThread(nil, 0, @Client, Param, 0, Thread[id].CTH);
@@ -4125,9 +4125,9 @@ begin
 
   //не разрываем связь если отключен сервер и noFreeOnServerDisconnect
   while Thread[id].noFreeOnServerDisconnect do Sleep(1);
-  EnterCriticalSection(_cs);
-  dec(CountThread);
-  LeaveCriticalSection(_cs);
+//  EnterCriticalSection(_cs);
+//  dec(CountThread);
+//  LeaveCriticalSection(_cs);
   sendMSG('Thread Exit: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
 
   //сохраняем лог пакетов в файл
@@ -4161,7 +4161,7 @@ begin
   EnterCriticalSection(_cs);
   Thread[id].NoUsed:=True;
   LeaveCriticalSection(_cs);
-  sendMSG(format(ConnectBreak,[id]));
+  //sendMSG(format(ConnectBreak,[id]));
 
   //обновляем Список соединений
   SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
@@ -4232,7 +4232,7 @@ begin
   begin
     EnterCriticalSection(_cs);
     Thread[id].NoUsed:=True;
-    dec(CountThread);
+//    dec(CountThread);
     LeaveCriticalSection(_cs);
     sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
     PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
@@ -4243,7 +4243,7 @@ begin
   begin
     EnterCriticalSection(_cs);
     Thread[id].NoUsed:=True;
-    dec(CountThread);
+//    dec(CountThread);
     LeaveCriticalSection(_cs);
     sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
     PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
@@ -4293,7 +4293,7 @@ begin
   DeInitSocket(CSockl);
   EnterCriticalSection(_cs);
   Thread[id].NoUsed:=True;
-  dec(CountThread);
+//  dec(CountThread);
   LeaveCriticalSection(_cs);
   sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
 
