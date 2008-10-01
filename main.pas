@@ -403,10 +403,7 @@ var
   _cid:integer;
 
   ShowMessageOld: procedure (const Msg: string);
-  dllScr: record
-    scr: Pointer;
-    size: Dword;
-  end;
+  dllScr: Pointer;
   _cs: RTL_CRITICAL_SECTION;
   Lib:THandle;
   CreateXorIn: Function(Value:PCodingClass):HRESULT; stdcall;
@@ -816,7 +813,7 @@ begin
 end;
 
 procedure  TL2PacketHackMain.LoadLibraryInject (const name: string);
-var sFile:THandle;
+var sFile, Size:THandle;
     ee:OFSTRUCT;
     tmp:PChar;
 begin
@@ -824,9 +821,9 @@ begin
   if fileExists (tmp) then begin
     sFile := OpenFile(tmp,ee,OF_READ);
     sendMSG('Успешно загрузили '+name);
-    dllScr.size := GetFileSize(sFile, nil);
-    GetMem(dllScr.scr, dllScr.size);
-    ReadFile(sFile, dllScr.scr, dllScr.size, dllScr.size, nil);
+    Size := GetFileSize(sFile, nil);
+    GetMem(dllScr, Size);
+    ReadFile(sFile, dllScr^, Size, Size, nil);
     CloseHandle(sFile);
   end else sendMSG('Библиотека '+name+' отсутствует');
 end;
@@ -837,9 +834,8 @@ begin
       isInject.Enabled := false;
       LoadLibraryInject (isInject.Text)
     end else begin
-      if dllScr.size > 0 then begin
-        FreeMem(dllScr.scr);
-        dllScr.size :=0;
+      if 1 > 0 then begin
+        FreeMem(dllScr);
         sendMsg('Библиотека '+ isInject.Text +' успешно выгружена');
       end;
       isInject.Enabled := true;
@@ -1074,7 +1070,7 @@ begin
   SkillList.Free;
   PacketsINI.free;
   if Lib<>0 then FreeLibrary(Lib);
-  if dllScr.size >0 then FreeMem(dllScr.scr, dllScr.size);
+  FreeMem(dllScr);
   DeleteCriticalSection(_cs);
   sendMsg('Завершил работу L2phx... ');
 end;
@@ -2533,7 +2529,7 @@ begin
                 ListBox3.Lines.Add('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
               end;
             end else begin
-              if InjectDllEx(cc, dllScr.scr) then begin
+              if InjectDllEx(cc, dllScr) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 ListBox3.Lines.Add('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
               end;
