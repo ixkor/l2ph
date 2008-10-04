@@ -790,12 +790,16 @@ end;
 procedure TL2PacketHackMain.LoadLibraryXor (const name: string);
 begin
   Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+name));
-  if Lib>0 then begin
+  if Lib > 0 then begin
     sendMSG('Успешно загрузили '+name);
     @CreateXorIn:=GetProcAddress(Lib,'CreateCoding');
     @CreateXorOut:=GetProcAddress(Lib,'CreateCodingOut');
     if @CreateXorOut=nil then CreateXorOut:=CreateXorIn;
-  end else sendMSG('Библиотека '+name+' отсутствует');
+  end else begin
+    sendMSG('Библиотека '+name+' отсутствует или заблакирована другим приложением');
+    isNewxor.Enabled := true;
+    iNewxor.Checked := false;
+  end;
 end;
 
 procedure TL2PacketHackMain.iNewxorClick(Sender: TObject);
@@ -804,11 +808,11 @@ begin
       isNewxor.Enabled := false;
       loadLibraryXOR (isNewxor.Text)
     end else begin
-      if Lib > 0 then begin
+      if not isNewxor.Enabled then begin
         FreeLibrary(Lib);
         sendMsg('Библиотека '+ isNewxor.Text +' успешно выгружена');
+        isNewxor.Enabled := true;
       end;
-      isNewxor.Enabled := true;
     end;
 end;
 
@@ -825,7 +829,11 @@ begin
     GetMem(dllScr, Size);
     ReadFile(sFile, dllScr^, Size, Size, nil);
     CloseHandle(sFile);
-  end else sendMSG('Библиотека '+name+' отсутствует');
+  end else begin
+     sendMSG('Библиотека '+name+' отсутствует или заблакирована другим приложением');
+     isInject.Enabled := true;
+     iInject.Checked := false;
+  end;
 end;
 // инициируем загрузку или выгрузку Inject
 procedure TL2PacketHackMain.iInjectClick(Sender: TObject);
@@ -834,11 +842,11 @@ begin
       isInject.Enabled := false;
       LoadLibraryInject (isInject.Text)
     end else begin
-      if 1 > 0 then begin
+      if not isInject.Enabled then begin
         FreeMem(dllScr);
         sendMsg('Библиотека '+ isInject.Text +' успешно выгружена');
+        isInject.Enabled := true;
       end;
-      isInject.Enabled := true;
     end;
 end;
 
@@ -1070,7 +1078,7 @@ begin
   SkillList.Free;
   PacketsINI.free;
   if Lib<>0 then FreeLibrary(Lib);
-  FreeMem(dllScr);
+  if not isInject.Enabled then FreeMem(dllScr);
   DeleteCriticalSection(_cs);
   sendMsg('Завершил работу L2phx... ');
 end;
