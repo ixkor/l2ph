@@ -28,7 +28,7 @@ uses
   ExtDlgs, mshtml, SHDocVw, JvComponentBase, JvAppHotKey, JvCaptionButton,
   JvXPCore, JvExStdCtrls, JvRichEdit, JvExControls, JvEditorCommon, JvEditor,
   JvHLEditor, JvUrlListGrabber, JvUrlGrabbers, JvHtmlParser, Mask, JvExMask,
-  JvSpin, Wininet, JvTrayIcon;
+  JvSpin, Wininet, JvTrayIcon, phxPlugins;
 
 const
   //сообщения от потоков
@@ -205,6 +205,15 @@ type
     isInject: TLabeledEdit;
     iNewxor: TCheckBox;
     iInject: TCheckBox;
+    tsPluginsTab: TTabSheet;
+    GroupBox5: TGroupBox;
+    clbPluginsList: TCheckListBox;
+    Panel13: TPanel;
+    GroupBox10: TGroupBox;
+    GroupBox11: TGroupBox;
+    btnRefreshPluginList: TButton;
+    mPluginInfo: TMemo;
+    clbPluginFuncs: TCheckListBox;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -305,6 +314,9 @@ type
     procedure Memo2DblClick(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
     procedure Memo8DblClick(Sender: TObject);
+    procedure btnRefreshPluginListClick(Sender: TObject);
+    procedure clbPluginsListClick(Sender: TObject);
+    procedure clbPluginsListClickCheck(Sender: TObject);
   private
     { Private declarations }
   public
@@ -377,18 +389,7 @@ var
   L2PacketHackMain: TL2PacketHackMain;
   hid: Cardinal;
   //определяем потоки
-  Thread: array of record
-    STH,CTH: Cardinal;
-    SSock,CSock: TSocket;
-    IP, SH, CH, pckCount: Integer;
-    NoUsed, IsGame, Connect, InitXOR, AutoPing, UseProxy, isInterlude,
-    noFreeOnClientDisconnect, noFreeOnServerDisconnect: Boolean;
-    Name, temp: String;
-    Port: Word;
-    xorC, xorS: TCodingClass;
-    Dump: TStrings;
-    ScriptsEnable: array[0..63] of Boolean;
-  end;
+  Thread: array of TThread;
 
   SLh,SLSock,SGh,SGSock,CurentIP: Integer;
   LCFree, LSFree, NoServer: Boolean;
@@ -404,7 +405,7 @@ var
 
   ShowMessageOld: procedure (const Msg: string);
   dllScr: Pointer;
-  _cs: RTL_CRITICAL_SECTION;
+  _cs, cs_send: RTL_CRITICAL_SECTION;
   Lib:THandle;
   CreateXorIn: Function(Value:PCodingClass):HRESULT; stdcall;
   CreateXorOut: Function(Value:PCodingClass):HRESULT; stdcall;
@@ -507,10 +508,29 @@ var
   i: Integer;
   FromServer: boolean;
   id: byte;
+  pck_data: array[Word] of Byte;
 begin
   FromServer:=Boolean(msg.LParamLo);
   id:=msg.LParamHi;
   SetCurrentDir(ExtractFilePath(ParamStr(0)));
+
+  // обрабатываем плагинами
+  // PS без пол литра даж не пытайтесь вникнуть что тут происходит :)
+  Move(pstr(msg.WParam)^[1],pck_data[2],Length(pstr(msg.WParam)^));
+  PWord(@pck_data[0])^:=Length(pstr(msg.WParam)^)+2;
+  for i:=0 to High(Plugins) do with Plugins[i] do
+    if Loaded and Assigned(OnPacket) then begin
+      OnPacket(id,FromServer,pck_data);
+      if PWord(@pck_data[0])^<3 then Break;
+    end;
+  if PWord(@pck_data[0])^>2 then begin
+    SetLength(pstr(msg.WParam)^,PWord(@pck_data[0])^-2);
+    Move(pck_data[2],pstr(msg.WParam)^[1],PWord(@pck_data[0])^-2);
+  end else begin
+    pstr(msg.WParam)^:='';
+    Exit;
+  end;
+
   for i:=0 to ScriptsList.Count-1 do begin
     if ScriptsList.Checked[i] then begin
       //по очереди посылаем всем включенным скриптам
@@ -874,6 +894,7 @@ begin
   Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'Options.ini');
 
   InitializeCriticalSection(_cs);
+  InitializeCriticalSection(cs_send);
   //грузим из options.ini названия используемых библиотек
   isNewxor.Text:=Options.ReadString('General','isNewxor','newxor.dll');
   isInject.Text:=Options.ReadString('General','isInject','inject.dll');
@@ -1017,6 +1038,11 @@ begin
   //запускаем главный поток
   SLh:=BeginThread(nil, 0, @ServerListen, nil, 0, SLth);
   sendMsg('Thread Start: основной поток ServerListen '+inttostr(SLh)+'/'+inttostr(SLth));
+
+  PluginStruct.Threads:=@Thread[0];
+  PluginStruct.ThreadsCount:=High(Thread)+1;
+  PluginStruct.SendPck:=SendPacket;
+  btnRefreshPluginListClick(nil);
 end;
 
 procedure TL2PacketHackMain.FormDestroy(Sender: TObject);
@@ -1080,7 +1106,11 @@ begin
   if Lib<>0 then FreeLibrary(Lib);
   if not isInject.Enabled then FreeMem(dllScr);
   DeleteCriticalSection(_cs);
+  DeleteCriticalSection(cs_send);
   sendMsg('Завершил работу L2phx... ');
+
+  for i:=0 to High(Plugins) do Plugins[i].Free;
+  SetLength(Plugins,0);
 end;
 
 procedure TL2PacketHackMain.isInjectChange(Sender: TObject);
@@ -2948,6 +2978,32 @@ begin
   isForceLoad:=true;
 end;
 
+procedure TL2PacketHackMain.btnRefreshPluginListClick(Sender: TObject);
+var
+  SearchRec: TSearchRec;
+  Mask: string;
+  i: Integer;
+begin
+  Mask := ExtractFilePath(ParamStr(0))+'plugins\*.dll';
+  clbPluginsList.Clear;
+  for i:=0 to High(Plugins) do Plugins[i].Free;
+  SetLength(Plugins,0);
+  if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+      Application.ProcessMessages;
+      if (SearchRec.Attr and faDirectory) <> faDirectory then begin
+        SetLength(Plugins,High(Plugins)+2);
+        i:=High(Plugins);
+        Plugins[i]:=TPlugin.Create;
+        Plugins[i].FileName:=ExtractFilePath(ParamStr(0))+'plugins\'+SearchRec.Name;
+        clbPluginsList.Items.Add(Copy(SearchRec.Name,1,Length(SearchRec.Name)-4));
+      end;
+    until FindNext(SearchRec)<>0;
+    FindClose(SearchRec);
+  end;
+end;
+
 procedure TL2PacketHackMain.BtnSaveLogClick(Sender: TObject);
 begin
   SaveDialog1.FilterIndex:=2;
@@ -3125,7 +3181,7 @@ var
   TimeStep: TDateTime;
   TimeStepB: array [0..7] of Byte;
 begin
-  //EnterCriticalSection(_cs);
+  EnterCriticalSection(cs_send);
   if Thread[tid].NoUsed then begin
     L2PacketHackMain.StatusBar1.SimpleText:='Нет соединения!'+sLineBreak+'Возможно вы выбрали пустое соединение.'+
                 sLineBreak+'Выберете в списке соединений ваш ник.';
@@ -3151,7 +3207,7 @@ begin
       if send(Thread[tid].SSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].SSock);
     end;
   end;
-  //LeaveCriticalSection(_cs);
+  LeaveCriticalSection(cs_send);
 end;
 
 function TL2PacketHackMain.CallMethod(Instance: TObject; ClassType: TClass; const MethodName: String; var Params: Variant): Variant;
@@ -3557,6 +3613,39 @@ begin
   Options.WriteBool('General','AntiXORkey',ChkXORfix.Checked);
   Options.UpdateFile;
   isChangeXor:=ChkXORfix.Checked;
+end;
+
+procedure TL2PacketHackMain.clbPluginsListClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  mPluginInfo.Clear;
+  for i:=0 to 4 do clbPluginFuncs.Checked[i]:=False;
+
+  if clbPluginsList.ItemIndex=-1 then Exit;
+
+  with Plugins[clbPluginsList.ItemIndex] do if Loaded then begin
+    mPluginInfo.Lines.Add(Info);
+    for i:=0 to 4 do if TEnableFunc(i) in EnableFuncs then
+      clbPluginFuncs.Checked[i]:=True;
+  end else if LoadInfo then begin
+    mPluginInfo.Lines.Add(Info);
+    for i:=0 to 4 do if TEnableFunc(i) in EnableFuncs then
+      clbPluginFuncs.Checked[i]:=True;
+  end;
+end;
+
+procedure TL2PacketHackMain.clbPluginsListClickCheck(Sender: TObject);
+var
+  i: Integer;
+begin
+  i:=clbPluginsList.ItemIndex;
+  if i=-1 then Exit;
+
+  if clbPluginsList.Checked[i] then
+    clbPluginsList.Checked[i]:=Plugins[i].LoadPlugin
+  else
+    Plugins[i].FreePlugin;
 end;
 
 procedure TL2PacketHackMain.ComboBox1Change(Sender: TObject);

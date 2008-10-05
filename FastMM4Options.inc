@@ -226,7 +226,7 @@ Set the default options for FastMM here.
  files are initialized before the main application, so the main application may
  well end up sharing a statically loaded DLL's memory manager and not the other
  way around. }
-{.$define ShareMM}
+{$define ShareMM}
 
   {Allow sharing of the memory manager by a DLL with other DLLs (or the main
    application if this is a statically loaded DLL) that were also compiled with

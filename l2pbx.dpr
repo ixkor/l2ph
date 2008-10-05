@@ -10,7 +10,8 @@ uses
   advApiHook in 'advApiHook.pas',
   main in 'main.pas' {L2PacketHackMain},
   Coding in 'Coding.pas',
-  FindReplaceUnit in 'FindReplaceUnit.pas' {FindReplaceForm};
+  FindReplaceUnit in 'FindReplaceUnit.pas' {FindReplaceForm},
+  phxPlugins in 'phxPlugins.pas';
 
 {$R *.res}
 

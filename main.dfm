@@ -1,7 +1,7 @@
 object L2PacketHackMain: TL2PacketHackMain
   Left = 486
   Top = 0
-  Caption = #1052#1086#1076#1080#1092#1080#1082#1072#1094#1080#1103' L2PacketHack 3.2.0 by CODERX.RU'
+  Caption = #1052#1086#1076#1080#1092#1080#1082#1072#1094#1080#1103' L2PacketHack 3.2.0 -> 3.4.0 by CODERX.RU'
   ClientHeight = 576
   ClientWidth = 747
   Color = clBtnFace
@@ -432,7 +432,7 @@ object L2PacketHackMain: TL2PacketHackMain
     Top = 60
     Width = 747
     Height = 497
-    ActivePage = TabSheet5
+    ActivePage = tsPluginsTab
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -1998,6 +1998,104 @@ object L2PacketHackMain: TL2PacketHackMain
         Colors.Statement.BackColor = clWindow
         Colors.PlainText.ForeColor = clWindowText
         Colors.PlainText.BackColor = clWindow
+      end
+    end
+    object tsPluginsTab: TTabSheet
+      Caption = #1055#1083#1072#1075#1080#1085#1099
+      ImageIndex = 6
+      object GroupBox5: TGroupBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 206
+        Height = 463
+        Align = alLeft
+        BiDiMode = bdLeftToRight
+        Caption = #1057#1087#1080#1089#1086#1082' '#1087#1083#1072#1075#1080#1085#1086#1074':'
+        ParentBiDiMode = False
+        TabOrder = 0
+        object clbPluginsList: TCheckListBox
+          Left = 2
+          Top = 15
+          Width = 202
+          Height = 422
+          OnClickCheck = clbPluginsListClickCheck
+          Align = alClient
+          BorderStyle = bsNone
+          ItemHeight = 13
+          TabOrder = 0
+          OnClick = clbPluginsListClick
+        end
+        object btnRefreshPluginList: TButton
+          AlignWithMargins = True
+          Left = 5
+          Top = 440
+          Width = 196
+          Height = 18
+          Hint = #1055#1077#1088#1077#1079#1072#1075#1088#1091#1078#1072#1077#1090' '#1089#1087#1080#1089#1086#1082' '#1087#1083#1072#1075#1080#1085#1086#1074
+          Align = alBottom
+          Caption = #1054#1073#1085#1086#1074#1080#1090#1100' '#1089#1087#1080#1089#1086#1082
+          TabOrder = 1
+          OnClick = btnRefreshPluginListClick
+        end
+      end
+      object Panel13: TPanel
+        Left = 212
+        Top = 0
+        Width = 527
+        Height = 469
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 1
+        object GroupBox10: TGroupBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 521
+          Height = 335
+          Align = alClient
+          Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
+          TabOrder = 0
+          object mPluginInfo: TMemo
+            AlignWithMargins = True
+            Left = 5
+            Top = 18
+            Width = 511
+            Height = 312
+            Align = alClient
+            BorderStyle = bsNone
+            ReadOnly = True
+            TabOrder = 0
+          end
+        end
+        object GroupBox11: TGroupBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 344
+          Width = 521
+          Height = 122
+          Align = alBottom
+          Caption = #1055#1086#1076#1076#1077#1088#1078#1080#1074#1072#1077#1084#1099#1077' '#1092#1091#1085#1082#1094#1080#1080':'
+          Enabled = False
+          TabOrder = 1
+          object clbPluginFuncs: TCheckListBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 18
+            Width = 511
+            Height = 99
+            Align = alClient
+            BorderStyle = bsNone
+            ItemHeight = 13
+            Items.Strings = (
+              'OnPacket'
+              'OnConnect'
+              'OnDisconnect'
+              'OnLoad'
+              'OnFree')
+            TabOrder = 0
+          end
+        end
       end
     end
     object TabSheet10: TTabSheet
