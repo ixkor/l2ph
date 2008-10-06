@@ -356,6 +356,9 @@ type
   end;
 
   procedure SendPacket(Size: Word; pck: string; tid: Byte; ToServer: Boolean);
+  procedure SendPckStr(pck: string; const tid: Byte; const ToServer: Boolean);
+  procedure SendPckData(var pck; const tid: Byte; const ToServer: Boolean); stdcall;
+  function DataPckToStrPck(var pck): string; stdcall;
 
   //потоки
   procedure ServerListen(PSock: Pointer);
@@ -1042,6 +1045,11 @@ begin
   PluginStruct.Threads:=@Thread[0];
   PluginStruct.ThreadsCount:=High(Thread)+1;
   PluginStruct.SendPck:=SendPacket;
+  PluginStruct.SendPckStr:=SendPckStr;
+  PluginStruct.SendPckData:=SendPckData;
+  PluginStruct.DataPckToStrPck:=DataPckToStrPck;
+  PluginStruct.HexToString:=HexToString;
+  PluginStruct.StringToHex:=StringToHex;
   btnRefreshPluginListClick(nil);
 end;
 
@@ -3208,6 +3216,35 @@ begin
     end;
   end;
   LeaveCriticalSection(cs_send);
+end;
+
+procedure SendPckStr(pck: string; const tid: Byte; const ToServer: Boolean);
+begin
+  SendPacket(Length(pck)+2,pck,tid,ToServer);
+end;
+
+procedure SendPckData(var pck; const tid: Byte; const ToServer: Boolean); stdcall;
+var
+  tpck: packed record
+    size: Word;
+    id: Byte;
+  end absolute pck;
+  spck: string;
+begin
+  SetLength(spck,tpck.size-2);
+  Move(tpck.id,spck[1],Length(spck));
+  SendPacket(tpck.size,spck,tid,ToServer);
+end;
+
+function DataPckToStrPck(var pck): string; stdcall;
+var
+  tpck: packed record
+    size: Word;
+    id: Byte;
+  end absolute pck;
+begin
+  SetLength(Result,tpck.size-2);
+  Move(tpck.id,Result[1],Length(Result));
 end;
 
 function TL2PacketHackMain.CallMethod(Instance: TObject; ClassType: TClass; const MethodName: String; var Params: Variant): Variant;

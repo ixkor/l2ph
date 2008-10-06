@@ -32,15 +32,74 @@ type
   TThreads = array[0..0] of TThread;
 
   TSendPacket = procedure(Size: Word; pck: string; tid: Byte; ToServer: Boolean);
+  TSendPckStr = procedure(pck: string; const tid: Byte; const ToServer: Boolean);
+  TSendPckData = procedure(var pck; const tid: Byte; const ToServer: Boolean); stdcall;
+  TDataPckToStrPck = function(var pck): string; stdcall;
+  THexToString = function(Hex:String):String;
+  TStringToHex = function(str1,Separator:String):String;
+  TReadC = function(const pck: string; const index:integer):byte; stdcall;
+  TReadH = function(const pck: string; const index:integer):word; stdcall;
+  TReadD = function(const pck: string; const index:integer):integer; stdcall;
+  TReadF = function(const pck: string; const index:integer):double; stdcall;
+  TReadS = function(const pck: string; const index:integer):string; stdcall;
+  TReadCEx = function(const pck; const index:integer):byte; stdcall;
+  TReadHEx = function(const pck; const index:integer):word; stdcall;
+  TReadDEx = function(const pck; const index:integer):integer; stdcall;
+  TReadFEx = function(const pck; const index:integer):double; stdcall;
+  TReadSEx = function(const pck; const index:integer):string; stdcall;
+  TWriteC = procedure(var pck: string; const v:byte;    ind:integer=-1); stdcall;
+  TWriteH = procedure(var pck: string; const v:word;    ind:integer=-1); stdcall;
+  TWriteD = procedure(var pck: string; const v:integer; ind:integer=-1); stdcall;
+  TWriteF = procedure(var pck: string; const v:double;  ind:integer=-1); stdcall;
+  TWriteS = procedure(var pck: string; const v:string;  ind:integer=-1); stdcall;
+  TWriteCEx = procedure(var pck; const v:byte;    ind:integer=-1); stdcall;
+  TWriteHEx = procedure(var pck; const v:word;    ind:integer=-1); stdcall;
+  TWriteDEx = procedure(var pck; const v:integer; ind:integer=-1); stdcall;
+  TWriteFEx = procedure(var pck; const v:double;  ind:integer=-1); stdcall;
+  TWriteSEx = procedure(var pck; const v:string;  ind:integer=-1); stdcall;
 
   TEnableFunc = (efOnPacket, efOnConnect, efOnDisconnect, efOnLoad, efOnFree);
   TEnableFuncs = set of TEnableFunc;
+
+  PPacket = ^TPacket;
+  TPacket = record
+    size: Word;
+    id: Byte;
+    data: array[Word] of Byte;
+  end;
+
+  PPluginStruct = ^TPluginStruct;
   TPluginStruct = packed record
     Threads: PThreads;
     ThreadsCount: Integer;
     SendPck: TSendPacket;
+    SendPckStr: TSendPckStr;
+    SendPckData: TSendPckData;
+    DataPckToStrPck: TDataPckToStrPck;
+    HexToString:THexToString;
+    StringToHex:TStringToHex;
+    ReadC: TReadC;
+    ReadH: TReadH;
+    ReadD: TReadD;
+    ReadF: TReadF;
+    ReadS: TReadS;
+    ReadCEx: TReadCEx;
+    ReadHEx: TReadHEx;
+    ReadDEx: TReadDEx;
+    ReadFEx: TReadFEx;
+    ReadSEx: TReadSEx;
+    WriteC: TWriteC;
+    WriteH: TWriteH;
+    WriteD: TWriteD;
+    WriteF: TWriteF;
+    WriteS: TWriteS;
+    WriteCEx: TWriteCEx;
+    WriteHEx: TWriteHEx;
+    WriteDEx: TWriteDEx;
+    WriteFEx: TWriteFEx;
+    WriteSEx: TWriteSEx;
   end;
-  
+
 implementation
     
 end.
