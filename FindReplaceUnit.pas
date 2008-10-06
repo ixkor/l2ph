@@ -99,6 +99,9 @@ begin
   flush:=false;
   str1:=EdtFind.Text;
   str:=L2PacketHackMain.JvHLEditor1.Lines[y];
+  if PageControl1.ActivePageIndex=0
+    then EdtFind.SetFocus
+    else EdtFind1.SetFocus;
 end;
 
 procedure TFindReplaceForm.BtnFindCancelClick(Sender: TObject);

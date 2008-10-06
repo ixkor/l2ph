@@ -8,10 +8,102 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Ревизия: 40
+Автор: nlobp
+Дата: 3:06:00, 7 октября 2008 г.
+[*] при вызове окна поиск/замена наводим фокус на поле ввода;
+[*] при переходе на вкладку "скрипты" наводим фокус на поле редактора;
+[*] опять копался в потоках;
+
+Ревизия: 39
+Автор: xkor
+Дата: 0:01:00, 7 октября 2008 г.
+[+] обновил возможности плагинов, теперь из плагина есть доступ к следующим
+    встроенным в пакетхак фукнциям:
+    procedure SendPacket(Size: Word; pck: string; tid: Byte; ToServer: Boolean);
+    procedure SendPckStr(pck: string; const tid: Byte; const ToServer: Boolean);
+    procedure SendPckData(var pck; const tid: Byte; const ToServer: Boolean); stdcall;
+    function DataPckToStrPck(var pck): string; stdcall;
+
+    function ReadC(const pck: string; const index:integer):byte; stdcall;
+    function ReadH(const pck: string; const index:integer):word; stdcall;
+    function ReadD(const pck: string; const index:integer):integer; stdcall;
+    function ReadF(const pck: string; const index:integer):double; stdcall;
+    function ReadS(const pck: string; const index:integer):string; stdcall;
+    function ReadCEx(const pck; const index:integer):byte; stdcall;
+    function ReadHEx(const pck; const index:integer):word; stdcall;
+    function ReadDEx(const pck; const index:integer):integer; stdcall;
+    function ReadFEx(const pck; const index:integer):double; stdcall;
+    function ReadSEx(const pck; const index:integer):string; stdcall;
+    procedure WriteC(var pck: string; const v:byte; ind:integer=-1); stdcall;
+    procedure WriteH(var pck: string; const v:word; ind:integer=-1); stdcall;
+    procedure WriteD(var pck: string; const v:integer; ind:integer=-1); stdcall;
+    procedure WriteF(var pck: string; const v:double; ind:integer=-1); stdcall;
+    procedure WriteS(var pck: string; const v:string; ind:integer=-1); stdcall;
+    procedure WriteCEx(var pck; const v:byte; ind:integer=-1); stdcall;
+    procedure WriteHEx(var pck; const v:word; ind:integer=-1); stdcall;
+    procedure WriteDEx(var pck; const v:integer; ind:integer=-1); stdcall;
+    procedure WriteFEx(var pck; const v:double; ind:integer=-1); stdcall;
+    procedure WriteSEx(var pck; const v:string; ind:integer=-1); stdcall;
+
+    function HexToString(Hex:String):String;
+    function StringToHex(str1,Separator:String):String;
+
+    а так же в качестве демо-плагина теперь простенький автоюзатель НР бутылок
+
+Ревизия: 38
+Автор: xkor
+Дата: 1:55:00, 6 октября 2008 г.
+[+] Такс, на SVN сделал ревизию 38, добавлена поддержка плагинов.
+    НО!, пока поддержка плагинов не полностью стабильна, глючит если
+    включать плагины до захода в игру, но если после захода, то вроде
+    всё пашет как надо.
+    Да и пока OnConnect и OnDisconnect из плагина не вызываются...
+
+    Вобщем смотрим и думаем что ещё добавить ибо счас плагин писать
+    не очень удобно, мало встроенных возможностей.
+    ЗЫ исходники простейшего плагина так же на SVN...
+
+Ревизия: 37
+Автор: wanick
+Дата: 22:14:01, 4 октября 2008 г.
+Сообщение:
+[-] доработал проверку, перед выгрузкой библиотеки
+
+Ревизия: 36
+Автор: wanick
+Дата: 3:35:46, 2 октября 2008 г.
+Сообщение:
+[-] исправления по выгрузки dll
+
+Ревизия: 35
+Автор: wanick
+Дата: 17:29:17, 1 октября 2008 г.
+Сообщение:
+[-] выгрузка библиотеки
+
+Ревизия: 33
+Автор: wanick
+Дата: 21:43:19, 30 сентября 2008 г.
+Сообщение:
+[+] динамическая выгрузка библиотек inject.dll и newxor.dll p.s. надо доделать отрубания процессов и нитей при выгрузке dll
+
+Ревизия: 32
+Автор: wanick
+Дата: 18:30:12, 30 сентября 2008 г.
+Сообщение:
+[+] добавил FastMM_FullDebugMode.dll в сборку чтобы при компиляции не ругалось
+
+Ревизия: 31
+Автор: nlobp
+Дата: 18:00:07, 30 сентября 2008 г.
+Сообщение:
+Правил работу потоков (надо тестить)
+
 Ревизия: 29
 Автор: wanick
 Дата: 2:16:35, 30 сентября 2008 г.
-[-] опять глюки в работе кнопок; 
+[-] опять глюки в работе кнопок;
 [-] поправил replace на текущей позицие работает корректно;
 
 Ревизия: 28

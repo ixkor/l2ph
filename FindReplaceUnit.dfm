@@ -70,10 +70,6 @@ object FindReplaceForm: TFindReplaceForm
     object TabSheet2: TTabSheet
       Caption = #1047#1072#1084#1077#1085#1080#1090#1100
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label2: TLabel
         Left = 8
         Top = 5
