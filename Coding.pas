@@ -58,6 +58,14 @@ type
   TWriteFEx = procedure(var pck; const v:double;  ind:integer=-1); stdcall;
   TWriteSEx = procedure(var pck; const v:string;  ind:integer=-1); stdcall;
 
+  TOnTimer = procedure(const param: Cardinal); stdcall;
+  TCreateAndRunTimerThread = function(const interval, usrParam: Cardinal;
+                                   const OnTimerProc: TOnTimer): Pointer; stdcall;
+  TChangeTimerThread = procedure(const timer: Pointer; const interval: Cardinal;
+                              const usrParam: Cardinal = $ffffffff;
+                              const OnTimerProc: TOnTimer = nil); stdcall;
+  TDestroyTimerThread = procedure(var timer: Pointer); stdcall;
+
   TEnableFunc = (efOnPacket, efOnConnect, efOnDisconnect, efOnLoad, efOnFree);
   TEnableFuncs = set of TEnableFunc;
 
@@ -98,6 +106,9 @@ type
     WriteDEx: TWriteDEx;
     WriteFEx: TWriteFEx;
     WriteSEx: TWriteSEx;
+    CreateAndRunTimerThread: TCreateAndRunTimerThread;
+    ChangeTimerThread: TChangeTimerThread;
+    DestroyTimerThread: TDestroyTimerThread;
   end;
 
 implementation

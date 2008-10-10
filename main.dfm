@@ -445,6 +445,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet5: TTabSheet
       Caption = #1054#1089#1085#1086#1074#1085#1086#1077
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel2: TPanel
         Left = 574
         Top = 0
@@ -458,11 +462,10 @@ object L2PacketHackMain: TL2PacketHackMain
         object Label1: TLabel
           Left = 4
           Top = 4
-          Width = 157
+          Width = 142
           Height = 13
           Align = alTop
           Caption = '    '#1056#1072#1073#1086#1090#1072#1102#1097#1080#1077' '#1087#1088#1086#1075#1088#1072#1084#1084#1099':'
-          ExplicitWidth = 142
         end
         object ListBox1: TListBox
           Left = 4
@@ -690,6 +693,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet4: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel15: TPanel
         Left = 522
         Top = 0
@@ -1145,6 +1152,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet3: TTabSheet
       Caption = #1055#1086#1089#1099#1083#1082#1072
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox7: TGroupBox
         Left = 0
         Top = 0
@@ -1344,6 +1355,10 @@ object L2PacketHackMain: TL2PacketHackMain
       AlignWithMargins = True
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel7: TPanel
         Left = 0
         Top = 353
@@ -1688,6 +1703,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet6: TTabSheet
       Caption = #1057#1082#1088#1080#1087#1090#1099
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter3: TSplitter
         Left = 601
         Top = 0
@@ -2011,6 +2030,10 @@ object L2PacketHackMain: TL2PacketHackMain
     object tsPluginsTab: TTabSheet
       Caption = #1055#1083#1072#1075#1080#1085#1099
       ImageIndex = 6
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox5: TGroupBox
         AlignWithMargins = True
         Left = 3

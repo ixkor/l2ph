@@ -4143,6 +4143,10 @@ var
   i, id : integer;
 begin
   id:=msg.LParam;
+
+  for i:=0 to High(Plugins) do with Plugins[i] do
+    if Loaded and Assigned(OnDisconnect) then OnDisconnect(id,Boolean(msg.WParam));
+
   for i:=0 to ScriptsList.Count-1 do
     if(ScriptsList.Checked[i])then
       if not Scripts[i].Compilled then begin
@@ -4153,12 +4157,12 @@ begin
           Scripts[i].Compilled:=True;
           Scripts[i].fsScript.Variables['ConnectID']:=id;
           Scripts[i].fsScript.CallFunction('OnDisconnect',True);
-          Scripts[i].fsScript.CallFunction('OnConnect',False);
+          //Scripts[i].fsScript.CallFunction('OnConnect',False);
         end;
       end else begin
         Scripts[i].fsScript.Variables['ConnectID']:=id;
         Scripts[i].fsScript.CallFunction('OnDisconnect',True);
-        Scripts[i].fsScript.CallFunction('OnConnect',False);
+        //Scripts[i].fsScript.CallFunction('OnConnect',False);
       end;
 end;
 //....................
@@ -4168,6 +4172,10 @@ var
   i, id : integer;
 begin
   id:=msg.LParam;
+
+  for i:=0 to High(Plugins) do with Plugins[i] do
+    if Loaded and Assigned(OnConnect) then OnConnect(id,Boolean(msg.WParam));
+
   //инициируем переменные ConnectID и OnConnect в скрипте
   for i:=0 to ScriptsList.Count-1 do
     if(ScriptsList.Checked[i])then
@@ -4179,12 +4187,12 @@ begin
           Scripts[i].Compilled:=True;
           Scripts[i].fsScript.Variables['ConnectID']:=id;
           Scripts[i].fsScript.CallFunction('OnConnect',True);
-          Scripts[i].fsScript.CallFunction('OnDisconnect',False);
+          //Scripts[i].fsScript.CallFunction('OnDisconnect',False);
         end;
       end else begin
         Scripts[i].fsScript.Variables['ConnectID']:=id;
         Scripts[i].fsScript.CallFunction('OnConnect',True);
-        Scripts[i].fsScript.CallFunction('OnDisconnect',False);
+        //Scripts[i].fsScript.CallFunction('OnDisconnect',False);
       end;
 end;
 //....................
@@ -4236,7 +4244,7 @@ begin
     Thread[id].CH:=BeginThread(nil, 0, @Client, Param, 0, Thread[id].CTH);
     sendMSG('Thread Start: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
     //инициируем переменные ConnectID и OnConnect в скрипте
-    PostMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
+    PostMessage(L2PacketHackMain.Handle, WM_SetConnect, 1, id);
 
     //здесь вроде тоже надо критическую секцию?
     //ждем подключения
@@ -4268,7 +4276,7 @@ begin
     end;
     //сюда попадаем когда отвалился сервер
     //инициируем переменные ConnectID и OnDisconnect в скрипте
-    SendMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
+    SendMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 1, id);
     //sendMSG('Disconnect: отвалился сервер Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
 
   finally

@@ -10,7 +10,9 @@ library inject;
   with your DLL. To avoid using BORLNDMM.DLL, pass string information
   using PChar or ShortString parameters. }
 
-uses  windows,advapihook;
+uses
+  windows,
+  advapihook;
 
 const
   user32    = 'user32.dll';

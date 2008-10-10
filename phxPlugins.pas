@@ -2,10 +2,11 @@ unit phxPlugins;
 
 interface
 
-uses Windows, Classes, Coding, SysUtils, StrUtils;
+uses Windows, Coding, SysUtils, StrUtils, Classes;
 
-const
-  version = $03040001;
+var                                {version} {revision}
+  version_a: array[0..3] of Byte = ( 3,4,1,      41   );
+  version: Integer  absolute version_a;
 
 type
 
@@ -13,7 +14,7 @@ type
   //TGetEnableFuncs = function: TEnableFuncs; stdcall;
   TSetStruct = function(const struct: TPluginStruct): Boolean; stdcall;
   TOnPacket = procedure(const cnt: Cardinal; const fromServer: Boolean; var packet); stdcall;
-  TOnConnect = procedure(const cnt: Cardinal); stdcall;
+  TOnConnect = procedure(const cnt: Cardinal; const withServer: Boolean); stdcall;
   TOnDisconnect = TOnConnect;
   TOnLoad = procedure; stdcall;
   TOnFree = TOnLoad;
@@ -39,6 +40,14 @@ type
     procedure FreePlugin;
   end;
 
+  TPlugThread = class(TThread)
+  public
+    OnTimer: TOnTimer;
+    TimerInterval, UserParam: Cardinal;
+  protected
+    procedure Execute; override;
+  end;
+
   function ReadC(const pck: string; const index:integer):byte; stdcall;
   function ReadH(const pck: string; const index:integer):word; stdcall;
   function ReadD(const pck: string; const index:integer):integer; stdcall;
@@ -59,7 +68,14 @@ type
   procedure WriteDEx(var pck; const v:integer; ind:integer=-1); stdcall;
   procedure WriteFEx(var pck; const v:double;  ind:integer=-1); stdcall;
   procedure WriteSEx(var pck; const v:string;  ind:integer=-1); stdcall;
-  
+
+  function CreateAndRunTimerThread(const interval, usrParam: Cardinal;
+                                   const OnTimerProc: TOnTimer): Pointer; stdcall;
+  procedure ChangeTimerThread(const timer: Pointer; const interval: Cardinal;
+                              const usrParam: Cardinal = $ffffffff;
+                              const OnTimerProc: TOnTimer = nil); stdcall;
+  procedure DestroyTimerThread(var timer: Pointer); stdcall;
+
 var
   Plugins: array of TPlugin;
   PluginStruct: TPluginStruct;
@@ -165,6 +181,18 @@ begin
 
   Result:=True;
 end;
+
+{ TPlugThread }
+
+procedure TPlugThread.Execute;
+begin
+  repeat
+    Sleep(TimerInterval);
+    OnTimer(UserParam);
+  until TimerInterval=0;
+end;
+
+////////////////////////////////////////////////////////////////////////////////
 
 function ReadC(const pck: string; const index:integer):byte; stdcall;
 begin
@@ -346,6 +374,38 @@ begin
   Move(temp[1],PByteArray(@pck)^[ind],dt_size);
 end;
 
+function CreateAndRunTimerThread(const interval, usrParam: Cardinal;
+                                 const OnTimerProc: TOnTimer): Pointer; stdcall;
+begin
+  Result:=TPlugThread.Create(True);
+  with TPlugThread(Result) do begin
+    FreeOnTerminate:=True;
+    Priority:=tpLower;
+    TimerInterval:=interval;
+    OnTimer:=OnTimerProc;
+    UserParam:=usrParam;
+    Resume;
+  end;
+end;
+
+procedure ChangeTimerThread(const timer: Pointer; const interval: Cardinal;
+                            const usrParam: Cardinal = $ffffffff;
+                            const OnTimerProc: TOnTimer = nil); stdcall;
+begin
+  with TPlugThread(timer) do begin
+    TimerInterval:=interval;
+    if @OnTimerProc<>nil then
+      OnTimer:=OnTimerProc;
+    if usrParam<>$ffffffff then
+      UserParam:=usrParam;
+  end;
+end;
+
+procedure DestroyTimerThread(var timer: Pointer); stdcall;
+begin
+  FreeAndNil(TPlugThread(timer));
+end;
+
 initialization
   PluginStruct.ReadC:=ReadC;
   PluginStruct.ReadH:=ReadH;
@@ -367,5 +427,8 @@ initialization
   PluginStruct.WriteDEx:=WriteDEx;
   PluginStruct.WriteFEx:=WriteFEx;
   PluginStruct.WriteSEx:=WriteSEx;
+  PluginStruct.CreateAndRunTimerThread:=CreateAndRunTimerThread;
+  PluginStruct.ChangeTimerThread:=ChangeTimerThread;
+  PluginStruct.DestroyTimerThread:=DestroyTimerThread;
 
 end.

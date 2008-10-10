@@ -4,6 +4,7 @@ uses
   FastMM4,
   Forms,
   Classes,
+  ExcepDialog in 'ExcepDialog.pas' {ExceptionDialog},
   BlowFish in 'BlowFish.pas',
   XorCoding in 'XorCoding.pas',
   NativeAPI in 'NativeAPI.pas',
