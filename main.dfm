@@ -1,7 +1,7 @@
 object L2PacketHackMain: TL2PacketHackMain
   Left = 486
   Top = 0
-  Caption = #1052#1086#1076#1080#1092#1080#1082#1072#1094#1080#1103' L2PacketHack 3.4.1.42 by CODERX.RU'
+  Caption = #1047#1072#1076#1072#1105#1090#1089#1103' '#1074' FormCreate'
   ClientHeight = 576
   ClientWidth = 747
   Color = clBtnFace
@@ -690,10 +690,6 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet4: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel15: TPanel
         Left = 522
         Top = 0
@@ -1348,10 +1344,6 @@ object L2PacketHackMain: TL2PacketHackMain
       AlignWithMargins = True
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel7: TPanel
         Left = 0
         Top = 353
@@ -1696,10 +1688,6 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet6: TTabSheet
       Caption = #1057#1082#1088#1080#1087#1090#1099
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter3: TSplitter
         Left = 601
         Top = 0
@@ -2023,10 +2011,6 @@ object L2PacketHackMain: TL2PacketHackMain
     object tsPluginsTab: TTabSheet
       Caption = #1055#1083#1072#1075#1080#1085#1099
       ImageIndex = 6
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox5: TGroupBox
         AlignWithMargins = True
         Left = 3

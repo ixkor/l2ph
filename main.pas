@@ -884,6 +884,7 @@ var
   i, j: Integer;
 //  temp: string;
 begin
+  Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CODERX.RU';
   sendMsg('Стартует L2phx...  ');
   typ0:='я'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
