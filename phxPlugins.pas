@@ -5,7 +5,7 @@ interface
 uses Windows, Coding, SysUtils, StrUtils, Classes;
 
 var                                {version} {revision}
-  version_a: array[0..3] of Byte = ( 3,4,1,      44   );
+  version_a: array[0..3] of Byte = ( 3,4,1,      45   );
   version: Integer  absolute version_a;
 
 type
@@ -144,6 +144,7 @@ begin
   hLib:=LoadLibrary(PChar(FileName));
   Loaded:=hLib<>0;
   Result:=False;
+ try
   if not Loaded then exit;
 
   //GetEnableFuncs:=GetProcAddress(hLib,'GetEnableFuncs');
@@ -153,7 +154,10 @@ begin
   if(not Assigned(GetPluginInfo))
   //or(not Assigned(GetEnableFuncs))
   or(not Assigned(SetStruct))
-  or(not SetStruct(PluginStruct))then Exit;
+  or(not SetStruct(PluginStruct))then begin
+    FreePlugin;
+    Exit;
+  end;
 
   //EnableFuncs:=GetEnableFuncs;
   Info:=String(GetPluginInfo(version));
@@ -180,6 +184,9 @@ begin
   if Assigned(OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
 
   Result:=True;
+ finally
+  Loaded:=Result;
+ end;
 end;
 
 { TPlugThread }
