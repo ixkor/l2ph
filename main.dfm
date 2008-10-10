@@ -1,7 +1,7 @@
 object L2PacketHackMain: TL2PacketHackMain
   Left = 486
   Top = 0
-  Caption = #1052#1086#1076#1080#1092#1080#1082#1072#1094#1080#1103' L2PacketHack 3.4.0.40 by CODERX.RU'
+  Caption = #1052#1086#1076#1080#1092#1080#1082#1072#1094#1080#1103' L2PacketHack 3.4.1.42 by CODERX.RU'
   ClientHeight = 576
   ClientWidth = 747
   Color = clBtnFace
@@ -445,10 +445,6 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet5: TTabSheet
       Caption = #1054#1089#1085#1086#1074#1085#1086#1077
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Panel2: TPanel
         Left = 574
         Top = 0
@@ -462,10 +458,11 @@ object L2PacketHackMain: TL2PacketHackMain
         object Label1: TLabel
           Left = 4
           Top = 4
-          Width = 142
+          Width = 157
           Height = 13
           Align = alTop
           Caption = '    '#1056#1072#1073#1086#1090#1072#1102#1097#1080#1077' '#1087#1088#1086#1075#1088#1072#1084#1084#1099':'
+          ExplicitWidth = 142
         end
         object ListBox1: TListBox
           Left = 4
@@ -1152,10 +1149,6 @@ object L2PacketHackMain: TL2PacketHackMain
     object TabSheet3: TTabSheet
       Caption = #1055#1086#1089#1099#1083#1082#1072
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox7: TGroupBox
         Left = 0
         Top = 0
