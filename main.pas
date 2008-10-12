@@ -884,7 +884,7 @@ var
   i, j: Integer;
 //  temp: string;
 begin
-  Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CODERX.RU';
+  Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru';
   sendMsg('Стартует L2phx...  ');
   typ0:='я'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
@@ -3097,7 +3097,7 @@ end;
 procedure TL2PacketHackMain.Button2Click(Sender: TObject);
 begin
   if Thread[cid].NoUsed then
-    ShowMessage('Нет соединения!'+sLineBreak+'Возможно вы выбрали пустое соединение.'+
+    sendMSG('Нет соединения!'+sLineBreak+'Возможно вы выбрали пустое соединение.'+
                 sLineBreak+'Выберете в списке соединений ваш ник.')
   else begin
     RefreshPrecompile(fsScript2);
@@ -3281,6 +3281,12 @@ var
   tstFunc: procedure (ar:integer);
   //support DLL
 begin
+  // сначала даём возможность плагинам обработать функции
+  for i:=0 to High(Plugins) do
+   if Plugins[i].Loaded and Assigned(Plugins[i].OnCallMethod) then
+    if Plugins[i].OnCallMethod(MethodName,Params,Result) then Exit;
+
+  // если плагины не обработать то обрабатываем сами  
   if MethodName = 'SENDTOCLIENT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     b:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
@@ -3665,17 +3671,17 @@ var
   i: Integer;
 begin
   mPluginInfo.Clear;
-  for i:=0 to 4 do clbPluginFuncs.Checked[i]:=False;
+  for i:=0 to 6 do clbPluginFuncs.Checked[i]:=False;
 
   if clbPluginsList.ItemIndex=-1 then Exit;
 
   with Plugins[clbPluginsList.ItemIndex] do if Loaded then begin
     mPluginInfo.Lines.Add(Info);
-    for i:=0 to 4 do if TEnableFunc(i) in EnableFuncs then
+    for i:=0 to 6 do if TEnableFunc(i) in EnableFuncs then
       clbPluginFuncs.Checked[i]:=True;
   end else if LoadInfo then begin
     mPluginInfo.Lines.Add(Info);
-    for i:=0 to 4 do if TEnableFunc(i) in EnableFuncs then
+    for i:=0 to 6 do if TEnableFunc(i) in EnableFuncs then
       clbPluginFuncs.Checked[i]:=True;
   end;
 end;
@@ -3747,10 +3753,22 @@ end;
 procedure TL2PacketHackMain.RefreshPrecompile(var fsScript: TfsScript);
 var
   fss: string;
+  i,k: Integer;
+  funcs: TStringArray;
 begin
   fss:='fss:integer='+IntToStr(Integer(fsScript));
   fsScript.Clear;
   fsScript.AddRTTI;
+
+  // позволяем плагинам добавить свои функции в скрипты
+  for i:=0 to High(Plugins) do
+  if Plugins[i].Loaded and Assigned(Plugins[i].OnRefreshPrecompile) then begin
+    SetLength(funcs,0);
+    k:=Plugins[i].OnRefreshPrecompile(funcs);
+    if k>0 then for k:=0 to High(funcs) do
+      fsScript.AddMethod(funcs[k],CallMethod);
+  end;
+
   fsScript.AddMethod('function HStr(Hex:String):String',CallMethod);
   fsScript.AddMethod('procedure SendToClient('+fss+')',CallMethod);
   fsScript.AddMethod('procedure SendToServer('+fss+')',CallMethod);

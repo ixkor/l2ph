@@ -31,6 +31,8 @@ type
   PThreads = ^TThreads;
   TThreads = array[0..0] of TThread;
 
+  TStringArray = array of string;
+
   TSendPacket = procedure(Size: Word; pck: string; tid: Byte; ToServer: Boolean);
   TSendPckStr = procedure(pck: string; const tid: Byte; const ToServer: Boolean);
   TSendPckData = procedure(var pck; const tid: Byte; const ToServer: Boolean); stdcall;
@@ -65,9 +67,6 @@ type
                               const usrParam: Cardinal = $ffffffff;
                               const OnTimerProc: TOnTimer = nil); stdcall;
   TDestroyTimerThread = procedure(var timer: Pointer); stdcall;
-
-  TEnableFunc = (efOnPacket, efOnConnect, efOnDisconnect, efOnLoad, efOnFree);
-  TEnableFuncs = set of TEnableFunc;
 
   PPacket = ^TPacket;
   TPacket = record

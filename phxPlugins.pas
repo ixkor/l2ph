@@ -5,10 +5,13 @@ interface
 uses Windows, Coding, SysUtils, StrUtils, Classes;
 
 var                                {version} {revision}
-  version_a: array[0..3] of Byte = ( 3,4,1,      45   );
+  version_a: array[0..3] of Byte = ( 3,4,1,      46   );
   version: Integer  absolute version_a;
 
 type
+  TEnableFunc = (efOnPacket, efOnConnect, efOnDisconnect, efOnLoad, efOnFree,
+                 efOnCallMethod, efOnRefreshPrecompile);
+  TEnableFuncs = set of TEnableFunc;
 
   TGetPluginInfo = function(const ver: Integer): PChar; stdcall;
   //TGetEnableFuncs = function: TEnableFuncs; stdcall;
@@ -18,6 +21,9 @@ type
   TOnDisconnect = TOnConnect;
   TOnLoad = procedure; stdcall;
   TOnFree = TOnLoad;
+  TOnCallMethod = function(const MethodName: String; var Params,
+                           FuncResult: Variant): Boolean; stdcall;
+  TOnRefreshPrecompile = function(var funcs: TStringArray): Integer; stdcall;
 
   TPlugin = class(TObject)
   public
@@ -33,6 +39,8 @@ type
     OnDisconnect: TOnDisconnect;
     OnLoad: TOnLoad;
     OnFree: TOnFree;
+    OnCallMethod: TOnCallMethod;
+    OnRefreshPrecompile: TOnRefreshPrecompile;
     constructor Create;
     destructor Destroy; override;
     function LoadPlugin: Boolean;
@@ -126,6 +134,8 @@ begin
   OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
   OnLoad:=GetProcAddress(hLib,'OnLoad');
   OnFree:=GetProcAddress(hLib,'OnFree');
+  OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
+  OnRefreshPrecompile:=GetProcAddress(hLib,'OnRefreshPrecompile');
 
   EnableFuncs:=[];
   if Assigned(OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
@@ -133,6 +143,8 @@ begin
   if Assigned(OnDisconnect) then EnableFuncs:=EnableFuncs+[efOnDisconnect];
   if Assigned(OnLoad) then EnableFuncs:=EnableFuncs+[efOnLoad];
   if Assigned(OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
+  if Assigned(OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
+  if Assigned(OnRefreshPrecompile) then EnableFuncs:=EnableFuncs+[efOnRefreshPrecompile];
 
   FreeLibrary(hLib);
 
@@ -147,32 +159,26 @@ begin
  try
   if not Loaded then exit;
 
-  //GetEnableFuncs:=GetProcAddress(hLib,'GetEnableFuncs');
   GetPluginInfo:=GetProcAddress(hLib,'GetPluginInfo');
   SetStruct:=GetProcAddress(hLib,'SetStruct');
 
   if(not Assigned(GetPluginInfo))
-  //or(not Assigned(GetEnableFuncs))
   or(not Assigned(SetStruct))
   or(not SetStruct(PluginStruct))then begin
     FreePlugin;
     Exit;
   end;
 
-  //EnableFuncs:=GetEnableFuncs;
   Info:=String(GetPluginInfo(version));
   EnableFuncs:=[];
 
-  //if efOnPacket in EnableFuncs then
-    OnPacket:=GetProcAddress(hLib,'OnPacket');
-  //if efOnConnect in EnableFuncs then
-    OnConnect:=GetProcAddress(hLib,'OnConnect');
-  //if efOnDisconnect in EnableFuncs then
-    OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
-  //if efOnLoad in EnableFuncs then
-    OnLoad:=GetProcAddress(hLib,'OnLoad');
-  //if efOnFree in EnableFuncs then
-    OnFree:=GetProcAddress(hLib,'OnFree');
+  OnPacket:=GetProcAddress(hLib,'OnPacket');
+  OnConnect:=GetProcAddress(hLib,'OnConnect');
+  OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
+  OnLoad:=GetProcAddress(hLib,'OnLoad');
+  OnFree:=GetProcAddress(hLib,'OnFree');
+  OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
+  OnRefreshPrecompile:=GetProcAddress(hLib,'OnRefreshPrecompile');
 
   if Assigned(OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
   if Assigned(OnConnect) then EnableFuncs:=EnableFuncs+[efOnConnect];
@@ -182,6 +188,8 @@ begin
     OnLoad;
   end;
   if Assigned(OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
+  if Assigned(OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
+  if Assigned(OnRefreshPrecompile) then EnableFuncs:=EnableFuncs+[efOnRefreshPrecompile];
 
   Result:=True;
  finally
