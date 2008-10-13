@@ -4259,6 +4259,8 @@ begin
     Thread[id].AutoPing:=False;
     Thread[id].NoUsed:=False;
     LeaveCriticalSection(_cs);
+    Thread[id].ConnectEvent:=CreateEvent(nil, true,false,PChar('phx_srv_'+
+                                                      IntToStr(Thread[id].SH)));
     //запускаем поток к клиенту
     Thread[id].CH:=BeginThread(nil, 0, @Client, Param, 0, Thread[id].CTH);
     sendMSG('Thread Start: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
@@ -4266,8 +4268,14 @@ begin
     PostMessage(L2PacketHackMain.Handle, WM_SetConnect, 1, id);
 
     //здесь вроде тоже надо критическую секцию?
-    //ждем подключения
-    while not Thread[id].Connect do Sleep(1);
+    //ждем подключения 30 секунд, если оно не произошло завершаемся
+    if WaitForSingleObject(Thread[id].ConnectEvent, 30000)<>0 then begin
+      CloseHandle(Thread[id].ConnectEvent);
+      TerminateThread(Thread[id].CH,0);
+      ExitThread(0);
+    end;
+    CloseHandle(Thread[id].ConnectEvent);
+    //while not Thread[id].Connect do Sleep(1);
     //подключились
   //  EnterCriticalSection(_cs);
     CSockl:=Thread[id].CSock;
@@ -4413,6 +4421,7 @@ begin
     SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
     //ждем подключения
     Thread[id].Connect:=True;
+    SetEvent(Thread[id].ConnectEvent);
     Thread[id].Name:='';
     CSockl:=Thread[id].CSock;
     LeaveCriticalSection(_cs);

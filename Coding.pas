@@ -26,7 +26,8 @@ type
     xorC, xorS: TCodingClass;
     Dump: TStrings;
     ScriptsEnable: array[0..63] of Boolean;
-    rezerv: array[0..99] of Byte;
+    ConnectEvent: Cardinal;
+    rezerv: array[0..95] of Byte;
   end;
   PThreads = ^TThreads;
   TThreads = array[0..0] of TThread;
