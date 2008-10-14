@@ -1,10 +1,10 @@
 library plugin_demo2;
 
+{$define RELEASE} // для совместимости с релизом пакетхака, при дебуге можно закоментировать
+
 uses
   FastMM4,
-  Coding in 'Coding.pas';
-
-// модуль с описаниями основных типов
+  Coding in 'Coding.pas'; // модуль с описаниями основных типов
                           // используемых в плагине и программе
 
 var                                {version} {revision}

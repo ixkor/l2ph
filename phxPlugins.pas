@@ -5,7 +5,7 @@ interface
 uses Windows, Coding, SysUtils, StrUtils, Classes;
 
 var                                {version} {revision}
-  version_a: array[0..3] of Byte = ( 3,4,1,      47   );
+  version_a: array[0..3] of Byte = ( 3,4,1,      48   );
   version: Integer  absolute version_a;
 
 type

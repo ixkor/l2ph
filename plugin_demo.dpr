@@ -1,15 +1,16 @@
 library plugin_demo;
 
+{$define RELEASE} // для совместимости с релизом пакетхака, при дебуге можно закоментировать
+
 uses
   FastMM4,
   SysUtils,
   Windows,
   Coding in 'Coding.pas';
 
-const
-  min_ver = $03040001;
-
-var
+var                                {version} {revision}
+  min_ver_a: array[0..3] of Byte = ( 3,4,1,      46   );
+  min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct;
   ppck: PPacket;
 

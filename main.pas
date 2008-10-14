@@ -214,6 +214,10 @@ type
     btnRefreshPluginList: TButton;
     mPluginInfo: TMemo;
     clbPluginFuncs: TCheckListBox;
+    nScripts: TMenuItem;
+    nPlugins: TMenuItem;
+    N6: TMenuItem;
+    N7: TMenuItem;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -318,6 +322,8 @@ type
     procedure clbPluginsListClick(Sender: TObject);
     procedure clbPluginsListClickCheck(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
+    procedure N6Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -2270,6 +2276,18 @@ begin
  end;
 end;
 
+procedure TL2PacketHackMain.N6Click(Sender: TObject);
+begin
+  clbPluginsList.Checked[TMenuItem(Sender).MenuIndex]:=TMenuItem(Sender).Checked;
+  clbPluginsListClickCheck(nil);
+end;
+
+procedure TL2PacketHackMain.N7Click(Sender: TObject);
+begin
+  ScriptsList.Checked[TMenuItem(Sender).MenuIndex]:=TMenuItem(Sender).Checked;
+  ScriptsListClickCheck(nil);
+end;
+
 procedure TL2PacketHackMain.Memo6Change(Sender: TObject);
 begin
   if CheckBox8.Checked then Button4Click(Sender);
@@ -3000,13 +3018,15 @@ end;
 procedure TL2PacketHackMain.btnRefreshPluginListClick(Sender: TObject);
 var
   SearchRec: TSearchRec;
-  Mask: string;
+  Mask, s: string;
   i: Integer;
+  mi: TMenuItem;
 begin
   Mask := ExtractFilePath(ParamStr(0))+'plugins\*.dll';
   clbPluginsList.Clear;
   for i:=0 to High(Plugins) do Plugins[i].Free;
   SetLength(Plugins,0);
+  nPlugins.Clear;
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
@@ -3016,7 +3036,14 @@ begin
         i:=High(Plugins);
         Plugins[i]:=TPlugin.Create;
         Plugins[i].FileName:=ExtractFilePath(ParamStr(0))+'plugins\'+SearchRec.Name;
-        clbPluginsList.Items.Add(Copy(SearchRec.Name,1,Length(SearchRec.Name)-4));
+        s:=Copy(SearchRec.Name,1,Length(SearchRec.Name)-4);
+        clbPluginsList.Items.Add(s);
+        mi:=TMenuItem.Create(nPlugins);
+        nPlugins.Add(mi);
+        mi.AutoCheck:=True;
+        mi.Checked:=False;
+        mi.Caption:=s;
+        mi.OnClick:=N6Click;
       end;
     until FindNext(SearchRec)<>0;
     FindClose(SearchRec);
@@ -3635,6 +3662,8 @@ begin
         Scripts[ScriptsList.ItemIndex].fsScript.CallFunction('Init',0);
       end;
     end else Scripts[ScriptsList.ItemIndex].fsScript.CallFunction('Init',0);
+
+    nScripts.Items[ScriptsList.ItemIndex].Checked:=ScriptsList.Checked[ScriptsList.ItemIndex];
 {/*by wanick*/}
 {
  может просто сделать чтобы была глабальная переменная
@@ -3697,6 +3726,8 @@ begin
     clbPluginsList.Checked[i]:=Plugins[i].LoadPlugin
   else
     Plugins[i].FreePlugin;
+
+  nPlugins.Items[i].Checked:=clbPluginsList.Checked[i];
 end;
 
 procedure TL2PacketHackMain.ComboBox1Change(Sender: TObject);
@@ -3824,6 +3855,7 @@ var
   SearchRec: TSearchRec;
   Mask: string;
   i: Byte;
+  mi: TMenuItem;
 begin
   ButtonRename.Enabled:=False;
   ButtonDelete.Enabled:=False;
@@ -3833,6 +3865,7 @@ begin
   Mask := ExtractFilePath(ParamStr(0))+'Scripts\*.txt';
   i:=0;
   ScriptsList.Clear;
+  nScripts.Clear;
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
@@ -3844,6 +3877,12 @@ begin
           Scripts[i].Name:=Copy(SearchRec.Name,1,Length(SearchRec.Name)-4);
           Scripts[i].Compilled:=False;
           ScriptsList.Items.Add(Scripts[i].Name);
+          mi:=TMenuItem.Create(nScripts);
+          nScripts.Add(mi);
+          mi.AutoCheck:=True;
+          mi.Checked:=False;
+          mi.Caption:=Scripts[i].Name;
+          mi.OnClick:=N7Click;
           Inc(i);
         end;
       end;
