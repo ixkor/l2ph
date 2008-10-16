@@ -2531,6 +2531,7 @@ var
   id: Byte;
   subid: word;
 begin
+  if ListView5.SelCount = 0 then exit;
   tmpItm:=ListView5.Selected;
   PckCount:=StrToInt(tmpItm.SubItems.Strings[0]);
   for i:=0 to ListView5.SelCount-1 do begin
