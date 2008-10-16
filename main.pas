@@ -324,6 +324,7 @@ type
     procedure PageControl1Change(Sender: TObject);
     procedure N6Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
+    procedure LoadPacketsIni;
   private
     { Private declarations }
   public
@@ -439,7 +440,6 @@ var
   ProtocolVersion: word; //протокол линейки из c00=ProtocolVersion:h(psize)c(ID)d(ProtocolVersion)z(0256Instant)
 
   kId:integer; //коэфф преобразования NpcID
-  isLoad, isForceLoad: boolean; //true если для текущего соединения уже грузили Packets.ini
   //возможность изменить имя для dll
 //  isNewxor, isInject: string;
 
@@ -882,13 +882,60 @@ begin
       end;
     end;
 end;
+procedure TL2PacketHackMain.LoadPacketsIni;
+var
+  i, j: Integer;
+
+begin
+  //  ProtocolVersion:=560; //C4
+  if ProtocolVersion<828 then begin
+    // С4/C5/CT0
+    if ProtocolVersion<660 then begin
+      // C4 секция [GS_c4]
+      LoadPktIni('packetsc4.ini');
+      ToolButton10.Down:=true;
+      ToolButton11.Down:=false;
+      ToolButton12.Down:=false;
+      ToolButton13.Down:=false;
+    end;
+    if (ProtocolVersion>=660) and (ProtocolVersion<=736) then begin
+      // C5 секция [GS]
+      LoadPktIni('packetsc5.ini');
+      ToolButton10.Down:=false;
+      ToolButton11.Down:=true;
+      ToolButton12.Down:=false;
+      ToolButton13.Down:=false;
+    end;
+    if ProtocolVersion>=737 then begin
+      // interlude T0  секция [GS_t0]
+      LoadPktIni('packetst0.ini');
+      ToolButton10.Down:=false;
+      ToolButton11.Down:=false;
+      ToolButton12.Down:=true;
+      ToolButton13.Down:=false;
+    end;
+  end else begin // >= 828 (какой там минимальный T1 протокол ?)
+      LoadPktIni('packetst1.ini');
+      ToolButton10.Down:=false;
+      ToolButton11.Down:=false;
+      ToolButton12.Down:=false;
+      ToolButton13.Down:=true;
+  end;
+  filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
+  filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
+
+  //обновляем чекбоксы пакетов
+  for i:=0 to (ListView2.Items.Count div 8)-1 do
+    for j:=0 to 7 do
+      ListView2.Items.Item[i*8+j].Checked:=Boolean((Byte(filterS[i+1])shr j) and 1);
+
+  for i:=0 to (ListView1.Items.Count div 8)-1 do
+    for j:=0 to 7 do
+      ListView1.Items.Item[i*8+j].Checked:=Boolean((Byte(filterC[i+1])shr j) and 1);
+end;
 
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
-var
-//  WSA: TWSAData;
-  //h1: Byte;
-  i, j: Integer;
-//  temp: string;
+var i:integer;
 begin
   Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru';
   sendMsg('Стартует L2phx...  ');
@@ -932,52 +979,7 @@ begin
   TabSheet10.TabVisible:=False;
   //грузим packets.ini
   ProtocolVersion:=strtoint(Options.ReadString('Snifer','ProtocolVersion','560'));
-//  ProtocolVersion:=560; //C4
-  if ProtocolVersion<828 then begin
-    // С4/C5/CT0
-    if ProtocolVersion<660 then begin
-      // C4 секция [GS_c4]
-      LoadPktIni('packetsc4.ini');
-      ToolButton10.Down:=true;
-      ToolButton11.Down:=false;
-      ToolButton12.Down:=false;
-      ToolButton13.Down:=false;
-    end;
-    if (ProtocolVersion>=660) and (ProtocolVersion<=736) then begin
-      // C5 секция [GS]
-      LoadPktIni('packetsc5.ini');
-      ToolButton10.Down:=false;
-      ToolButton11.Down:=true;
-      ToolButton12.Down:=false;
-      ToolButton13.Down:=false;
-    end;
-    if ProtocolVersion>=737 then begin
-      // interlude T0  секция [GS_t0]
-      LoadPktIni('packetst0.ini');
-      ToolButton10.Down:=false;
-      ToolButton11.Down:=false;
-      ToolButton12.Down:=true;
-      ToolButton13.Down:=false;
-    end;
-  end else begin // >= 828 (какой там минимальный T1 протокол ?)
-      LoadPktIni('packetst1.ini');
-      ToolButton10.Down:=false;
-      ToolButton11.Down:=false;
-      ToolButton12.Down:=false;
-      ToolButton13.Down:=true;
-  end;
-
-  isLoad:=true;        //загрузили пакетную инишку
-  isForceLoad:=False; //заставляем принудительно перечитать пакетные инишки
-
-  filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
-  filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
-
-  //обновляем чекбоксы пакетов
-  for i:=0 to (ListView2.Items.Count div 8)-1 do for j:=0 to 7 do
-    ListView2.Items.Item[i*8+j].Checked:=Boolean((Byte(filterS[i+1])shr j) and 1);
-  for i:=0 to (ListView1.Items.Count div 8)-1 do for j:=0 to 7 do
-    ListView1.Items.Item[i*8+j].Checked:=Boolean((Byte(filterC[i+1])shr j) and 1);
+  LoadPacketsIni;
 
   LabeledEdit1.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe');
   MaxThr:=Options.ReadInteger('General','MaxConections',5);
@@ -1062,6 +1064,10 @@ begin
   PluginStruct.HexToString:=HexToString;
   PluginStruct.StringToHex:=StringToHex;
   btnRefreshPluginListClick(nil);
+
+  // эти кнопки поумолчанию выключены 
+  tbtnFilterDel.Enabled := false;
+  tbtnDelete.Enabled := false;
 end;
 
 procedure TL2PacketHackMain.FormDestroy(Sender: TObject);
@@ -1101,8 +1107,6 @@ begin
   Options.WriteInteger('General','Heigth',Height);
   Options.WriteInteger('Snifer','ProtocolVersion',ProtocolVersion);
   Options.WriteInteger('General','HookMethod',isHookMethod);
-//  Options.WriteString('General','isNewxor',isNewxor);
-//  Options.WriteString('General','isInject',isInject);
   Options.UpdateFile;
   Options.Free;
   //потоки
@@ -1265,19 +1269,11 @@ var
 //  data: array[0..255] of Byte;
 //  temp: string;
 begin
-  //считываем файлы намеренно
-  if isForceLoad then begin
-    isLoad:=false;
-    isForceLoad:=false;
-  end
-  else isLoad:=true;
-
   //расшифровываем лог пакетов
   ListView5.Items.BeginUpdate;
   ListView5.Items.Clear;
   //EnterCriticalSection(_cs);
   for i := 0 to Thread[CID].Dump.Count-1 do begin
-
     //смотрим второй байт в каждом пакете
     if Thread[CID].Dump.Strings[i][2]='4' then //от клиента
       msg.WParam:=Integer(CID and $FF)+ $100
@@ -1293,7 +1289,6 @@ end;
 //-------------
 procedure TL2PacketHackMain.ListView2Click(Sender: TObject);
 begin
-//  isLoad:=true;
   ListView1Click(Sender);
 end;
 //-------------
@@ -1648,6 +1643,10 @@ var
 //  BColor: TColor;
 begin
   fromS:=false;
+  // очищаем спискм
+  ListView1.Clear;
+  ListView2.Clear;
+
   //считываем packets.ini
   PacketsNames.LoadFromFile(ExtractFilePath(Application.ExeName)+s);
   for i:=0 to PacketsNames.Count-1 do begin
@@ -1693,6 +1692,10 @@ var
   value, tmp_value: string;
 begin
   if (Item.SubItems.Count>0)and(Item.Selected) then begin
+    //выделили пакет значит включаем кнопку 
+    tbtnFilterDel.Enabled := true;
+    tbtnDelete.Enabled := true;
+
     sid:=StrToInt(Item.SubItems.Strings[0]);
     //EnterCriticalSection(_cs);
     //строка пакета, sid номер пакета, cid номер соединения
@@ -2318,39 +2321,6 @@ begin
     id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
     //------------------------------------------------------------------------
-    //проверка протокола
-    if not isLoad then begin //если инишки не грузили, то выбираем и загружаем заново
-      ListView1.Clear;
-      ListView2.Clear;
-      PacketsFromS.Clear;
-      PacketsFromC.Clear;
-      isLoad:=true;
-      if ProtocolVersion<828 then begin
-        // С4/C5/CT0
-        if ProtocolVersion<660 then begin
-          // C4 секция [GS_c4]
-          LoadPktIni('packetsc4.ini');
-        end;
-        if (ProtocolVersion>=660) and (ProtocolVersion<=736) then begin
-          // C5 секция [GS]
-          LoadPktIni('packetsc5.ini');
-        end;
-        if ProtocolVersion>=737 then begin
-          // interlude T0  секция [GS_t0]
-          LoadPktIni('packetst0.ini');
-        end;
-      end else begin // >= 828 (какой там минимальный T1 протокол ?)
-          LoadPktIni('packetst1.ini');
-      end;
-      //обновляем чекбоксы пакетов
-      filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
-      filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
-      for i:=0 to (ListView2.Items.Count div 8)-1 do for h1:=0 to 7 do
-        ListView2.Items.Item[i*8+h1].Checked:=Boolean((Byte(filterS[i+1])shr h1) and 1);
-      for i:=0 to (ListView1.Items.Count div 8)-1 do for h1:=0 to 7 do
-        ListView1.Items.Item[i*8+h1].Checked:=Boolean((Byte(filterC[i+1])shr h1) and 1);
-    end;
-    //------------------------------------------------------------------------
     //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
     if from=0 then begin
       //от сервера
@@ -2531,7 +2501,6 @@ var
   id: Byte;
   subid: word;
 begin
-  if ListView5.SelCount = 0 then exit;
   tmpItm:=ListView5.Selected;
   PckCount:=StrToInt(tmpItm.SubItems.Strings[0]);
   for i:=0 to ListView5.SelCount-1 do begin
@@ -2566,6 +2535,10 @@ begin
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
   ListView1Click(Sender);
+  // отключили выключаем кнопку
+  tbtnFilterDel.Enabled := false;
+  tbtnDelete.Enabled := false;
+
 end;
 
 procedure TL2PacketHackMain.Timer1Timer(Sender: TObject);
@@ -2629,7 +2602,7 @@ procedure TL2PacketHackMain.ToolButton10Click(Sender: TObject);
 begin
   if ProtocolVersion=560 then exit;
   ProtocolVersion:=560; //C4
-  isLoad:=false;
+  LoadPacketsIni;
   ListView1Click(Sender);
 end;
 
@@ -2637,7 +2610,7 @@ procedure TL2PacketHackMain.ToolButton11Click(Sender: TObject);
 begin
   if ProtocolVersion=660 then exit;
   ProtocolVersion:=660; //C5
-  isLoad:=false;
+  LoadPacketsIni;
   ListView1Click(Sender);
 end;
 
@@ -2645,7 +2618,7 @@ procedure TL2PacketHackMain.ToolButton12Click(Sender: TObject);
 begin
   if ProtocolVersion=737 then exit;
   ProtocolVersion:=737; //T0
-  isLoad:=false;
+  LoadPacketsIni;
   ListView1Click(Sender);
 end;
 
@@ -2653,7 +2626,7 @@ procedure TL2PacketHackMain.ToolButton13Click(Sender: TObject);
 begin
   if ProtocolVersion=828 then exit;
   ProtocolVersion:=828; //T1
-  isLoad:=false;
+  LoadPacketsIni;
   ListView1Click(Sender);
 end;
 
@@ -2736,7 +2709,7 @@ begin
   //if FileExists('SkillsID.ini')=true then
   SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'SkillsID.ini');
   //считываем packets??.ini
-  isLoad:=false;
+  LoadPacketsIni;
   ListView1Click(Sender);
 end;
 
@@ -2998,7 +2971,6 @@ procedure TL2PacketHackMain.Button23Click(Sender: TObject);
 begin
   if OpenDialog2.Execute then begin
     EnterCriticalSection(_cs);
-//    isForceLoad:=true;
     Thread[CID].Dump.LoadFromFile(OpenDialog2.FileName);
     LeaveCriticalSection(_cs);
     ListView1Click(Sender);
@@ -3013,7 +2985,6 @@ begin
   Memo3.Clear;
   Memo2.Clear;
   ListView1Click(Sender);
-  isForceLoad:=true;
 end;
 
 procedure TL2PacketHackMain.btnRefreshPluginListClick(Sender: TObject);
@@ -3071,19 +3042,19 @@ procedure TL2PacketHackMain.Button26Click(Sender: TObject);
 begin
   if not Button27.Enabled then begin
     fsScript1.CallFunction('Free',0);
-    Button26.Enabled:=False;
-    ButtonCheckSyntex.Enabled:=True;
-    Button27.Enabled:=True;
-    Button18.Enabled:=True;
-    ButtonRename.Enabled:=True;
-    ButtonLoadNew.Enabled:=True;
-    ButtonDelete.Enabled:=True;
-//    ButtonSave.Enabled:=True;
-    Button28.Enabled:=True;
-    Button9.Enabled:=True;
-    Button10.Enabled:=True;
-    ScriptsList.Enabled:=True;
-    JvHLEditor1.ReadOnly:=False;
+    Button26.Enabled := False;
+    ButtonCheckSyntex.Enabled := True;
+    Button27.Enabled := True;
+    Button18.Enabled := True;
+    ButtonRename.Enabled := True;
+    ButtonLoadNew.Enabled := True;
+    ButtonDelete.Enabled := True;
+//    ButtonSave.Enabled := True;
+    Button28.Enabled := True;
+    Button9.Enabled := True;
+    Button10.Enabled := True;
+    ScriptsList.Enabled := True;
+    JvHLEditor1.ReadOnly := False;
   end;
 end;
 
@@ -3091,19 +3062,19 @@ procedure TL2PacketHackMain.Button27Click(Sender: TObject);
 begin
   if Compile(fsScript1,JvHLEditor1) then begin
     fsScript1.CallFunction('Init',0);
-    Button26.Enabled:=True;
-    ButtonCheckSyntex.Enabled:=False;
-    Button27.Enabled:=False;
-    Button18.Enabled:=False;
-    ButtonRename.Enabled:=False;
-    ButtonLoadNew.Enabled:=False;
-    ButtonDelete.Enabled:=False;
+    Button26.Enabled := True;
+    ButtonCheckSyntex.Enabled := False;
+    Button27.Enabled := False;
+    Button18.Enabled := False;
+    ButtonRename.Enabled := False;
+    ButtonLoadNew.Enabled := False;
+    ButtonDelete.Enabled := False;
 //    ButtonSave.Enabled:=False;
-    Button28.Enabled:=False;
-    Button9.Enabled:=False;
-    Button10.Enabled:=False;
-    ScriptsList.Enabled:=False;
-    JvHLEditor1.ReadOnly:=True;
+    Button28.Enabled := False;
+    Button9.Enabled := False;
+    Button10.Enabled := False;
+    ScriptsList.Enabled := False;
+    JvHLEditor1.ReadOnly := True;
   end;
 end;
 
@@ -3913,6 +3884,10 @@ begin
     LeaveCriticalSection(_cs);
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
+  //удалили значит выключаем кнопку 
+  tbtnFilterDel.Enabled := false;
+  tbtnDelete.Enabled := false;
+
   ListView1Click(Sender);
 end;
 
@@ -4262,7 +4237,6 @@ begin
   ListView5.Items.Clear;
   Memo3.Clear;
   Memo2.Clear;
-  isForceLoad:=true;
 end;
 //....................
 ///////////////////////////////////////////////////////////////////////////////
