@@ -12,7 +12,8 @@ uses
   main in 'main.pas' {L2PacketHackMain},
   Coding in 'Coding.pas',
   FindReplaceUnit in 'FindReplaceUnit.pas' {FindReplaceForm},
-  phxPlugins in 'phxPlugins.pas';
+  phxPlugins in 'phxPlugins.pas',
+  helper in 'helper.pas';
 
 {$R *.res}
 

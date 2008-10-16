@@ -340,74 +340,31 @@ type
     procedure ClearPacketsLog(var msg: TMessage); Message WM_ClearPacketsLog;
     procedure WmFinished(var msg: TMessage); Message WM_Finished;
   end;
-//TMessage = packed record
-//  Msg: Cardinal;
-//  case Integer of
-//    0: (WParam: Longint;
-//        LParam: Longint;
-//        Result: Longint;);
-//    1: (WParamLo: Word;
-//        WParamHi: Word;
-//        LParamLo: Word;
-//        LParamHi: Word;
-//        ResultLo: Word;
-//        ResultHi: Word;);
-//end;
-
   pstr = ^string;
-  //скрипт
-  TScript = record
-    fsScript: TfsScript;
-    Name: string;
-    Compilled: Boolean;
-    cs: RTL_CRITICAL_SECTION;
-  end;
 
   procedure SendPacket(Size: Word; pck: string; tid: Byte; ToServer: Boolean);
   procedure SendPckStr(pck: string; const tid: Byte; const ToServer: Boolean);
   procedure SendPckData(var pck; const tid: Byte; const ToServer: Boolean); stdcall;
-  function DataPckToStrPck(var pck): string; stdcall;
 
   //потоки
   procedure ServerListen(PSock: Pointer);
   procedure Server(Param: Pointer);
   procedure Client(Param: Pointer);
-  function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
-  procedure DeInitSocket(const hSocket: Integer);
-  function WaitClient(var hSocket, NewSocket: TSocket): Boolean;
-  function GetSocketData(Socket: TSocket; var Data; const Size: Word): Boolean;
 
-  function WideStringToString(const ws: WideString; codePage: Word): AnsiString;
-  function StringToWideString(const s: AnsiString; codePage: Word): WideString;
-  function SymbolEntersCount(s: string): string;
-  function HexToString(Hex:String):String;
-  function StringToHex(str1,Separator:String):String;
-//  function ParceData(str:string): String;
-//  procedure ExecuteScriptsM(var packet:string; FromServer: Boolean; id: Byte);
-  function ByteArrayToHex(str1:array of Byte; size: Word):String;
   procedure PacketProcesor(PacketData: array of Byte; SendSocket: TSocket; id, From: Byte);
   procedure GetMsgFromDLL(name:pchar;messageBuf:pointer;messageLen:dword;answerBuf:pointer;answerLen:dword); stdcall;
   procedure sendMSG (msg: String);
 
-const
-  {The name of the debug info support L2phx}
-  StartLocalServer = 'На %d зарегистрирован локальный сервер';
-  FailedLocalServer = 'Неудалось зарегистрировать локальный сервер на порте %d'+ #13#10+ 'Возможно этот порт занят другим приложением';
-  CreateNewConnect = 'Создано новое соединение - %d';
-  ConnectBreak = 'Соединение %d разорвано';
-  WSA_VER=$202;
-
 var
   L2PacketHackMain: TL2PacketHackMain;
   hid: Cardinal;
-  WSA: TWSAData;
   //определяем потоки
   Thread: array of TThread;
 
   SLh,SLSock,SGh,SGSock,CurentIP: Integer;
   LCFree, LSFree, NoServer: Boolean;
   SLth: Cardinal;
-  Scripts: array[0..63] of TScript;
+
   ThreadGid,MaxThr,CID: Byte;
   CurentPort, LPortConst:Word;
 
@@ -416,7 +373,6 @@ var
   NpcIdList, ClassIdList, PacketsFromS, PacketsFromC: TStringList;
   _cid:integer;
 
-  ShowMessageOld: procedure (const Msg: string);
   dllScr: Pointer;
   _cs, cs_send: RTL_CRITICAL_SECTION;
   Lib:THandle;
@@ -452,68 +408,9 @@ var
 
 implementation
 
-uses StrUtils, Types, FindReplaceUnit;
+uses StrUtils, Types, FindReplaceUnit, Helper;
 
 {$R *.dfm}
-
-//скрываем сообщение о том, что желательно купить FastScript
-procedure ShowMessageNew(const Msg: string);
-begin
-  if Msg<>'Unregistered version of FastScript.' then
-    ShowMessageOld(Msg);
-end;
-
-function CRLFToSpace(const Str: string): string;
-var
-  P: Integer;
-begin
-  Result:=str;
-  repeat
-    P:=Pos(sLineBreak, Result);
-    if P>0 then
-    begin
-      Result[P]:=' ';
-      Result[P+1]:=' ';
-    end;
-  until P=0;
-end;
-
-function DSpaceToCRLF(const Str: string): string;
-var
-  P: Integer;
-begin
-  Result:=str;
-  repeat
-    P:=Pos('  ', Result);
-    if P>0 then
-    begin
-      Result[P]:=sLineBreak[1];
-      Result[P+1]:=sLineBreak[2];
-    end;
-  until P=0;
-end;
-
-{нигде не используется}
-//procedure AntiLIIC4(var data: array of Byte);
-//var
-//  i:Word;
-//  crc: Byte;
-//begin
-//  crc:=0;
-//  i:=3;
-//  while not((data[i]=0)and(data[i+1]=0)) do begin
-//    crc:=crc xor data[i];
-//    Inc(i);
-//  end;
-//  data[4]:=crc;
-//  data[2]:=$07;
-//end;
-
-function CopyArr(arr: array of Byte; ind, count: Integer): string;
-begin
-  SetLength(Result,count);
-  Move(arr[ind],Result[1],count);
-end;
 
 procedure TL2PacketHackMain.ExecuteScripts(var msg: TMessage);
 var
@@ -749,54 +646,6 @@ begin
   if CanSend then SendPacket(Packet.Size,temp,id,Boolean((from+1) mod 2));
 end;
 
-procedure GetProcessList(var sl: TStrings);
-var
-  pe: TProcessEntry32;
-  ph, snap: THandle; //дескрипторы процесса и снимка
-  mh: hmodule; //дескриптор модуля
-  procs: array[0..$FFF] of dword; //массив для хранения дескрипторов процессов
-  count, cm: cardinal; //количество процессов
-  i: integer;
-  ModName: array[0..max_path] of char; //имя модуля
-  tmp: string;
-begin
-  sl.Clear;
-  if Win32Platform = VER_PLATFORM_WIN32_WINDOWS then
-  begin //если это Win9x
-    snap := CreateToolhelp32Snapshot(th32cs_snapprocess, 0);
-    if integer(snap)=-1 then
-    begin
-      exit;
-    end
-    else
-    begin
-      pe.dwSize:=sizeof(pe);
-      if Process32First(snap, pe) then
-        repeat
-          sl.Add(string(pe.szExeFile));
-        until not Process32Next(snap, pe);
-    end;
-  end else begin //Если WinNT/2000/XP
-    if not EnumProcesses(@procs, sizeof(procs), count) then
-    begin
-      exit;
-    end;
-    for i:=0 to (count div 4) - 1 do if procs[i] <> 4 then
-    begin
-      EnablePrivilegeEx(INVALID_HANDLE_VALUE,'SeDebugPrivilege');
-      ph := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_READ, false, procs[i]);
-      if ph > 0 then
-      begin
-        EnumProcessModules(ph, @mh, 4, cm);
-        GetModuleFileNameEx(ph, mh, ModName, sizeof(ModName));
-        tmp:=LowerCase(ExtractFileName(string(ModName)));
-        sl.Add(IntToStr(procs[i])+'='+tmp);
-        CloseHandle(ph);
-      end;
-    end;
-  end;
-end;
-
 procedure GetMsgFromDLL(name       : pchar;
                         messageBuf : pointer; messageLen : dword;
                         answerBuf  : pointer; answerLen  : dword); stdcall;
@@ -805,31 +654,17 @@ begin
   SendMessage(L2PacketHackMain.Handle,WM_Dll_Log,Integer(messageBuf^),Word(Pointer(Integer(messageBuf)+4)^));
 end;
 
-function GetNamePacket(s:string):string;
-var
-  ik: Word;
-begin
-  Result:='';
-  ik:=1;
-  // ищем конец имени пакета
-  while (s[ik]<>':') and (ik<Length(s)) do begin
-    Result:=Result+s[ik];
-    Inc(ik);
-  end;
-  if (ik=Length(s))and(s[ik]<>':') then Result:=Result+s[ik];
-end;
-
 // загружаем XOR dll
 procedure TL2PacketHackMain.LoadLibraryXor (const name: string);
 begin
   Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+name));
   if Lib > 0 then begin
-    sendMSG('Успешно загрузили '+name);
+    sendMSG(format(LoadDllSuccessfully,[name]));
     @CreateXorIn:=GetProcAddress(Lib,'CreateCoding');
     @CreateXorOut:=GetProcAddress(Lib,'CreateCodingOut');
     if @CreateXorOut=nil then CreateXorOut:=CreateXorIn;
   end else begin
-    sendMSG('Библиотека '+name+' отсутствует или заблокирована другим приложением');
+    sendMSG(format(LoadDllUnSuccessful,[name]));
     isNewxor.Enabled := true;
     iNewxor.Checked := false;
   end;
@@ -843,7 +678,7 @@ begin
     end else begin
       if not isNewxor.Enabled then begin
         FreeLibrary(Lib);
-        sendMsg('Библиотека '+ isNewxor.Text +' успешно выгружена');
+        sendMSG(format(UnLoadDllSuccessfully,[isInject.Text]));
         isNewxor.Enabled := true;
       end;
     end;
@@ -857,13 +692,13 @@ begin
   tmp:=PChar(ExtractFilePath(Application.ExeName)+name);
   if fileExists (tmp) then begin
     sFile := OpenFile(tmp,ee,OF_READ);
-    sendMSG('Успешно загрузили '+name);
+    sendMSG(format(LoadDllSuccessfully,[name]));
     Size := GetFileSize(sFile, nil);
     GetMem(dllScr, Size);
     ReadFile(sFile, dllScr^, Size, Size, nil);
     CloseHandle(sFile);
   end else begin
-     sendMSG('Библиотека '+name+' отсутствует или заблокирована другим приложением');
+     sendMSG(format(LoadDllUnSuccessful,[name]));
      isInject.Enabled := true;
      iInject.Checked := false;
   end;
@@ -877,7 +712,7 @@ begin
     end else begin
       if not isInject.Enabled then begin
         FreeMem(dllScr);
-        sendMsg('Библиотека '+ isInject.Text +' успешно выгружена');
+        sendMSG(format(UnLoadDllSuccessfully,[isInject.Text]));
         isInject.Enabled := true;
       end;
     end;
@@ -977,9 +812,6 @@ begin
   Memo1.Text:='Поддержать проект можно сюда:'+sLineBreak+'Z245193560959, R183025505328'+sLineBreak+'E360790044610, U392200550010';
   //скрываем закладку "пользовательская"
   TabSheet10.TabVisible:=False;
-  //грузим packets.ini
-  ProtocolVersion:=strtoint(Options.ReadString('Snifer','ProtocolVersion','560'));
-  LoadPacketsIni;
 
   LabeledEdit1.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe');
   MaxThr:=Options.ReadInteger('General','MaxConections',5);
@@ -1027,21 +859,17 @@ begin
   Panel2.Visible:=CheckBox4.Checked;
   LPortConst:=htons(Options.ReadInteger('General','LocalPort',$FEDC));
   LabeledEdit2.Text:=Options.ReadString('General','IgnorPorts','5001;5002;2222');
-  //считываем sysmsgid.ini
-  //if FileExists('sysmsgid.ini')=true then
-  SysMsgIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'sysmsgid.ini');
-  //считываем ItemsID.ini
-  //if FileExists('ItemsID.ini')=true then
-  ItemsList.LoadFromFile(ExtractFilePath(Application.ExeName)+'ItemsID.ini');
-  //считываем Npcid.ini
-  //if FileExists('sysmsgid.ini')=true then
-  NpcIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'npcsid.ini');
-  //считываем ClassId.ini
-  //if FileExists('sysmsgid.ini')=true then
-  ClassIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'classid.ini');
-  //считываем SkillsID.ini
-  //if FileExists('SkillsID.ini')=true then
-  SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'SkillsID.ini');
+
+  if StrToBool(Options.ReadString('Snifer','ShowFilters', '0')) then
+  begin
+    ToolButton6.Down := true;
+    panel15.Visible := ToolButton6.Down;
+  end;
+     
+    //грузим packets.ini
+  ProtocolVersion := strtoint(Options.ReadString('Snifer','ProtocolVersion','560'));
+  ToolButton8Click(Sender);
+
   //скрипты
   for i:=0 to 63 do Scripts[i].fsScript:=TfsScript.Create(Self);
 
@@ -1140,20 +968,21 @@ end;
 
 procedure TL2PacketHackMain.isInjectChange(Sender: TObject);
 begin
-   Options.WriteString('General', 'isInject', isInject.Text);
+  Options.WriteString('General', 'isInject', isInject.Text);
+  Options.UpdateFile;
 end;
 
 procedure TL2PacketHackMain.isKamaelClick(Sender: TObject);
 {если нажали галочку isKamael}
 begin
   Options.WriteBool('General','isKamael',isKamael.Checked);
-  Options.UpdateFile;
   isCamael:=isKamael.Checked;
 end;
 
 procedure TL2PacketHackMain.isNewxorChange(Sender: TObject);
 begin
-   Options.WriteString('General', 'isNewxor', isNewxor.Text);
+  Options.WriteString('General', 'isNewxor', isNewxor.Text);
+  Options.UpdateFile;
 end;
 
 procedure TL2PacketHackMain.JvHLEditor1Change(Sender: TObject);
@@ -1995,10 +1824,12 @@ procedure TL2PacketHackMain.Memo4KeyDown(Sender: TObject; var Key: Word; Shift: 
 begin
   RadioButton1Click(Sender);
 end;
+
 procedure TL2PacketHackMain.Memo4MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   RadioButton1Click(Sender);
 end;
+
 procedure TL2PacketHackMain.Memo4MouseEnter(Sender: TObject);
 begin
   RadioButton1Click(Sender);
@@ -2575,12 +2406,12 @@ begin
             if RadioGroup1.ItemIndex=0 then begin
               if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+'inject.dll')) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
-                ListBox3.Lines.Add('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
+                sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
               end;
             end else begin
               if InjectDllEx(cc, dllScr) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
-                ListBox3.Lines.Add('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
+                sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
               end;
             end;
             CloseHandle(cc);
@@ -2668,13 +2499,11 @@ procedure TL2PacketHackMain.ToolButton6Click(Sender: TObject);
 //  data: array[0..255] of Byte;
 //  temp: string;
 begin
-  if ToolButton6.Down then begin
-    ToolButton6.Down:=true;
-  end else begin
-    ToolButton6.Down:=false;
-  end;
   Panel15.Visible:=ToolButton6.Down;
-end;
+
+  Options.WriteBool('Snifer','ShowFilters',ToolButton6.Down);
+  Options.UpdateFile;
+  end;
 
 procedure TL2PacketHackMain.ToolButton7Click(Sender: TObject);
 begin
@@ -2690,26 +2519,20 @@ begin
 end;
 
 procedure TL2PacketHackMain.ToolButton8Click(Sender: TObject);
-//var
-//  i: integer;
 begin
   //считываем sysmsgid.ini
-  //if FileExists('sysmsgid.ini')=true then
   SysMsgIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'sysmsgid.ini');
   //считываем ItemsID.ini
-  //if FileExists('ItemsID.ini')=true then
   ItemsList.LoadFromFile(ExtractFilePath(Application.ExeName)+'ItemsID.ini');
   //считываем Npcid.ini
-  //if FileExists('sysmsgid.ini')=true then
   NpcIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'npcsid.ini');
   //считываем ClassId.ini
-  //if FileExists('sysmsgid.ini')=true then
   ClassIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'classid.ini');
   //считываем SkillsID.ini
-  //if FileExists('SkillsID.ini')=true then
   SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'SkillsID.ini');
   //считываем packets??.ini
   LoadPacketsIni;
+
   ListView1Click(Sender);
 end;
 
@@ -3049,7 +2872,6 @@ begin
     ButtonRename.Enabled := True;
     ButtonLoadNew.Enabled := True;
     ButtonDelete.Enabled := True;
-//    ButtonSave.Enabled := True;
     Button28.Enabled := True;
     Button9.Enabled := True;
     Button10.Enabled := True;
@@ -3069,7 +2891,6 @@ begin
     ButtonRename.Enabled := False;
     ButtonLoadNew.Enabled := False;
     ButtonDelete.Enabled := False;
-//    ButtonSave.Enabled:=False;
     Button28.Enabled := False;
     Button9.Enabled := False;
     Button10.Enabled := False;
@@ -3244,17 +3065,6 @@ begin
   SetLength(spck,tpck.size-2);
   Move(tpck.id,spck[1],Length(spck));
   SendPacket(tpck.size,spck,tid,ToServer);
-end;
-
-function DataPckToStrPck(var pck): string; stdcall;
-var
-  tpck: packed record
-    size: Word;
-    id: Byte;
-  end absolute pck;
-begin
-  SetLength(Result,tpck.size-2);
-  Move(tpck.id,Result[1],Length(Result));
 end;
 
 function TL2PacketHackMain.CallMethod(Instance: TObject; ClassType: TClass; const MethodName: String; var Params: Variant): Variant;
@@ -3742,14 +3552,14 @@ begin
   if Pos(';'+IntToStr(ntohs(msg.LParamLo))+';',';'+LabeledEdit2.Text+';')=0 then begin
     if CheckBox3.Checked then begin
       msg.ResultLo:=1;
-      ListBox3.Lines.Add('Перехвачен коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+':'+IntToStr(ntohs(CurentPort)));
+      sendMsg ('Перехвачен коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+':'+IntToStr(ntohs(CurentPort)));
     end else begin
       msg.ResultLo:=0;
-      ListBox3.Lines.Add('Коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+' пропущен (перехват выключен)');
+      sendMsg ('Коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+' пропущен (перехват выключен)');
     end;
   end else begin
     msg.ResultLo:=0;
-    ListBox3.Lines.Add('Коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+':'+IntToStr(ntohs(CurentPort))+' проигнорирован');
+    sendMsg ('Коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+':'+IntToStr(ntohs(CurentPort))+' проигнорирован');
   end;
 end;
 
@@ -3891,144 +3701,9 @@ begin
   ListView1Click(Sender);
 end;
 
-function WideStringToString(const ws: WideString; codePage: Word): AnsiString;
-var
-  l: integer;
-begin
-  if ws = '' then
-    Result := ''
-else
-  begin
-    l := WideCharToMultiByte(codePage,
-      WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR,
-      @ws[1], -1, nil, 0, nil, nil);
-    SetLength(Result, l - 1);
-    if l > 1 then
-      WideCharToMultiByte(codePage,
-        WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR,
-        @ws[1], -1, @Result[1], l - 1, nil, nil);
-  end;
-end;
-
-function StringToWideString(const s: AnsiString; codePage: Word): WideString;
-var
-  l: integer;
-begin
-  if s = '' then
-    Result := ''
-else
-  begin
-    l := MultiByteToWideChar(codePage, MB_PRECOMPOSED, PChar(@s[1]), -1, nil,
-      0);
-    SetLength(Result, l - 1);
-    if l > 1 then
-      MultiByteToWideChar(CodePage, MB_PRECOMPOSED, PChar(@s[1]),
-        -1, PWideChar(@Result[1]), l - 1);
-  end;
-end;
-
-function SymbolEntersCount(s: string): string;
-var
-  i: integer;
-begin
-  Result := '';
-  for i := 1 to Length(s) do
-    if not(s[i] in [' ',#10,#13]) then
-      Result:=Result+s[i];
-end;
-
-function HexToString(Hex:String):String;
-var
-  buf:String;
-  bt:Byte;
-  i:Integer;
-begin
-  buf:='';
-  Hex:=SymbolEntersCount(UpperCase(Hex));
-  for i:=0 to (Length(Hex) div 2)-1 do begin
-    bt:=0;
-    if (Byte(hex[i*2+1])>$2F)and(Byte(hex[i*2+1])<$3A)then bt:=Byte(hex[i*2+1])-$30;
-    if (Byte(hex[i*2+1])>$40)and(Byte(hex[i*2+1])<$47)then bt:=Byte(hex[i*2+1])-$37;
-    if (Byte(hex[i*2+2])>$2F)and(Byte(hex[i*2+2])<$3A)then bt:=bt*16+Byte(hex[i*2+2])-$30;
-    if (Byte(hex[i*2+2])>$40)and(Byte(hex[i*2+2])<$47)then bt:=bt*16+Byte(hex[i*2+2])-$37;
-    buf:=buf+char(bt);
-  end;
-  HexToString:=buf;
-end;
-
-function StringToHex(str1,Separator:String):String;
-var
-  buf:String;
-  i:Integer;
-begin
-  buf:='';
-  for i:=1 to Length(str1) do begin
-    buf:=buf+IntToHex(Byte(str1[i]),2)+Separator;
-  end;
-  Result:=buf;
-end;
-
-function ByteArrayToHex(str1:array of Byte; size: Word):String;
-var
-  buf:String;
-  i:Integer;
-begin
-  buf:='';
-  for i:=0 to size-1 do begin
-    buf:=buf+IntToHex(str1[i],2);
-  end;
-  Result:=buf;
-end;
-
 ///////////////////////////////////////////////////////////////////////////////
 //                        вызываются из всех потоков
 ///////////////////////////////////////////////////////////////////////////////
-//закрываем сокет
-procedure DeInitSocket(const hSocket: Integer);
-begin
-  // Закрываем сокет
-  if hSocket <> INVALID_SOCKET
-    then begin
-      sendMSG('WSAStart ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
-      closesocket(hSocket);
-    end
-    else sendMSG('WSAStart error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
-  // Деинициализируем WinSock
-  WSACleanup;
-end;
-//....................
-//инициализируем сокет
-function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
-var
-  Addr_in: sockaddr_in;
-begin
-  Result := WSAStartup(WSA_VER, WSA) = NOERROR;
-  if not Result then
-  begin
-    Exit;
-  end;
-  hSocket := socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if hSocket = INVALID_SOCKET then
-  begin
-    DeInitSocket(hSocket);
-    Exit;
-  end;
-  FillChar(Addr_in, SizeOf(sockaddr_in), 0);
-  Addr_in.sin_family:= AF_INET;
-  Addr_in.sin_addr.s_addr := inet_addr(PChar(IP));
-  Addr_in.sin_port := HToNS(Port);
-  if bind(hSocket, Addr_in, SizeOf(sockaddr_in)) <> 0 then
-  begin
-    DeInitSocket(hSocket);
-    Exit;
-  end;
-//  if listen(hSocket, 1) <> 0 then
-//  begin
-//    DeInitSocket(hSocket);
-//    Exit;
-//  end;
-  Result := True;
-end;
 //....................
 //вызывать через сообщения
 procedure TL2PacketHackMain.Log(var msg: TMessage);
@@ -4064,33 +3739,6 @@ begin
   h1:=msg.LParam; // хендл отработаного потока
   CloseHandle(h1);
 end;
-//....................
-
-///////////////////////////////////////////////////////////////////////////////
-//                   вызываются из главного потока
-///////////////////////////////////////////////////////////////////////////////
-//ожидаем подключения клиента
-function WaitClient(var hSocket, NewSocket: TSocket): Boolean;
-var
-  Addr_in: sockaddr_in;
-  AddrSize: Integer;
-begin
-  Result:=False;
-  if listen(hSocket, 1)<>0 then
-  begin
-    DeInitSocket(hSocket);
-    Exit;
-  end;
-  FillChar(Addr_in,SizeOf(sockaddr_in),0);
-  Addr_in.sin_family:=AF_INET;
-  Addr_in.sin_addr.s_addr:=inet_addr(PChar('0.0.0.0'));
-  Addr_in.sin_port:=HToNS(0);
-  AddrSize:=SizeOf(Addr_in);
-  NewSocket:=accept(hSocket,@Addr_in,@AddrSize);
-  if NewSocket>0 then Result:=True;
-  if not Result then DeInitSocket(hSocket);
-end;
-
 ///////////////////////////////////////////////////////////////////////////////
 //                      главный VCL поток
 ///////////////////////////////////////////////////////////////////////////////
@@ -4150,26 +3798,11 @@ A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить и
     EndThread(0);
   end;
 end;
-//....................
 //конец - главный VCL поток
 ///////////////////////////////////////////////////////////////////////////////
 //                 запускается из 1-го и 2-го потока
 ///////////////////////////////////////////////////////////////////////////////
-function GetSocketData(Socket: TSocket; var Data; const Size: Word): Boolean;
-var
-  Position: Word;
-  Len: Integer;
-  DataB: array[0..$5000] of Byte absolute Data;
-begin
-  Result:=False;
-  Position:=0;
-  while Position<Size do begin
-    Len:=recv(Socket,DataB[Position],1,0);
-    if Len<=0 then Exit;
-    Inc(Position, Len);
-  end;
-  Result:=True;
-end;
+
 //....................
 //вызывать через сообщения
 procedure TL2PacketHackMain.SetDisconnect(var msg: TMessage);
@@ -4191,12 +3824,10 @@ begin
           Scripts[i].Compilled:=True;
           Scripts[i].fsScript.Variables['ConnectID']:=id;
           Scripts[i].fsScript.CallFunction('OnDisconnect',True);
-          //Scripts[i].fsScript.CallFunction('OnConnect',False);
         end;
       end else begin
         Scripts[i].fsScript.Variables['ConnectID']:=id;
         Scripts[i].fsScript.CallFunction('OnDisconnect',True);
-        //Scripts[i].fsScript.CallFunction('OnConnect',False);
       end;
 end;
 //....................
@@ -4221,12 +3852,10 @@ begin
           Scripts[i].Compilled:=True;
           Scripts[i].fsScript.Variables['ConnectID']:=id;
           Scripts[i].fsScript.CallFunction('OnConnect',True);
-          //Scripts[i].fsScript.CallFunction('OnDisconnect',False);
         end;
       end else begin
         Scripts[i].fsScript.Variables['ConnectID']:=id;
         Scripts[i].fsScript.CallFunction('OnConnect',True);
-        //Scripts[i].fsScript.CallFunction('OnDisconnect',False);
       end;
 end;
 //....................
@@ -4238,7 +3867,7 @@ begin
   Memo3.Clear;
   Memo2.Clear;
 end;
-//....................
+
 ///////////////////////////////////////////////////////////////////////////////
 //                          1-й рабочий поток
 ///////////////////////////////////////////////////////////////////////////////
@@ -4368,18 +3997,6 @@ end;
 ///////////////////////////////////////////////////////////////////////////////
 //                        вызывается из 2-го потока
 ///////////////////////////////////////////////////////////////////////////////
-//соединение с сервером
-function ConnectToServer(var hSocket: TSocket; Port: Word; IP: Integer): Boolean;
-var
-  Addr_in: sockaddr_in;
-begin
-  Result:=False;
-  Addr_in.sin_family:=AF_INET;
-  Addr_in.sin_addr.S_addr:=IP;
-  Addr_in.sin_port:=Port;
-  if connect(hSocket,Addr_in,SizeOf(Addr_in))=0 then Result:=True;
-  if not Result then DeInitSocket(hSocket);
-end;
 //....................
 //вызывать через сообщения
 procedure TL2PacketHackMain.UpdateComboBox1(var msg: TMessage);
