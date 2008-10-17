@@ -873,8 +873,7 @@ begin
   //скрипты
   for i:=0 to 63 do Scripts[i].fsScript:=TfsScript.Create(Self);
 
-  //WSAStartup($202, WSA);
-  //Application.Title:='L2PacketHack';
+  WSAStartup(WSA_VER, WSA);  //стартуем сокеты
   NoServer:=True;
   RefreshScripts;
   JvHLEditor1.CurrentLineHighlight:=$e6fffa;
@@ -904,6 +903,8 @@ var
   data: array[0..255] of Byte;
   temp: string;
 begin
+  //ожидаем закрытие потоков
+  //...
   //сохраняем фильтр в файл
   for i:=0 to (ListView2.Items.Count div 8)-1 do begin
     data[i]:=0;
@@ -963,6 +964,9 @@ begin
   for i:=0 to High(Plugins) do Plugins[i].Free;
   SetLength(Plugins,0);
 
+  WSACleanup;
+  Shutdown(SLh,2);
+  closesocket(SLh);
   sendMsg('Завершил работу L2phx... ');
 end;
 
@@ -3752,51 +3756,50 @@ begin
 Q :На 56574 зарегистрирован локальный сервер? Что это за порт? Какое его назначение?
 A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить их на сервер.
 }
-  try
+//  try
     //локальный сервер создан? TRUE при запуске программы
     while NoServer do Sleep(1);  //пока true ждем
     if not InitSocket(SLSock,ntohs(LPortConst),'0.0.0.0') then begin
-      //посылаем соообщение записать в лог
-      //sendMSG(format(FailedLocalServer,[ntohs(LPortConst)]));
-    end else begin
+      sendMSG(format(FailedLocalServer,[ntohs(LPortConst)]));
+      EndThread(0);
+    end;
       //создаем локальный сервер
-      sendMSG(format(StartLocalServer,[ntohs(LPortConst)]));
-      //ждём соединения с клиентом
-      while WaitClient(SLSock, NewSocket) do begin
-        //ищем свободный поток
-        for id:=0 to MaxThr-1 do begin
-          if Thread[id].NoUsed then begin
-            EnterCriticalSection(_cs);
-            if Assigned(CreateXorIn)
-              then CreateXorIn(@Thread[id].xorS)
-              else Thread[id].xorS:=L2Xor.Create;
-            if Assigned(CreateXorOut)
-              then CreateXorOut(@Thread[id].xorC)
-              else Thread[id].xorC:=L2Xor.Create;
-            //инициализируем поток
-            Thread[id].Connect:=False;
-            Thread[id].IP:=CurentIP;
-            Thread[id].Port:=CurentPort;
-            Thread[id].InitXOR:=False;
-            Thread[id].SSock:=NewSocket;
-            Thread[id].Dump.Clear;
-            LeaveCriticalSection(_cs);
-            Thread[id].SH:=BeginThread(nil, 0, @Server, Pointer(id), 0, Thread[id].STH);
-            //sendMSG(format(CreateNewConnect,[id]));
-            sendMSG('Thread Start: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
-            break; //прерываем цикл, как только находим свободный поток
-          end;
+    sendMSG(format(StartLocalServer,[ntohs(LPortConst)]));
+    //ждём соединения с клиентом
+    while WaitClient(SLSock, NewSocket) do begin
+      //ищем свободный поток
+      for id:=0 to MaxThr-1 do begin
+        if Thread[id].NoUsed then begin
+          EnterCriticalSection(_cs);
+          if Assigned(CreateXorIn)
+            then CreateXorIn(@Thread[id].xorS)
+            else Thread[id].xorS:=L2Xor.Create;
+          if Assigned(CreateXorOut)
+            then CreateXorOut(@Thread[id].xorC)
+            else Thread[id].xorC:=L2Xor.Create;
+          //инициализируем поток
+          Thread[id].Connect:=False;
+          Thread[id].IP:=CurentIP;
+          Thread[id].Port:=CurentPort;
+          Thread[id].InitXOR:=False;
+          Thread[id].SSock:=NewSocket;
+          Thread[id].Dump.Clear;
+          LeaveCriticalSection(_cs);
+          Thread[id].SH:=BeginThread(nil, 0, @Server, Pointer(id), 0, Thread[id].STH);
+          //sendMSG(format(CreateNewConnect,[id]));
+          sendMSG('Thread Start: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
+          break; //прерываем цикл, как только находим свободный поток
         end;
       end;
     end;
-  finally
+//  finally
     //закрываем сокет локального сервера
     DeInitSocket(NewSocket);
     DeInitSocket(SLSock);
 //    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, SLh);
     sendMSG('На '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер '+inttostr(SLH)+'/'+inttostr(SLTH));
     EndThread(0);
-  end;
+//  end;
 end;
 //конец - главный VCL поток
 ///////////////////////////////////////////////////////////////////////////////
@@ -4036,80 +4039,79 @@ var
   SSockl,CSockl: TSocket;
   IsGamel: Boolean;
 begin
-  try
-    id:=Byte(Param);
-    EnterCriticalSection(_cs);
-    SSockl:=Thread[id].SSock;
-    if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then begin
-      DeInitSocket(Thread[id].CSock);
-      exit;
-    end;
-    if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then begin
-      DeInitSocket(Thread[id].CSock);
-      exit;
-    end;
-    //инициируем переменные ConnectID и OnConnect в скрипте
-    SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
-    //ждем подключения
-    Thread[id].Connect:=True;
-    SetEvent(Thread[id].ConnectEvent);
-    Thread[id].Name:='';
-    CSockl:=Thread[id].CSock;
-    LeaveCriticalSection(_cs);
-
-    GetSocketData(CSockl,Packet,2);
-    EnterCriticalSection(_cs);
-    if not Thread[id].AutoPing then begin
-      Thread[id].IsGame:=False;
-    end;
-    IsGamel:=Thread[id].IsGame;
-    LeaveCriticalSection(_cs);
-    //если (пропускать логин и мы не в игре)
-    if isPassLogin and (not IsGamel) then begin
-      //отсылаем данные, сначала длину, а потом сам пакет
-      send(SSockl,PacketB,2,0);
-      repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
-    end else
-    repeat
-      //иначе (пропускать логин и мы в игре)
-      //прием пакетов
-      if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
-      if IsGamel
-        then PacketProcesor(PacketB,SSockl,id,3)
-        else PacketProcesor(PacketB,SSockl,id,1);
-      if not GetSocketData(CSockl,Packet,2) then break;
-    until False;
-
-    //сюда попадаем когда отвалился клиент
-    //инициируем переменные ConnectID и OnDisconnect в скрипте
-    //sendMSG('Disconnect: отвалился клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
-    PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
-
-  finally
-    //не разрываем связь если отключен клиент и noFreeOnClientDisconnect
-    while Thread[id].noFreeOnClientDisconnect do Sleep(1);
-
-    EnterCriticalSection(_cs);
-    //закрываем сокеты
-    CloseSocket(SSockl);
-    CloseSocket(CSockl);
-    Thread[id].NoUsed:=True;
-    sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
-    LeaveCriticalSection(_cs);
-
-    {нельзя чистить, нечего будет сохранять в файл в потоке сервера}
-    //чистим лог пакетов
-  //  Thread[ID].Dump.Clear;
-  //  SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
-    //sendMSG(format(ConnectBreak,[id]));
-
-    //обновляем Список соединений
-    PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
-
-    //дождемся закрытия потока
-    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+  id:=Byte(Param);
+  EnterCriticalSection(_cs);
+  SSockl:=Thread[id].SSock;
+  if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then begin
+//    DeInitSocket(Thread[id].CSock);
+//    exit;
     EndThread(0);
   end;
+  if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then begin
+//    DeInitSocket(Thread[id].CSock);
+//    exit;
+    EndThread(0);
+  end;
+  //инициируем переменные ConnectID и OnConnect в скрипте
+  SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
+  //ждем подключения
+  Thread[id].Connect:=True;
+  SetEvent(Thread[id].ConnectEvent);
+  Thread[id].Name:='';
+  CSockl:=Thread[id].CSock;
+  LeaveCriticalSection(_cs);
+
+  GetSocketData(CSockl,Packet,2);
+  EnterCriticalSection(_cs);
+  if not Thread[id].AutoPing then begin
+    Thread[id].IsGame:=False;
+  end;
+  IsGamel:=Thread[id].IsGame;
+  LeaveCriticalSection(_cs);
+  //если (пропускать логин и мы не в игре)
+  if isPassLogin and (not IsGamel) then begin
+    //отсылаем данные, сначала длину, а потом сам пакет
+    send(SSockl,PacketB,2,0);
+    repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
+  end else
+  repeat
+    //иначе (пропускать логин и мы в игре)
+    //прием пакетов
+    if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
+    if IsGamel
+      then PacketProcesor(PacketB,SSockl,id,3)
+      else PacketProcesor(PacketB,SSockl,id,1);
+    if not GetSocketData(CSockl,Packet,2) then break;
+  until False;
+
+  //сюда попадаем когда отвалился клиент
+  //инициируем переменные ConnectID и OnDisconnect в скрипте
+  //sendMSG('Disconnect: отвалился клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+  PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
+
+  //не разрываем связь если отключен клиент и noFreeOnClientDisconnect
+  while Thread[id].noFreeOnClientDisconnect do Sleep(1);
+
+  EnterCriticalSection(_cs);
+  //закрываем сокеты
+  CloseSocket(SSockl);
+  CloseSocket(CSockl);
+  Thread[id].NoUsed:=True;
+  sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+  LeaveCriticalSection(_cs);
+
+  {нельзя чистить, нечего будет сохранять в файл в потоке сервера}
+  //чистим лог пакетов
+//  Thread[ID].Dump.Clear;
+//  SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+  //sendMSG(format(ConnectBreak,[id]));
+
+  //обновляем Список соединений
+  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+
+  //дождемся закрытия потока
+  //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+  EndThread(0);
 end;
 //....................
 //конец - 2-й рабочий поток

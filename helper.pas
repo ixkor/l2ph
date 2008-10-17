@@ -197,7 +197,10 @@ begin
   AddrSize:=SizeOf(Addr_in);
   NewSocket:=accept(hSocket,@Addr_in,@AddrSize);
   if NewSocket>0 then Result:=True;
-  if not Result then DeInitSocket(hSocket);
+  if not Result then begin
+    DeInitSocket(NewSocket);
+    DeInitSocket(hSocket);
+  end;
 end;
 
 function ConnectToServer(var hSocket: TSocket; Port: Word; IP: Integer): Boolean;
@@ -215,25 +218,14 @@ end;
 procedure DeInitSocket(const hSocket: Integer);
 begin
   // Закрываем сокет
-  if hSocket <> INVALID_SOCKET
-    then begin
-     // sendMSG('WSAStart ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
-      closesocket(hSocket);
-    end;
-//    else sendMSG('WSAStart error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
-  // Деинициализируем WinSock
-  WSACleanup;
+  if hSocket <> INVALID_SOCKET then closesocket(hSocket);
 end;
 
 function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
 var
   Addr_in: sockaddr_in;
 begin
-  Result := WSAStartup(WSA_VER, WSA) = NOERROR;
-  if not Result then
-  begin
-    Exit;
-  end;
+  Result:=False;
   hSocket := socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if hSocket = INVALID_SOCKET then
   begin
@@ -244,16 +236,11 @@ begin
   Addr_in.sin_family:= AF_INET;
   Addr_in.sin_addr.s_addr := inet_addr(PChar(IP));
   Addr_in.sin_port := HToNS(Port);
-  if bind(hSocket, Addr_in, SizeOf(sockaddr_in)) <> 0 then
+  if bind(hSocket, Addr_in, SizeOf(sockaddr_in)) <> 0 then  //ошибка, если больше нуля
   begin
     DeInitSocket(hSocket);
     Exit;
   end;
-//  if listen(hSocket, 1) <> 0 then
-//  begin
-//    DeInitSocket(hSocket);
-//    Exit;
-//  end;
   Result := True;
 end;
 
