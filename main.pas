@@ -892,7 +892,7 @@ begin
   PluginStruct.StringToHex:=StringToHex;
   btnRefreshPluginListClick(nil);
 
-  // эти кнопки поумолчанию выключены 
+  // эти кнопки поумолчанию выключены
   tbtnFilterDel.Enabled := false;
   tbtnDelete.Enabled := false;
 end;
@@ -903,8 +903,14 @@ var
   data: array[0..255] of Byte;
   temp: string;
 begin
+  Terminate:=true; //сигналим завершитьс€ процессу ServerListen
   //ожидаем закрытие потоков
-  //...
+  while not terminated do sleep(1); //ждем завершени€
+  sendMSG('Thread Exit: основной поток ServerListen '+inttostr(SLH)+'/'+inttostr(SLTH));
+//  Shutdown(SLh,2); //скорее всего не нужен
+  closesocket(SLh);
+  WSACleanup;
+
   //сохран€ем фильтр в файл
   for i:=0 to (ListView2.Items.Count div 8)-1 do begin
     data[i]:=0;
@@ -964,9 +970,6 @@ begin
   for i:=0 to High(Plugins) do Plugins[i].Free;
   SetLength(Plugins,0);
 
-  WSACleanup;
-  Shutdown(SLh,2);
-  closesocket(SLh);
   sendMsg('«авершил работу L2phx... ');
 end;
 
@@ -3723,18 +3726,6 @@ begin
   SendMessage(L2PacketHackMain.Handle, WM_ListBox3_Log, 0, integer(@Msg));
 end;
 //....................
-function WaitForData(Socket:TSocket; Timeout: Longint): Boolean;
-var
-  FDSet: TFDSet;
-  TimeVal: TTimeVal;
-begin
-  TimeVal.tv_sec := Timeout div 1000;
-  TimeVal.tv_usec := (Timeout mod 1000) * 1000;
-  FD_ZERO(FDSet);
-  FD_SET(Socket, FDSet);
-  Result := select(0, @FDSet, nil, nil, @TimeVal) > 0;
-end;
-//....................
 //вызывать через сообщени€
 procedure TL2PacketHackMain.WmFinished(var msg: TMessage);
 var
@@ -3756,14 +3747,16 @@ begin
 Q :Ќа 56574 зарегистрирован локальный сервер? „то это за порт?  акое его назначение?
 A: Ќа этом порту пакетхак принимает соединени€ от клиента, чтобы перенаправить их на сервер.
 }
-//  try
+  try
     //локальный сервер создан? TRUE при запуске программы
     while NoServer do Sleep(1);  //пока true ждем
     if not InitSocket(SLSock,ntohs(LPortConst),'0.0.0.0') then begin
       sendMSG(format(FailedLocalServer,[ntohs(LPortConst)]));
-      EndThread(0);
+//      DeInitSocket(SLSock);
+//      EndThread(0);
+        exit;
     end;
-      //создаем локальный сервер
+    //создаем локальный сервер
     sendMSG(format(StartLocalServer,[ntohs(LPortConst)]));
     //ждЄм соединени€ с клиентом
     while WaitClient(SLSock, NewSocket) do begin
@@ -3792,14 +3785,12 @@ A: Ќа этом порту пакетхак принимает соединени€ от клиента, чтобы перенаправить и
         end;
       end;
     end;
-//  finally
+  finally
+    Terminated:=true;
     //закрываем сокет локального сервера
-    DeInitSocket(NewSocket);
-    DeInitSocket(SLSock);
-//    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, SLh);
-    sendMSG('Ќа '+IntToStr(ntohs(LPortConst))+' уничтожен локальный сервер '+inttostr(SLH)+'/'+inttostr(SLTH));
+//    DeInitSocket(SLSock);
     EndThread(0);
-//  end;
+  end;
 end;
 //конец - главный VCL поток
 ///////////////////////////////////////////////////////////////////////////////
@@ -3894,7 +3885,6 @@ var
   msg: string;
   x: integer;
 begin
-  try
     id:=Byte(Param);
     EnterCriticalSection(_cs);
     SSockl:=Thread[id].SSock;
@@ -3913,7 +3903,6 @@ begin
     //инициируем переменные ConnectID и OnConnect в скрипте
     PostMessage(L2PacketHackMain.Handle, WM_SetConnect, 1, id);
 
-    //здесь вроде тоже надо критическую секцию?
     //ждем подключени€ 30 секунд, если оно не произошло завершаемс€
     if WaitForSingleObject(Thread[id].ConnectEvent, 30000)<>0 then begin
       CloseHandle(Thread[id].ConnectEvent);
@@ -3950,9 +3939,8 @@ begin
     //сюда попадаем когда отвалилс€ сервер
     //инициируем переменные ConnectID и OnDisconnect в скрипте
     SendMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 1, id);
-    //sendMSG('Disconnect: отвалилс€ сервер Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
+    sendMSG('Disconnect: отвалилс€ сервер Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
 
-  finally
     //не разрываем св€зь если отключен сервер и noFreeOnServerDisconnect
     while Thread[id].noFreeOnServerDisconnect do Sleep(1);
     EnterCriticalSection(_cs);
@@ -3976,11 +3964,14 @@ begin
       //пропускаем ошибки при записи
     end;
     //закрываем сокеты
-    CloseSocket(SSockl);
-    CloseSocket(CSockl);
+    DeinitSocket(SSockl);
+    DeinitSocket(CSockl);
     //чистим лог пакетов
     Thread[ID].Dump.Clear;
     Thread[id].NoUsed:=True;
+    //дождемс€ закрыти€ потока
+    CloseHandle(Thread[id].SH);
+//    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
     sendMSG('Thread Exit: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
     LeaveCriticalSection(_cs);
     SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
@@ -3990,10 +3981,7 @@ begin
     //обновл€ем —писок соединений
     SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
 
-    //дождемс€ закрыти€ потока
-    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
     EndThread(0);
-  end;
 end;
 //....................
 //конец - 1-й рабочий поток
@@ -4086,7 +4074,7 @@ begin
 
   //сюда попадаем когда отвалилс€ клиент
   //инициируем переменные ConnectID и OnDisconnect в скрипте
-  //sendMSG('Disconnect: отвалилс€ клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+  sendMSG('Disconnect: отвалилс€ клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
   PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
 
   //не разрываем св€зь если отключен клиент и noFreeOnClientDisconnect
@@ -4094,9 +4082,11 @@ begin
 
   EnterCriticalSection(_cs);
   //закрываем сокеты
-  CloseSocket(SSockl);
-  CloseSocket(CSockl);
-  Thread[id].NoUsed:=True;
+  DeinitSocket(SSockl);
+  DeinitSocket(CSockl);
+  //дождемс€ закрыти€ потока
+  //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+  Closehandle(Thread[id].CH);
   sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
   LeaveCriticalSection(_cs);
 
@@ -4109,8 +4099,6 @@ begin
   //обновл€ем —писок соединений
   PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
 
-  //дождемс€ закрыти€ потока
-  //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
   EndThread(0);
 end;
 //....................

@@ -48,6 +48,9 @@ var
   ShowMessageOld: procedure (const Msg: string);
   Scripts: array[0..63] of TScript;
   WSA: TWSAData;
+  Terminate: boolean; //завершать работу потока? true - да, false - нет
+  Terminated: boolean; //завершать работу потока? true - да, false - нет
+
 
 const
   {The name of the debug info support L2phx}
@@ -179,6 +182,19 @@ begin
   Result:=True;
 end;
 
+//....................
+function WaitForData(Socket: TSocket; Timeout: Longint): Boolean;
+var
+  FDSet: TFDSet;
+  TimeVal: TTimeVal;
+begin
+  TimeVal.tv_sec := Timeout div 1000;
+  TimeVal.tv_usec := (Timeout mod 1000) * 1000;
+  FD_ZERO(FDSet);
+  FD_SET(Socket, FDSet);
+  Result := select(0, @FDSet, nil, nil, @TimeVal) > 0;
+end;
+
 function WaitClient(var hSocket, NewSocket: TSocket): Boolean;
 var
   Addr_in: sockaddr_in;
@@ -187,19 +203,27 @@ begin
   Result:=False;
   if listen(hSocket, 1)<>0 then
   begin
+    // какая-то ошибка, анализируем с помощью WSAGetLastError
     DeInitSocket(hSocket);
     Exit;
   end;
-  FillChar(Addr_in,SizeOf(sockaddr_in),0);
+  FillChar(Addr_in,SizeOf(sockaddr_in), 0);
   Addr_in.sin_family:=AF_INET;
   Addr_in.sin_addr.s_addr:=inet_addr(PChar('0.0.0.0'));
   Addr_in.sin_port:=HToNS(0);
   AddrSize:=SizeOf(Addr_in);
-  NewSocket:=accept(hSocket,@Addr_in,@AddrSize);
+  while true do begin
+    if Terminate then exit;
+    if WaitForData(hSocket, 1) then begin
+      NewSocket:=accept(hSocket, @Addr_in, @AddrSize);
+      break;
+    end;
+  end;
   if NewSocket>0 then Result:=True;
   if not Result then begin
+    // какая-то ошибка, анализируем с помощью WSAGetLastError
     DeInitSocket(NewSocket);
-    DeInitSocket(hSocket);
+    //DeInitSocket(hSocket);
   end;
 end;
 
@@ -212,13 +236,17 @@ begin
   Addr_in.sin_addr.S_addr:=IP;
   Addr_in.sin_port:=Port;
   if connect(hSocket,Addr_in,SizeOf(Addr_in))=0 then Result:=True;
+  // какая-то ошибка, анализируем с помощью WSAGetLastError
   if not Result then DeInitSocket(hSocket);
 end;
 
 procedure DeInitSocket(const hSocket: Integer);
 begin
   // Закрываем сокет
-  if hSocket <> INVALID_SOCKET then closesocket(hSocket);
+  if hSocket <> INVALID_SOCKET then begin
+    Shutdown(hSocket,2);  //выключаем сокет
+    closesocket(hSocket); //уничтожаем сокет
+  end;
 end;
 
 function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
@@ -238,6 +266,7 @@ begin
   Addr_in.sin_port := HToNS(Port);
   if bind(hSocket, Addr_in, SizeOf(sockaddr_in)) <> 0 then  //ошибка, если больше нуля
   begin
+    // какая-то ошибка, анализируем с помощью WSAGetLastError
     DeInitSocket(hSocket);
     Exit;
   end;
