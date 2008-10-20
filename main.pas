@@ -720,7 +720,6 @@ end;
 procedure TL2PacketHackMain.LoadPacketsIni;
 var
   i, j: Integer;
-
 begin
   //  ProtocolVersion:=560; //C4
   if ProtocolVersion<828 then begin
@@ -758,12 +757,10 @@ begin
   end;
   filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
   filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
-
   //обновл€ем чекбоксы пакетов
   for i:=0 to (ListView2.Items.Count div 8)-1 do
     for j:=0 to 7 do
       ListView2.Items.Item[i*8+j].Checked:=Boolean((Byte(filterS[i+1])shr j) and 1);
-
   for i:=0 to (ListView1.Items.Count div 8)-1 do
     for j:=0 to 7 do
       ListView1.Items.Item[i*8+j].Checked:=Boolean((Byte(filterC[i+1])shr j) and 1);
@@ -773,7 +770,7 @@ procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 var i:integer;
 begin
   Caption:='ћодификаци€ L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru';
-  sendMsg('—тартует L2phx...  ');
+  sendMsg('—тартует L2phx '+inet_ntoa(TInAddr(version)));
   typ0:='€'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
   Processes:=TStringList.Create;
@@ -879,6 +876,8 @@ begin
   JvHLEditor1.CurrentLineHighlight:=$e6fffa;
   JvHLEditor2.CurrentLineHighlight:=$e6fffa;
   //запускаем главный поток
+  SLThreadTerminate := false;
+  SLThreadStarted := false;
   SLh:=BeginThread(nil, 0, @ServerListen, nil, 0, SLth);
   sendMsg('Thread Start: основной поток ServerListen '+inttostr(SLh)+'/'+inttostr(SLth));
 
@@ -902,13 +901,17 @@ var
   i,j: Integer;
   data: array[0..255] of Byte;
   temp: string;
+  var dw : dword;
 begin
-  Terminate:=true; //сигналим завершитьс€ процессу ServerListen
-  //ожидаем закрытие потоков
-  while not terminated do sleep(1); //ждем завершени€
-  sendMSG('Thread Exit: основной поток ServerListen '+inttostr(SLH)+'/'+inttostr(SLTH));
-//  Shutdown(SLh,2); //скорее всего не нужен
-  closesocket(SLh);
+  if SLThreadStarted then begin //если ещЄ работает
+    SLThreadTerminate:=true; //сигналим завершитьс€ процессу ServerListen
+    while ResumeThread(SLh)>0 do ;
+    dw := GetTickCount;
+    while SLThreadStarted and ((GetTickCount-dw)<2000) do begin
+      WaitForSingleObject(SLh, 15);  //ждем завершени€
+    end;
+    if SLThreadStarted then TerminateThread(SLh, 0) else CloseHandle(SLh);
+  end;
   WSACleanup;
 
   //сохран€ем фильтр в файл
@@ -1102,8 +1105,6 @@ procedure TL2PacketHackMain.ListView1Click(Sender: TObject);
 var
   msg: TMessage;
   i: Integer;
-//  data: array[0..255] of Byte;
-//  temp: string;
 begin
   //расшифровываем лог пакетов
   ListView5.Items.BeginUpdate;
@@ -1115,7 +1116,6 @@ begin
       msg.WParam:=Integer(CID and $FF)+ $100
     else if Thread[CID].Dump.Strings[i][2]='3' then //от сервера
       msg.WParam:=Integer(CID and $FF);
-
     msg.LParam:=i;
     PacketSend(msg);
   end;
@@ -1480,8 +1480,8 @@ var
 begin
   fromS:=false;
   // очищаем спискм
-  ListView1.Clear;
-  ListView2.Clear;
+//  ListView1.Clear;
+//  ListView2.Clear;
 
   //считываем packets.ini
   PacketsNames.LoadFromFile(ExtractFilePath(Application.ExeName)+s);
@@ -2146,7 +2146,7 @@ var
   subid: word;
   PktStr: string;
   i, PckCount: integer;
-  h1: Byte;
+//  h1: Byte;
 begin
   tid:=Byte(msg.WParam and $FF);
   PckCount:=msg.LParam;
@@ -3748,6 +3748,7 @@ Q :Ќа 56574 зарегистрирован локальный сервер? „то это за порт?  акое его назначе
 A: Ќа этом порту пакетхак принимает соединени€ от клиента, чтобы перенаправить их на сервер.
 }
   try
+    SLThreadStarted:=true;
     //локальный сервер создан? TRUE при запуске программы
     while NoServer do Sleep(1);  //пока true ждем
     if not InitSocket(SLSock,ntohs(LPortConst),'0.0.0.0') then begin
@@ -3786,10 +3787,9 @@ A: Ќа этом порту пакетхак принимает соединени€ от клиента, чтобы перенаправить и
       end;
     end;
   finally
-    Terminated:=true;
-    //закрываем сокет локального сервера
-//    DeInitSocket(SLSock);
-    EndThread(0);
+    SLThreadStarted:=false;
+    sendMSG('Thread Exit: основной поток ServerListen '+inttostr(SLH)+'/'+inttostr(SLTH));
+    //EndThread(0);
   end;
 end;
 //конец - главный VCL поток

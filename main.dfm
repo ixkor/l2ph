@@ -1024,7 +1024,6 @@ object L2PacketHackMain: TL2PacketHackMain
             Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1082#1077#1090' '#1074' '#1055#1086#1089#1099#1083#1082#1091
             Caption = 'tbtnToSend'
             ImageIndex = 5
-            Visible = False
             OnClick = BtnToSendClick
           end
           object ToolButton2: TToolButton
@@ -1034,7 +1033,6 @@ object L2PacketHackMain: TL2PacketHackMain
             Caption = 'ToolButton2'
             ImageIndex = 6
             Style = tbsSeparator
-            Visible = False
           end
           object ToolButton4: TToolButton
             Left = 162

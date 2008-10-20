@@ -49,7 +49,9 @@ var
   Scripts: array[0..63] of TScript;
   WSA: TWSAData;
   Terminate: boolean; //завершать работу потока? true - да, false - нет
-  Terminated: boolean; //завершать работу потока? true - да, false - нет
+  Terminated: boolean; //завершил работу поток? true - да, false - нет
+  SLThreadTerminate: boolean; //завершать работу потока? true - да, false - нет
+  SLThreadStarted: boolean; //заущен поток? true - да, false - нет
 
 
 const
@@ -182,7 +184,6 @@ begin
   Result:=True;
 end;
 
-//....................
 function WaitForData(Socket: TSocket; Timeout: Longint): Boolean;
 var
   FDSet: TFDSet;
@@ -213,8 +214,8 @@ begin
   Addr_in.sin_port:=HToNS(0);
   AddrSize:=SizeOf(Addr_in);
   while true do begin
-    if Terminate then exit;
-    if WaitForData(hSocket, 1) then begin
+    if SLThreadTerminate then exit;
+    if WaitForData(hSocket, 15) then begin
       NewSocket:=accept(hSocket, @Addr_in, @AddrSize);
       break;
     end;
@@ -223,7 +224,6 @@ begin
   if not Result then begin
     // какая-то ошибка, анализируем с помощью WSAGetLastError
     DeInitSocket(NewSocket);
-    //DeInitSocket(hSocket);
   end;
 end;
 
