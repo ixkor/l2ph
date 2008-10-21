@@ -218,6 +218,7 @@ type
     nPlugins: TMenuItem;
     N6: TMenuItem;
     N7: TMenuItem;
+    Splitter7: TSplitter;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -948,12 +949,15 @@ begin
   Options.WriteInteger('General','HookMethod',isHookMethod);
   Options.UpdateFile;
   Options.Free;
+
   //потоки
   for i:=0 to MaxThr-1 do begin
     Thread[i].Dump.Free;
   end;
+
   //скрипты
   for i:=0 to 63 do Scripts[i].fsScript.Destroy;
+
   Processes.Free;
   PacketsNames.Free;
   PacketsFromS.Free;
@@ -973,6 +977,8 @@ begin
 
   for i:=0 to High(Plugins) do Plugins[i].Free;
   SetLength(Plugins,0);
+
+  UnhookCode(@ShowMessageOld); //снимаем хук и освобождаем память
 
   sendMsg('Завершил работу L2phx... ');
 end;
@@ -3974,9 +3980,9 @@ begin
     Thread[ID].Dump.Clear;
     Thread[id].NoUsed:=True;
     //дождемся закрытия потока
+    sendMSG('Thread Exit: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
     CloseHandle(Thread[id].SH);
 //    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
-    sendMSG('Thread Exit: поток сервера Thread[id].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' id:'+inttostr(id));
     LeaveCriticalSection(_cs);
     SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
 
@@ -3985,7 +3991,7 @@ begin
     //обновляем Список соединений
     SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
 
-    EndThread(0);
+    //EndThread(0);
 end;
 //....................
 //конец - 1-й рабочий поток
@@ -4031,79 +4037,68 @@ var
   SSockl,CSockl: TSocket;
   IsGamel: Boolean;
 begin
-  id:=Byte(Param);
-  EnterCriticalSection(_cs);
-  SSockl:=Thread[id].SSock;
-  if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then begin
-//    DeInitSocket(Thread[id].CSock);
-//    exit;
-    EndThread(0);
+  try
+    id:=Byte(Param);
+    EnterCriticalSection(_cs);
+    SSockl:=Thread[id].SSock;
+    if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then begin
+      EndThread(0);
+    end;
+    if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then begin
+      EndThread(0);
+    end;
+    //инициируем переменные ConnectID и OnConnect в скрипте
+    SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
+    //ждем подключения
+    Thread[id].Connect:=True;
+    SetEvent(Thread[id].ConnectEvent);
+    Thread[id].Name:='';
+    CSockl:=Thread[id].CSock;
+    LeaveCriticalSection(_cs);
+
+    GetSocketData(CSockl,Packet,2);
+    EnterCriticalSection(_cs);
+    if not Thread[id].AutoPing then begin
+      Thread[id].IsGame:=False;
+    end;
+    IsGamel:=Thread[id].IsGame;
+    LeaveCriticalSection(_cs);
+    //если (пропускать логин и мы не в игре)
+    if isPassLogin and (not IsGamel) then begin
+      //отсылаем данные, сначала длину, а потом сам пакет
+      send(SSockl,PacketB,2,0);
+      repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
+    end else
+    repeat
+      //иначе (пропускать логин и мы в игре)
+      //прием пакетов
+      if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
+      if IsGamel
+        then PacketProcesor(PacketB,SSockl,id,3)
+        else PacketProcesor(PacketB,SSockl,id,1);
+      if not GetSocketData(CSockl,Packet,2) then break;
+    until False;
+
+    //сюда попадаем когда отвалился клиент
+    //инициируем переменные ConnectID и OnDisconnect в скрипте
+    sendMSG('Disconnect: отвалился клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+    PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
+
+    //не разрываем связь если отключен клиент и noFreeOnClientDisconnect
+    while Thread[id].noFreeOnClientDisconnect do Sleep(1);
+  finally
+    EnterCriticalSection(_cs);
+    //закрываем сокеты
+    DeinitSocket(SSockl);
+    DeinitSocket(CSockl);
+    //дождемся закрытия потока
+    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+    sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
+    Closehandle(Thread[id].CH);
+    LeaveCriticalSection(_cs);
+    //обновляем Список соединений
+    PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
   end;
-  if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then begin
-//    DeInitSocket(Thread[id].CSock);
-//    exit;
-    EndThread(0);
-  end;
-  //инициируем переменные ConnectID и OnConnect в скрипте
-  SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
-  //ждем подключения
-  Thread[id].Connect:=True;
-  SetEvent(Thread[id].ConnectEvent);
-  Thread[id].Name:='';
-  CSockl:=Thread[id].CSock;
-  LeaveCriticalSection(_cs);
-
-  GetSocketData(CSockl,Packet,2);
-  EnterCriticalSection(_cs);
-  if not Thread[id].AutoPing then begin
-    Thread[id].IsGame:=False;
-  end;
-  IsGamel:=Thread[id].IsGame;
-  LeaveCriticalSection(_cs);
-  //если (пропускать логин и мы не в игре)
-  if isPassLogin and (not IsGamel) then begin
-    //отсылаем данные, сначала длину, а потом сам пакет
-    send(SSockl,PacketB,2,0);
-    repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
-  end else
-  repeat
-    //иначе (пропускать логин и мы в игре)
-    //прием пакетов
-    if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
-    if IsGamel
-      then PacketProcesor(PacketB,SSockl,id,3)
-      else PacketProcesor(PacketB,SSockl,id,1);
-    if not GetSocketData(CSockl,Packet,2) then break;
-  until False;
-
-  //сюда попадаем когда отвалился клиент
-  //инициируем переменные ConnectID и OnDisconnect в скрипте
-  sendMSG('Disconnect: отвалился клиент Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
-  PostMessage(L2PacketHackMain.Handle, WM_SetDisconnect, 0, id);
-
-  //не разрываем связь если отключен клиент и noFreeOnClientDisconnect
-  while Thread[id].noFreeOnClientDisconnect do Sleep(1);
-
-  EnterCriticalSection(_cs);
-  //закрываем сокеты
-  DeinitSocket(SSockl);
-  DeinitSocket(CSockl);
-  //дождемся закрытия потока
-  //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
-  Closehandle(Thread[id].CH);
-  sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
-  LeaveCriticalSection(_cs);
-
-  {нельзя чистить, нечего будет сохранять в файл в потоке сервера}
-  //чистим лог пакетов
-//  Thread[ID].Dump.Clear;
-//  SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
-  //sendMSG(format(ConnectBreak,[id]));
-
-  //обновляем Список соединений
-  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
-
-  EndThread(0);
 end;
 //....................
 //конец - 2-й рабочий поток

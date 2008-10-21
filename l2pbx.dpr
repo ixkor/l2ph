@@ -16,9 +16,7 @@ uses
   helper in 'helper.pas';
 
 {$R *.res}
-
 begin
-
   Application.Initialize;
   Application.CreateForm(TL2PacketHackMain, L2PacketHackMain);
   Application.CreateForm(TFindReplaceForm, FindReplaceForm);
