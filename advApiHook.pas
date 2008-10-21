@@ -79,8 +79,14 @@ function CreateZombieProcess(lpCommandLine: pchar;
                              ModulePath: PChar): boolean;
 function InjectDllAlt(Process: dword; ModulePath: PChar): boolean;
 Function DebugKillProcess(ProcessId: dword): boolean;
+function lstrcmpi(lpString1, lpString2: PChar): Integer; stdcall;
+{$EXTERNALSYM lstrcmpi}
 
 implementation
+
+const
+  MAX_PATH = 260;
+  IMAGE_SIZEOF_SHORT_NAME                  = 8;
 
 type
 TTHREADENTRY32 = packed record
@@ -105,6 +111,31 @@ TPROCESSENTRY32 = packed record
   dwFlags: DWORD;
   szExeFile: array[0..MAX_PATH - 1] of Char;
   end;
+
+  TISHMisc = packed record
+    case Integer of
+      0: (PhysicalAddress: DWORD);
+      1: (VirtualSize: DWORD);
+  end;
+
+  PPImageSectionHeader = ^PImageSectionHeader;
+  PImageSectionHeader = ^TImageSectionHeader;
+  _IMAGE_SECTION_HEADER = packed record
+    Name: packed array[0..IMAGE_SIZEOF_SHORT_NAME-1] of Byte;
+    Misc: TISHMisc;
+    VirtualAddress: DWORD;
+    SizeOfRawData: DWORD;
+    PointerToRawData: DWORD;
+    PointerToRelocations: DWORD;
+    PointerToLinenumbers: DWORD;
+    NumberOfRelocations: Word;
+    NumberOfLinenumbers: Word;
+    Characteristics: DWORD;
+  end;
+  {$EXTERNALSYM _IMAGE_SECTION_HEADER}
+  TImageSectionHeader = _IMAGE_SECTION_HEADER;
+  IMAGE_SECTION_HEADER = _IMAGE_SECTION_HEADER;
+  {$EXTERNALSYM IMAGE_SECTION_HEADER}
 
 
 TModuleList = array of dword;
@@ -206,7 +237,7 @@ const
     $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED,
     $003F, $02ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED,
     $FFFF, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED, $00ED,
-    $00ED, $00ED, $00ED, $00ED, $00ED, $0000                            
+    $00ED, $00ED, $00ED, $00ED, $00ED, $0000
   );
 
   Opcodes3: array [0..9] of array [0..15] of word =
@@ -228,7 +259,7 @@ const
      ($0128, $FFFF, $0128, $0128, $0110, $FFFF, $0110, $0118, $0030, $0030,
       $0030, $0030, $0030, $0030, $FFFF, $FFFF),
      ($0118, $0118, $0118, $0118, $0118, $0118, $0118, $0118, $0236, $0236,
-      $0030, $0236, $0236, $0236, $0236, $0236),      
+      $0030, $0236, $0236, $0236, $0236, $0236),
      ($0118, $FFFF, $0118, $0118, $0130, $0128, $0130, $0128, $0030, $0030,
       $0030, $0030, $0000, $0036, $0036, $FFFF)
   );
@@ -243,6 +274,7 @@ Function Process32First(hSnapshot: THandle; var lppe: TProcessEntry32): BOOL std
                                   external 'kernel32.dll';
 Function Process32Next(hSnapshot: THandle; var lppe: TProcessEntry32): BOOL stdcall;
                                   external 'kernel32.dll';
+function lstrcmpi; external kernel32 name 'lstrcmpiA';
 
 Function OpenThread(dwDesiredAccess: dword;
                     bInheritHandle: bool;
@@ -276,6 +308,21 @@ begin
       Result := True;
     end;
 end;
+
+const
+  IMAGE_SCN_MEM_NOT_CACHED                 = $04000000;  { Section is not cachable. }
+  PAGE_NOCACHE = $200;
+  IMAGE_SCN_MEM_EXECUTE                    = $20000000;  { Section is executable. }
+  IMAGE_SCN_MEM_READ                       = $40000000;  { Section is readable. }
+  IMAGE_SCN_MEM_WRITE                      = DWORD($80000000);  { Section is writeable. }
+  PAGE_EXECUTE_READWRITE = $40;
+  PAGE_EXECUTE_READ = $20;
+  PAGE_EXECUTE_WRITECOPY = $80;
+  PAGE_EXECUTE = $10;
+  PAGE_READWRITE = 4;
+  PAGE_READONLY = 2;
+  PAGE_WRITECOPY = 8;
+  PAGE_NOACCESS = 1;
 
 function GetSectionProtection(ImageScn: dword): dword;
   begin
@@ -787,23 +834,19 @@ begin
     //вычисляем адрес относительного (jmp near) перехода на новую функцию   
     Address := dword(NewProc) - dword(Proc) - 5;
     VirtualProtect(Proc, 5, PAGE_EXECUTE_READWRITE, OldProtect);
-    //создаем буффер для true функции
+    //создаем буффер для true функции 
     GetMem(OldFunction, 255);
-    //копируем первые 4 байта функции
+    //копируем первые 4 байта функции 
     dword(OldFunction^) := dword(Proc);
     byte(pointer(dword(OldFunction) + 4)^) := SaveOldFunction(Proc, pointer(dword(OldFunction) + 5));
     //byte(pointer(dword(OldFunction) + 4)^) - длина сохраненного участка
-    byte(Proc^) := $e9; //устанавливаем переход
+    byte(Proc^) := $e9; //устанавливаем переход 
     dword(pointer(dword(Proc) + 1)^) := Address;
     VirtualProtect(Proc, 5, OldProtect, OldProtect);
     OldProc := pointer(dword(OldFunction) + 5);
   except
-    //добавил для исключения утечки памяти, NLObP
-    FreeMem(OldFunction, 255);
     Exit;
   end;
-  //добавил для исключения утечки памяти, NLObP
-  FreeMem(OldFunction, 255);
   Result := True;
 end;
 

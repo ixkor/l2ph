@@ -4037,7 +4037,7 @@ var
   SSockl,CSockl: TSocket;
   IsGamel: Boolean;
 begin
-  try
+//  try
     id:=Byte(Param);
     EnterCriticalSection(_cs);
     SSockl:=Thread[id].SSock;
@@ -4086,7 +4086,7 @@ begin
 
     //не разрываем связь если отключен клиент и noFreeOnClientDisconnect
     while Thread[id].noFreeOnClientDisconnect do Sleep(1);
-  finally
+//  finally
     EnterCriticalSection(_cs);
     //закрываем сокеты
     DeinitSocket(SSockl);
@@ -4099,7 +4099,7 @@ begin
     //обновляем Список соединений
     PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
   end;
-end;
+//end;
 //....................
 //конец - 2-й рабочий поток
 

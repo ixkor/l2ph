@@ -345,8 +345,8 @@ begin
         ProcessorDetails := ProcessorDetails + ' MMXex'
       else if MMX then
         ProcessorDetails := ProcessorDetails + ' MMX';
-      if SSE > 0 then
-        ProcessorDetails := Format('%s SSE%d', [ProcessorDetails, SSE]);
+//      if SSE > 0 then
+//        ProcessorDetails := Format('%s SSE%d', [ProcessorDetails, SSE]);
       if Ex3DNow then
         ProcessorDetails := ProcessorDetails + ' 3DNow!ex'
       else if _3DNow then

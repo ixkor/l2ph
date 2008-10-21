@@ -259,22 +259,22 @@ Set the default options for FastMM here.
  FullDebugMode if the application is being debugged inside the Delphi IDE.
  Otherwise the default Delphi memory manager will be used (which is equivalent
  to the non-FullDebugMode FastMM since Delphi 2006.)}
-{.$define FullDebugModeInIDE}
+{$define FullDebugModeInIDE}
 
 {Group the options you use for release and debug versions below}
-{.$ifdef Release}
+{$ifdef Release}
   {Specify the options you use for release versions below}
   {$undef FullDebugMode}
   {$undef CheckHeapForCorruption}
   {$define ASMVersion}
   {$undef EnableMemoryLeakReporting}
   {$undef UseOutputDebugString}
-{.$else}
+{$else}
   {Specify the options you use for debugging below}
-  {.$define FullDebugMode}
-  {.$define EnableMemoryLeakReporting}
-  {.$define UseOutputDebugString}
-{.$endif}
+  {$define FullDebugMode}
+  {$define EnableMemoryLeakReporting}
+  {$define UseOutputDebugString}
+{$endif}
 
 {--------------------Compilation Options For borlndmm.dll---------------------}
 {If you're compiling the replacement borlndmm.dll, set the defines below
