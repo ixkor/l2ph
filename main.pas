@@ -757,6 +757,7 @@ begin
   end;
   filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
   filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
+
   //обновляем чекбоксы пакетов
   for i:=0 to (ListView2.Items.Count div 8)-1 do
     for j:=0 to 7 do
@@ -1480,8 +1481,10 @@ var
 begin
   fromS:=false;
   // очищаем спискм
-//  ListView1.Clear;
-//  ListView2.Clear;
+  ListView1.Clear;
+  ListView2.Clear;
+  PacketsFromS.Clear;
+  PacketsFromC.Clear;
 
   //считываем packets.ini
   PacketsNames.LoadFromFile(ExtractFilePath(Application.ExeName)+s);
@@ -1510,6 +1513,7 @@ begin
       end;
     end;
   end;
+
   //считываем packets.ini
   //полный вариант для разбора пакетов
   PacketsINI:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+s)
