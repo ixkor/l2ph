@@ -432,7 +432,7 @@ object L2PacketHackMain: TL2PacketHackMain
     Top = 60
     Width = 747
     Height = 497
-    ActivePage = TabSheet3
+    ActivePage = TabSheet5
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -634,7 +634,7 @@ object L2PacketHackMain: TL2PacketHackMain
             Top = 236
             Width = 183
             Height = 93
-            Caption = 'DLL '#1087#1091#1090#1080
+            Caption = #1040#1083#1080#1072#1089#1099' '#1080#1089#1087#1086#1083#1100#1079#1091#1077#1084#1099#1093' DLL'
             TabOrder = 10
             object isNewxor: TLabeledEdit
               Left = 24
@@ -1205,8 +1205,6 @@ object L2PacketHackMain: TL2PacketHackMain
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 233
-        ExplicitHeight = 236
         object Splitter2: TSplitter
           Left = 365
           Top = 0
@@ -1242,7 +1240,6 @@ object L2PacketHackMain: TL2PacketHackMain
           Align = alLeft
           Caption = #1042#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1087#1072#1082#1077#1090':'
           TabOrder = 1
-          ExplicitHeight = 236
           object Memo5: TJvRichEdit
             Left = 2
             Top = 15
@@ -1271,7 +1268,6 @@ object L2PacketHackMain: TL2PacketHackMain
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 214
         object Label6: TLabel
           Left = 672
           Top = 0

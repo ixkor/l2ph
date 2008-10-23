@@ -67,6 +67,8 @@ const
 
 implementation
 
+uses main;
+
 function DataPckToStrPck(var pck): string; stdcall;
 var
   tpck: packed record
@@ -204,7 +206,6 @@ begin
   Result:=False;
   if listen(hSocket, 1)<>0 then
   begin
-    // какая-то ошибка, анализируем с помощью WSAGetLastError
     DeInitSocket(hSocket);
     Exit;
   end;
@@ -222,7 +223,7 @@ begin
   end;
   if NewSocket>0 then Result:=True;
   if not Result then begin
-    // какая-то ошибка, анализируем с помощью WSAGetLastError
+    DeInitSocket(hSocket);
     DeInitSocket(NewSocket);
   end;
 end;
@@ -236,17 +237,21 @@ begin
   Addr_in.sin_addr.S_addr:=IP;
   Addr_in.sin_port:=Port;
   if connect(hSocket,Addr_in,SizeOf(Addr_in))=0 then Result:=True;
-  // какая-то ошибка, анализируем с помощью WSAGetLastError
-  if not Result then DeInitSocket(hSocket);
+  if not Result then begin
+    DeInitSocket(hSocket);
+  end;
 end;
 
 procedure DeInitSocket(const hSocket: Integer);
 begin
   // Закрываем сокет
   if hSocket <> INVALID_SOCKET then begin
-    Shutdown(hSocket,2);  //выключаем сокет
+    sendMSG('WSA no error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
+    //Shutdown(hSocket,2);  //выключаем сокет
     closesocket(hSocket); //уничтожаем сокет
-  end;
+  end else //ошибка, анализируем с помощью WSAGetLastError
+      sendMSG('WSA error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
+
 end;
 
 function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
@@ -266,7 +271,6 @@ begin
   Addr_in.sin_port := HToNS(Port);
   if bind(hSocket, Addr_in, SizeOf(sockaddr_in)) <> 0 then  //ошибка, если больше нуля
   begin
-    // какая-то ошибка, анализируем с помощью WSAGetLastError
     DeInitSocket(hSocket);
     Exit;
   end;

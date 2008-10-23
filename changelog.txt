@@ -8,6 +8,11 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 58
+Author: nlobp
+Date: 1:41:38, 24 октября 2008 г.
+Message:
+[*] правка потоков
 
 Revision: 57
 Author: nlobp
