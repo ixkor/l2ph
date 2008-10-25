@@ -265,7 +265,6 @@ type
     procedure Button18Click(Sender: TObject);
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure ListView5KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ListView2Click(Sender: TObject);
     procedure ButtonRenameClick(Sender: TObject);
     procedure ButtonDeleteClick(Sender: TObject);
@@ -298,7 +297,6 @@ type
     procedure JvHLEditor1Change(Sender: TObject);
     procedure BtnToSendClick(Sender: TObject);
     procedure Memo4MouseEnter(Sender: TObject);
-    procedure Memo4MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Memo4MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure JvSpinEdit1Change(Sender: TObject);
     procedure ChkXORfixClick(Sender: TObject);
@@ -326,6 +324,13 @@ type
     procedure N6Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
     procedure LoadPacketsIni;
+    procedure Memo2KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Memo4KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Memo8KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Memo8MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Memo2MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
   public
@@ -1141,11 +1146,6 @@ begin
   if ListView5.SelCount=1 then ListViewChange(ListView5.Selected,Memo3,Memo2);
 end;
 //-------------
-procedure TL2PacketHackMain.ListView5KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  ListView5Click(Sender);
-end;
-//-------------
 procedure TL2PacketHackMain.ListView5KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   ListView5Click(Sender);
@@ -1475,7 +1475,8 @@ begin
   end;
   Result:=value;
   //проверяем на выход за границу пакета
-  if PosInPkt>Size+10 then raise ERangeError.CreateFmt(result+' is not within the valid range of %d', [Size]);
+  //if PosInPkt>Size+10 then raise ERangeError.CreateFmt(result+' is not within the valid range of %d', [Size]);
+  if PosInPkt>Size+10 then result:='range error';
 end;
 //===========================================================================
 procedure TL2PacketHackMain.LoadPktIni(s:string);
@@ -1543,10 +1544,10 @@ begin
     tbtnDelete.Enabled := true;
 
     sid:=StrToInt(Item.SubItems.Strings[0]);
-    //EnterCriticalSection(_cs);
+    EnterCriticalSection(_cs);
     //строка пакета, sid номер пакета, cid номер соединения
     PktStr:=HexToString(Thread[cid].Dump.Strings[sid]);
-    //LeaveCriticalSection(_cs);
+    LeaveCriticalSection(_cs);
     Move(PktStr[2],ptime,8);
     Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10]);
     id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
@@ -1638,6 +1639,7 @@ begin
         tmp_param:=param1;
         tmp_value:=value;
         ii:=PosInIni;
+        if value='range error' then exit;
         if StrToInt(value)=0 then begin
           //пропускаем пустые значения
           for jj:=1 to StrToInt(param1) do begin
@@ -1693,6 +1695,7 @@ begin
         //проверку что param1=1?
         tmp_param:=param2;
         tmp_value:=value;
+        if value='range error' then exit;
         if strtoint(param1)>1 then begin
           //распечатываем значения
           for jj:=1 to StrToInt(param1)-1 do begin
@@ -1728,7 +1731,7 @@ begin
             param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
             param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
             offset:=PosinPkt-11;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
+            value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
             if uppercase(Func)='GET' then begin
               if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
               if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
@@ -1808,9 +1811,23 @@ begin
    end;
    Memo3.SelAttributes.BackColor:=clBlue;
    Memo3.SelAttributes.Color:=clWhite;
+   Memo3.SetFocus;
+   Memo2.SetFocus;
  except;
    //сообщение об ошибке
  end;
+end;
+
+procedure TL2PacketHackMain.Memo2KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  Memo2DblClick(Sender);
+end;
+
+procedure TL2PacketHackMain.Memo2MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  Memo2DblClick(Sender);
 end;
 
 //закладка "посылка"
@@ -1839,10 +1856,11 @@ begin
 end;
 procedure TL2PacketHackMain.Memo4KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  RadioButton1Click(Sender);
+//  RadioButton1Click(Sender);
 end;
 
-procedure TL2PacketHackMain.Memo4MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TL2PacketHackMain.Memo4KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 begin
   RadioButton1Click(Sender);
 end;
@@ -1953,6 +1971,7 @@ begin
         tmp_param:=param1;
         tmp_value:=value;
         ii:=PosInIni;
+        if value='range error' then exit;
         if StrToInt(value)=0 then begin
           //пропускаем пустые значения
           for jj:=1 to StrToInt(param1) do begin
@@ -2006,6 +2025,7 @@ begin
         //проверку что param1=1?
         tmp_param:=param2;
         tmp_value:=value;
+        if value='range error' then exit;
         if strtoint(param1)>1 then begin
           //распечатываем значения
           for jj:=1 to StrToInt(param1)-1 do begin
@@ -2122,9 +2142,23 @@ begin
    end;
    Memo5.SelAttributes.BackColor:=clBlue;
    Memo5.SelAttributes.Color:=clWhite;
+   Memo5.SetFocus;
+   Memo8.SetFocus;
  except;
    //игнорим сообщение об ошибке
  end;
+end;
+
+procedure TL2PacketHackMain.Memo8KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+Memo8DblClick(Sender);
+end;
+
+procedure TL2PacketHackMain.Memo8MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  Memo8DblClick(Sender);
 end;
 
 procedure TL2PacketHackMain.N6Click(Sender: TObject);
@@ -2163,9 +2197,9 @@ begin
   if tid=CID then begin
     from:=Byte((msg.WParam shr 8) and $FF); //клиент=1, сервер=0
     //для ускорения работы берем только 4 байта с ID пакета
-    //EnterCriticalSection(_cs);
+    EnterCriticalSection(_cs);
     PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
-    //LeaveCriticalSection(_cs);
+    LeaveCriticalSection(_cs);
     id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
     //------------------------------------------------------------------------
@@ -2354,9 +2388,9 @@ begin
   for i:=0 to ListView5.SelCount-1 do begin
     from:=Thread[CID].Dump.Strings[cid][PckCount]; //клиент=4, сервер=3
     //для ускорения работы берем только 4 байта с ID пакета
-    //EnterCriticalSection(_cs);
+    EnterCriticalSection(_cs);
     PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
-    //LeaveCriticalSection(_cs);
+    LeaveCriticalSection(_cs);
     id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
     if from='4' then begin
