@@ -219,6 +219,7 @@ type
     N6: TMenuItem;
     N7: TMenuItem;
     Splitter7: TSplitter;
+    isGraciaOff: TCheckBox;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -331,6 +332,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure Memo2MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure isGraciaOffClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -489,13 +491,13 @@ begin
   CanSend:=True;
   if (Packet.Size>2) then begin
     case From of
-      1,2: begin                     //от ЛС, к ЛС
+      {1,2: begin                     //от ЛС, к ЛС
         EnterCriticalSection(_cs);
         Thread[id].InitXOR:=False;
         //sendMSG('Пришёл пакет от/к ЛС, пропускаем...');
         LeaveCriticalSection(_cs);
-      end;
-      3: begin                       //от ГС
+      end;}
+      1,3: begin                       //от ГС
         InitX:=Thread[id].InitXOR;
         EnterCriticalSection(_cs);
         Inc(Thread[id].pckCount);
@@ -594,6 +596,8 @@ begin
                   Move(Packet.DataB[1], WStr[1], ii);
                   EnterCriticalSection(_cs);
                   Thread[id].Name:=WideStringToString(WStr, 1251);
+                  if L2PacketHackMain.isGraciaOff.Checked then
+                    Corrector(Packet.Size,id,False,True); // инициализация корректора
                   LeaveCriticalSection(_cs);
                   sendMSG('Имя соединения:'+Thread[id].Name);
                   //обновляем Список соединений
@@ -606,6 +610,8 @@ begin
                 Thread[id].isInterlude:=True;
                 Thread[id].xorC.InitKey(Packet.DataB[2], Thread[id].isInterlude);
                 Thread[id].xorS.InitKey(Packet.DataB[2], Thread[id].isInterlude);
+                if L2PacketHackMain.isGraciaOff.Checked then
+                  Corrector(Packet.Size,id,False,True); // инициализация корректора
                 LeaveCriticalSection(_cs);
                 SendPacket(Packet.Size, temp, id, Boolean((from+1) mod 2));
                 EnterCriticalSection(_cs);
@@ -619,7 +625,7 @@ begin
           CanSend:=False;
         end;
       end;
-      4: begin                    //к ГС
+      2,4: begin                    //к ЛС или ГС
         EnterCriticalSection(_cs);
         InitX:=Thread[id].InitXOR;
         LeaveCriticalSection(_cs);
@@ -633,6 +639,8 @@ begin
           Thread[id].xorC.DecryptGP(PacketC.DataC,Packet.Size-2);
           LeaveCriticalSection(_cs);
         end;
+        if L2PacketHackMain.isGraciaOff.Checked and (not isNoDecryptTraf)then
+          Corrector(Packet.Size,id);
         SetLength(temp,Packet.Size-2);
         Move(PacketC.DataC,temp[1],Packet.Size-2);
         //>>>>>>>>!!!!!!!!!<<<<<<<<
@@ -826,6 +834,8 @@ begin
   for i:=0 to MaxThr-1 do begin
     Thread[i].NoUsed:=True;
     Thread[i].Dump:=TStringList.Create;
+    New(Thread[i].cd);
+    Thread[i].cd._id_mix:=False;
     ComboBox1.Items.Add(IntToStr(i)+' - пусто');
   end;
   ComboBox1.ItemIndex:=0;
@@ -845,6 +855,7 @@ begin
   isIntercept:=CheckBox3.Checked;
   isKamael.Checked:=Options.ReadBool('General','isKamael',False);
   isCamael:=isKamael.Checked;
+  isGraciaOff.Checked:=Options.ReadBool('General', 'isGraciaOff', False);
   ChkXORfix.Checked:=Options.ReadBool('General','AntiXORkey',False);
   isChangeXor:=ChkXORfix.Checked;
   CheckBox4.Checked:=Options.ReadBool('General','Programs',False);
@@ -958,6 +969,7 @@ begin
   //потоки
   for i:=0 to MaxThr-1 do begin
     Thread[i].Dump.Free;
+    Dispose(Thread[i].cd);
   end;
 
   //скрипты
@@ -986,6 +998,13 @@ begin
   UnhookCode(@ShowMessageOld); //снимаем хук и освобождаем память
 
   sendMsg('Завершил работу L2phx... ');
+end;
+
+procedure TL2PacketHackMain.isGraciaOffClick(Sender: TObject);
+begin
+  if isGraciaOff.Checked then isKamael.Checked:=True;
+  Options.WriteBool('General', 'isGraciaOff', isGraciaOff.Checked);
+  Options.UpdateFile;
 end;
 
 procedure TL2PacketHackMain.isInjectChange(Sender: TObject);
@@ -3086,7 +3105,11 @@ begin
         Thread[tid].Dump.Add('04'+ByteArrayToHex(TimeStepB,8)+ByteArrayToHex(Packet.PacketB,Packet.Size));
         PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
       end;
-      if (not isNoDecryptTraf) and Thread[tid].InitXOR then Thread[tid].xorC.EncryptGP(Packet.PackType,Size);
+      if (not isNoDecryptTraf) and Thread[tid].InitXOR then begin
+        if L2PacketHackMain.isGraciaOff.Checked then
+          Corrector(Packet.Size,tid,True);
+        Thread[tid].xorC.EncryptGP(Packet.PackType,Size);
+      end;
       if send(Thread[tid].CSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].CSock);
     end else begin
       if isSaveLog then begin
@@ -3953,6 +3976,7 @@ begin
     Thread[id].pckCount:=0;
     Thread[id].AutoPing:=False;
     Thread[id].NoUsed:=False;
+    Thread[id].cd._id_mix:=False;
     LeaveCriticalSection(_cs);
     Thread[id].ConnectEvent:=CreateEvent(nil, true,false,PChar('phx_srv_'+
                                                       IntToStr(Thread[id].SH)));
@@ -4112,6 +4136,7 @@ begin
 //  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
   sendMSG('Thread Exit: поток клиента Thread[id].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' id:'+inttostr(id));
   Closehandle(Thread[id].CH);
+  Thread[id].cd._id_mix:=False;
   LeaveCriticalSection(_cs);
 end;
 //....................

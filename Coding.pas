@@ -14,6 +14,17 @@ type
     procedure EncryptGP(var Data; const Size: Word); Virtual; Abstract;
   end;
 
+  PCorrectorData = ^TCorrectorData;
+  TCorrectorData = packed record
+    _seed : integer;  // random generator seed for mixing id tables
+    _1_byte_table : string;
+    _2_byte_table : string;
+    _2_byte_table_size: integer;
+    _id_mix : boolean;
+    temp_seed : integer;
+    protocol: integer;
+  end;
+
   PThread = ^TThread;
   TThread = packed record
     STH,CTH: Cardinal;
@@ -27,7 +38,10 @@ type
     Dump: TStrings;
     ScriptsEnable: array[0..63] of Boolean;
     ConnectEvent: Cardinal;
-    rezerv: array[0..95] of Byte;
+    cd: PCorrectorData;
+    // резерв, при добавлении переменных перед ним
+    // обязательно вычитать из массива использованный обьём памяти!
+    rezerv: array[0..91] of Byte;
   end;
   PThreads = ^TThreads;
   TThreads = array[0..0] of TThread;
