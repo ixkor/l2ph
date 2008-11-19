@@ -2396,23 +2396,20 @@ end;
 procedure TL2PacketHackMain.Button14Click(Sender: TObject);
 var
   PktStr: string;
-  i, indx, PckCount: Integer;
+  i, indx: Integer;
   tmpItm: TListItem;
-  from: char;
-  id: Byte;
+  from, id: Byte;
   subid: word;
 begin
   tmpItm:=ListView5.Selected;
-  PckCount:=StrToInt(tmpItm.SubItems.Strings[0]);
   for i:=0 to ListView5.SelCount-1 do begin
-    from:=Thread[CID].Dump.Strings[cid][PckCount]; //клиент=4, сервер=3
-    //для ускорения работы берем только 4 байта с ID пакета
     EnterCriticalSection(_cs);
-    PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
+    PktStr:=HexToString(Thread[cid].Dump.Strings[StrToInt(tmpItm.SubItems.Strings[0])]);
     LeaveCriticalSection(_cs);
-    id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
-    SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
-    if from='4' then begin
+    from:=Byte(PktStr[1]);   //клиент=4, сервер=3
+    id:=Byte(PktStr[12]);   //фактическое начало пакета, ID
+    SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
+    if from=4 then begin
       //от клиента
       if (id in [$39,$D0]) then begin
         //находим индекс пакета
@@ -2436,10 +2433,9 @@ begin
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
   ListView1Click(Sender);
-  // отключили выключаем кнопку
-  tbtnFilterDel.Enabled := false;
-  tbtnDelete.Enabled := false;
-
+  //удалили значит выключаем кнопку
+  tbtnFilterDel.Enabled:=false;
+  tbtnDelete.Enabled:=false;
 end;
 
 procedure TL2PacketHackMain.Timer1Timer(Sender: TObject);
@@ -3768,11 +3764,10 @@ begin
     LeaveCriticalSection(_cs);
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
-  //удалили значит выключаем кнопку 
-  tbtnFilterDel.Enabled := false;
-  tbtnDelete.Enabled := false;
-
   ListView1Click(Sender);
+  //удалили значит выключаем кнопку
+  tbtnFilterDel.Enabled:=false;
+  tbtnDelete.Enabled:=false;
 end;
 
 ///////////////////////////////////////////////////////////////////////////////
