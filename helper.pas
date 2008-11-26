@@ -512,9 +512,10 @@ begin
       _init_tables(temp_seed,_2_byte_table_size);
     end;
     if(buff[3]=#$2e)then begin
-      if(Protocol = 871)or(Protocol = 12)then _init_tables(PInteger(@buff[$16])^, $58); // CT2.2
-      if(Protocol = 851)or(Protocol = 19)then _init_tables(PInteger(@buff[$16])^, $55); // CT2
-      if Protocol = 831 then _init_tables(PInteger(@buff[$16])^, $4E); // CT1.5+
+      //if(Protocol = 871)or(Protocol = 12)then _init_tables(PInteger(@buff[$16])^, $58); // CT2.2
+      //if(Protocol = 851)or(Protocol = 19)then _init_tables(PInteger(@buff[$16])^, $55); // CT2
+      //if Protocol = 831 then _init_tables(PInteger(@buff[$16])^, $4E); // CT1.5+
+      _init_tables(PInteger(@buff[$16])^, $80);
     end;
   end else begin
     if not _id_mix and(buff[3]=#$0e)then Protocol:=PInteger(@buff[4])^;

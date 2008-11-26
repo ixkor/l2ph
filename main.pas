@@ -1567,6 +1567,7 @@ begin
     //строка пакета, sid номер пакета, cid номер соединения
     PktStr:=HexToString(Thread[cid].Dump.Strings[sid]);
     LeaveCriticalSection(_cs);
+    if Length(PktStr)<12 then Exit;
     Move(PktStr[2],ptime,8);
     Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10]);
     id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
@@ -2219,6 +2220,7 @@ begin
     EnterCriticalSection(_cs);
     PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
     LeaveCriticalSection(_cs);
+    if Length(PktStr)=0 then Exit;         // если пустой пакет выходим
     id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
     //------------------------------------------------------------------------
@@ -2406,6 +2408,7 @@ begin
     EnterCriticalSection(_cs);
     PktStr:=HexToString(Thread[cid].Dump.Strings[StrToInt(tmpItm.SubItems.Strings[0])]);
     LeaveCriticalSection(_cs);
+    if Length(PktStr)<12 then Exit;
     from:=Byte(PktStr[1]);   //клиент=4, сервер=3
     id:=Byte(PktStr[12]);   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
