@@ -1,6 +1,6 @@
 {
-Модификация L2PacketHack 3.2.0 by CODERX.RU
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Модификация L2PacketHack 3.2.0 by CODERX.RU TEAM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Принимали участие в написании кода:
   Xkor;
   NLObP;
@@ -784,7 +784,7 @@ end;
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 var i:integer;
 begin
-  Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru';
+  Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru Team';
   sendMsg('Стартует L2phx '+inet_ntoa(TInAddr(version)));
   typ0:='я'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
@@ -1544,6 +1544,17 @@ begin
   //полный вариант для разбора пакетов
   PacketsINI:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+s)
 end;
+
+function prnoffset(offset:integer):string;
+begin
+  result:=inttostr(offset);
+  case Length(result) of
+    1: result:='000'+result;
+    2: result:='00'+result;
+    3: result:='0'+result;
+  end;
+end;
+
 //===========================================================================
 procedure TL2PacketHackMain.ListViewChange(Item: TListItem; Memo, Memo2: TJvRichEdit);
 var
@@ -1558,7 +1569,7 @@ var
   value, tmp_value: string;
 begin
   if (Item.SubItems.Count>0)and(Item.Selected) then begin
-    //выделили пакет значит включаем кнопку 
+    //выделили пакет значит включаем кнопку
     tbtnFilterDel.Enabled := true;
     tbtnDelete.Enabled := true;
 
@@ -1640,7 +1651,8 @@ begin
         if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
         if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
         if param1='SKILL' then    value:=GetSkill(strtoint(value));
-        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1650,7 +1662,8 @@ begin
       //для С4, С5 и Т0-Интерлюдия
       if uppercase(Func)='FOR' then begin
         //распечатываем
-        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1691,7 +1704,8 @@ begin
                 if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
                 if param1='SKILL' then    value:=GetSkill(strtoint(value));
               end;
-              Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+//              Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+              Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
               //Memo2.SelStart:=d+length(inttostr(offset))+1;
               Memo2.SelStart:=d+5;
               Memo2.SelLength:=1;
@@ -1706,7 +1720,8 @@ begin
       //для Т1-Камаель
       if uppercase(Func)='LOOP' then begin
         //распечатываем
-        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1729,7 +1744,8 @@ begin
             offset:=PosinPkt-11;
             value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
             //распечатываем
-            Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//            Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+            Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
             //Memo2.SelStart:=d+length(inttostr(offset))+1;
             Memo2.SelStart:=d+5;
             Memo2.SelLength:=1;
@@ -1763,7 +1779,8 @@ begin
               if param1='SKILL' then    value:=GetSkill(strtoint(value));
             end;
             //распечатываем
-            Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+//            Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+            Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
             //Memo2.SelStart:=d+length(inttostr(offset))+1;
             Memo2.SelStart:=d+5;
             Memo2.SelLength:=1;
@@ -1775,7 +1792,8 @@ begin
         end;
       end else begin
         //распечатываем
-        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1808,7 +1826,8 @@ begin
      Memo3.SelAttributes.BackColor:=SelAttributes;
      Memo3.SelAttributes.Color:=clBlack;
    end;
-   i:=strtoint('$'+copy(str,1,4));
+//   i:=strtoint('$'+copy(str,1,4));
+   i:=strtoint(copy(str,1,4));
    Memo3.SelStart:=(i-1)*3;
    case str[6] of
      'd': begin Memo3.SelLength:=11; typ0:='d'; end;
@@ -1822,7 +1841,8 @@ begin
            str2:=Memo2.Lines.Strings[Memo2.CaretPos.Y+2];
            if str2[1]='[' then str2:=Memo2.Lines.Strings[Memo2.CaretPos.Y+3];
          end;
-         j:=strtoint('$'+copy(str2,1,4));
+//         j:=strtoint('$'+copy(str2,1,4));
+         j:=strtoint(copy(str2,1,4));
          Memo3.SelLength:=(j-i)*3-1;
          if Memo3.SelLength=0 then Memo3.SelLength:=2;
          typ0:='s';
@@ -1974,7 +1994,8 @@ begin
         if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
         if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
         if param1='SKILL' then    value:=GetSkill(strtoint(value));
-        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -1983,7 +2004,8 @@ begin
       //для С4, С5 и Т0-Интерлюдия
       if uppercase(Func)='FOR' then begin
         //распечатываем
-        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2023,7 +2045,8 @@ begin
                 if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
                 if param1='SKILL' then    value:=GetSkill(strtoint(value));
               end;
-              Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+//              Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+              Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
               Memo8.SelStart:=d+5;
               Memo8.SelLength:=1;
               Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2037,7 +2060,8 @@ begin
       //для Т1-Камаель
       if uppercase(Func)='LOOP' then begin
         //распечатываем
-        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2059,7 +2083,8 @@ begin
             offset:=PosinPkt-11;
             value:=GetValue(typ, name, PktStr, PosInPkt, size, memo5);
             //распечатываем
-            Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//            Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+            Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
             Memo8.SelStart:=d+5;
             Memo8.SelLength:=1;
             Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2092,7 +2117,8 @@ begin
               if param1='SKILL' then    value:=GetSkill(strtoint(value));
             end;
             //распечатываем
-            Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+//            Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
+            Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
             Memo8.SelStart:=d+5;
             Memo8.SelLength:=1;
             Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2103,7 +2129,8 @@ begin
         end;
       end else begin
         //распечатываем
-        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
+        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2139,7 +2166,8 @@ begin
      Memo5.SelAttributes.BackColor:=SelAttributes;
      Memo5.SelAttributes.Color:=clBlack;
    end;
-   i:=strtoint('$'+copy(str,1,4));
+//   i:=strtoint('$'+copy(str,1,4));
+   i:=strtoint(copy(str,1,4));
    Memo5.SelStart:=(i-1)*3;
    case str[6] of
      'd': begin Memo5.SelLength:=11; typ0:='d'; end;
@@ -2153,7 +2181,8 @@ begin
            str2:=Memo8.Lines.Strings[Memo8.CaretPos.Y+2];
            if str2[1]='[' then str2:=Memo8.Lines.Strings[Memo8.CaretPos.Y+3];
          end;
-         j:=strtoint('$'+copy(str2,1,4));
+//         j:=strtoint('$'+copy(str2,1,4));
+         j:=strtoint(copy(str2,1,4));
          Memo5.SelLength:=(j-i)*3-1;
          if Memo5.SelLength=0 then Memo5.SelLength:=2;
          typ0:='s';
