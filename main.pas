@@ -220,6 +220,8 @@ type
     N7: TMenuItem;
     Splitter7: TSplitter;
     isGraciaOff: TCheckBox;
+    ToolButton16: TToolButton;
+    ToolButton17: TToolButton;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -333,6 +335,7 @@ type
     procedure Memo2MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure isGraciaOffClick(Sender: TObject);
+    procedure ToolButton17Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -413,6 +416,7 @@ var
   SelAttributes: TColor;
   //считаем потоки
 //  CountThread : integer;
+  HexViewOffset: boolean; //показывать смещение в Hex формате
 
 implementation
 
@@ -848,6 +852,10 @@ begin
   //сохран€ть пакеты
   ToolButton7.Down:=Options.ReadBool('Snifer','SaveLog',False);
   isSaveLog:=ToolButton7.Down;
+  //как показывать смещени€ в пакетах Hex=true Dec=false
+  ToolButton17.Down:=Options.ReadBool('Snifer','HexViewOffset',False);
+  HexViewOffset:=ToolButton17.Down;
+
   //панель ќсновное
   CheckBox2.Checked:=Options.ReadBool('General','NoLogin',True);
   isPassLogin:=CheckBox2.Checked;
@@ -956,13 +964,17 @@ begin
   if length(temp)<128 then begin
     for i:=0 to 128-Length(temp)-1 do temp:=temp+'F';
   end;
+
   Options.WriteString('Snifer','FilterC',temp);
+  Options.WriteInteger('Snifer','ProtocolVersion',ProtocolVersion);
+  Options.WriteBool('Snifer','HexViewOffset',HexViewOffset);
+
   Options.WriteInteger('General','Top',Top);
   Options.WriteInteger('General','Left',Left);
   Options.WriteInteger('General','Widht',Width);
   Options.WriteInteger('General','Heigth',Height);
-  Options.WriteInteger('Snifer','ProtocolVersion',ProtocolVersion);
   Options.WriteInteger('General','HookMethod',isHookMethod);
+
   Options.UpdateFile;
   Options.Free;
 
@@ -1651,8 +1663,10 @@ begin
         if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
         if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
         if param1='SKILL' then    value:=GetSkill(strtoint(value));
-//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
-        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
+        //распечатываем
+        if HexViewOffset
+          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1662,8 +1676,9 @@ begin
       //дл€ —4, —5 и “0-»нтерлюди€
       if uppercase(Func)='FOR' then begin
         //распечатываем
-//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        if HexViewOffset
+          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1704,8 +1719,10 @@ begin
                 if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
                 if param1='SKILL' then    value:=GetSkill(strtoint(value));
               end;
-//              Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
-              Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
+              //распечатываем
+              if HexViewOffset
+                then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+                else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
               //Memo2.SelStart:=d+length(inttostr(offset))+1;
               Memo2.SelStart:=d+5;
               Memo2.SelLength:=1;
@@ -1720,8 +1737,9 @@ begin
       //дл€ “1- амаель
       if uppercase(Func)='LOOP' then begin
         //распечатываем
-//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        if HexViewOffset
+          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1744,8 +1762,9 @@ begin
             offset:=PosinPkt-11;
             value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
             //распечатываем
-//            Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-            Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+            if HexViewOffset
+              then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+              else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
             //Memo2.SelStart:=d+length(inttostr(offset))+1;
             Memo2.SelStart:=d+5;
             Memo2.SelLength:=1;
@@ -1779,8 +1798,9 @@ begin
               if param1='SKILL' then    value:=GetSkill(strtoint(value));
             end;
             //распечатываем
-//            Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
-            Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
+            if HexViewOffset
+              then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+              else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
             //Memo2.SelStart:=d+length(inttostr(offset))+1;
             Memo2.SelStart:=d+5;
             Memo2.SelLength:=1;
@@ -1792,8 +1812,9 @@ begin
         end;
       end else begin
         //распечатываем
-//        Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-        Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        if HexViewOffset
+          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
         Memo2.SelStart:=d+5;
         Memo2.SelLength:=1;
@@ -1826,8 +1847,10 @@ begin
      Memo3.SelAttributes.BackColor:=SelAttributes;
      Memo3.SelAttributes.Color:=clBlack;
    end;
-//   i:=strtoint('$'+copy(str,1,4));
-   i:=strtoint(copy(str,1,4));
+   //считае смещение в пакете в зависимости от отображени€ его в hex/dec
+   if HexViewOffset
+     then i:=strtoint('$'+copy(str,1,4))
+     else i:=strtoint(copy(str,1,4));
    Memo3.SelStart:=(i-1)*3;
    case str[6] of
      'd': begin Memo3.SelLength:=11; typ0:='d'; end;
@@ -1994,8 +2017,10 @@ begin
         if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
         if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
         if param1='SKILL' then    value:=GetSkill(strtoint(value));
-//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
-        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        //распечатываем
+        if HexViewOffset
+          then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+          else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2004,8 +2029,9 @@ begin
       //дл€ —4, —5 и “0-»нтерлюди€
       if uppercase(Func)='FOR' then begin
         //распечатываем
-//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        if HexViewOffset
+          then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+          else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2045,8 +2071,10 @@ begin
                 if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
                 if param1='SKILL' then    value:=GetSkill(strtoint(value));
               end;
-//              Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
-              Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
+              //распечатываем
+              if HexViewOffset
+                then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+                else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
               Memo8.SelStart:=d+5;
               Memo8.SelLength:=1;
               Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2060,8 +2088,9 @@ begin
       //дл€ “1- амаель
       if uppercase(Func)='LOOP' then begin
         //распечатываем
-//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        if HexViewOffset
+          then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+          else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2083,8 +2112,9 @@ begin
             offset:=PosinPkt-11;
             value:=GetValue(typ, name, PktStr, PosInPkt, size, memo5);
             //распечатываем
-//            Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-            Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+            if HexViewOffset
+              then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+              else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
             Memo8.SelStart:=d+5;
             Memo8.SelLength:=1;
             Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2117,8 +2147,9 @@ begin
               if param1='SKILL' then    value:=GetSkill(strtoint(value));
             end;
             //распечатываем
-//            Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value);
-            Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
+            if HexViewOffset
+              then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+              else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
             Memo8.SelStart:=d+5;
             Memo8.SelLength:=1;
             Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2129,8 +2160,9 @@ begin
         end;
       end else begin
         //распечатываем
-//        Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue);
-        Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+        if HexViewOffset
+          then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+          else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
         Memo8.SelStart:=d+5;
         Memo8.SelLength:=1;
         Memo8.SelAttributes.BackColor:=SelAttributes;
@@ -2166,8 +2198,10 @@ begin
      Memo5.SelAttributes.BackColor:=SelAttributes;
      Memo5.SelAttributes.Color:=clBlack;
    end;
-//   i:=strtoint('$'+copy(str,1,4));
-   i:=strtoint(copy(str,1,4));
+   //считае смещение в пакете в зависимости от отображени€ его в hex/dec
+   if HexViewOffset
+     then i:=strtoint('$'+copy(str,1,4))
+     else i:=strtoint(copy(str,1,4));
    Memo5.SelStart:=(i-1)*3;
    case str[6] of
      'd': begin Memo5.SelLength:=11; typ0:='d'; end;
@@ -2559,9 +2593,18 @@ begin
   ListView1Click(Sender);
 end;
 
+procedure TL2PacketHackMain.ToolButton17Click(Sender: TObject);
+begin
+  if HexViewOffset then HexViewOffset:=false else HexViewOffset:=true;
+  ListView5Click(Sender);
+  RadioButton1Click(Sender);
+end;
+
 procedure TL2PacketHackMain.ToolButton3Click(Sender: TObject);
 begin
-  if ToolButton3.Down then ToolButton3.Down:=true else ToolButton3.Down:=false;
+  if ToolButton3.Down
+    then ToolButton3.Down:=true //показываем пакеты сервера
+    else ToolButton3.Down:=false; //не показываем пакеты сервера
   Options.WriteBool('Snifer','FromClient',ToolButton3.Down);
   Options.UpdateFile;
   ListView1Click(Sender);
@@ -2569,12 +2612,9 @@ end;
 
 procedure TL2PacketHackMain.ToolButton4Click(Sender: TObject);
 begin
-  if ToolButton4.Down then begin
-    ToolButton4.Down:=true;
-    ListView1Click(Sender);
-  end else begin
-    ToolButton4.Down:=false;
-  end;
+  if ToolButton4.Down
+    then ToolButton4.Down:=true //показываем пакеты клиента
+    else ToolButton4.Down:=false; //не показываем пакеты клиента
   Options.WriteBool('Snifer','FromServer',ToolButton4.Down);
   Options.UpdateFile;
   ListView1Click(Sender);
@@ -2582,35 +2622,28 @@ end;
 
 procedure TL2PacketHackMain.ToolButton5Click(Sender: TObject);
 begin
-  if ToolButton5.Down then begin
-    ToolButton5.Down:=true;
-  end else begin
-    ToolButton5.Down:=false;
-  end;
+  if ToolButton5.Down
+    then ToolButton5.Down:=true //следим за последним пакетом
+    else ToolButton5.Down:=false; //не следим за последним пакетом
   Options.WriteBool('Snifer','Scroll',ToolButton5.Down);
   Options.UpdateFile;
 end;
 
 procedure TL2PacketHackMain.ToolButton6Click(Sender: TObject);
-//var
-//  i,k: Integer;
-//  data: array[0..255] of Byte;
-//  temp: string;
 begin
-  Panel15.Visible:=ToolButton6.Down;
-
+  Panel15.Visible:=ToolButton6.Down; //показать/спр€тать фильтры
   Options.WriteBool('Snifer','ShowFilters',ToolButton6.Down);
   Options.UpdateFile;
-  end;
+end;
 
 procedure TL2PacketHackMain.ToolButton7Click(Sender: TObject);
 begin
   if ToolButton7.Down then begin
     ToolButton7.Down:=true;
-    isSaveLog:=true;
+    isSaveLog:=true; //сохр€н€ем лог пакетов
   end else begin
     ToolButton7.Down:=false;
-    isSaveLog:=false;
+    isSaveLog:=false; //не сохр€н€ем лог пакетов
   end;
   Options.WriteBool('Snifer','SaveLog',isSaveLog);
   Options.UpdateFile;
