@@ -26,7 +26,7 @@ uses Windows, Messages, SysUtils, Classes, advApiHook, PSAPI, TlHelp32,
   function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
 
   
-  function GetNamePacket(s:string):string; // вырезаем название акета из строки
+  function GetNamePacket(s:string):string; // вырезаем название пакета из строки
   procedure GetProcessList(var sl: TStrings); // получаем список процессов
   procedure ShowMessageNew(const Msg: string); // скрывает сообщение FastScript
 
@@ -47,7 +47,7 @@ type
     Compilled: Boolean;
     cs: RTL_CRITICAL_SECTION;
   end;
-  
+
 var
   ShowMessageOld: procedure (const Msg: string);
   Scripts: array[0..63] of TScript;
@@ -56,7 +56,6 @@ var
   Terminated: boolean; //завершил работу поток? true - да, false - нет
   SLThreadTerminate: boolean; //завершать работу потока? true - да, false - нет
   SLThreadStarted: boolean; //заущен поток? true - да, false - нет
-
 
 const
   {The name of the debug info support L2phx}
@@ -255,7 +254,6 @@ begin
     closesocket(hSocket); //уничтожаем сокет
   end else //ошибка, анализируем с помощью WSAGetLastError
       sendMSG('WSA error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
-
 end;
 
 function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;

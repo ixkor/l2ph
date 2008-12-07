@@ -1,6 +1,8 @@
 {
-ћодификаци€ L2PacketHack 3.2.0 by CODERX.RU TEAM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+L2PacketHack 3.4.1 by CODERX.RU TEAM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+билд смотреть в phxPlugins.pas
+
 ѕринимали участие в написании кода:
   Xkor;
   NLObP;
@@ -365,6 +367,7 @@ type
   procedure PacketProcesor(PacketData: array of Byte; SendSocket: TSocket; id, From: Byte);
   procedure GetMsgFromDLL(name:pchar;messageBuf:pointer;messageLen:dword;answerBuf:pointer;answerLen:dword); stdcall;
   procedure sendMSG (msg: String);
+  function AddDateTime : string;
 
 var
   L2PacketHackMain: TL2PacketHackMain;
@@ -417,6 +420,7 @@ var
   //считаем потоки
 //  CountThread : integer;
   HexViewOffset: boolean; //показывать смещение в Hex формате
+  MaxLinesInLog: integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
 
 implementation
 
@@ -789,6 +793,7 @@ procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 var i:integer;
 begin
   Caption:='ћодификаци€ L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru Team';
+  MaxLinesInLog:=10000;
   sendMsg('—тартует L2phx '+inet_ntoa(TInAddr(version)));
   typ0:='€'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
@@ -844,7 +849,8 @@ begin
   end;
   ComboBox1.ItemIndex:=0;
   ComboBox1.Items.EndUpdate;
-
+  //максимальное количество строк в логе
+  MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',3000);
   //панель ѕросмотр
   ToolButton3.Down:=Options.ReadBool('Snifer','FromClient',True);
   ToolButton4.Down:=Options.ReadBool('Snifer','FromServer',True);
@@ -969,6 +975,9 @@ begin
   Options.WriteInteger('Snifer','ProtocolVersion',ProtocolVersion);
   Options.WriteBool('Snifer','HexViewOffset',HexViewOffset);
 
+  //максимальное количество строк в логе
+  Options.WriteInteger('General','MaxLinesInLog',MaxLinesInLog);
+  //координаты и размер окна
   Options.WriteInteger('General','Top',Top);
   Options.WriteInteger('General','Left',Left);
   Options.WriteInteger('General','Widht',Width);
@@ -1010,6 +1019,8 @@ begin
   UnhookCode(@ShowMessageOld); //снимаем хук и освобождаем пам€ть
 
   sendMsg('«авершил работу L2phx... ');
+  //сохран€ем лог сообщений
+  ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+AddDateTime+'.log');
 end;
 
 procedure TL2PacketHackMain.isGraciaOffClick(Sender: TObject);
@@ -3839,13 +3850,38 @@ end;
 //                        вызываютс€ из всех потоков
 ///////////////////////////////////////////////////////////////////////////////
 //....................
+function AddDateTime : string;
+var
+  msg: string;
+begin
+  msg:='_'+datetostr(now)+'_'+timetostr(time);
+  x:=pos(':', msg); // ищем подстроку
+  if x>0 then begin
+    Delete(msg, x, length(':')); // удал€ем еЄ
+    Insert('.', msg, x); // вставл€ем новую
+  end;
+  x:=pos(':', msg); // ищем подстроку
+  if x>0 then begin
+    Delete(msg, x, length(':')); // удал€ем еЄ
+    Insert('.', msg, x); // вставл€ем новую
+  end;
+  result:=msg;
+end;
+//....................
 //вызывать через сообщени€
 procedure TL2PacketHackMain.Log(var msg: TMessage);
 begin
-  //выводим в мемо
+  //выводим лог в мемо
   ListBox3.Lines.Add(pstr(msg.LParam)^);
-  //сохран€ем мемо в файл
-  ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx.log');
+  //сохран€ем лог в файл и очищаем, если превысили установленный предел
+  try
+    if ListBox3.Lines.Count>MaxLinesInLog then begin
+      ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+AddDateTime+'.log');
+      ListBox3.Lines.Clear;
+    end;
+  except
+  //ничего не делаем
+  end;
 end;
 //....................
 procedure sendMSG (msg: string);
@@ -4004,6 +4040,7 @@ begin
   Memo2.Clear;
 end;
 //....................
+
 ///////////////////////////////////////////////////////////////////////////////
 //                          1-й рабочий поток
 ///////////////////////////////////////////////////////////////////////////////
@@ -4086,22 +4123,24 @@ begin
 
     //не разрываем св€зь если отключен сервер и noFreeOnServerDisconnect
     while Thread[id].noFreeOnServerDisconnect do Sleep(1);
+
     EnterCriticalSection(_cs);
     //сохран€ем лог пакетов в файл
     try
+      //сохран€ем лог, если выбрано "запоминать пакеты"
       if isSaveLog and (Thread[ID].Name<>'') then begin
-        msg:='logs\'+Thread[ID].Name+'_'+datetostr(now)+'_'+timetostr(time)+'.txt';
-        x:=pos(':', msg); // ищем подстроку
-        if x>0 then begin
-          Delete(msg, x, length(':')); // удал€ем еЄ
-          Insert('.', msg, x); // вставл€ем новую
-        end;
-        x:=pos(':', msg); // ищем подстроку
-        if x>0 then begin
-          Delete(msg, x, length(':')); // удал€ем еЄ
-          Insert('.', msg, x); // вставл€ем новую
-        end;
-        Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+msg);
+//        msg:='logs\'+Thread[ID].Name+'_'+datetostr(now)+'_'+timetostr(time)+'.txt';
+//        x:=pos(':', msg); // ищем подстроку
+//        if x>0 then begin
+//          Delete(msg, x, length(':')); // удал€ем еЄ
+//          Insert('.', msg, x); // вставл€ем новую
+//        end;
+//        x:=pos(':', msg); // ищем подстроку
+//        if x>0 then begin
+//          Delete(msg, x, length(':')); // удал€ем еЄ
+//          Insert('.', msg, x); // вставл€ем новую
+//        end;
+        Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+AddDateTime+'.txt');
       end;
     except
       //пропускаем ошибки при записи
@@ -4189,6 +4228,7 @@ begin
 
   //не разрываем св€зь если отключен клиент и noFreeOnClientDisconnect
   while Thread[id].noFreeOnClientDisconnect do Sleep(1);
+
   EnterCriticalSection(_cs);
   //дождемс€ закрыти€ потока
   //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
