@@ -1163,6 +1163,8 @@ begin
   //расшифровываем лог пакетов
   ListView5.Items.BeginUpdate;
   ListView5.Items.Clear;
+  Memo3.Clear;
+  Memo2.Clear;
   //EnterCriticalSection(_cs);
   for i := 0 to Thread[CID].Dump.Count-1 do begin
     //смотрим второй байт в каждом пакете
@@ -1617,17 +1619,25 @@ begin
     Memo.Lines.EndUpdate;
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then begin //client
-      if (ID in [$39,$D0]) and (size>3) then begin
-        StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
-      end
-      else begin
-        StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
+      if ProtocolVersion<828 then begin //фиксим пакет 39 для Грация-Камаель
+        if (ID in [$39,$D0]) and (size>3) then begin //C4, C5, T0
+          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
+        end
+        else begin
+          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
+        end;
+      end else begin
+        if (ID=$D0) and (size>3) then begin //T1 и выше
+          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
+        end
+        else begin
+          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
+        end;
       end;
-    end else begin
+    end else begin //server
       if (ID in [$FE]) and (size>3) then begin
         StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknow:h(subID)');
-      end
-      else begin
+      end else begin
         StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
       end;
     end;
@@ -1970,18 +1980,26 @@ begin
     Memo5.Clear;
     Memo5.Lines.Add(StringToHex(Copy(PktStr,12,Length(PktStr)-11),' '));
     //считываем строку из packets.ini для парсинга
-    if RadioButton2.Checked then begin //client
-      if (ID in [$39,$D0]) and (size>3) then begin
-        StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
-      end
-      else begin
-        StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
+    if PktStr[1]=#04 then begin //client
+      if ProtocolVersion<828 then begin //фиксим пакет 39 для Грация-Камаель
+        if (ID in [$39,$D0]) and (size>3) then begin //C4, C5, T0
+          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
+        end
+        else begin
+          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
+        end;
+      end else begin
+        if (ID=$D0) and (size>3) then begin //T1 и выше
+          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
+        end
+        else begin
+          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
+        end;
       end;
-    end else begin
+    end else begin //server
       if (ID in [$FE]) and (size>3) then begin
         StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknow:h(subID)');
-      end
-      else begin
+      end else begin
         StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
       end;
     end;
@@ -2288,23 +2306,104 @@ var
 begin
   tid:=Byte(msg.WParam and $FF);
   PckCount:=msg.LParam;
-  if tid=CID then begin
-    from:=Byte((msg.WParam shr 8) and $FF); //клиент=1, сервер=0
-    //для ускорения работы берем только 4 байта с ID пакета
-    EnterCriticalSection(_cs);
-    PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
-    LeaveCriticalSection(_cs);
-    if Length(PktStr)=0 then Exit;         // если пустой пакет выходим
-    id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
-    SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
-    //------------------------------------------------------------------------
-    //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
-    if from=0 then begin
-      //от сервера
-      if id=$FE then begin
-        //находим индекс пакета
-        i:=PacketsFromS.IndexOfName(IntToHex(subid,4));
-        if i=-1 then  begin
+  if tid<>CID then exit;
+  from:=Byte((msg.WParam shr 8) and $FF); //клиент=1, сервер=0
+  //для ускорения работы берем только 4 байта с ID пакета
+  EnterCriticalSection(_cs);
+  PktStr:=HexToString(Copy(Thread[CID].Dump.Strings[PckCount],23,4));
+  LeaveCriticalSection(_cs);
+  if Length(PktStr)=0 then Exit;         // если пустой пакет выходим
+  id:=Byte(PktStr[1]);                   //фактическое начало пакета, ID
+  SubId:=Word(id shl 8+Byte(PktStr[2])); //считываем SubId
+  //------------------------------------------------------------------------
+  //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
+  if from=0 then begin  //от сервера
+    if id=$FE then begin
+      //находим индекс пакета
+      i:=PacketsFromS.IndexOfName(IntToHex(subid,4));
+      if i=-1 then  begin
+        //неизвестный пакет от сервера
+        with ListView5.Items.Add do begin
+          //имя пакета
+          Caption:='Unknown';
+          //код иконки
+          ImageIndex:=0;
+          //номер пакета по порядку
+          SubItems.Add(IntToStr(PckCount));
+          //код пакета
+          SubItems.Add(IntToHex(subid,4));
+          //добавляем в список пакетов так как его там нет
+          with ListView1.Items.Add do
+          begin
+            Caption:=(IntToHex(subid,4));
+            Checked:=True;
+            SubItems.Add('Unknown');
+            PacketsFromS.Append(IntToHex(subid,4)+'=Unknown:h(SubId)');
+          end;
+          if ToolButton5.Down then MakeVisible(false);
+        end;
+      end else begin
+        if ToolButton4.Down and (ListView1.Items.Item[i].Checked) then begin
+          with ListView5.Items.Add do begin
+            //имя пакета
+            Caption:=ListView1.Items.Item[i].SubItems[0];
+            //код иконки
+            ImageIndex:=0;
+            //номер пакета по порядку
+            SubItems.Add(IntToStr(PckCount));
+            //код пакета
+            SubItems.Add(IntToHex(subid,4));
+            if ToolButton5.Down then MakeVisible(false);
+          end;
+        end;
+      end;
+    end else begin
+      i:=PacketsFromS.IndexOfName(IntToHex(id,2));
+      if i=-1 then begin
+        //неизвестный пакет от сервера
+        with ListView5.Items.Add do begin
+          //имя пакета
+          Caption:='Unknown';
+          //код иконки
+          ImageIndex:=0;
+          //номер пакета по порядку
+          SubItems.Add(IntToStr(PckCount));
+          //код пакета
+          SubItems.Add(IntToHex(id,2));
+          //добавляем в список пакетов так как его там нет
+          with ListView1.Items.Add do
+          begin
+            Caption:=(IntToHex(id,2));
+            Checked:=True;
+            SubItems.Add('Unknown');
+            PacketsFromS.Append(IntToHex(id,2)+'=Unknown:');
+          end;
+          if ToolButton5.Down then MakeVisible(false);
+        end;
+      end else begin
+        if ToolButton4.Down and (ListView1.Items.Item[i].Checked) then begin
+          with ListView5.Items.Add do begin
+            //имя пакета
+            Caption:=ListView1.Items.Item[i].SubItems[0];
+            //проверить что быстрее будет!!!
+            //Caption:=PacketsFromS.Values[IntToHex(id,2)];
+            //код иконки
+            ImageIndex:=0;
+            //номер пакета по порядку
+            SubItems.Add(IntToStr(PckCount));
+            //код пакета
+            SubItems.Add(IntToHex(id,2));
+            if ToolButton5.Down then MakeVisible(false);
+          end;
+        end;
+      end;
+    end;
+  end;
+  if from=1 then begin  //от клиента
+    if ProtocolVersion<828 then begin //фиксим пакет 39 в Камаель-Грация
+      if (id in [$39,$D0]) then begin //для C4, C5, T0
+        i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
+        if i=-1 then begin
           //неизвестный пакет от сервера
           with ListView5.Items.Add do begin
             //имя пакета
@@ -2316,22 +2415,22 @@ begin
             //код пакета
             SubItems.Add(IntToHex(subid,4));
             //добавляем в список пакетов так как его там нет
-            with ListView1.Items.Add do
+            with ListView2.Items.Add do
             begin
               Caption:=(IntToHex(subid,4));
               Checked:=True;
               SubItems.Add('Unknown');
-              PacketsFromS.Append(IntToHex(subid,4)+'=Unknown:h(SubId)');
+              PacketsFromC.Append(IntToHex(subid,4)+'=Unknown:h(SubId)');
             end;
             if ToolButton5.Down then MakeVisible(false);
           end;
         end else begin
-          if ToolButton4.Down and (ListView1.Items.Item[i].Checked) then begin
+          if ToolButton3.Down and (ListView2.Items.Item[i].Checked) then begin
             with ListView5.Items.Add do begin
               //имя пакета
-              Caption:=ListView1.Items.Item[i].SubItems[0];
+              Caption:=ListView2.Items.Item[i].SubItems[0];
               //код иконки
-              ImageIndex:=0;
+              ImageIndex:=1;
               //номер пакета по порядку
               SubItems.Add(IntToStr(PckCount));
               //код пакета
@@ -2341,7 +2440,7 @@ begin
           end;
         end;
       end else begin
-        i:=PacketsFromS.IndexOfName(IntToHex(id,2));
+        i:=PacketsFromC.IndexOfName(IntToHex(id,2));
         if i=-1 then begin
           //неизвестный пакет от сервера
           with ListView5.Items.Add do begin
@@ -2354,24 +2453,22 @@ begin
             //код пакета
             SubItems.Add(IntToHex(id,2));
             //добавляем в список пакетов так как его там нет
-            with ListView1.Items.Add do
+            with ListView2.Items.Add do
             begin
               Caption:=(IntToHex(id,2));
               Checked:=True;
               SubItems.Add('Unknown');
-              PacketsFromS.Append(IntToHex(id,2)+'=Unknown:');
+              PacketsFromC.Append(IntToHex(id,2)+'=Unknown:');
             end;
             if ToolButton5.Down then MakeVisible(false);
           end;
         end else begin
-          if ToolButton4.Down and (ListView1.Items.Item[i].Checked) then begin
+          if ToolButton3.Down and (ListView2.Items.Item[i].Checked) then begin
             with ListView5.Items.Add do begin
               //имя пакета
-              Caption:=ListView1.Items.Item[i].SubItems[0];
-              //проверить что быстрее будет!!!
-              //Caption:=PacketsFromS.Values[IntToHex(id,2)];
+              Caption:=ListView2.Items.Item[i].SubItems[0];
               //код иконки
-              ImageIndex:=0;
+              ImageIndex:=1;
               //номер пакета по порядку
               SubItems.Add(IntToStr(PckCount));
               //код пакета
@@ -2382,8 +2479,7 @@ begin
         end;
       end;
     end else begin
-      //от клиента
-      if (id in [$39,$D0]) then begin
+      if (id=$D0) then begin //для T1 и выше
         i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
         if i=-1 then begin
           //неизвестный пакет от сервера
