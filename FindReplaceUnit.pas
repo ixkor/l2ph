@@ -77,18 +77,26 @@ begin
       end;
 end;
 
+//поиск/замена
 procedure TFindReplaceForm.EdtFind1Change(Sender: TObject);
 begin
+  x:=0;
+  y:=0;
+  x0:=0;
   EdtFind.Text:=EdtFind1.Text;
   str1:=EdtFind1.Text;
-  str:=L2PacketHackMain.JvHLEditor1.Lines[y];
+  str:=L2PacketHackMain.JvHLEditor1.Lines[0];         //здесь ошибка Index out of Bounds (689)
 end;
 
+//поиск
 procedure TFindReplaceForm.EdtFindChange(Sender: TObject);
 begin
+  x:=0;
+  y:=0;
+  x0:=0;
   EdtFind1.Text:=EdtFind.Text;
   str1:=EdtFind.Text;
-  str:=L2PacketHackMain.JvHLEditor1.Lines[y];
+  str:=L2PacketHackMain.JvHLEditor1.Lines[0];
 end;
 
 procedure TFindReplaceForm.FormShow(Sender: TObject);

@@ -8,6 +8,12 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 68
+Author: nlobp
+Date: 01:50:00, 10 декабря 2008 г.
+Message:
+[-] фикс ошибки List index of bounds в поиск/замена;
+
 Revision: 67
 Author: nlobp
 Date: 01:10:00, 10 декабря 2008 г.

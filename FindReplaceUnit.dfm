@@ -21,15 +21,11 @@ object FindReplaceForm: TFindReplaceForm
     Top = 0
     Width = 345
     Height = 154
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1053#1072#1081#1090#1080
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object LblFind: TLabel
         Left = 8
         Top = 5
