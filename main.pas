@@ -409,7 +409,7 @@ var
   isFromServer, isFromClient, isLock, isSaveLog: boolean;
   ProtocolVersion: word; //протокол линейки из c00=ProtocolVersion:h(psize)c(ID)d(ProtocolVersion)z(0256Instant)
 
-  kId:integer; //коэфф преобразования NpcID
+  kId: cardinal; //коэфф преобразования NpcID
   //возможность изменить имя для dll
 //  isNewxor, isInject: string;
 
@@ -421,6 +421,7 @@ var
 //  CountThread : integer;
   HexViewOffset: boolean; //показывать смещение в Hex формате
   MaxLinesInLog: integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
+  MaxLinesInPktLog: integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
 
 implementation
 
@@ -793,7 +794,8 @@ procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 var i:integer;
 begin
   Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru Team';
-  MaxLinesInLog:=10000;
+  MaxLinesInLog:=1000; //Ограничение максимального количества строк в логе, после чего скидываем в файл и очищаем лог
+  MaxLinesInPktLog:=10000; //Ограничение максимального количества строк в логе пакетов, после чего скидываем в файл и очищаем лог
   sendMsg('Стартует L2phx '+inet_ntoa(TInAddr(version)));
   typ0:='я'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
@@ -847,10 +849,12 @@ begin
     Thread[i].cd._id_mix:=False;
     ComboBox1.Items.Add(IntToStr(i)+' - пусто');
   end;
-  ComboBox1.ItemIndex:=0;
+  ComboBox1.ItemIndex:=CID; //начать показывать в логе пакетов CID соединение
   ComboBox1.Items.EndUpdate;
   //максимальное количество строк в логе
-  MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',3000);
+  MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',300);
+  //максимальное количество строк в логе пакетов
+  MaxLinesInPktLog:=Options.ReadInteger('General','MaxLinesInPktLog',3000);
   //панель Просмотр
   ToolButton3.Down:=Options.ReadBool('Snifer','FromClient',True);
   ToolButton4.Down:=Options.ReadBool('Snifer','FromServer',True);
@@ -977,6 +981,7 @@ begin
 
   //максимальное количество строк в логе
   Options.WriteInteger('General','MaxLinesInLog',MaxLinesInLog);
+  Options.WriteInteger('General','MaxLinesInPktLog',MaxLinesInPktLog);
   //координаты и размер окна
   Options.WriteInteger('General','Top',Top);
   Options.WriteInteger('General','Left',Left);
@@ -1310,11 +1315,11 @@ begin
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown SysMsg ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
 //-------------
-function GetNpcID(const ar1 : integer) : string;
+function GetNpcID(const ar1 : cardinal) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.NpcID - возвращает текст по его ID из значения аргумента
 var
- _ar1: integer;
+ _ar1: cardinal;
 begin
   _ar1:=ar1-kId;
   result:='0'; if ar1=0 then exit;
@@ -2646,11 +2651,13 @@ begin
               if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+'inject.dll')) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
+//                CheckBox3.Checked:=false;
               end;
             end else begin
               if InjectDllEx(cc, dllScr) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
+//                CheckBox3.Checked:=false;
               end;
             end;
             CloseHandle(cc);
@@ -2758,16 +2765,16 @@ end;
 
 procedure TL2PacketHackMain.ToolButton8Click(Sender: TObject);
 begin
-  //считываем sysmsgid.ini
-  SysMsgIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'sysmsgid.ini');
-  //считываем ItemsID.ini
-  ItemsList.LoadFromFile(ExtractFilePath(Application.ExeName)+'ItemsID.ini');
-  //считываем Npcid.ini
-  NpcIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'npcsid.ini');
+  //считываем systemmsg.ini
+  SysMsgIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'systemmsg.ini');
+  //считываем itemname.ini
+  ItemsList.LoadFromFile(ExtractFilePath(Application.ExeName)+'itemname.ini');
+  //считываем npcname.ini
+  NpcIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'npcname.ini');
   //считываем ClassId.ini
   ClassIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'classid.ini');
-  //считываем SkillsID.ini
-  SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'SkillsID.ini');
+  //считываем skillname.ini
+  SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'skillname.ini');
   //считываем packets??.ini
   LoadPacketsIni;
 
@@ -2926,7 +2933,7 @@ end;
 
 procedure TL2PacketHackMain.ButtonCheckSyntexClick(Sender: TObject);
 begin
-  Compile(fsScript1,JvHLEditor1);
+  Compile(fsScript1, JvHLEditor1);
 end;
 
 {
@@ -3154,10 +3161,10 @@ end;
 
 procedure TL2PacketHackMain.Button2Click(Sender: TObject);
 begin
-  if Thread[cid].NoUsed then
-    sendMSG('Нет соединения!'+sLineBreak+'Возможно вы выбрали пустое соединение.'+
+{ if Thread[cid].NoUsed then
+    ShowMessage('Нет соединения!'+sLineBreak+'Возможно вы выбрали пустое соединение.'+
                 sLineBreak+'Выберете в списке соединений ваш ник.')
-  else begin
+  else begin}
     RefreshPrecompile(fsScript2);
     fsScript2.Lines:=JvHLEditor2.Lines;
     if Compile(fsScript2,JvHLEditor2) then begin
@@ -3165,19 +3172,19 @@ begin
       Button3.Enabled:=True;
       BeginThread(nil, 0, @RunScript, nil, 0, hid);
     end;
-  end;
+{ end;}
 end;
 
 procedure TL2PacketHackMain.Button3Click(Sender: TObject);
 begin
 {  Button3.Enabled:=False;
   Button2.Enabled:=True;}
-{  if fsScript1.IsRunning then} begin
+{  if fsScript1.IsRunning then begin}
     fsScript1.Terminate;
     TerminateThread(hid,0);
     Button3.Enabled:=False;
     Button2.Enabled:=True;
-  end;
+{  end;}
 end;
 
 procedure TL2PacketHackMain.Button4Click(Sender: TObject);
@@ -3270,8 +3277,16 @@ begin
     Move(pck[1],Packet.PackType,Size);
     if ToServer then begin
       if isSaveLog then begin
-        Thread[tid].Dump.Add('04'+ByteArrayToHex(TimeStepB,8)+ByteArrayToHex(Packet.PacketB,Packet.Size));
-        PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
+        //проверка на длину лога пакетов
+        if Thread[tid].Dump.Count<MaxLinesInPktLog then begin
+          Thread[tid].Dump.Add('04'+ByteArrayToHex(TimeStepB,8)+ByteArrayToHex(Packet.PacketB,Packet.Size));
+          PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
+        end else begin
+          //сохраняем и очищаем лог пакетов
+          Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+AddDateTime+'.txt');
+          Thread[tid].Dump.Clear;
+          PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+        end;
       end;
       if (not isNoDecryptTraf) and Thread[tid].InitXOR then begin
         if L2PacketHackMain.isGraciaOff.Checked then
@@ -3281,8 +3296,16 @@ begin
       if send(Thread[tid].CSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].CSock);
     end else begin
       if isSaveLog then begin
-        Thread[tid].Dump.Add('03'+ByteArrayToHex(TimeStepB,8)+ByteArrayToHex(Packet.PacketB,Packet.Size));
-        PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF),Thread[tid].Dump.Count-1);
+        //проверка на длину лога пакетов
+        if Thread[tid].Dump.Count<MaxLinesInPktLog then begin
+          Thread[tid].Dump.Add('03'+ByteArrayToHex(TimeStepB,8)+ByteArrayToHex(Packet.PacketB,Packet.Size));
+          PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF),Thread[tid].Dump.Count-1);
+        end else begin
+          //сохраняем и очищаем лог пакетов
+          Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+AddDateTime+'.txt');
+          Thread[tid].Dump.Clear;
+          PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+        end;
       end;
       if (not isNoDecryptTraf) and Thread[tid].InitXOR then Thread[tid].xorS.EncryptGP(Packet.PackType,Size);
       if send(Thread[tid].SSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].SSock);
@@ -4201,8 +4224,7 @@ begin
       //отсылаем данные, сначала длину, а потом сам пакет
       send(CSockl,PacketB,2,0);
       repeat until send(CSockl,PacketB,recv(SSockl,PacketB,$FFFF,0),0)<=0;
-    end else begin
-      //иначе (пропускать логин и мы в игре)
+    end else begin//иначе (пропускать логин и мы в игре)
       //прием пакетов
       repeat
         if not GetSocketData(SSockl,Packet.DataB,Packet.Size-2) then break;
@@ -4306,16 +4328,16 @@ begin
     //отсылаем данные, сначала длину, а потом сам пакет
     send(SSockl,PacketB,2,0);
     repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
-  end else
-  repeat
-    //иначе (пропускать логин и мы в игре)
-    //прием пакетов
-    if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
-    if IsGamel
-      then PacketProcesor(PacketB,SSockl,id,3)
-      else PacketProcesor(PacketB,SSockl,id,1);
-    if not GetSocketData(CSockl,Packet,2) then break;
-  until False;
+  end else begin //иначе (пропускать логин и мы в игре)
+    repeat
+      //прием пакетов
+      if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
+      if IsGamel
+        then PacketProcesor(PacketB,SSockl,id,3)
+        else PacketProcesor(PacketB,SSockl,id,1);
+      if not GetSocketData(CSockl,Packet,2) then break;
+    until False;
+  end;
 
   //сюда попадаем когда отвалился клиент
   //инициируем переменные ConnectID и OnDisconnect в скрипте

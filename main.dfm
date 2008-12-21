@@ -515,7 +515,7 @@ object L2PacketHackMain: TL2PacketHackMain
             EditLabel.Height = 13
             EditLabel.Caption = #1057#1095#1080#1090#1072#1090#1100' '#1082#1083#1080#1077#1085#1090#1072#1084#1080'/'#1073#1086#1090#1072#1084#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099':'
             TabOrder = 0
-            Text = 'l2.exe;l2walker.exe;l2helper.exe'
+            Text = 'l2.exe;l2walker.exe;l2helper.exe;'
             OnChange = LabeledEdit1Change
           end
           object CheckBox2: TCheckBox
@@ -576,6 +576,7 @@ object L2PacketHackMain: TL2PacketHackMain
             EditLabel.Height = 13
             EditLabel.Caption = #1053#1077#1080#1075#1088#1086#1074#1099#1077' '#1087#1086#1088#1090#1099':'
             TabOrder = 5
+            Text = '5001;5002;5003;5004;2222;2106;'
             OnChange = LabeledEdit2Change
           end
           object RadioGroup1: TRadioGroup
@@ -624,6 +625,8 @@ object L2PacketHackMain: TL2PacketHackMain
             Height = 17
             Hint = #1044#1083#1103' '#1089#1077#1088#1074#1077#1088#1086#1074' '#1090#1080#1087#1072' Kamael - Hellbound - Gracia'
             Caption = 'Kamael'
+            Checked = True
+            State = cbChecked
             TabOrder = 9
             OnClick = isKamaelClick
           end
@@ -696,8 +699,10 @@ object L2PacketHackMain: TL2PacketHackMain
               ' '#1087#1072#1082#1077#1090#1086#1074' '#1075#1077#1081#1084#1089#1077#1088#1074#1077#1088#1072' '#13#10#1074' '#1085#1072#1089#1090#1086#1103#1097#1077#1077' '#1074#1088#1077#1084#1103', '#1087#1086' '#1074#1080#1076#1080#1084#1086#1084#1091', '#1085#1091#1078#1077#1085' '#1090#1086#1083 +
               #1100#1082#1086' '#1076#1083#1103' '#1086#1092#1072'.'
             Caption = 'Gracia (off server)'
+            Checked = True
             ParentShowHint = False
             ShowHint = True
+            State = cbChecked
             TabOrder = 12
             OnClick = isGraciaOffClick
           end
@@ -1615,8 +1620,8 @@ object L2PacketHackMain: TL2PacketHackMain
           Cursor = crIBeam
           Lines.Strings = (
             'begin'
-            '  buf:=#$38;'
-            '  WriteS('#39'Hello'#39');'
+            '  buf:=#$49;'
+            '  WriteS('#39'Hello L2.ru!!!'#39');'
             '  WriteD(0);'
             '  SendToServer;'
             'end.')

@@ -249,7 +249,7 @@ procedure DeInitSocket(const hSocket: Integer);
 begin
   // Закрываем сокет
   if hSocket <> INVALID_SOCKET then begin
-    sendMSG('WSA no error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
+    sendMSG('WSA error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
     //Shutdown(hSocket,2);  //выключаем сокет
     closesocket(hSocket); //уничтожаем сокет
   end else //ошибка, анализируем с помощью WSAGetLastError
