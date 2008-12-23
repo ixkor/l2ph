@@ -6,7 +6,7 @@ uses
   FastMM4,
   SysUtils,
   Windows,
-  Coding in 'Coding.pas';
+  Coding in 'plugins\Coding.pas';
 
 var                                {version} {revision}
   min_ver_a: array[0..3] of Byte = ( 3,4,1,      46   );

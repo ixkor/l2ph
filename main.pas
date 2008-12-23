@@ -224,6 +224,7 @@ type
     isGraciaOff: TCheckBox;
     ToolButton16: TToolButton;
     ToolButton17: TToolButton;
+    chkSocks5: TCheckBox;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -338,6 +339,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure isGraciaOffClick(Sender: TObject);
     procedure ToolButton17Click(Sender: TObject);
+    procedure chkSocks5Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -873,6 +875,7 @@ begin
   isIntercept:=CheckBox3.Checked;
   isKamael.Checked:=Options.ReadBool('General','isKamael',False);
   isCamael:=isKamael.Checked;
+  chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
   isGraciaOff.Checked:=Options.ReadBool('General', 'isGraciaOff', False);
   ChkXORfix.Checked:=Options.ReadBool('General','AntiXORkey',False);
   isChangeXor:=ChkXORfix.Checked;
@@ -1044,6 +1047,7 @@ end;
 procedure TL2PacketHackMain.isKamaelClick(Sender: TObject);
 {если нажали галочку isKamael}
 begin
+  if not isKamael.Checked then isGraciaOff.Checked:=False;
   Options.WriteBool('General','isKamael',isKamael.Checked);
   isCamael:=isKamael.Checked;
 end;
@@ -2376,8 +2380,7 @@ begin
           //код пакета
           SubItems.Add(IntToHex(id,2));
           //добавляем в список пакетов так как его там нет
-          with ListView1.Items.Add do
-          begin
+          with ListView1.Items.Add do begin
             Caption:=(IntToHex(id,2));
             Checked:=True;
             SubItems.Add('Unknown');
@@ -2766,15 +2769,15 @@ end;
 procedure TL2PacketHackMain.ToolButton8Click(Sender: TObject);
 begin
   //считываем systemmsg.ini
-  SysMsgIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'systemmsg.ini');
+  SysMsgIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'sysmsgid.ini');
   //считываем itemname.ini
-  ItemsList.LoadFromFile(ExtractFilePath(Application.ExeName)+'itemname.ini');
+  ItemsList.LoadFromFile(ExtractFilePath(Application.ExeName)+'itemsid.ini');
   //считываем npcname.ini
-  NpcIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'npcname.ini');
+  NpcIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'npcsid.ini');
   //считываем ClassId.ini
   ClassIdList.LoadFromFile(ExtractFilePath(Application.ExeName)+'classid.ini');
   //считываем skillname.ini
-  SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'skillname.ini');
+  SkillList.LoadFromFile(ExtractFilePath(Application.ExeName)+'skillsid.ini');
   //считываем packets??.ini
   LoadPacketsIni;
 
@@ -3652,6 +3655,8 @@ end;
 
 procedure TL2PacketHackMain.CheckBox3Click(Sender: TObject);
 begin
+  if CheckBox3.Checked then
+    chkSocks5.Checked:=not CheckBox3.Checked;
   Options.WriteBool('General','Enable',CheckBox3.Checked);
   Options.UpdateFile;
   ListBox1.Items.Add('');
@@ -3733,6 +3738,14 @@ begin
   Options.WriteBool('General','NoDecrypt',ChkNoDecrypt.Checked);
   Options.UpdateFile;
   isNoDecryptTraf:=ChkNoDecrypt.Checked;
+end;
+
+procedure TL2PacketHackMain.chkSocks5Click(Sender: TObject);
+begin
+  if chkSocks5.Checked then
+    CheckBox3.Checked:=not chkSocks5.Checked;
+  Options.WriteBool('General','Socks5',chkSocks5.Checked);
+  Options.UpdateFile;
 end;
 
 procedure TL2PacketHackMain.ChkXORfixClick(Sender: TObject);
@@ -4194,6 +4207,12 @@ begin
     Thread[id].NoUsed:=False;
     Thread[id].cd._id_mix:=False;
     LeaveCriticalSection(_cs);
+
+    // <-- socks5
+    if L2PacketHackMain.chkSocks5.Checked then with Thread[id] do
+      if not AuthSocks5(SSockl,IP,Port) then Exit;
+    // socks5 -->
+
     Thread[id].ConnectEvent:=CreateEvent(nil, true,false,PChar('phx_srv_'+
                                                       IntToStr(Thread[id].SH)));
     //запускаем поток к клиенту
@@ -4214,6 +4233,8 @@ begin
   //  EnterCriticalSection(_cs);
     CSockl:=Thread[id].CSock;
     GetSocketData(SSockl,Packet,2);
+    if Packet.Size=29754 then Packet.Size:=267;
+    //sendMSG(IntToStr(Packet.Size));
     if Thread[id].IsGame then Thread[id].AutoPing:=True;
     IsGamel:=Thread[id].IsGame;
   //  LeaveCriticalSection(_cs);
@@ -4232,6 +4253,7 @@ begin
            then PacketProcesor(PacketB,CSockl,id,4)
            else PacketProcesor(PacketB,CSockl,id,2);
         if not GetSocketData(SSockl,Packet,2) then break;
+        sendMSG('size: '+IntToStr(Packet.Size));
       until False;
     end;
     //сюда попадаем когда отвалился сервер
@@ -4297,6 +4319,7 @@ var
   PacketB: array[0..$FFFF] of Byte absolute Packet;
   SSockl,CSockl: TSocket;
   IsGamel: Boolean;
+  socks5ok: string;
 begin
   id:=Byte(Param);
   EnterCriticalSection(_cs);
@@ -4304,9 +4327,17 @@ begin
   if not InitSocket(Thread[id].CSock,0,'0.0.0.0') then begin
     EndThread(0);
   end;
+
   if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then begin
     EndThread(0);
   end;
+  // <-- socks5
+  if L2PacketHackMain.chkSocks5.Checked then begin
+    socks5ok:=#5#0#0#1#$7f#0#0#1#0#0;
+    send(SSockl,socks5ok[1],Length(socks5ok),0);
+  end;
+  // socks5 -->
+
   //инициируем переменные ConnectID и OnConnect в скрипте
   SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 0, id);
   //ждем подключения

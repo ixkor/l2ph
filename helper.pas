@@ -1,8 +1,10 @@
 unit helper;
 
 interface
-uses Windows, Messages, SysUtils, Classes, advApiHook, PSAPI, TlHelp32,
-  fs_iinterpreter,WinSock;
+
+uses
+  Windows, Messages, SysUtils, Classes, advApiHook, PSAPI, TlHelp32,
+  fs_iinterpreter, WinSock;
 
   // функции преобразования
   function DataPckToStrPck(var pck): string; stdcall;
@@ -38,6 +40,9 @@ uses Windows, Messages, SysUtils, Classes, advApiHook, PSAPI, TlHelp32,
   // корректировка id для пакетов Gracia на оффициальных серверах
   procedure Corrector(var data; const tid: Integer; const enc: Boolean = False;
     const FromServer: Boolean = False);
+
+  function AuthSocks5(var sock: Integer; var srvIP: Integer;
+                      var srvPort: Word): Boolean;
 
 type
   //скрипт
@@ -520,6 +525,66 @@ begin
     if _id_mix and not enc then _decode_ID;
     if _id_mix and enc then _encode_ID;
   end;
+end;
+
+function AuthSocks5(var sock: Integer; var srvIP: Integer;
+                    var srvPort: Word): Boolean;
+var
+  buf: string;
+  i: Integer;
+  authOk: Boolean;
+  p: PHostEnt;
+begin
+  Result:=False;
+  // получаем версию прокси и количество поддерживаемых методов авторизации
+  SetLength(buf,2);
+  if(not GetSocketData(sock,buf[1],2))or(buf[1]<>#5)then begin
+    DeInitSocket(sock);
+    Exit;
+  end;
+
+  // получаем поддерживаемые клиентом методы авторизации
+  SetLength(buf,2+Byte(buf[2]));
+  if(not GetSocketData(sock,buf[3],Byte(buf[2])))then begin
+    DeInitSocket(sock);
+    Exit;
+  end;
+  authOk:=False;
+  for i:=3 to Length(buf) do if buf[i]=#0 then authOk:=True;
+
+  if not authOk then begin
+    DeInitSocket(sock);
+    Exit;
+  end;
+
+  // говорим что авторизация не требуется
+  buf:=#5#0;
+  send(sock,buf[1],2,0);
+
+  // получаем запрос на подключение
+  SetLength(buf,4);
+  if(not GetSocketData(sock,buf[1],4))
+  or(buf[1]<>#5) // проверяем версию протокола
+  or(buf[2]<>#1) // проверяем команду CMD = CONNECT
+  then begin
+    DeInitSocket(sock);
+    Exit;
+  end;
+
+  if(buf[4]=#1)then begin          // если коннект по IP
+    GetSocketData(sock,srvIP,4);
+    GetSocketData(sock,srvPort,2);
+    Result:=True;
+  end else if(buf[4]=#3)then begin // если по доменному имени
+    i:=0;
+    GetSocketData(sock,i,1);
+    SetLength(buf,i);
+    GetSocketData(sock,buf[1],i);
+    GetSocketData(sock,srvPort,2);
+    p:=GetHostByName(PChar(buf));
+    srvIP:=PInAddr(p.h_addr_list^)^.S_addr;
+    Result:=True;
+  end else ShowMessageOld('fail '+IntToStr(Byte(buf[4])));
 end;
 
 end.

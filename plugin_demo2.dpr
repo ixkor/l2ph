@@ -4,7 +4,9 @@ library plugin_demo2;
 
 uses
   FastMM4,
-  Coding in 'Coding.pas'; // модуль с описаниями основных типов
+  Coding in 'plugins\Coding.pas';
+
+// модуль с описаниями основных типов
                           // используемых в плагине и программе
 
 var                                {version} {revision}
