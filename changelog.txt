@@ -8,6 +8,15 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 71
+Author: nlobp
+Date: 17:15:00, 28 декабря 2008 г.
+Message:
+[*] sysmsgid.ini, itemsid.ini, skillsid.ini, npcsid.ini из l2.ru, спасибо Xelat;
+[+] Добавлен вывод даты и времени в лог;
+[*] расшифровка пакета sD0=MultiSellList (не полная);
+
+
 Revision: 70
 Author: xkor
 Date: 22:00:00, 23 декабря 2008 г.

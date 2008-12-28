@@ -1028,7 +1028,7 @@ begin
 
   sendMsg('«авершил работу L2phx... ');
   //сохран€ем лог сообщений
-  ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+AddDateTime+'.log');
+  ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+'_'+AddDateTime+'.log');
 end;
 
 procedure TL2PacketHackMain.isGraciaOffClick(Sender: TObject);
@@ -3286,7 +3286,7 @@ begin
           PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
         end else begin
           //сохран€ем и очищаем лог пакетов
-          Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+AddDateTime+'.txt');
+          Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+'_'+AddDateTime+'.txt');
           Thread[tid].Dump.Clear;
           PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
         end;
@@ -3305,7 +3305,7 @@ begin
           PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF),Thread[tid].Dump.Count-1);
         end else begin
           //сохран€ем и очищаем лог пакетов
-          Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+AddDateTime+'.txt');
+          Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+'_'+AddDateTime+'.txt');
           Thread[tid].Dump.Clear;
           PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
         end;
@@ -3682,10 +3682,10 @@ begin
     ButtonDelete.Enabled := not ScriptsList.Checked[ScriptsList.ItemIndex] AND ScriptsList.ItemEnabled[ScriptsList.ItemIndex];
     ButtonRename.Enabled := not ScriptsList.Checked[ScriptsList.ItemIndex];
     Button9.Enabled := ScriptsList.ItemIndex > 0;
-    Button10.Enabled := ScriptsList.ItemIndex<ScriptsList.Items.Count-1;
-    if not ScriptsList.ItemEnabled[ScriptsList.ItemIndex] then
-      JvHLEditor1.ReadOnly := true
-    else JvHLEditor1.ReadOnly:=ScriptsList.Checked[ScriptsList.ItemIndex];
+    Button10.Enabled := ScriptsList.ItemIndex < ScriptsList.Items.Count-1;
+    if not ScriptsList.ItemEnabled[ScriptsList.ItemIndex]
+      then JvHLEditor1.ReadOnly := true
+      else JvHLEditor1.ReadOnly:=ScriptsList.Checked[ScriptsList.ItemIndex];
   end;
 end;
 
@@ -3698,11 +3698,18 @@ var
 begin
   // если не включен и мен€лс€ спрашиваем сохран€т или нет если не сохран€ть перезугружаем старую версию
   if ScriptsList.Checked[ScriptsList.ItemIndex] AND ButtonSave.Enabled then
-    if MessageDlg('—охранить изменени€ перед запуском?',mtConfirmation,[mbYes, mbNo],0) = mrYes then
-      ButtonSaveClick(Sender) else JvHLEditor1.Lines:=Scripts[ScriptsList.ItemIndex].fsScript.Lines;
-  // далее выполн€ем скрипт
-  if (ScriptsList.ItemIndex>=0)and(not ScriptsList.Checked[ScriptsList.ItemIndex]) then
+    if MessageDlg('—охранить изменени€ перед запуском?',mtConfirmation,[mbYes, mbNo],0) = mrYes
+      then ButtonSaveClick(Sender)
+      else JvHLEditor1.Lines:=Scripts[ScriptsList.ItemIndex].fsScript.Lines;
+  // при выключении скрипта
+  if (ScriptsList.ItemIndex>=0)and(not ScriptsList.Checked[ScriptsList.ItemIndex]) then begin
+    //три строки нижеперечисленные до процедуры FREE, чтобы при возникновении ошибки была возможность обновить список скриптов
+    JvHLEditor1.ReadOnly:=false;                     //разрешаем редактирование
+    Scripts[ScriptsList.ItemIndex].Compilled:=False; //заставим компилировать при следующем запуске
+    Button28.Enabled:=true;                          //разрешим кнопку "ќбновить"
     Scripts[ScriptsList.ItemIndex].fsScript.CallFunction('Free',0);
+  end;
+  // далее выполн€ем скрипт
   if (ScriptsList.ItemIndex>=0)and(ScriptsList.Checked[ScriptsList.ItemIndex]) then
     if not Scripts[ScriptsList.ItemIndex].Compilled then begin
       RefreshPrecompile(Scripts[ScriptsList.ItemIndex].fsScript);
@@ -3721,7 +3728,7 @@ begin
  может просто сделать чтобы была глабальна€ переменна€
  есть включеный скрипт или нет
  тогда можно будет пробегатс€ по скриптам только в этом методе
- вроде еще где-то перебираетс€ 
+ вроде еще где-то перебираетс€
 }
     i:=0;
     Button28.Enabled := true;
@@ -3986,7 +3993,7 @@ function AddDateTime : string;
 var
   msg: string;
 begin
-  msg:='_'+datetostr(now)+'_'+timetostr(time);
+  msg:=datetostr(now)+'_'+timetostr(time);
   x:=pos(':', msg); // ищем подстроку
   if x>0 then begin
     Delete(msg, x, length(':')); // удал€ем еЄ
@@ -4004,11 +4011,11 @@ end;
 procedure TL2PacketHackMain.Log(var msg: TMessage);
 begin
   //выводим лог в мемо
-  ListBox3.Lines.Add(pstr(msg.LParam)^);
+  ListBox3.Lines.Add(AddDateTime+' '+(pstr(msg.LParam)^));
   //сохран€ем лог в файл и очищаем, если превысили установленный предел
   try
     if ListBox3.Lines.Count>MaxLinesInLog then begin
-      ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+AddDateTime+'.log');
+      ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+'_'+AddDateTime+'.log');
       ListBox3.Lines.Clear;
     end;
   except
@@ -4193,8 +4200,8 @@ var
   SSockl,CSockl: TSocket;
   IsGamel: Boolean;
 //  LogMsg: PChar;
-  msg: string;
-  x: integer;
+//  msg: string;
+//  x: integer;
 begin
     id:=Byte(Param);
     EnterCriticalSection(_cs);
@@ -4269,18 +4276,7 @@ begin
     try
       //сохран€ем лог, если выбрано "запоминать пакеты"
       if isSaveLog and (Thread[ID].Name<>'') then begin
-//        msg:='logs\'+Thread[ID].Name+'_'+datetostr(now)+'_'+timetostr(time)+'.txt';
-//        x:=pos(':', msg); // ищем подстроку
-//        if x>0 then begin
-//          Delete(msg, x, length(':')); // удал€ем еЄ
-//          Insert('.', msg, x); // вставл€ем новую
-//        end;
-//        x:=pos(':', msg); // ищем подстроку
-//        if x>0 then begin
-//          Delete(msg, x, length(':')); // удал€ем еЄ
-//          Insert('.', msg, x); // вставл€ем новую
-//        end;
-        Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+AddDateTime+'.txt');
+        Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+'_'+AddDateTime+'.txt');
       end;
     except
       //пропускаем ошибки при записи
