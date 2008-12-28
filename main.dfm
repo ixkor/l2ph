@@ -432,7 +432,7 @@ object L2PacketHackMain: TL2PacketHackMain
     Top = 60
     Width = 747
     Height = 497
-    ActivePage = TabSheet2
+    ActivePage = TabSheet6
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

@@ -424,6 +424,10 @@ var
   HexViewOffset: boolean; //показывать смещение в Hex формате
   MaxLinesInLog: integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
   MaxLinesInPktLog: integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
+  AllowExit,              //разрешить выход без запроса
+  ShitConsole : boolean;  //Попытка обхода shieldConsole.exe на l2.ru;
+                          //После внедрения в клиент, галочка "Перехват" сбрасывается.
+                          //Потом, перед выбором сервера, снова ставим галочку "Перехват", выждав 5 - 10 сек заходим на сервер.
 
 implementation
 
@@ -890,7 +894,11 @@ begin
   Width:=Options.ReadInteger('General','Widht',700);
   Height:=Options.ReadInteger('General','Heigth',960);
 
-  kId:=Options.ReadInteger('General','kID',1023000); //по умолчанию для TheAbyss.ru
+  kId:=Options.ReadInteger('General','kID',1000000); //по умолчанию
+  //разрешить выход без запроса?
+  AllowExit:=Options.ReadBool('General','AllowExit',False);
+  //попытка обхода l2.ru
+  ShitConsole:=Options.ReadBool('General','ShitConsole',False);
 
   Panel2.Visible:=CheckBox4.Checked;
   LPortConst:=htons(Options.ReadInteger('General','LocalPort',$FEDC));
@@ -991,6 +999,11 @@ begin
   Options.WriteInteger('General','Widht',Width);
   Options.WriteInteger('General','Heigth',Height);
   Options.WriteInteger('General','HookMethod',isHookMethod);
+
+  //разрешить выход без запроса?
+  Options.WriteBool('General','AllowExit',AllowExit);
+  //попытка обхода l2.ru
+  Options.WriteBool('General','ShitConsole',ShitConsole);
 
   Options.UpdateFile;
   Options.Free;
@@ -2654,13 +2667,15 @@ begin
               if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+'inject.dll')) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
-//                CheckBox3.Checked:=false;
+                //попытка обойти защиту l2.ru
+                if ShitConsole then CheckBox3.Checked:=false;
               end;
             end else begin
               if InjectDllEx(cc, dllScr) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
-//                CheckBox3.Checked:=false;
+                //попытка обойти защиту l2.ru
+                if ShitConsole then CheckBox3.Checked:=false;
               end;
             end;
             CloseHandle(cc);
@@ -3961,9 +3976,8 @@ end;
 
 procedure TL2PacketHackMain.SpeedButton1Click(Sender: TObject);
 begin
-  if MessageDlg('Вы уверены что хотите выйти из программы?',mtConfirmation,[mbYes, mbNo],0)=mrYes then begin
-    Application.Terminate;
-  end;
+  if AllowExit then Application.Terminate;
+  if MessageDlg('Вы уверены что хотите выйти из программы?',mtConfirmation,[mbYes, mbNo],0)=mrYes then Application.Terminate;
 end;
 
 procedure TL2PacketHackMain.tbtnDeleteClick(Sender: TObject);
