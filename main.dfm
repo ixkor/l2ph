@@ -432,7 +432,7 @@ object L2PacketHackMain: TL2PacketHackMain
     Top = 60
     Width = 747
     Height = 497
-    ActivePage = TabSheet6
+    ActivePage = TabSheet5
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -455,26 +455,26 @@ object L2PacketHackMain: TL2PacketHackMain
         BevelOuter = bvNone
         BorderWidth = 4
         TabOrder = 0
-        object Label1: TLabel
+        object GroupBox13: TGroupBox
           Left = 4
           Top = 4
           Width = 157
-          Height = 13
-          Align = alTop
-          Caption = '    '#1056#1072#1073#1086#1090#1072#1102#1097#1080#1077' '#1087#1088#1086#1075#1088#1072#1084#1084#1099':'
-          ExplicitWidth = 142
-        end
-        object ListBox1: TListBox
-          Left = 4
-          Top = 17
-          Width = 157
-          Height = 448
-          Margins.Top = 0
-          Margins.Right = 0
+          Height = 461
           Align = alClient
-          ItemHeight = 13
-          Sorted = True
+          Caption = #1056#1072#1073#1086#1090#1072#1102#1097#1080#1077' '#1087#1088#1086#1075#1088#1072#1084#1084#1099
           TabOrder = 0
+          object ListBox1: TListBox
+            Left = 2
+            Top = 15
+            Width = 153
+            Height = 444
+            Margins.Top = 0
+            Margins.Right = 0
+            Align = alClient
+            ItemHeight = 13
+            Sorted = True
+            TabOrder = 0
+          end
         end
       end
       object Panel20: TPanel
@@ -557,7 +557,7 @@ object L2PacketHackMain: TL2PacketHackMain
             Left = 6
             Top = 71
             Width = 137
-            Height = 389
+            Height = 385
             Hint = #1057#1087#1080#1089#1086#1082' '#1087#1088#1080#1083#1086#1078#1077#1085#1080#1081' '#1091' '#1082#1086#1090#1086#1088#1099#1093' '#1073#1091#1076#1077#1090' '#1087#1077#1088#1077#1093#1074#1072#1095#1077#1085' '#1082#1086#1085#1085#1077#1082#1090
             Anchors = [akLeft, akTop, akBottom]
             ItemHeight = 13
@@ -581,10 +581,10 @@ object L2PacketHackMain: TL2PacketHackMain
           end
           object RadioGroup1: TRadioGroup
             Left = 154
-            Top = 236
+            Top = 234
             Width = 183
             Height = 34
-            Caption = #1057#1087#1086#1089#1086#1073' '#1074#1085#1077#1076#1088#1077#1085#1080#1103' '#1074' '#1082#1083#1080#1077#1085#1090'/'#1073#1086#1090' '
+            Caption = #1057#1087#1086#1089#1086#1073' '#1074#1085#1077#1076#1088#1077#1085#1080#1103' '#1074' '#1082#1083#1080#1077#1085#1090'/'#1073#1086#1090
             Columns = 2
             ItemIndex = 0
             Items.Strings = (
@@ -711,11 +711,7 @@ object L2PacketHackMain: TL2PacketHackMain
             Top = 115
             Width = 116
             Height = 17
-            Hint = 
-              #1084#1086#1076#1080#1092#1080#1082#1072#1094#1080#1103' '#1089#1082#1088#1080#1087#1090#1072' '#1086#1090' ShadeOfNothing:'#13#10'corrector-3.fsc CT2.2 ve' +
-              'rsion '#13#10#1089#1082#1088#1080#1087#1090' '#1076#1083#1103' '#1076#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086#1075#1086' ['#1076#1077']'#1082#1086#1076#1080#1088#1086#1074#1072#1085#1080#1103'  ID '#1080#1089#1093#1086#1076#1103#1097#1080#1093 +
-              ' '#1087#1072#1082#1077#1090#1086#1074' '#1075#1077#1081#1084#1089#1077#1088#1074#1077#1088#1072' '#13#10#1074' '#1085#1072#1089#1090#1086#1103#1097#1077#1077' '#1074#1088#1077#1084#1103', '#1087#1086' '#1074#1080#1076#1080#1084#1086#1084#1091', '#1085#1091#1078#1077#1085' '#1090#1086#1083 +
-              #1100#1082#1086' '#1076#1083#1103' '#1086#1092#1072'.'
+            Hint = #1056#1072#1073#1086#1090#1072#1077#1090' '#1082#1072#1082' '#1087#1088#1086#1082#1089#1080'-'#1089#1077#1088#1074#1077#1088
             Caption = 'Socks5 '#1089#1077#1088#1074#1077#1088
             ParentShowHint = False
             ShowHint = True
@@ -780,6 +776,10 @@ object L2PacketHackMain: TL2PacketHackMain
           object TabSheet7: TTabSheet
             Caption = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object ListView2: TListView
               Left = 0
               Top = 0
@@ -856,72 +856,35 @@ object L2PacketHackMain: TL2PacketHackMain
           Left = 3
           Top = 3
           Width = 516
-          Height = 440
+          Height = 463
           Align = alClient
           BevelEdges = [beBottom]
           BevelOuter = bvNone
           TabOrder = 0
           object Splitter4: TSplitter
             Left = 148
-            Top = 0
+            Top = 23
             Height = 440
             Align = alRight
             ExplicitLeft = 216
             ExplicitTop = 112
             ExplicitHeight = 100
           end
-          object ListView5: TListView
-            Left = 0
-            Top = 0
-            Width = 148
-            Height = 440
-            Align = alClient
-            Columns = <
-              item
-                AutoSize = True
-                Caption = 'Name'
-              end
-              item
-                Caption = 'N'
-                Width = 45
-              end
-              item
-                Caption = 'Id'
-                Width = 45
-              end>
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            FullDrag = True
-            GridLines = True
-            HideSelection = False
-            MultiSelect = True
-            ReadOnly = True
-            RowSelect = True
-            ParentFont = False
-            SmallImages = ImageList2
-            TabOrder = 0
-            ViewStyle = vsReport
-            OnClick = ListView5Click
-            OnKeyUp = ListView5KeyUp
-          end
           object Panel1: TPanel
             Left = 151
-            Top = 0
+            Top = 23
             Width = 365
             Height = 440
             Align = alRight
             BevelOuter = bvNone
-            TabOrder = 1
+            TabOrder = 0
             object GroupBox6: TGroupBox
               Left = 0
               Top = 0
               Width = 365
               Height = 440
               Align = alClient
-              Caption = #1042#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1087#1072#1082#1077#1090':'
+              Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072' '#1087#1072#1082#1077#1090#1072
               TabOrder = 0
               object Splitter1: TSplitter
                 Left = 2
@@ -976,216 +939,261 @@ object L2PacketHackMain: TL2PacketHackMain
               end
             end
           end
-        end
-        object ToolBar1: TToolBar
-          Left = 0
-          Top = 446
-          Width = 522
-          Height = 23
-          Align = alBottom
-          Caption = 'tbPanel'
-          Images = imgBT
-          TabOrder = 1
-          object tbtnSave: TToolButton
+          object ToolBar1: TToolBar
             Left = 0
             Top = 0
-            Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1083#1086#1075
-            Caption = 'tbtnSave'
-            ImageIndex = 0
-            OnClick = BtnSaveLogClick
+            Width = 516
+            Height = 23
+            Caption = 'tbPanel'
+            Images = imgBT
+            TabOrder = 1
+            object tbtnSave: TToolButton
+              Left = 0
+              Top = 0
+              Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1083#1086#1075
+              Caption = 'tbtnSave'
+              ImageIndex = 0
+              OnClick = BtnSaveLogClick
+            end
+            object tbtnLoad: TToolButton
+              Left = 23
+              Top = 0
+              Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1083#1086#1075
+              Caption = 'tbtnLoad'
+              ImageIndex = 1
+              OnClick = Button23Click
+            end
+            object tbtnClear: TToolButton
+              Left = 46
+              Top = 0
+              Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1083#1086#1075
+              Caption = 'tbtnClear'
+              ImageIndex = 2
+              OnClick = BtnClearLogClick
+            end
+            object ToolButton1: TToolButton
+              Left = 69
+              Top = 0
+              Width = 8
+              Caption = 'ToolButton1'
+              ImageIndex = 5
+              Style = tbsSeparator
+            end
+            object tbtnFilterDel: TToolButton
+              Left = 77
+              Top = 0
+              Hint = #1059#1073#1080#1088#1072#1077#1090' '#1074#1089#1077' '#1087#1072#1082#1077#1090#1099' '#1090#1077#1082#1091#1097#1077#1075#1086' '#1090#1080#1087#1072' '#1080#1079' '#1089#1087#1080#1089#1082#1072' '#1087#1072#1082#1077#1090#1086#1074
+              Caption = 'tbtnFilterDel'
+              ImageIndex = 4
+              OnClick = Button14Click
+            end
+            object tbtnDelete: TToolButton
+              Left = 100
+              Top = 0
+              Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1083#1086#1075#1072
+              Caption = 'tbtnDelete'
+              ImageIndex = 3
+              OnClick = tbtnDeleteClick
+            end
+            object ToolButton15: TToolButton
+              Left = 123
+              Top = 0
+              Width = 8
+              Caption = 'ToolButton15'
+              ImageIndex = 16
+              Style = tbsSeparator
+            end
+            object tbtnToSend: TToolButton
+              Left = 131
+              Top = 0
+              Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1082#1077#1090' '#1074' '#1055#1086#1089#1099#1083#1082#1091
+              Caption = 'tbtnToSend'
+              ImageIndex = 5
+              OnClick = BtnToSendClick
+            end
+            object ToolButton2: TToolButton
+              Left = 154
+              Top = 0
+              Width = 8
+              Caption = 'ToolButton2'
+              ImageIndex = 6
+              Style = tbsSeparator
+            end
+            object ToolButton4: TToolButton
+              Left = 162
+              Top = 0
+              Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
+              Caption = 'ToolButton4'
+              ImageIndex = 7
+              Style = tbsCheck
+              OnClick = ToolButton4Click
+            end
+            object ToolButton3: TToolButton
+              Left = 185
+              Top = 0
+              Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1082#1083#1080#1077#1085#1090#1072
+              Caption = 'ToolButton3'
+              ImageIndex = 6
+              Style = tbsCheck
+              OnClick = ToolButton3Click
+            end
+            object ToolButton5: TToolButton
+              Left = 208
+              Top = 0
+              Hint = #1055#1088#1086#1082#1088#1091#1095#1080#1074#1072#1090#1100
+              Caption = 'ToolButton5'
+              ImageIndex = 8
+              Style = tbsCheck
+              OnClick = ToolButton5Click
+            end
+            object ToolButton7: TToolButton
+              Left = 231
+              Top = 0
+              Hint = #1047#1072#1087#1086#1084#1080#1085#1072#1090#1100' '#1087#1072#1082#1077#1090#1099
+              AllowAllUp = True
+              Caption = 'ToolButton7'
+              ImageIndex = 10
+              Style = tbsCheck
+              OnClick = ToolButton7Click
+            end
+            object ToolButton9: TToolButton
+              Left = 254
+              Top = 0
+              Width = 8
+              Caption = 'ToolButton9'
+              ImageIndex = 12
+              Style = tbsSeparator
+            end
+            object ToolButton6: TToolButton
+              Left = 262
+              Top = 0
+              Hint = #1060#1080#1083#1100#1090#1088#1099
+              Caption = 'ToolButton6'
+              ImageIndex = 9
+              Style = tbsCheck
+              OnClick = ToolButton6Click
+            end
+            object ToolButton8: TToolButton
+              Left = 285
+              Top = 0
+              Hint = #1055#1077#1088#1077#1095#1080#1090#1072#1090#1100' '#1080#1085#1080#1096#1082#1080
+              Caption = 'ToolButton8'
+              ImageIndex = 11
+              OnClick = ToolButton8Click
+            end
+            object ToolButton14: TToolButton
+              Left = 308
+              Top = 0
+              Width = 8
+              Caption = 'ToolButton14'
+              ImageIndex = 16
+              Style = tbsSeparator
+            end
+            object ToolButton10: TToolButton
+              Left = 316
+              Top = 0
+              Hint = #1057'4 - ProtocolVersion<660'
+              Caption = 'ToolButton10'
+              Down = True
+              Grouped = True
+              ImageIndex = 12
+              Marked = True
+              Style = tbsCheck
+              OnClick = ToolButton10Click
+            end
+            object ToolButton11: TToolButton
+              Left = 339
+              Top = 0
+              Hint = #1057'5 - 660<ProtocolVersion<737'
+              Caption = 'ToolButton11'
+              Grouped = True
+              ImageIndex = 13
+              Style = tbsCheck
+              OnClick = ToolButton11Click
+            end
+            object ToolButton12: TToolButton
+              Left = 362
+              Top = 0
+              Hint = #1058'0 - Interlude  - 736<ProtocolVersion<827'
+              Caption = 'ToolButton12'
+              Grouped = True
+              ImageIndex = 14
+              Style = tbsCheck
+              OnClick = ToolButton12Click
+            end
+            object ToolButton13: TToolButton
+              Left = 385
+              Top = 0
+              Hint = #1058'1 - Kamael-Hellbound-Gracia - ProtocolVersion>827'
+              Caption = 'ToolButton13'
+              Grouped = True
+              ImageIndex = 15
+              Style = tbsCheck
+              OnClick = ToolButton13Click
+            end
+            object ToolButton16: TToolButton
+              Left = 408
+              Top = 0
+              Width = 8
+              Caption = 'ToolButton16'
+              ImageIndex = 16
+              Style = tbsSeparator
+            end
+            object ToolButton17: TToolButton
+              Left = 416
+              Top = 0
+              Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1089#1084#1077#1097#1077#1085#1080#1077' '#1074' Hex/Dec'
+              Caption = 'ToolButton17'
+              ImageIndex = 16
+              Style = tbsCheck
+              OnClick = ToolButton17Click
+            end
           end
-          object tbtnLoad: TToolButton
-            Left = 23
-            Top = 0
-            Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1083#1086#1075
-            Caption = 'tbtnLoad'
-            ImageIndex = 1
-            OnClick = Button23Click
-          end
-          object tbtnClear: TToolButton
-            Left = 46
-            Top = 0
-            Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1083#1086#1075
-            Caption = 'tbtnClear'
-            ImageIndex = 2
-            OnClick = BtnClearLogClick
-          end
-          object ToolButton1: TToolButton
-            Left = 69
-            Top = 0
-            Width = 8
-            Caption = 'ToolButton1'
-            ImageIndex = 5
-            Style = tbsSeparator
-          end
-          object tbtnFilterDel: TToolButton
-            Left = 77
-            Top = 0
-            Hint = #1059#1073#1080#1088#1072#1077#1090' '#1074#1089#1077' '#1087#1072#1082#1077#1090#1099' '#1090#1077#1082#1091#1097#1077#1075#1086' '#1090#1080#1087#1072' '#1080#1079' '#1089#1087#1080#1089#1082#1072' '#1087#1072#1082#1077#1090#1086#1074
-            Caption = 'tbtnFilterDel'
-            ImageIndex = 4
-            OnClick = Button14Click
-          end
-          object tbtnDelete: TToolButton
-            Left = 100
-            Top = 0
-            Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1083#1086#1075#1072
-            Caption = 'tbtnDelete'
-            ImageIndex = 3
-            OnClick = tbtnDeleteClick
-          end
-          object ToolButton15: TToolButton
-            Left = 123
-            Top = 0
-            Width = 8
-            Caption = 'ToolButton15'
-            ImageIndex = 16
-            Style = tbsSeparator
-          end
-          object tbtnToSend: TToolButton
-            Left = 131
-            Top = 0
-            Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1082#1077#1090' '#1074' '#1055#1086#1089#1099#1083#1082#1091
-            Caption = 'tbtnToSend'
-            ImageIndex = 5
-            OnClick = BtnToSendClick
-          end
-          object ToolButton2: TToolButton
-            Left = 154
-            Top = 0
-            Width = 8
-            Caption = 'ToolButton2'
-            ImageIndex = 6
-            Style = tbsSeparator
-          end
-          object ToolButton4: TToolButton
-            Left = 162
-            Top = 0
-            Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
-            Caption = 'ToolButton4'
-            ImageIndex = 7
-            Style = tbsCheck
-            OnClick = ToolButton4Click
-          end
-          object ToolButton3: TToolButton
-            Left = 185
-            Top = 0
-            Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1082#1083#1080#1077#1085#1090#1072
-            Caption = 'ToolButton3'
-            ImageIndex = 6
-            Style = tbsCheck
-            OnClick = ToolButton3Click
-          end
-          object ToolButton5: TToolButton
-            Left = 208
-            Top = 0
-            Hint = #1055#1088#1086#1082#1088#1091#1095#1080#1074#1072#1090#1100
-            Caption = 'ToolButton5'
-            ImageIndex = 8
-            Style = tbsCheck
-            OnClick = ToolButton5Click
-          end
-          object ToolButton7: TToolButton
-            Left = 231
-            Top = 0
-            Hint = #1047#1072#1087#1086#1084#1080#1085#1072#1090#1100' '#1087#1072#1082#1077#1090#1099
-            AllowAllUp = True
-            Caption = 'ToolButton7'
-            ImageIndex = 10
-            Style = tbsCheck
-            OnClick = ToolButton7Click
-          end
-          object ToolButton9: TToolButton
-            Left = 254
-            Top = 0
-            Width = 8
-            Caption = 'ToolButton9'
-            ImageIndex = 12
-            Style = tbsSeparator
-          end
-          object ToolButton6: TToolButton
-            Left = 262
-            Top = 0
-            Hint = #1060#1080#1083#1100#1090#1088#1099
-            Caption = 'ToolButton6'
-            ImageIndex = 9
-            Style = tbsCheck
-            OnClick = ToolButton6Click
-          end
-          object ToolButton8: TToolButton
-            Left = 285
-            Top = 0
-            Hint = #1055#1077#1088#1077#1095#1080#1090#1072#1090#1100' '#1080#1085#1080#1096#1082#1080
-            Caption = 'ToolButton8'
-            ImageIndex = 11
-            OnClick = ToolButton8Click
-          end
-          object ToolButton14: TToolButton
-            Left = 308
-            Top = 0
-            Width = 8
-            Caption = 'ToolButton14'
-            ImageIndex = 16
-            Style = tbsSeparator
-          end
-          object ToolButton10: TToolButton
-            Left = 316
-            Top = 0
-            Hint = #1057'4 - ProtocolVersion<660'
-            Caption = 'ToolButton10'
-            Down = True
-            Grouped = True
-            ImageIndex = 12
-            Marked = True
-            Style = tbsCheck
-            OnClick = ToolButton10Click
-          end
-          object ToolButton11: TToolButton
-            Left = 339
-            Top = 0
-            Hint = #1057'5 - 660<ProtocolVersion<737'
-            Caption = 'ToolButton11'
-            Grouped = True
-            ImageIndex = 13
-            Style = tbsCheck
-            OnClick = ToolButton11Click
-          end
-          object ToolButton12: TToolButton
-            Left = 362
-            Top = 0
-            Hint = #1058'0 - Interlude  - 736<ProtocolVersion<827'
-            Caption = 'ToolButton12'
-            Grouped = True
-            ImageIndex = 14
-            Style = tbsCheck
-            OnClick = ToolButton12Click
-          end
-          object ToolButton13: TToolButton
-            Left = 385
-            Top = 0
-            Hint = #1058'1 - Kamael-Hellbound-Gracia - ProtocolVersion>827'
-            Caption = 'ToolButton13'
-            Grouped = True
-            ImageIndex = 15
-            Style = tbsCheck
-            OnClick = ToolButton13Click
-          end
-          object ToolButton16: TToolButton
-            Left = 408
-            Top = 0
-            Width = 8
-            Caption = 'ToolButton16'
-            ImageIndex = 16
-            Style = tbsSeparator
-          end
-          object ToolButton17: TToolButton
-            Left = 416
-            Top = 0
-            Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1089#1084#1077#1097#1077#1085#1080#1077' '#1074' Hex/Dec'
-            Caption = 'ToolButton17'
-            ImageIndex = 16
-            Style = tbsCheck
-            OnClick = ToolButton17Click
+          object GroupBox12: TGroupBox
+            Left = 0
+            Top = 23
+            Width = 148
+            Height = 440
+            Align = alClient
+            Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1086#1074
+            TabOrder = 2
+            object ListView5: TListView
+              Left = 2
+              Top = 15
+              Width = 144
+              Height = 423
+              Align = alClient
+              Columns = <
+                item
+                  AutoSize = True
+                  Caption = 'Name'
+                end
+                item
+                  Caption = 'N'
+                  Width = 45
+                end
+                item
+                  Caption = 'Id'
+                  Width = 45
+                end>
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'MS Sans Serif'
+              Font.Style = []
+              FullDrag = True
+              GridLines = True
+              HideSelection = False
+              MultiSelect = True
+              ReadOnly = True
+              RowSelect = True
+              ParentFont = False
+              SmallImages = ImageList2
+              TabOrder = 0
+              ViewStyle = vsReport
+              OnClick = ListView5Click
+              OnKeyUp = ListView5KeyUp
+            end
           end
         end
       end

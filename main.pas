@@ -82,7 +82,6 @@ type
     PageControl1: TPageControl;
     TabSheet5: TTabSheet;
     Panel2: TPanel;
-    Label1: TLabel;
     ListBox1: TListBox;
     Panel20: TPanel;
     GroupBox1: TGroupBox;
@@ -225,6 +224,8 @@ type
     ToolButton16: TToolButton;
     ToolButton17: TToolButton;
     chkSocks5: TCheckBox;
+    GroupBox12: TGroupBox;
+    GroupBox13: TGroupBox;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -4274,7 +4275,7 @@ begin
            then PacketProcesor(PacketB,CSockl,id,4)
            else PacketProcesor(PacketB,CSockl,id,2);
         if not GetSocketData(SSockl,Packet,2) then break;
-        sendMSG('size: '+IntToStr(Packet.Size));
+        //sendMSG('size: '+IntToStr(Packet.Size));
       until False;
     end;
     //сюда попадаем когда отвалился сервер

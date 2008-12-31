@@ -8,12 +8,19 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 73
+Author: nlobp
+Date: 03:33:00, 31 декабря 2008 г.
+Message:
+[*] Поднял иконки вверх на вкладке "Просмотр";
+[*] Добавил парочку групбоксов для однообразия;
+
 Revision: 72
 Author: nlobp
 Date: 17:50:00, 28 декабря 2008 г.
 Message:
 [+] AllowExit в Options.ini разрешает выход без запроса;
-[+] ShitConsole в Options.ini включает обход ShielConsole;
+[+] ShitConsole в Options.ini включает обход ShieldConsole;
 
 Revision: 71
 Author: nlobp
