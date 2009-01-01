@@ -69,6 +69,7 @@ procedure InitStats;
 begin
   //Запоминаем ИД
   CharObjID:=ps.ReadDEx(ppck^,19);
+  MaxHP:=ps.ReadDEx(ppck^,83);
 end;
 
 procedure StatsUpdate;
@@ -80,8 +81,8 @@ begin
    $09: CurHP:=ps.ReadDEx(ppck^,i*8+15);
    $0A: MaxHP:=ps.ReadDEx(ppck^,i*8+15);
  end;
-
- if (CurHP<=MaxHP-50) then TimerHP{.enabled}:=true else TimerHP{.enabled}:=false;
+ say('CurHP/MaxHP = '+inttostr(curhp)+'/'+inttostr(maxhp));
+ if (CurHP<=MaxHP-50) then TimerHP:=true else TimerHP:=false;
 end;
 
 procedure OnLoad; stdcall;

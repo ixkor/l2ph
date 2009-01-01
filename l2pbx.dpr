@@ -12,7 +12,7 @@ uses
   NativeAPI in 'NativeAPI.pas',
   advApiHook in 'advApiHook.pas',
   main in 'main.pas' {L2PacketHackMain},
-  Coding in 'plugins\Coding.pas',
+  Coding in 'Coding.pas',
   FindReplaceUnit in 'FindReplaceUnit.pas' {FindReplaceForm},
   phxPlugins in 'phxPlugins.pas',
   helper in 'helper.pas';
