@@ -2669,14 +2669,16 @@ begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
                 //попытка обойти защиту l2.ru
-                if ShitConsole then CheckBox3.Checked:=false;
+//                if ShitConsole then CheckBox3.Checked:=false;
+                  if isGraciaOff.Checked then CheckBox3.Checked:=false;
               end;
             end else begin
               if InjectDllEx(cc, dllScr) then begin
                 Processes.Values[tmp.Names[k]]:='ok';
                 sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
                 //попытка обойти защиту l2.ru
-                if ShitConsole then CheckBox3.Checked:=false;
+//                if ShitConsole then CheckBox3.Checked:=false;
+                  if isGraciaOff.Checked then CheckBox3.Checked:=false;
               end;
             end;
             CloseHandle(cc);

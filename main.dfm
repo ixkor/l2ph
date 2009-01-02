@@ -495,8 +495,6 @@ object L2PacketHackMain: TL2PacketHackMain
           Align = alClient
           Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080':'
           TabOrder = 0
-          ExplicitLeft = 4
-          ExplicitTop = 1
           DesignSize = (
             568
             466)
@@ -884,8 +882,6 @@ object L2PacketHackMain: TL2PacketHackMain
               Align = alClient
               Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072' '#1087#1072#1082#1077#1090#1072':'
               TabOrder = 0
-              ExplicitLeft = -3
-              ExplicitTop = 1
               object Splitter1: TSplitter
                 Left = 2
                 Top = 231

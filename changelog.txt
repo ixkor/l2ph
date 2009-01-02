@@ -8,6 +8,12 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 75
+Author: nlobp
+Date: 01:45:00, 03 января 2009 г.
+Message:
+[*] На вкладке "Основное" галочка Gracia(off server) и isGraciaOff в Options.ini включает обход ShieldConsole;
+
 Revision: 74
 Author: nlobp
 Date: 00:05:00, 02 января 2009 г.
