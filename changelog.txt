@@ -8,6 +8,12 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 78
+Author: nlobp
+Date: 01:35:00, 07 января 2009 г.
+Message:
+[!] С inj_ruoff.dll by Ratvier не нужны ухищрения при входе в игру;
+
 Revision: 76
 Author: nlobp
 Date: 01:05:00, 07 января 2009 г.

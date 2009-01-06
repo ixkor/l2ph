@@ -2747,7 +2747,7 @@ begin
               ListBox2.Items.Add(Item.Caption+' ok ('+Item.SubItems.Strings[0]+')');
               sendMsg ('Надёжно пропатчен новый клиент '+Item.Caption+'('+Item.SubItems.Strings[0]+')');
               //попытка обойти защиту l2.ru
-              if isGraciaOf then CheckBox3.Checked:=false;
+//              if isGraciaOf then CheckBox3.Checked:=false;
             end;
           end else begin
             if InjectDllEx(cc, dllScr) then begin
@@ -2755,7 +2755,7 @@ begin
               ListBox2.Items.Add(Item.Caption+' ok ('+Item.SubItems.Strings[0]+')');
               sendMsg ('Скрытно пропатчен новый клиент '+Item.Caption+'('+Item.SubItems.Strings[0]+')');
               //попытка обойти защиту l2.ru
-              if isGraciaOf then CheckBox3.Checked:=false;
+//              if isGraciaOf then CheckBox3.Checked:=false;
             end;
           end;
           CloseHandle(cc);
