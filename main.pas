@@ -23,14 +23,16 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, WinSock, ToolWin, ImgList, Menus, Coding,
-  IniFiles, advApiHook, ExtCtrls, ComCtrls, PSAPI, TlHelp32,
+  IniFiles, ExtCtrls, ComCtrls, PSAPI, TlHelp32,
   CheckLst, Buttons, fs_iclassesrtti, fs_ipascal, Variants,
   fs_iinterpreter, fs_idialogsrtti, fs_iextctrlsrtti, fs_iformsrtti,
   AppEvnts, XorCoding, XPMan, fs_igraphicsrtti, ShellAPI, OleCtrls,
   ExtDlgs, mshtml, SHDocVw, JvComponentBase, JvAppHotKey, JvCaptionButton,
   JvXPCore, JvExStdCtrls, JvRichEdit, JvExControls, JvEditorCommon, JvEditor,
   JvHLEditor, JvUrlListGrabber, JvUrlGrabbers, JvHtmlParser, Mask, JvExMask,
-  JvSpin, Wininet, JvTrayIcon, phxPlugins;
+  JvSpin, Wininet, JvTrayIcon,
+  //by Ms-Rem
+  advApiHook, phxPlugins, UList, ProcList, DrvMgr;
 
 const
   //сообщения от потоков
@@ -81,8 +83,6 @@ type
     imgBT: TImageList;
     PageControl1: TPageControl;
     TabSheet5: TTabSheet;
-    Panel2: TPanel;
-    ListBox1: TListBox;
     Panel20: TPanel;
     GroupBox1: TGroupBox;
     Label2: TLabel;
@@ -225,7 +225,11 @@ type
     ToolButton17: TToolButton;
     chkSocks5: TCheckBox;
     GroupBox12: TGroupBox;
-    GroupBox13: TGroupBox;
+    ListView3: TListView;
+    ListBox4: TListBox;
+    Timer3: TTimer;
+    TabSheet8: TTabSheet;
+    Splitter8: TSplitter;
     procedure isInjectChange(Sender: TObject);
     procedure isNewxorChange(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
@@ -341,6 +345,7 @@ type
     procedure isGraciaOffClick(Sender: TObject);
     procedure ToolButton17Click(Sender: TObject);
     procedure chkSocks5Click(Sender: TObject);
+    procedure Timer3Timer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -372,9 +377,20 @@ type
   procedure sendMSG (msg: String);
   function AddDateTime : string;
 
+const
+  //поиск скрытых процессов
+  drName = 'phunter';
+
 var
   L2PacketHackMain: TL2PacketHackMain;
   hid: Cardinal;
+
+  //поиск скрытых процессов
+  List: PListStruct;
+  Sel: integer;
+  sItem: TListItem;
+  drPath: string;
+
   //определяем потоки
   Thread: array of TThread;
 
@@ -426,9 +442,10 @@ var
   MaxLinesInLog: integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
   MaxLinesInPktLog: integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
   AllowExit,              //разрешить выход без запроса
-  ShitConsole : boolean;  //Попытка обхода shieldConsole.exe на l2.ru;
-                          //После внедрения в клиент, галочка "Перехват" сбрасывается.
-                          //Потом, перед выбором сервера, снова ставим галочку "Перехват", выждав 5 - 10 сек заходим на сервер.
+  isGraciaOf : boolean;     //дублирование чекбокса
+//  ShitConsole : boolean;  //Попытка обхода shieldConsole.exe на l2.ru;
+                            //После внедрения в клиент, галочка "Перехват" сбрасывается.
+                            //Потом, перед выбором сервера, снова ставим галочку "Перехват", выждав 5 - 10 сек заходим на сервер.
 
 implementation
 
@@ -612,7 +629,7 @@ begin
                   Move(Packet.DataB[1], WStr[1], ii);
                   EnterCriticalSection(_cs);
                   Thread[id].Name:=WideStringToString(WStr, 1251);
-                  if L2PacketHackMain.isGraciaOff.Checked then
+                  if isGraciaOf then
                     Corrector(Packet.Size,id,False,True); // инициализация корректора
                   LeaveCriticalSection(_cs);
                   sendMSG('Имя соединения:'+Thread[id].Name);
@@ -626,7 +643,7 @@ begin
                 Thread[id].isInterlude:=True;
                 Thread[id].xorC.InitKey(Packet.DataB[2], Thread[id].isInterlude);
                 Thread[id].xorS.InitKey(Packet.DataB[2], Thread[id].isInterlude);
-                if L2PacketHackMain.isGraciaOff.Checked then
+                if isGraciaOf then
                   Corrector(Packet.Size,id,False,True); // инициализация корректора
                 LeaveCriticalSection(_cs);
                 SendPacket(Packet.Size, temp, id, Boolean((from+1) mod 2));
@@ -655,7 +672,7 @@ begin
           Thread[id].xorC.DecryptGP(PacketC.DataC,Packet.Size-2);
           LeaveCriticalSection(_cs);
         end;
-        if L2PacketHackMain.isGraciaOff.Checked and (not isNoDecryptTraf)then
+        if isGraciaOf and (not isNoDecryptTraf)then
           Corrector(Packet.Size,id);
         SetLength(temp,Packet.Size-2);
         Move(PacketC.DataC,temp[1],Packet.Size-2);
@@ -798,7 +815,9 @@ begin
 end;
 
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
-var i:integer;
+var
+  i:integer;
+  Res: boolean;
 begin
   Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru Team';
   MaxLinesInLog:=1000; //Ограничение максимального количества строк в логе, после чего скидываем в файл и очищаем лог
@@ -806,6 +825,21 @@ begin
   sendMsg('Стартует L2phx '+inet_ntoa(TInAddr(version)));
   typ0:='я'; //тип переменной по молчанию
   CID:=0; //показывать в логе пакетов "нулевое соединение"
+
+  //поиск скрытых процессов
+  ListView3.DoubleBuffered := true;
+  ListView3.ControlStyle:=ListView3.ControlStyle + [csOpaque];
+  drPath := ExtractFilePath(Application.ExeName) + 'phunter.sys';
+  InstallDriver(drName, PChar(drPath));
+  LoadDriver(drName);
+  Res := OpenDriver();
+  //завершаем работу если драйвер не загружен
+  if not Res then begin
+    MessageBox(0, 'Driver phunter.sys not loaded, programm terminated', 'Error!', 0);
+    ExitProcess(0);
+  end;
+  Timer3.Enabled  := true;
+
   Processes:=TStringList.Create;
   SkillList:=TStringList.Create;
   ItemsList:=TStringList.Create;
@@ -872,7 +906,6 @@ begin
   //как показывать смещения в пакетах Hex=true Dec=false
   ToolButton17.Down:=Options.ReadBool('Snifer','HexViewOffset',False);
   HexViewOffset:=ToolButton17.Down;
-
   //панель Основное
   CheckBox2.Checked:=Options.ReadBool('General','NoLogin',True);
   isPassLogin:=CheckBox2.Checked;
@@ -882,6 +915,7 @@ begin
   isCamael:=isKamael.Checked;
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
   isGraciaOff.Checked:=Options.ReadBool('General', 'isGraciaOff', False);
+  isGraciaOf:=isGraciaOff.Checked;
   ChkXORfix.Checked:=Options.ReadBool('General','AntiXORkey',False);
   isChangeXor:=ChkXORfix.Checked;
   CheckBox4.Checked:=Options.ReadBool('General','Programs',False);
@@ -899,9 +933,10 @@ begin
   //разрешить выход без запроса?
   AllowExit:=Options.ReadBool('General','AllowExit',False);
   //попытка обхода l2.ru
-  ShitConsole:=Options.ReadBool('General','ShitConsole',False);
+//  ShitConsole:=Options.ReadBool('General','ShitConsole',False);
 
-  Panel2.Visible:=CheckBox4.Checked;
+  TabSheet8.TabVisible:=CheckBox4.Checked;
+
   LPortConst:=htons(Options.ReadInteger('General','LocalPort',$FEDC));
   LabeledEdit2.Text:=Options.ReadString('General','IgnorPorts','5001;5002;2222');
 
@@ -1004,7 +1039,7 @@ begin
   //разрешить выход без запроса?
   Options.WriteBool('General','AllowExit',AllowExit);
   //попытка обхода l2.ru
-  Options.WriteBool('General','ShitConsole',ShitConsole);
+//  Options.WriteBool('General','ShitConsole',ShitConsole);
 
   Options.UpdateFile;
   Options.Free;
@@ -1040,6 +1075,13 @@ begin
 
   UnhookCode(@ShowMessageOld); //снимаем хук и освобождаем память
 
+  UnhookAll();
+  CloseHandle(hDriver);
+  hDriver := 0;
+  ListView3.Items.Clear;
+  ListBox4.Items.Clear;
+  UnloadDriver(drName);
+  
   sendMsg('Завершил работу L2phx... ');
   //сохраняем лог сообщений
   ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+'_'+AddDateTime+'.log');
@@ -1048,6 +1090,7 @@ end;
 procedure TL2PacketHackMain.isGraciaOffClick(Sender: TObject);
 begin
   if isGraciaOff.Checked then isKamael.Checked:=True;
+  isGraciaOf:=isGraciaOff.Checked;
   Options.WriteBool('General', 'isGraciaOff', isGraciaOff.Checked);
   Options.UpdateFile;
 end;
@@ -1064,6 +1107,7 @@ begin
   if not isKamael.Checked then isGraciaOff.Checked:=False;
   Options.WriteBool('General','isKamael',isKamael.Checked);
   isCamael:=isKamael.Checked;
+  isGraciaOf:=isGraciaOff.Checked;
 end;
 
 procedure TL2PacketHackMain.isNewxorChange(Sender: TObject);
@@ -1154,7 +1198,8 @@ end;
 
 procedure TL2PacketHackMain.JvSpinEdit1Change(Sender: TObject);
 begin
-  Timer1.Interval:=Round(JvSpinEdit1.Value*1000);
+//  Timer1.Interval:=Round(JvSpinEdit1.Value*1000);
+  Timer3.Interval:=Round(JvSpinEdit1.Value*1000);
   CheckBox3.Checked:=True;
 end;
 
@@ -1169,7 +1214,7 @@ begin
   Options.UpdateFile;
   // при изменении поля очищаем список запомненых процессов
   // обнавляется список нужных процессов
-  ListBox1.Clear;
+//  ListBox1.Clear;
 end;
 
 procedure TL2PacketHackMain.LabeledEdit2Change(Sender: TObject);
@@ -1694,8 +1739,8 @@ begin
       typ:=GetTyp(Param0); //считываем тип значения
       name:=GetName(Param0); //считываем имя значения в скобках (name:func.par)
       func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-      param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-      param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
+      param1:=uppercase(GetParam(Param0)); //считываем первый параметр в скобках (name:func.1.2)
+      param2:=GetParam2(Param0); //считываем второй параметр в скобках (name:func.1.2)
       offset:=PosinPkt-11;
       value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3); //считываем значение, сдвигаем указатели в соответствии с типом значения
       if uppercase(Func)='GET' then begin
@@ -1749,8 +1794,8 @@ begin
               typ:=GetTyp(Param0); //считываем тип значения
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              //param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1)
+              param1:=uppercase(GetParam(Param0)); //считываем первый параметр в скобках (name:func.1.2)
+              //param2:=GetParam2(Param0); //считываем второй параметр в скобках (name:func.1.2)
               offset:=PosinPkt-11;
               value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
               if uppercase(Func)='GET' then begin
@@ -1778,7 +1823,10 @@ begin
           end;
         end;
       end else
-      //для Т1-Камаель
+      //для Т1 - Камаель-Хелбаунд-Грация
+      {в функции LOOP первый параметр может быть больше 1,
+       значит его просто выводим, а остальное
+       в цикле до параметр 2}
       if uppercase(Func)='LOOP' then begin
         //распечатываем
         if HexViewOffset
@@ -1789,70 +1837,81 @@ begin
         Memo2.SelLength:=1;
         Memo2.SelAttributes.BackColor:=SelAttributes;
         d:=Memo2.GetTextLen-Memo2.Lines.Count;
-        //проверку что param1=1?
         tmp_param:=param2;
         tmp_value:=value;
         if value='range error' then exit;
-        if strtoint(param1)>1 then begin
-          //распечатываем значения
-          for jj:=1 to StrToInt(param1)-1 do begin
+        if StrToInt(value)=0 then begin
+
+          //сделать проверку на то, что первый параметр может быть больше 1
+
+          //пропускаем пустые значения
+          for jj:=1 to StrToInt(param1) do begin
             Param0:=GetType(StrIni,PosInIni);
             inc(PosInIni);
-            typ:=GetTyp(Param0); //считываем тип значения
-            name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-            func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-            param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-            param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-            offset:=PosinPkt-11;
-            value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
-            //распечатываем
-            if HexViewOffset
-              then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-              else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-            //Memo2.SelStart:=d+length(inttostr(offset))+1;
-            Memo2.SelStart:=d+5;
-            Memo2.SelLength:=1;
-            Memo2.SelAttributes.BackColor:=SelAttributes;
-            d:=Memo2.GetTextLen-Memo2.Lines.Count;
           end;
-        end;
-        ii:=PosInIni;
-        for j:=1 to StrToInt(tmp_value) do begin
-          Memo2.Lines.Add('[Начало повторяющегося блока '+inttostr(j)+'/'+tmp_value+']');
-          d:=Memo2.GetTextLen-Memo2.Lines.Count;
-          PosInIni:=ii;
-          for jj:=1 to StrToInt(tmp_param) do begin
-            Param0:=GetType(StrIni,PosInIni);
-            inc(PosInIni);
-            typ:=GetTyp(Param0); //считываем тип значения
-            name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-            func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-            param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-            param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-            offset:=PosinPkt-11;
-            value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
-            if uppercase(Func)='GET' then begin
-              if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-              if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-              if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-              if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-              if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-              if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-              if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-              if param1='SKILL' then    value:=GetSkill(strtoint(value));
+        end else begin
+          //проверка, что param1 > 1
+          if strtoint(param1)>1 then begin
+            //распечатываем значения
+            for jj:=1 to StrToInt(param1)-1 do begin
+              Param0:=GetType(StrIni,PosInIni);
+              inc(PosInIni);
+              typ:=GetTyp(Param0); //считываем тип значения
+              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
+              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
+              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
+              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
+              offset:=PosinPkt-11;
+              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
+              //распечатываем
+              if HexViewOffset
+                then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
+                else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
+              //Memo2.SelStart:=d+length(inttostr(offset))+1;
+              Memo2.SelStart:=d+5;
+              Memo2.SelLength:=1;
+              Memo2.SelAttributes.BackColor:=SelAttributes;
+              d:=Memo2.GetTextLen-Memo2.Lines.Count;
             end;
-            //распечатываем
-            if HexViewOffset
-              then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-              else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-            //Memo2.SelStart:=d+length(inttostr(offset))+1;
-            Memo2.SelStart:=d+5;
-            Memo2.SelLength:=1;
-            Memo2.SelAttributes.BackColor:=SelAttributes;
+          end;
+          ii:=PosInIni;
+          for j:=1 to StrToInt(tmp_value) do begin
+            Memo2.Lines.Add('[Начало повторяющегося блока '+inttostr(j)+'/'+tmp_value+']');
+            d:=Memo2.GetTextLen-Memo2.Lines.Count;
+            PosInIni:=ii;
+            for jj:=1 to StrToInt(tmp_param) do begin
+              Param0:=GetType(StrIni,PosInIni);
+              inc(PosInIni);
+              typ:=GetTyp(Param0); //считываем тип значения
+              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
+              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
+              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
+              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
+              offset:=PosinPkt-11;
+              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
+              if uppercase(Func)='GET' then begin
+                if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
+                if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
+                if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
+                if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
+                if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
+                if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
+                if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
+                if param1='SKILL' then    value:=GetSkill(strtoint(value));
+              end;
+              //распечатываем
+              if HexViewOffset
+                then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
+                else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
+              //Memo2.SelStart:=d+length(inttostr(offset))+1;
+              Memo2.SelStart:=d+5;
+              Memo2.SelLength:=1;
+              Memo2.SelAttributes.BackColor:=SelAttributes;
+              d:=Memo2.GetTextLen-Memo2.Lines.Count;
+            end;
+            Memo2.Lines.Add('[Конец повторяющегося блока  '+inttostr(j)+'/'+tmp_value+']');
             d:=Memo2.GetTextLen-Memo2.Lines.Count;
           end;
-          Memo2.Lines.Add('[Конец повторяющегося блока  '+inttostr(j)+'/'+tmp_value+']');
-          d:=Memo2.GetTextLen-Memo2.Lines.Count;
         end;
       end else begin
         //распечатываем
@@ -2633,10 +2692,14 @@ begin
   tbtnDelete.Enabled:=false;
 end;
 
-procedure TL2PacketHackMain.Timer1Timer(Sender: TObject);
+//by Ms-Rem
+procedure TL2PacketHackMain.Timer3Timer(Sender: TObject);
 var
-  tmp: TStrings;
-  i,k: Integer;
+  Process: PProcessRecord;
+  Item: TListItem;
+  State, DrvText: string;
+  r: integer;
+  Data: PListStruct;
   cc: Cardinal;
   ListSearch: string; // список процессов которые будем искать
 begin
@@ -2647,48 +2710,134 @@ begin
   // и добавляем в конец строки ;  в поиске он нам не помешает а вот если его нет,
   // то процесс не найдется
   ListSearch := StringReplace (ListSearch, ',', ';', [rfReplaceAll])+';';
-  tmp:=TStringList.Create;
-  GetProcessList(tmp);
-  for i:=0 to tmp.Count-1 do begin
-    // ненадо проверять по количеству процессов (tmp.Count <> ListBox1.Items.Count)
-    // наслучай если поле было отредактировано
-    if (ListBox1.Items.IndexOf(tmp.ValueFromIndex[i]+' ('+tmp.Names[i]+')')=-1) then begin
-      ListBox1.Items.Clear;
-      ListBox2.Items.Clear;
-      for k := 0 to tmp.Count - 1 do begin
-        // добавляем в лист запущеных процессов
-        ListBox1.Items.Add(tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+')');
-        //сравниваем найденные программы со списком необходимых программ
-        if AnsiPos(';'+tmp.ValueFromIndex[k]+';', ListSearch) > 0  then
-        begin
-          if isIntercept and (Processes.Values[tmp.Names[k]]='') then begin
-            Processes.Values[tmp.Names[k]]:='error';
-            cc:=OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(tmp.Names[k]));
-            if RadioGroup1.ItemIndex=0 then begin
-              if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+'inject.dll')) then begin
-                Processes.Values[tmp.Names[k]]:='ok';
-                sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
-                //попытка обойти защиту l2.ru
-//                if ShitConsole then CheckBox3.Checked:=false;
-                  if isGraciaOff.Checked then CheckBox3.Checked:=false;
-              end;
-            end else begin
-              if InjectDllEx(cc, dllScr) then begin
-                Processes.Values[tmp.Names[k]]:='ok';
-                sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
-                //попытка обойти защиту l2.ru
-//                if ShitConsole then CheckBox3.Checked:=false;
-                  if isGraciaOff.Checked then CheckBox3.Checked:=false;
-              end;
-            end;
-            CloseHandle(cc);
-          end;
-          ListBox2.Items.Add(tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') '+Processes.Values[tmp.Names[k]]);
-        end;
+  //ищем все запущенные процессы
+  FreeListWidthData(List);
+  List := nil;
+  GetFullProcessesInfo(List);
+  Data := List;
+
+  //чистим список найденных клиентов/ботов
+  ListBox2.Items.Clear;
+
+  for r := 0 to ListView3.Items.Count - 1 do begin
+    if Data <> nil then begin
+      Item := ListView3.Items.Item[r];
+      Process := Data^.pData;
+      State := GetState(Process);
+      if (lstrcmp(PChar(Item.Caption), Process^.ProcessName) <> 0) or
+         (Item.SubItems.Strings[0] <> IntToStr(Process^.ProcessId)) or
+         (Item.SubItems.Strings[1] <> IntToStr(Process^.ParrentPID)) or
+         (Item.SubItems.Strings[2] <> IntToHex(Process^.pEPROCESS, 8)) or
+         (Item.SubItems.Strings[3] <> State) then
+      begin
+          Item.Caption := Process^.ProcessName;
+          Item.SubItems.Strings[0] := IntToStr(Process^.ProcessId);
+          Item.SubItems.Strings[1] := IntToStr(Process^.ParrentPID);
+          Item.SubItems.Strings[2] := IntToHex(Process^.pEPROCESS, 8);
+          Item.SubItems.Strings[3] := State;
       end;
-    end;
+      //сравниваем найденные программы со списком необходимых программ
+      if AnsiPos(LowerCase(';'+Item.Caption+';'), ListSearch) > 0  then begin
+        if isIntercept and (Processes.Values[Item.SubItems.Strings[0]]='') then begin
+          Processes.Values[Item.SubItems.Strings[0]]:='error';
+          cc:=OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(Item.SubItems.Strings[0]));
+          if RadioGroup1.ItemIndex=0 then begin
+            if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+isInject.Text)) then begin
+              Processes.Values[Item.SubItems.Strings[0]]:='ok';
+              ListBox2.Items.Add(Item.Caption+' ok ('+Item.SubItems.Strings[0]+')');
+              sendMsg ('Надёжно пропатчен новый клиент '+Item.Caption+'('+Item.SubItems.Strings[0]+')');
+              //попытка обойти защиту l2.ru
+              if isGraciaOf then CheckBox3.Checked:=false;
+            end;
+          end else begin
+            if InjectDllEx(cc, dllScr) then begin
+              Processes.Values[Item.SubItems.Strings[0]]:='ok';
+              ListBox2.Items.Add(Item.Caption+' ok ('+Item.SubItems.Strings[0]+')');
+              sendMsg ('Скрытно пропатчен новый клиент '+Item.Caption+'('+Item.SubItems.Strings[0]+')');
+              //попытка обойти защиту l2.ru
+              if isGraciaOf then CheckBox3.Checked:=false;
+            end;
+          end;
+          CloseHandle(cc);
+        end; // else ListBox2.Items.Add(Item.Caption+'('+Item.SubItems.Strings[0]+')');
+        if Processes.Values[Item.SubItems.Strings[0]]='ok' then ListBox2.Items.Add(Item.Caption+' ok ('+Item.SubItems.Strings[0]+')');
+        if Processes.Values[Item.SubItems.Strings[0]]='error' then ListBox2.Items.Add(Item.Caption+' error ('+Item.SubItems.Strings[0]+')');
+        if Processes.Values[Item.SubItems.Strings[0]]='' then ListBox2.Items.Add(Item.Caption+' ('+Item.SubItems.Strings[0]+')');
+      end;
+      Data := Data^.pNext;
+    end else ListView3.Items.Delete(ListView3.Items.Count - 1);
   end;
-  tmp.Free;
+
+  while (Data <> nil) do begin
+    Item := ListView3.Items.Add;
+    Process := Data^.pData;
+    Item.Caption := Process^.ProcessName;
+    Item.SubItems.Append(IntToStr(Process^.ProcessId));
+    Item.SubItems.Append(IntToStr(Process^.ParrentPID));
+    Item.SubItems.Append(IntToHex(Process^.pEPROCESS, 8));
+    State := GetState(Process);
+    Item.SubItems.Append(State);
+    Data := Data^.pNext;
+  end;
+  FreeListWidthData(List);
+  DrvText := DrvGetLogString();
+  if DrvText <> '' then ListBox4.Items.Text := ListBox4.Items.Text + DrvText;
+end;
+
+procedure TL2PacketHackMain.Timer1Timer(Sender: TObject);
+var
+  tmp: TStrings;
+  i,k: Integer;
+  cc: Cardinal;
+  ListSearch: string; // список процессов которые будем искать
+begin
+//  ListSearch := ';'+LowerCase(LabeledEdit1.Text); // в нижний регистр
+//  // убираем все пробелы
+//  ListSearch := StringReplace (ListSearch, ' ', '', [rfReplaceAll]);
+//  // наслучай если пользователь использует ,  меняем ее на ;
+//  // и добавляем в конец строки ;  в поиске он нам не помешает а вот если его нет,
+//  // то процесс не найдется
+//  ListSearch := StringReplace (ListSearch, ',', ';', [rfReplaceAll])+';';
+//  tmp:=TStringList.Create;
+//  GetProcessList(tmp);
+//  for i:=0 to tmp.Count-1 do begin
+//    // ненадо проверять по количеству процессов (tmp.Count <> ListBox1.Items.Count)
+//    // наслучай если поле было отредактировано
+//    if (ListBox1.Items.IndexOf(tmp.ValueFromIndex[i]+' ('+tmp.Names[i]+')')=-1) then begin
+//      ListBox1.Items.Clear;
+//      ListBox2.Items.Clear;
+//      for k := 0 to tmp.Count - 1 do begin
+//        // добавляем в лист запущеных процессов
+//        ListBox1.Items.Add(tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+')');
+//        //сравниваем найденные программы со списком необходимых программ
+//        if AnsiPos(';'+tmp.ValueFromIndex[k]+';', ListSearch) > 0  then
+//        begin
+//          if isIntercept and (Processes.Values[tmp.Names[k]]='') then begin
+//            Processes.Values[tmp.Names[k]]:='error';
+//            cc:=OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(tmp.Names[k]));
+//            if RadioGroup1.ItemIndex=0 then begin
+//              if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+'inject.dll')) then begin
+//                Processes.Values[tmp.Names[k]]:='ok';
+//                sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
+//                //попытка обойти защиту l2.ru
+//                if ShitConsole and isGraciaOf then CheckBox3.Checked:=false;
+//              end;
+//            end else begin
+//              if InjectDllEx(cc, dllScr) then begin
+//                Processes.Values[tmp.Names[k]]:='ok';
+//                sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
+//                //попытка обойти защиту l2.ru
+//                if ShitConsole and isGraciaOf then CheckBox3.Checked:=false;
+//              end;
+//            end;
+//            CloseHandle(cc);
+//          end;
+//          ListBox2.Items.Add(tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') '+Processes.Values[tmp.Names[k]]);
+//        end;
+//      end;
+//    end;
+//  end;
+//  tmp.Free;
 end;
 
 procedure TL2PacketHackMain.Timer2Timer(Sender: TObject);
@@ -3304,13 +3453,14 @@ begin
           PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
         end else begin
           //сохраняем и очищаем лог пакетов
+          sendMSG('Сохраняем лог пакетов...');
           Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+'_'+AddDateTime+'.txt');
           Thread[tid].Dump.Clear;
           PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
         end;
       end;
       if (not isNoDecryptTraf) and Thread[tid].InitXOR then begin
-        if L2PacketHackMain.isGraciaOff.Checked then
+        if isGraciaOf then
           Corrector(Packet.Size,tid,True);
         Thread[tid].xorC.EncryptGP(Packet.PackType,Size);
       end;
@@ -3323,6 +3473,7 @@ begin
           PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF),Thread[tid].Dump.Count-1);
         end else begin
           //сохраняем и очищаем лог пакетов
+          sendMSG('Сохраняем лог пакетов...');
           Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+'_'+AddDateTime+'.txt');
           Thread[tid].Dump.Clear;
           PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
@@ -3677,8 +3828,8 @@ begin
     chkSocks5.Checked:=not CheckBox3.Checked;
   Options.WriteBool('General','Enable',CheckBox3.Checked);
   Options.UpdateFile;
-  ListBox1.Items.Add('');
-  Timer1Timer(Sender);
+//  ListBox1.Items.Add('');
+  Timer3Timer(Sender);
   isIntercept:=CheckBox3.Checked;
 end;
 
@@ -3686,7 +3837,7 @@ procedure TL2PacketHackMain.CheckBox4Click(Sender: TObject);
 begin
   Options.WriteBool('General','Programs',CheckBox4.Checked);
   Options.UpdateFile;
-  Panel2.Visible:=CheckBox4.Checked;
+  TabSheet8.TabVisible:=CheckBox4.Checked;
 end;
 
 {
@@ -4034,6 +4185,7 @@ begin
     if ListBox3.Lines.Count>MaxLinesInLog then begin
       ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+'_'+AddDateTime+'.log');
       ListBox3.Lines.Clear;
+      sendMSG('Сохраняем лог...');
     end;
   except
   //ничего не делаем
@@ -4293,6 +4445,7 @@ begin
     try
       //сохраняем лог, если выбрано "запоминать пакеты"
       if isSaveLog and (Thread[ID].Name<>'') then begin
+        sendMSG('Сохраняем лог пакетов...');
         Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+'_'+AddDateTime+'.txt');
       end;
     except
