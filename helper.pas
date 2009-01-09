@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, advApiHook, PSAPI, TlHelp32,
-  fs_iinterpreter, WinSock, UList, ProcList, DrvMgr;
+  fs_iinterpreter, WinSock;
 
   // функции преобразования
   function DataPckToStrPck(var pck): string; stdcall;
@@ -27,7 +27,7 @@ uses
   //инициализируем сокет
   function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
 
-
+  
   function GetNamePacket(s:string):string; // вырезаем название пакета из строки
   procedure GetProcessList(var sl: TStrings); // получаем список процессов
   procedure ShowMessageNew(const Msg: string); // скрывает сообщение FastScript
@@ -43,9 +43,6 @@ uses
 
   function AuthSocks5(var sock: Integer; var srvIP: Integer;
                       var srvPort: Word): Boolean;
-
-  //поиск скрытых процессов
-  function GetState(Process: PProcessRecord): string;
 
 type
   //скрипт
@@ -589,14 +586,5 @@ begin
     Result:=True;
   end else ShowMessageOld('fail '+IntToStr(Byte(buf[4])));
 end;
-
-//нахождение скрытых процессов
-function GetState(Process: PProcessRecord): string;
-begin
- if Process^.Visible then Result := 'Visible' else
-   if Process^.SignalState = 1 then Result := 'Deleted' else Result := 'Hidden';
-end;
-
-
 
 end.

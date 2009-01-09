@@ -1,6 +1,7 @@
 {
-  Описание функций и структур Native API для Delphi by Ms-Rem.
-  Last update: 19.04.2005
+  Описание функций и структур Native API для Delphi by Ms-Rem and Jonny210.
+  Только 100% проверенные функции.
+  Last update: 19.04.2005 
 }
 
 unit NativeAPI;
@@ -38,15 +39,6 @@ CONST  //Статус константы
   STATUS_ACCESS_DENIED        = NTStatus($C0000022);
   STATUS_INFO_LENGTH_MISMATCH = NTStatus($C0000004);
   SEVERITY_ERROR              = NTStatus($C0000000);
-
-const
- FILE_DEVICE_UNKNOWN          = $00000022;
-
-const
- METHOD_BUFFERED              = 0;
- METHOD_IN_DIRECT             = 1;
- METHOD_OUT_DIRECT            = 2;
- METHOD_NEITHER               = 3;
 
 const// SYSTEM_INFORMATION_CLASS 
   SystemBasicInformation	              =	0;
@@ -105,33 +97,6 @@ const// SYSTEM_INFORMATION_CLASS
   SystemSessionProcessesInformation   	=	53;
 
 
-const {ObjectTypeNumber const}
-  OB_TYPE_UNKNOWN        = 00;
-	OB_TYPE_TYPE           = 01;
-  OB_TYPE_DIRECTORY      = 02;
-  OB_TYPE_SYMBOLIC_LINK  = 03;
-	OB_TYPE_TOKEN          = 04;
-  OB_TYPE_PROCESS        = 05;
-	OB_TYPE_THREAD         = 06;
-  OB_TYPE_JOB            = 07;
-	OB_TYPE_EVENT          = 08;
-	OB_TYPE_EVENT_PAIR     = 09;
-	OB_TYPE_MUTANT         = 10;
-	OB_TYPE_SEMAPHORE      = 12;
-	OB_TYPE_TIMER          = 13;
-	OB_TYPE_PROFILE        = 14;
-	OB_TYPE_WINDOW_STATION = 15;
-	OB_TYPE_DESKTOP        = 16;
-	OB_TYPE_SECTION        = 17;
-	OB_TYPE_KEY            = 18;
-	OB_TYPE_PORT           = 19;
-	OB_TYPE_WAITABLE_PORT  = 20;
-	OB_TYPE_IO_COMPLETION  = 25;
-	OB_TYPE_FILE           = 28;
-
- 
-
-
 type
 PClientID = ^TClientID;
 TClientID = packed record
@@ -145,12 +110,6 @@ PUnicodeString = ^TUnicodeString;
     MaximumLength: Word;
     Buffer: PWideChar;
 end;
-
- PFILE_NAME_INFORMATION = ^FILE_NAME_INFORMATION;
- FILE_NAME_INFORMATION  = packed record
-   FileNameLength: dword;
-   FileName: array [0..0] of WideChar;
- end;
 
 PAnsiString = ^TAnsiString;
 TAnsiString = packed record
@@ -351,15 +310,15 @@ end;
 
 
 
-PPROCESS_BASIC_INFORMATION = ^PROCESS_BASIC_INFORMATION;
-PROCESS_BASIC_INFORMATION = packed record
+PPROCESS_BASIC_INFORMATION = ^_PROCESS_BASIC_INFORMATION;
+_PROCESS_BASIC_INFORMATION = packed record
    ExitStatus: BOOL;
    PebBaseAddress: pointer;
    AffinityMask: PULONG;
    BasePriority: dword;
    UniqueProcessId: ULONG;
    InheritedFromUniqueProcessId: ULONG;
-  end;
+   end;
 
 //LPC structures
 
@@ -421,47 +380,6 @@ const
  LOCK_VM_IN_RAM = $02;
 
 
-type
- FILE_INFORMATION_CLASS =
- (
-   FileDirectoryInformation = 1,
-   FileFullDirectoryInformation,
-   FileBothDirectoryInformation,
-   FileBasicInformation,
-   FileStandardInformation,
-   FileInternalInformation,
-   FileEaInformation,
-   FileAccessInformation,
-   FileNameInformation,
-   FileRenameInformation,
-   FileLinkInformation,
-   FileNamesInformation,
-   FileDispositionInformation,
-   FilePositionInformation,
-   FileModeInformation = 16,
-   FileAlignmentInformation,
-   FileAllInformation,
-   FileAllocationInformation,
-   FileEndOfFileInformation,
-   FileAlternateNameInformation,
-   FileStreamInformation,
-   FilePipeInformation,
-   FilePipeLocalInformation,
-   FilePipeRemoteInformation,
-   FileMailslotQueryInformation,
-   FileMailslotSetInformation,
-   FileCompressionInformation,
-   FileObjectIdInformation,
-   FileCompletionInformation,
-   FileMoveClusterInformation,
-   FileQuotaInformation,
-   FileReparsePointInformation,
-   FileNetworkOpenInformation,
-   FileAttributeTagInformation,
-   FileTrackingInformation
-  );
-
-
 ////////////////////////// Ntdll.dll Functions ///////////////////////
 
 Function ZwCreateThread(ThreadHandle: pdword;
@@ -474,11 +392,6 @@ Function ZwCreateThread(ThreadHandle: pdword;
                         CreateSuspended: boolean):NTStatus;
                         stdcall;external 'ntdll.dll';
 
-function ZwQueryInformationFile(FileHandle: dword; IoStatusBlock: PIO_STATUS_BLOCK;
-                                FileInformation: pointer; FileInformationLength: dword;
-                                FileInformationClass: FILE_INFORMATION_CLASS): NTStatus;
-                                stdcall; external 'ntdll.dll';
-
 Function ZwResumeThread(ThreadHandle: dword;
                         PreviousSuspendCount: pdword): NTStatus;
                         stdcall; external 'ntdll.dll';
@@ -487,12 +400,15 @@ Function ZwQueryInformationThread(ThreadHandle: dword;
                                   ThreadInformationClass: dword;
                                   ThreadInformation: pointer;
                                   ThreadInformationLength: dword;
-                                  ReturnLength: pdword): NTStatus;
-                                  stdcall; external 'ntdll.dll';
+                                  ReturnLength: pdword):NTStatus;
+                                  stdcall;external 'ntdll.dll';
 
-Function ZwOpenProcess(phProcess: PDWORD; AccessMask:DWORD;
-                       ObjectAttributes: PObjectAttributes;
-                       ClientID: PClientID): NTStatus; stdcall; external 'ntdll.dll';
+Function ZwOpenProcess(
+                     phProcess:PDWORD;
+                     AccessMask:DWORD;
+                     ObjectAttributes:PObjectAttributes;
+                     ClientID:PClientID):NTStatus;
+                     stdcall;external 'ntdll.dll';
 
 function ZwOpenThread(
 ThreadHandle:PHANDLE;
@@ -500,21 +416,27 @@ DesiredAccess:ACCESS_MASK;
 ObjectAttributes:PObjectAttributes;
 ClientId:PClientID):NTStatus;stdcall;external 'ntdll.dll';
 
-function ZwReadVirtualMemory(ProcessHandle: dword; BaseAddress: pointer;
-                             Buffer: pointer; BufferLength: dword;
-                             ReturnLength: pdword): NTStatus; stdcall; external 'ntdll.dll';
+Procedure ZwReadVirtualMemory(
+ProcessHandle:THANDLE;
+BaseAddress:POINTER;
+var Buffer:pointer;
+BufferLength:ULONG;
+var ReturnLength:PULONG);stdcall;external 'ntdll.dll';
 
 Function ZwQueryInformationProcess(
                                 ProcessHandle:THANDLE;
                                 ProcessInformationClass:DWORD;
                                 ProcessInformation:pointer;
                                 ProcessInformationLength:ULONG;
-                                ReturnLength: PULONG):NTStatus;stdcall;
+                                ReturnLength:PULONG):NTStatus;stdcall;
                                 external 'ntdll.dll';
 
-Function ZwWriteVirtualMemory(ProcessHandle: dword; BaseAddress: pointer;
-                              Buffer: pointer; BufferLength: dword;
-                              ReturnLength: pdword): NTStatus; stdcall; external 'ntdll.dll';
+Function ZwWriteVirtualMemory(
+ProcessHandle:THANDLE;
+BaseAddress:pointer;
+Buffer:pointer;
+BufferLength:dword;
+ReturnLength:PULONG):NTStatus;stdcall;external 'ntdll.dll';
 
 Function ZwProtectVirtualMemory(
 ProcessHandle:THANDLE;
@@ -768,20 +690,20 @@ type
     LoadCount: USHORT;
     ModuleNameOffset: USHORT;
     ImageName: array [0..255] of Char;
- end;
+    end;
 
  PSYSTEM_MODULE_INFORMATION_EX = ^SYSTEM_MODULE_INFORMATION_EX;
  SYSTEM_MODULE_INFORMATION_EX = packed record
     ModulesCount: dword;
     Modules: array[0..0] of SYSTEM_MODULE_INFORMATION;
- end;
+    end;
 
 const
- THREAD_BASIC_INFO      = $0;
- THREAD_QUERY_INFORMATION = $40;
- ProcessBasicInformation = 0;
- OBJ_CASE_INSENSITIVE = $00000040;
- OBJ_KERNEL_HANDLE = $00000200;
+THREAD_BASIC_INFO      = $0;
+THREAD_QUERY_INFORMATION = $40;
+ProcessBasicInformation = 0;
+OBJ_CASE_INSENSITIVE = $00000040;
+OBJ_KERNEL_HANDLE = $00000200;
 
 //LPC constants
 LPC_NEW_MESSAGE = 1;
