@@ -4,6 +4,7 @@ program l2pbx;
 
 uses
   FastMM4,
+  Windows,
   Forms,
   Classes,
   ExcepDialog in 'ExcepDialog.pas' {ExceptionDialog},
@@ -18,8 +19,21 @@ uses
   helper in 'helper.pas';
 
 {$R *.res}
+
+var
+ hWindow: dword;
+
 begin
+// запрещаем загружать два раза программу
+ hWindow := FindWindow('TL2PacketHackMain', nil);
+ if hWindow > 0 then
+  begin
+    SetForegroundWindow(hWindow);
+    ExitProcess(0);
+  end;
   Application.Initialize;
+  //название в панели задач
+  Application.Title := 'L2PacketHack';
   Application.CreateForm(TL2PacketHackMain, L2PacketHackMain);
   Application.CreateForm(TFindReplaceForm, FindReplaceForm);
   Application.Run;
