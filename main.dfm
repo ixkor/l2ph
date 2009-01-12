@@ -518,7 +518,7 @@ object L2PacketHackMain: TL2PacketHackMain
             Text = 'l2.exe;l2walker.exe;l2helper.exe;'
             OnChange = LabeledEdit1Change
           end
-          object CheckBox2: TCheckBox
+          object ChkPassLogin: TCheckBox
             Left = 154
             Top = 131
             Width = 116
@@ -527,9 +527,9 @@ object L2PacketHackMain: TL2PacketHackMain
             Checked = True
             State = cbChecked
             TabOrder = 1
-            OnClick = CheckBox2Click
+            OnClick = ChkPassLoginClick
           end
-          object CheckBox3: TCheckBox
+          object ChkIntercept: TCheckBox
             Left = 154
             Top = 99
             Width = 231
@@ -539,9 +539,9 @@ object L2PacketHackMain: TL2PacketHackMain
             Checked = True
             State = cbChecked
             TabOrder = 2
-            OnClick = CheckBox3Click
+            OnClick = ChkInterceptClick
           end
-          object CheckBox4: TCheckBox
+          object ChkRunProcess: TCheckBox
             Left = 154
             Top = 180
             Width = 183
@@ -551,7 +551,7 @@ object L2PacketHackMain: TL2PacketHackMain
               #1074#1072#1095#1077#1085
             Caption = #1057#1087#1080#1089#1086#1082' '#1088#1072#1073#1086#1090#1072#1102#1097#1080#1093' '#1087#1088#1086#1075#1088#1072#1084#1084
             TabOrder = 3
-            OnClick = CheckBox4Click
+            OnClick = ChkRunProcessClick
           end
           object ListBox2: TListBox
             Left = 6
@@ -582,7 +582,7 @@ object L2PacketHackMain: TL2PacketHackMain
           object RadioGroup1: TRadioGroup
             Left = 154
             Top = 234
-            Width = 322
+            Width = 343
             Height = 34
             Caption = #1057#1087#1086#1089#1086#1073' '#1074#1085#1077#1076#1088#1077#1085#1080#1103' '#1074' '#1082#1083#1080#1077#1085#1090'/'#1073#1086#1090':'
             Columns = 3
@@ -619,17 +619,17 @@ object L2PacketHackMain: TL2PacketHackMain
             BevelInner = bvNone
             BevelOuter = bvNone
           end
-          object isKamael: TCheckBox
+          object ChkKamael: TCheckBox
             Left = 154
             Top = 196
-            Width = 63
+            Width = 167
             Height = 17
             Hint = #1044#1083#1103' '#1089#1077#1088#1074#1077#1088#1086#1074' '#1090#1080#1087#1072' Kamael - Hellbound - Gracia'
-            Caption = 'Kamael'
+            Caption = 'Kamael-Hellbound-Gracia'
             Checked = True
             State = cbChecked
             TabOrder = 9
-            OnClick = isKamaelClick
+            OnClick = ChkKamaelClick
           end
           object GroupBox2: TGroupBox
             Left = 154
@@ -679,7 +679,7 @@ object L2PacketHackMain: TL2PacketHackMain
               OnClick = iInjectClick
             end
           end
-          object ChkXORfix: TCheckBox
+          object ChkChangeXor: TCheckBox
             Left = 154
             Top = 163
             Width = 183
@@ -687,9 +687,9 @@ object L2PacketHackMain: TL2PacketHackMain
             Hint = #1054#1073#1093#1086#1076' '#1079#1072#1097#1080#1090' '#1084#1077#1085#1103#1102#1097#1080#1093' '#1085#1072#1095#1072#1083#1100#1085#1099#1081' '#1082#1083#1102#1095' '#1096#1080#1092#1088#1072#1094#1080#1080' XOR'
             Caption = #1054#1073#1093#1086#1076' '#1089#1084#1077#1085#1099' XOR '#1082#1083#1102#1095#1072
             TabOrder = 11
-            OnClick = ChkXORfixClick
+            OnClick = ChkChangeXorClick
           end
-          object isGraciaOff: TCheckBox
+          object ChkGraciaOff: TCheckBox
             Left = 154
             Top = 212
             Width = 116
@@ -705,9 +705,9 @@ object L2PacketHackMain: TL2PacketHackMain
             ShowHint = True
             State = cbChecked
             TabOrder = 12
-            OnClick = isGraciaOffClick
+            OnClick = ChkGraciaOffClick
           end
-          object chkSocks5: TCheckBox
+          object ChkSocks5: TCheckBox
             Left = 154
             Top = 115
             Width = 116
@@ -717,7 +717,7 @@ object L2PacketHackMain: TL2PacketHackMain
             ParentShowHint = False
             ShowHint = True
             TabOrder = 13
-            OnClick = chkSocks5Click
+            OnClick = ChkSocks5Click
           end
         end
       end

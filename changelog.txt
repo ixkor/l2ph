@@ -8,6 +8,15 @@
 [-] Исправлена ошибка
 [*] Изменения
 
+Revision: 81
+Author: nlobp
+Date: 02:15:00, 13 января 2009 г.
+Message:
+[+] Сохраняем время "Искать клиент" в options.ini;
+[+] Расшифровка пакета s30=SummonSay в PacketsT1.ini, спс Xelat;
+[+] Расшифровка пакета s54=MagicSkillLaunched в PacketsT1.ini, спс Xelat;
+[*] Внес немного изменений в имена переменных, спс Ratvier;
+
 Revision: 80
 Author: nlobp
 Date: 04:15:00, 09 января 2009 г.

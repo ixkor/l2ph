@@ -87,15 +87,15 @@ type
     GroupBox1: TGroupBox;
     Label2: TLabel;
     LabeledEdit1: TLabeledEdit;
-    CheckBox2: TCheckBox;
-    CheckBox3: TCheckBox;
-    CheckBox4: TCheckBox;
+    ChkPassLogin: TCheckBox;
+    ChkIntercept: TCheckBox;
+    ChkRunProcess: TCheckBox;
     ListBox2: TListBox;
     LabeledEdit2: TLabeledEdit;
     RadioGroup1: TRadioGroup;
     ChkNoDecrypt: TCheckBox;
     JvSpinEdit1: TJvSpinEdit;
-    isKamael: TCheckBox;
+    ChkKamael: TCheckBox;
     TabSheet4: TTabSheet;
     Panel15: TPanel;
     PageControl2: TPageControl;
@@ -201,7 +201,7 @@ type
     JvTrayIcon1: TJvTrayIcon;
     Splitter6: TSplitter;
     GroupBox2: TGroupBox;
-    ChkXORfix: TCheckBox;
+    ChkChangeXor: TCheckBox;
     isNewxor: TLabeledEdit;
     isInject: TLabeledEdit;
     iNewxor: TCheckBox;
@@ -220,10 +220,10 @@ type
     N6: TMenuItem;
     N7: TMenuItem;
     Splitter7: TSplitter;
-    isGraciaOff: TCheckBox;
+    ChkGraciaOff: TCheckBox;
     ToolButton16: TToolButton;
     ToolButton17: TToolButton;
-    chkSocks5: TCheckBox;
+    ChkSocks5: TCheckBox;
     GroupBox12: TGroupBox;
     GroupBox13: TGroupBox;
     procedure isInjectChange(Sender: TObject);
@@ -232,10 +232,10 @@ type
     procedure iNewxorClick(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure LabeledEdit2Change(Sender: TObject);
-    procedure CheckBox4Click(Sender: TObject);
+    procedure ChkRunProcessClick(Sender: TObject);
     procedure LabeledEdit1Change(Sender: TObject);
-    procedure CheckBox2Click(Sender: TObject);
-    procedure CheckBox3Click(Sender: TObject);
+    procedure ChkPassLoginClick(Sender: TObject);
+    procedure ChkInterceptClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ApplicationEvents1Activate(Sender: TObject);
     procedure TrayIcon1Click(Sender: TObject);
@@ -306,8 +306,8 @@ type
     procedure Memo4MouseEnter(Sender: TObject);
     procedure Memo4MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure JvSpinEdit1Change(Sender: TObject);
-    procedure ChkXORfixClick(Sender: TObject);
-    procedure isKamaelClick(Sender: TObject);
+    procedure ChkChangeXorClick(Sender: TObject);
+    procedure ChkKamaelClick(Sender: TObject);
     procedure tbtnDeleteClick(Sender: TObject);
     procedure ToolButton10Click(Sender: TObject);
     procedure ToolButton11Click(Sender: TObject);
@@ -338,9 +338,9 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure Memo2MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure isGraciaOffClick(Sender: TObject);
+    procedure ChkGraciaOffClick(Sender: TObject);
     procedure ToolButton17Click(Sender: TObject);
-    procedure chkSocks5Click(Sender: TObject);
+    procedure ChkSocks5Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -404,8 +404,8 @@ var
   //дублирование чекбоксов и прочие настройки
   //ОСНОВНОЕ
   //перехват,  пропуск.логин, не дешифр.траф.,обход см.ключа,список прог.,Камаель
-  isIntercept, isPassLogin,   isNoDecryptTraf, isChangeXor,   isListProg,  isCamael: boolean;
-  isHookMethod: integer;
+  isIntercept, isPassLogin,   isNoDecrypt, isChangeXor,   isListProg,  isKamael: boolean;
+  HookMethod: integer;
   //способ внедрения(true-надежный/false-скрытый)
   isInjectMetod : boolean;
   //ПРОСМОТР
@@ -426,7 +426,7 @@ var
   MaxLinesInLog: integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
   MaxLinesInPktLog: integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
   AllowExit,              //разрешить выход без запроса
-  isGraciaOf : boolean;     //дублирование чекбокса
+  isGraciaOff : boolean;     //дублирование чекбокса
 //  ShitConsole : boolean;  //Попытка обхода shieldConsole.exe на l2.ru;
                             //После внедрения в клиент, галочка "Перехват" сбрасывается.
                             //Потом, перед выбором сервера, снова ставим галочку "Перехват", выждав 5 - 10 сек заходим на сервер.
@@ -528,13 +528,13 @@ begin
           PInteger(@PacketB[$02])^:=PInteger(@PacketB[$02])^ xor ii xor PInteger(@(Thread[id].xorS.GKeyS[0]))^;
           Thread[id].xorS.InitKey(PacketB[$02],Thread[id].isInterlude);
           Thread[id].xorC.InitKey(PacketB[$02],Thread[id].isInterlude);
-          if (not isNoDecryptTraf) then Thread[id].xorC.DecryptGP(Thread[id].temp[3], Length(Thread[id].temp)-2);
-          if (not isNoDecryptTraf) then Thread[id].xorC.EncryptGP(Thread[id].temp[3], Length(Thread[id].temp)-2);
+          if (not isNoDecrypt) then Thread[id].xorC.DecryptGP(Thread[id].temp[3], Length(Thread[id].temp)-2);
+          if (not isNoDecrypt) then Thread[id].xorC.EncryptGP(Thread[id].temp[3], Length(Thread[id].temp)-2);
           Thread[id].InitXOR:=True;
           LeaveCriticalSection(_cs);
           Move(tmp[1], PacketB[0], Packet.Size);
         end;
-        if InitX and (not isNoDecryptTraf) then begin
+        if InitX and (not isNoDecrypt) then begin
           EnterCriticalSection(_cs);
           Thread[id].xorS.DecryptGP(PacketC.DataC, Packet.Size-2);
           LeaveCriticalSection(_cs);
@@ -546,13 +546,12 @@ begin
         //sendMSG('Пришёл пакет от ГС, посылаем его скриптам на обработку...');
         a.a:=Word(true);
         a.b:=id;
-//        PostMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
         SendMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
         //>>>>>>>>!!!!!!!!!<<<<<<<<
         Packet.Size:=Length(temp)+2;
         if Packet.Size>2 then begin
           Move(temp[1], PacketC.DataC, Packet.Size-2);
-          if (not isNoDecryptTraf) then case PacketB[2] of
+          if (not isNoDecrypt) then case PacketB[2] of
             $00: begin
               if not Thread[id].InitXOR then begin
                 EnterCriticalSection(_cs);
@@ -590,7 +589,7 @@ begin
 //            end;
             //CharSelected
             $15: begin
-              if not isCamael then begin //and (Thread[id].pckCount=7)
+              if not isKamael then begin //and (Thread[id].pckCount=7)
                   sendMSG('Считываем имя соединения...');
                   ii:=1;
                   while not ((Packet.DataB[ii]=0) and (Packet.DataB[ii+1]=0)) do Inc(ii);
@@ -601,13 +600,12 @@ begin
                   sendMSG('Имя соединения:'+Thread[id].Name);
                   LeaveCriticalSection(_cs);
                   //обновляем Список соединений
-//                  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
                   SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
               end;
             end;
             //CharSelected
             $0B: begin
-              if isCamael then begin // and (Thread[id].pckCount=6)
+              if isKamael then begin // and (Thread[id].pckCount=6)
                   sendMSG('Считываем имя соединения...');
                   ii:=1;
                   while not ((Packet.DataB[ii]=0) and (Packet.DataB[ii+1]=0)) do Inc(ii);
@@ -615,22 +613,21 @@ begin
                   Move(Packet.DataB[1], WStr[1], ii);
                   EnterCriticalSection(_cs);
                   Thread[id].Name:=WideStringToString(WStr, 1251);
-                  if isGraciaOf then
+                  if isGraciaOff then
                     Corrector(Packet.Size,id,False,True); // инициализация корректора
                   sendMSG('Имя соединения:'+Thread[id].Name);
                   LeaveCriticalSection(_cs);
                   //обновляем Список соединений
-//                  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
                   SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
               end;
             end;
             $2e: begin
-              if (not Thread[id].InitXOR) and isCamael then begin
+              if (not Thread[id].InitXOR) and isKamael then begin
                 EnterCriticalSection(_cs);
                 Thread[id].isInterlude:=True;
                 Thread[id].xorC.InitKey(Packet.DataB[2], Thread[id].isInterlude);
                 Thread[id].xorS.InitKey(Packet.DataB[2], Thread[id].isInterlude);
-                if isGraciaOf then
+                if isGraciaOff then
                   Corrector(Packet.Size,id,False,True); // инициализация корректора
                 LeaveCriticalSection(_cs);
                 SendPacket(Packet.Size, temp, id, Boolean((from+1) mod 2));
@@ -654,12 +651,12 @@ begin
           SetLength(Thread[id].temp, Packet.Size);
           Move(PacketB, Thread[id].temp[1], Packet.Size);
         end;
-        if InitX and (not isNoDecryptTraf) then begin
+        if InitX and (not isNoDecrypt) then begin
           EnterCriticalSection(_cs);
           Thread[id].xorC.DecryptGP(PacketC.DataC,Packet.Size-2);
           LeaveCriticalSection(_cs);
         end;
-        if isGraciaOf and (not isNoDecryptTraf)then
+        if isGraciaOff and (not isNoDecrypt)then
           Corrector(Packet.Size,id);
         SetLength(temp,Packet.Size-2);
         Move(PacketC.DataC,temp[1],Packet.Size-2);
@@ -668,7 +665,6 @@ begin
         //sendMSG('Пришёл пакет к ГС, посылаем его скриптам на обработку...');
         a.a:=Word(false);
         a.b:=id;
-//        PostMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
         SendMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
         //>>>>>>>>!!!!!!!!!<<<<<<<<
         Packet.Size:=Length(temp)+2;
@@ -685,7 +681,6 @@ procedure GetMsgFromDLL(name       : pchar;
                         messageBuf : pointer; messageLen : dword;
                         answerBuf  : pointer; answerLen  : dword); stdcall;
 begin
-//  PostMessage(L2PacketHackMain.Handle,WM_Dll_Log,Integer(messageBuf^),Word(Pointer(Integer(messageBuf)+4)^));
   SendMessage(L2PacketHackMain.Handle,WM_Dll_Log,Integer(messageBuf^),Word(Pointer(Integer(messageBuf)+4)^));
 end;
 
@@ -879,30 +874,32 @@ begin
   HexViewOffset:=ToolButton17.Down;
 
   //панель Основное
-  CheckBox2.Checked:=Options.ReadBool('General','NoLogin',True);
-  isPassLogin:=CheckBox2.Checked;
+  ChkPassLogin.Checked:=Options.ReadBool('General','NoLogin',True);
+  isPassLogin:=ChkPassLogin.Checked;
 
-  CheckBox3.Checked:=Options.ReadBool('General','Enable',True);
-  isIntercept:=CheckBox3.Checked;
+  ChkIntercept.Checked:=Options.ReadBool('General','Enable',True);
+  isIntercept:=ChkIntercept.Checked;
+  //как часто искать клиент
+  JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
 
-  isKamael.Checked:=Options.ReadBool('General','isKamael',False);
-  isCamael:=isKamael.Checked;
+  ChkKamael.Checked:=Options.ReadBool('General','ChkKamael',False);
+  isKamael:=ChkKamael.Checked;
 
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
 
-  isGraciaOff.Checked:=Options.ReadBool('General', 'isGraciaOff', False);
-  isGraciaOf:=isGraciaOff.Checked;
+  ChkGraciaOff.Checked:=Options.ReadBool('General', 'ChkGraciaOff', False);
+  isGraciaOff:=ChkGraciaOff.Checked;
 
-  ChkXORfix.Checked:=Options.ReadBool('General','AntiXORkey',False);
-  isChangeXor:=ChkXORfix.Checked;
+  ChkChangeXor.Checked:=Options.ReadBool('General','AntiXORkey',False);
+  isChangeXor:=ChkChangeXor.Checked;
 
-  CheckBox4.Checked:=Options.ReadBool('General','Programs',False);
+  ChkRunProcess.Checked:=Options.ReadBool('General','Programs',False);
 
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
-  isNoDecryptTraf:=ChkNoDecrypt.Checked;
+  isNoDecrypt:=ChkNoDecrypt.Checked;
 
   RadioGroup1.ItemIndex:=Options.ReadInteger('General','HookMethod',1);
-  isHookMethod:=RadioGroup1.ItemIndex;
+  HookMethod:=RadioGroup1.ItemIndex;
   //размеры формы
   Top:=Options.ReadInteger('General','Top',0);
   Left:=Options.ReadInteger('General','Left',600);
@@ -913,7 +910,7 @@ begin
   //разрешить выход без запроса?
   AllowExit:=Options.ReadBool('General','AllowExit',False);
 
-  Panel2.Visible:=CheckBox4.Checked;
+  Panel2.Visible:=ChkRunProcess.Checked;
   LPortConst:=htons(Options.ReadInteger('General','LocalPort',$FEDC));
   LabeledEdit2.Text:=Options.ReadString('General','IgnorPorts','5001;5002;2222');
 
@@ -922,7 +919,7 @@ begin
     ToolButton6.Down := true;
     panel15.Visible := ToolButton6.Down;
   end;
-     
+
     //грузим packets.ini
   ProtocolVersion := strtoint(Options.ReadString('Snifer','ProtocolVersion','560'));
   ToolButton8Click(Sender);
@@ -1011,13 +1008,15 @@ begin
   Options.WriteInteger('General','Left',Left);
   Options.WriteInteger('General','Widht',Width);
   Options.WriteInteger('General','Heigth',Height);
-  Options.WriteInteger('General','HookMethod',isHookMethod);
+  Options.WriteInteger('General','HookMethod',HookMethod);
+  //как часто искать клиент
+  Options.WriteFloat('General','Timer',JvSpinEdit1.Value);
 
   //разрешить выход без запроса?
   Options.WriteBool('General','AllowExit',AllowExit);
 
-  Options.WriteBool('General','isGraciaOff',isGraciaOf);
-  Options.WriteBool('General','isKamael',isCamael);
+  Options.WriteBool('General','ChkGraciaOff',isGraciaOff);
+  Options.WriteBool('General','ChkKamael',isKamael);
 
   Options.UpdateFile;
   Options.Free;
@@ -1058,12 +1057,12 @@ begin
   ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+' '+AddDateTime+'.log');
 end;
 
-procedure TL2PacketHackMain.isGraciaOffClick(Sender: TObject);
+procedure TL2PacketHackMain.ChkGraciaOffClick(Sender: TObject);
 begin
-  if isGraciaOff.Checked then isKamael.Checked:=True;
-  Options.WriteBool('General', 'isGraciaOff', isGraciaOff.Checked);
-  isGraciaOf:=isGraciaOff.Checked;
-  isCamael:=isKamael.Checked;
+  if ChkGraciaOff.Checked then ChkKamael.Checked:=True;
+  Options.WriteBool('General', 'ChkGraciaOff', ChkGraciaOff.Checked);
+  isGraciaOff:=ChkGraciaOff.Checked;
+  isKamael:=ChkKamael.Checked;
   Options.UpdateFile;
 end;
 
@@ -1073,13 +1072,13 @@ begin
   Options.UpdateFile;
 end;
 
-procedure TL2PacketHackMain.isKamaelClick(Sender: TObject);
-{если нажали галочку isKamael}
+procedure TL2PacketHackMain.ChkKamaelClick(Sender: TObject);
+{если нажали галочку ChkKamael}
 begin
-  if not isKamael.Checked then isGraciaOff.Checked:=False;
-  Options.WriteBool('General','isKamael',isKamael.Checked);
-  isCamael:=isKamael.Checked;
-  isGraciaOf:=isGraciaOff.Checked;
+  if not ChkKamael.Checked then ChkGraciaOff.Checked:=False;
+  Options.WriteBool('General','ChkKamael',ChkKamael.Checked);
+  isKamael:=ChkKamael.Checked;
+  isGraciaOff:=ChkGraciaOff.Checked;
 end;
 
 procedure TL2PacketHackMain.isNewxorChange(Sender: TObject);
@@ -1171,7 +1170,7 @@ end;
 procedure TL2PacketHackMain.JvSpinEdit1Change(Sender: TObject);
 begin
   Timer1.Interval:=Round(JvSpinEdit1.Value*1000);
-  CheckBox3.Checked:=True;
+  ChkIntercept.Checked:=True;
 end;
 
 procedure TL2PacketHackMain.Label12Click(Sender: TObject);
@@ -2694,7 +2693,7 @@ begin
           if isIntercept and (Processes.Values[tmp.Names[k]]='') then begin
             Processes.Values[tmp.Names[k]]:='error';
             cc:=OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(tmp.Names[k]));
-            case isHookMethod of
+            case HookMethod of
               0: begin
                 if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+isInject.Text)) then begin
                   Processes.Values[tmp.Names[k]]:='ok';
@@ -2719,14 +2718,14 @@ begin
 //                Processes.Values[tmp.Names[k]]:='ok';
 //                sendMsg ('Надёжно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
 //                //попытка обойти защиту l2.ru
-////                  if isGraciaOf then CheckBox3.Checked:=false;
+////                  if isGraciaOff then ChkIntercept.Checked:=false;
 //              end;
 //            end else begin
 //              if InjectDllEx(cc, dllScr) then begin
 //                Processes.Values[tmp.Names[k]]:='ok';
 //                sendMsg ('Скрытно пропатчен новый клиент '+tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+') ');
 //                //попытка обойти защиту l2.ru
-////                  if isGraciaOf then CheckBox3.Checked:=false;
+////                  if isGraciaOff then ChkIntercept.Checked:=false;
 //              end;
 //            end;
             CloseHandle(cc);
@@ -3349,18 +3348,17 @@ begin
         //проверка на длину лога пакетов
         if Thread[tid].Dump.Count<MaxLinesInPktLog then begin
           Thread[tid].Dump.Add('04'+ByteArrayToHex(TimeStepB,8)+ByteArrayToHex(Packet.PacketB,Packet.Size));
-          SendMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
-//          PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
+          PostMessage(L2PacketHackMain.Handle,WM_PrnPacket_Log,Integer(tid and $FF)+ $100,Thread[tid].Dump.Count-1);
         end else begin
           //сохраняем и очищаем лог пакетов
           sendMSG('Сохраняем лог пакетов...');
           Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+' '+AddDateTime+'.txt');
           Thread[tid].Dump.Clear;
-          PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+          SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
         end;
       end;
-      if (not isNoDecryptTraf) and Thread[tid].InitXOR then begin
-        if isGraciaOf then
+      if (not isNoDecrypt) and Thread[tid].InitXOR then begin
+        if isGraciaOff then
           Corrector(Packet.Size,tid,True);
         Thread[tid].xorC.EncryptGP(Packet.PackType,Size);
       end;
@@ -3376,10 +3374,10 @@ begin
           sendMSG('Сохраняем лог пакетов...');
           Thread[tid].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[tid].Name+' '+AddDateTime+'.txt');
           Thread[tid].Dump.Clear;
-          PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+          SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
         end;
       end;
-      if (not isNoDecryptTraf) and Thread[tid].InitXOR then Thread[tid].xorS.EncryptGP(Packet.PackType,Size);
+      if (not isNoDecrypt) and Thread[tid].InitXOR then Thread[tid].xorS.EncryptGP(Packet.PackType,Size);
       if send(Thread[tid].SSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].SSock);
     end;
   end;
@@ -3715,29 +3713,29 @@ begin
     else Timer2.Interval:=0;
 end;
 
-procedure TL2PacketHackMain.CheckBox2Click(Sender: TObject);
+procedure TL2PacketHackMain.ChkPassLoginClick(Sender: TObject);
 begin
-  Options.WriteBool('General','NoLogin',CheckBox2.Checked);
+  Options.WriteBool('General','NoLogin',ChkPassLogin.Checked);
   Options.UpdateFile;
-  isPassLogin:=CheckBox2.Checked;
+  isPassLogin:=ChkPassLogin.Checked;
 end;
 
-procedure TL2PacketHackMain.CheckBox3Click(Sender: TObject);
+procedure TL2PacketHackMain.ChkInterceptClick(Sender: TObject);
 begin
-  if CheckBox3.Checked then
-    chkSocks5.Checked:=not CheckBox3.Checked;
-  Options.WriteBool('General','Enable',CheckBox3.Checked);
+  if ChkIntercept.Checked then
+    chkSocks5.Checked:=not ChkIntercept.Checked;
+  Options.WriteBool('General','Enable',ChkIntercept.Checked);
   Options.UpdateFile;
   ListBox1.Items.Add('');
   Timer1Timer(Sender);
-  isIntercept:=CheckBox3.Checked;
+  isIntercept:=ChkIntercept.Checked;
 end;
 
-procedure TL2PacketHackMain.CheckBox4Click(Sender: TObject);
+procedure TL2PacketHackMain.ChkRunProcessClick(Sender: TObject);
 begin
-  Options.WriteBool('General','Programs',CheckBox4.Checked);
+  Options.WriteBool('General','Programs',ChkRunProcess.Checked);
   Options.UpdateFile;
-  Panel2.Visible:=CheckBox4.Checked;
+  Panel2.Visible:=ChkRunProcess.Checked;
 end;
 
 {
@@ -3813,22 +3811,22 @@ procedure TL2PacketHackMain.ChkNoDecryptClick(Sender: TObject);
 begin
   Options.WriteBool('General','NoDecrypt',ChkNoDecrypt.Checked);
   Options.UpdateFile;
-  isNoDecryptTraf:=ChkNoDecrypt.Checked;
+  isNoDecrypt:=ChkNoDecrypt.Checked;
 end;
 
-procedure TL2PacketHackMain.chkSocks5Click(Sender: TObject);
+procedure TL2PacketHackMain.ChkSocks5Click(Sender: TObject);
 begin
   if chkSocks5.Checked then
-    CheckBox3.Checked:=not chkSocks5.Checked;
+    ChkIntercept.Checked:=not chkSocks5.Checked;
   Options.WriteBool('General','Socks5',chkSocks5.Checked);
   Options.UpdateFile;
 end;
 
-procedure TL2PacketHackMain.ChkXORfixClick(Sender: TObject);
+procedure TL2PacketHackMain.ChkChangeXorClick(Sender: TObject);
 begin
-  Options.WriteBool('General','AntiXORkey',ChkXORfix.Checked);
+  Options.WriteBool('General','AntiXORkey',ChkChangeXor.Checked);
   Options.UpdateFile;
-  isChangeXor:=ChkXORfix.Checked;
+  isChangeXor:=ChkChangeXor.Checked;
 end;
 
 procedure TL2PacketHackMain.clbPluginsListClick(Sender: TObject);
@@ -3893,7 +3891,7 @@ end;
 
 procedure TL2PacketHackMain.RadioGroup1Click(Sender: TObject);
 begin
-  isHookMethod:=RadioGroup1.ItemIndex;
+  HookMethod:=RadioGroup1.ItemIndex;
 end;
 
 procedure TL2PacketHackMain.ReadMsg(var msg: TMessage);
@@ -3904,7 +3902,7 @@ begin
   CurentIP:=msg.WParam;
   CurentPort:=msg.LParamLo;
   if Pos(';'+IntToStr(ntohs(msg.LParamLo))+';',';'+LabeledEdit2.Text+';')=0 then begin
-    if CheckBox3.Checked then begin
+    if ChkIntercept.Checked then begin
       msg.ResultLo:=1;
       sendMsg ('Перехвачен коннект на '+IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3])+':'+IntToStr(ntohs(CurentPort)));
     end else begin
@@ -4090,7 +4088,7 @@ begin
     if ListBox3.Lines.Count>MaxLinesInLog then begin
       ListBox3.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2phx'+' '+AddDateTime+'.log');
       ListBox3.Lines.Clear;
-      sendMSG('Сохраняем лог...');
+      ListBox3.Lines.Add(AddDateTime2+'Сохраняем лог...');
     end;
   except
   //ничего не делаем
@@ -4364,10 +4362,10 @@ begin
     Thread[ID].Dump.Clear;
     Thread[id].NoUsed:=True;
 //    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
-    PostMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+    SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
     //sendMSG(format(ConnectBreak,[id]));
     //обновляем Список соединений
-    PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+    SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
     sendMSG('Thread Exit: поток сервера Thread['+inttostr(id)+'].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' SSock='+inttostr(Thread[id].SSock));
     CloseHandle(Thread[id].SH);
     LeaveCriticalSection(_cs);
