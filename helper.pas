@@ -68,7 +68,7 @@ const
   LoadDllUnSuccessful = 'Библиотека %s отсутствует или заблокирована другим приложением';
   LoadDllSuccessfully = 'Успешно загрузили %s';
   StartLocalServer = 'На %d зарегистрирован локальный сервер';
-  FailedLocalServer = 'Неудалось зарегистрировать локальный сервер на порте %d'+ #13#10+ 'Возможно этот порт занят другим приложением';
+  FailedLocalServer = 'Не удалось зарегистрировать локальный сервер на порте %d'+ #13#10+ 'Возможно этот порт занят другим приложением';
   CreateNewConnect = 'Создано новое соединение - %d';
   ConnectBreak = 'Соединение %d разорвано';
   WSA_VER=$202;
@@ -405,10 +405,9 @@ begin
   data[2]:=$07;
 end;
 
-// модификация скрипта от ShadeOfNothing:
-// corrector-3.fsc CT2.2 version 
-// скрипт для дополнительного [де]кодирования  ID исходящих пакетов геймсервера 
-// в настоящее время, по видимому, нужен только для офа.
+//Модификация скрипта от ShadeOfNothing: corrector-3.fsc CT2.2 version
+//скрипт для дополнительного [де] кодирования  ID исходящих пакетов гейм-сервера
+//в настоящее время, по-видимому, нужен только для L2.RU
 procedure Corrector(var data; const tid: Integer; const enc: Boolean = False;
   const FromServer: Boolean = False);
 var
