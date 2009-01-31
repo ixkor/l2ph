@@ -9,13 +9,7 @@ L2PacketHack 3.4.1 by CODERX.RU TEAM
   Wanick;
   QaK.
 }
-{ TODO 1 -cThreads -oNLObP : разобраться с правильностью создания/освобождения потоков }
-{ DONE 1 -cThreads -oNLObP : надо найти, что-то два раза освобождается, после работы с клиентами, когда выходим из программы падает с ошибкой }
-{ DONE 5 -cInterface -owanick : проверить правильность логики вкл/выкл кнопок на вкладке "скрипты" }
-{ TODO 5 -cEditor -oNLObP : исправить find/replace - заменяет не текущее вхождение, а следующее }
-{ TODO 5 -cEditor -owanick : есть TfsSyntaxMemo почему его не юзаем для скриптов? }
-{ TODO 5 -owanick -cScripts :  Вынести все вспомогательные методы и функции в отдельную Dll если такое получится}
-{ DONE 5 -oNLObP -cGeneral : возможность произвольных имен файлов для newxor и inject, значения берем из options.ini }
+
 unit main;
 
 interface
@@ -36,8 +30,8 @@ const
   //сообщения от потоков
   WM_Dll_Log = $04F0;               //получаем сообщение из inject.dll
   WM_ListBox3_Log = WM_APP+101;     //пишем в LisBox3
-  WM_PrnPacket_Log = WM_APP+102;    //пишем в ListView5 +77
-  WM_ExecuteScripts = WM_APP+103;   //выполняем скрипт  +45
+  WM_PrnPacket_Log = WM_APP+102;    //пишем в ListView5
+  WM_ExecuteScripts = WM_APP+103;   //выполняем скрипт
   WM_SetConnect = WM_APP+104;       //
   WM_SetDisconnect = WM_APP+105;    //
   WM_UpdateComboBox1 = WM_APP+106;  //
@@ -689,12 +683,12 @@ procedure TL2PacketHackMain.LoadLibraryXor (const name: string);
 begin
   Lib:=LoadLibrary(PChar(ExtractFilePath(Application.ExeName)+name));
   if Lib > 0 then begin
-    sendMSG(format(LoadDllSuccessfully,[name]));
+    sendMSG(format(rsLoadDllSuccessfully,[name]));
     @CreateXorIn:=GetProcAddress(Lib,'CreateCoding');
     @CreateXorOut:=GetProcAddress(Lib,'CreateCodingOut');
     if @CreateXorOut=nil then CreateXorOut:=CreateXorIn;
   end else begin
-    sendMSG(format(LoadDllUnSuccessful,[name]));
+    sendMSG(format(rsLoadDllUnSuccessful,[name]));
     isNewxor.Enabled := true;
     iNewxor.Checked := false;
   end;
@@ -708,7 +702,7 @@ begin
     end else begin
       if not isNewxor.Enabled then begin
         FreeLibrary(Lib);
-        sendMSG(format(UnLoadDllSuccessfully,[isNewxor.Text]));
+        sendMSG(format(rsUnLoadDllSuccessfully,[isNewxor.Text]));
         isNewxor.Enabled := true;
       end;
     end;
@@ -722,13 +716,13 @@ begin
   tmp:=PChar(ExtractFilePath(Application.ExeName)+name);
   if fileExists (tmp) then begin
     sFile := OpenFile(tmp,ee,OF_READ);
-    sendMSG(format(LoadDllSuccessfully,[name]));
+    sendMSG(format(rsLoadDllSuccessfully,[name]));
     Size := GetFileSize(sFile, nil);
     GetMem(dllScr, Size);
     ReadFile(sFile, dllScr^, Size, Size, nil);
     CloseHandle(sFile);
   end else begin
-     sendMSG(format(LoadDllUnSuccessful,[name]));
+     sendMSG(format(rsLoadDllUnSuccessful,[name]));
      isInject.Enabled := true;
      iInject.Checked := false;
   end;
@@ -742,7 +736,7 @@ begin
     end else begin
       if not isInject.Enabled then begin
         FreeMem(dllScr);
-        sendMSG(format(UnLoadDllSuccessfully,[isInject.Text]));
+        sendMSG(format(rsUnLoadDllSuccessfully,[isInject.Text]));
         isInject.Enabled := true;
       end;
     end;
@@ -798,7 +792,9 @@ begin
 end;
 
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
-var i:integer;
+var
+  i: integer;
+  Rslt: boolean;
 begin
   Caption:='Модификация L2PacketHack '+inet_ntoa(TInAddr(version))+' by CoderX.ru Team';
   MaxLinesInLog:=1000; //Ограничение максимального количества строк в логе, после чего скидываем в файл и очищаем лог
@@ -927,7 +923,15 @@ begin
   //скрипты
   for i:=0 to 63 do Scripts[i].fsScript:=TfsScript.Create(Self);
 
-  WSAStartup(WSA_VER, WSA);  //стартуем сокеты
+//  WSAStartup(WSA_VER, WSA);  //стартуем сокеты
+  // инициализируем WinSock
+  Rslt:=WSAStartup(WSA_VER, WSA)=NOERROR;
+  if not Rslt then
+  begin
+    sendMSG('Ошибка: ' + SysErrorMessage(WSAGetLastError));
+    Exit;
+  end;
+
   NoServer:=True;
   RefreshScripts;
   JvHLEditor1.CurrentLineHighlight:=$e6fffa;
@@ -969,6 +973,8 @@ begin
     end;
     if SLThreadStarted then TerminateThread(SLh, 0) else CloseHandle(SLh);
   end;
+
+  // Деинициализируем WinSock
   WSACleanup;
 
   //сохраняем фильтр в файл
@@ -3404,7 +3410,7 @@ begin
           Corrector(Packet.Size,tid,True);
         Thread[tid].xorC.EncryptGP(Packet.PackType,Size);
       end;
-      if send(Thread[tid].CSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].CSock);
+      if send(Thread[tid].CSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].CSock,WSAGetLastError);
     end else begin
       if isSaveLog then begin
         //проверка на длину лога пакетов
@@ -3420,7 +3426,7 @@ begin
         end;
       end;
       if (not isNoDecrypt) and Thread[tid].InitXOR then Thread[tid].xorS.EncryptGP(Packet.PackType,Size);
-      if send(Thread[tid].SSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].SSock);
+      if send(Thread[tid].SSock,Packet,Size+2,0)<0 then DeInitSocket(Thread[tid].SSock,WSAGetLastError);
     end;
   end;
   LeaveCriticalSection(cs_send);
@@ -3728,12 +3734,12 @@ begin
   if MethodName = 'DISCONNECTCLIENT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     b:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
-    DeInitSocket(Thread[b].CSock);
+    DeInitSocket(Thread[b].CSock,WSAGetLastError);
   end else
   if MethodName = 'DISCONNECTSERVER' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     b:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
-    DeInitSocket(Thread[b].SSock);
+    DeInitSocket(Thread[b].SSock,WSAGetLastError);
   end else
   if MethodName = 'DELAY' then Sleep(Params[0]) else
   if MethodName = 'SHOWTAB' then TabSheet10.TabVisible:=True else
@@ -4168,11 +4174,11 @@ A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить и
     //локальный сервер создан? TRUE при запуске программы
     while NoServer do Sleep(1);  //пока true ждем
     if not InitSocket(SLSock,ntohs(LPortConst),'0.0.0.0') then begin
-      sendMSG(format(FailedLocalServer,[ntohs(LPortConst)]));
+      sendMSG(format(rsFailedLocalServer,[ntohs(LPortConst)]));
       exit;
     end;
     //создаем локальный сервер
-    sendMSG(format(StartLocalServer,[ntohs(LPortConst)]));
+    sendMSG(format(rsStartLocalServer,[ntohs(LPortConst)]));
     //ждём соединения с клиентом
     while WaitClient(SLSock, NewSocket) do begin
       //ищем свободный поток
@@ -4195,7 +4201,7 @@ A: На этом порту пакетхак принимает соединения от клиента, чтобы перенаправить и
           LeaveCriticalSection(_cs);
           Thread[id].SH:=BeginThread(nil, 0, @Server, Pointer(id), 0, Thread[id].STH);
           //sendMSG(format(CreateNewConnect,[id]));
-          sendMSG('Thread Start: поток сервера Thread['+inttostr(id)+'].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' SSock='+inttostr(Thread[id].SSock));
+//          sendMSG('Thread Start: поток сервера Thread['+inttostr(id)+'].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' SSock='+inttostr(Thread[id].SSock));
           break; //прерываем цикл, как только находим свободный поток
         end;
       end;
@@ -4328,18 +4334,19 @@ begin
     Thread[id].AutoPing:=False;
     Thread[id].NoUsed:=False;
     Thread[id].cd._id_mix:=False;
+    sendMSG('Thread Start: поток сервера Thread['+inttostr(id)+'].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' SSock='+inttostr(Thread[id].SSock));
     LeaveCriticalSection(_cs);
 
     // <-- socks5
     if L2PacketHackMain.chkSocks5.Checked then with Thread[id] do
-      if not AuthSocks5(SSockl,IP,Port) then Exit;
+      if not AuthSocks5(SSockl, IP, Port) then Exit;
     // socks5 -->
 
     Thread[id].ConnectEvent:=CreateEvent(nil, true,false,PChar('phx_srv_'+
                                                       IntToStr(Thread[id].SH)));
     //запускаем поток к клиенту
     Thread[id].CH:=BeginThread(nil, 0, @Client, Param, 0, Thread[id].CTH);
-    sendMSG('Thread Start: поток клиента Thread['+inttostr(id)+'].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' CSock='+inttostr(Thread[id].CSock));
+//    sendMSG('Thread Start: поток клиента Thread['+inttostr(id)+'].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' CSock='+inttostr(Thread[id].CSock));
     //инициируем переменные ConnectID и OnConnect в скрипте
     SendMessage(L2PacketHackMain.Handle, WM_SetConnect, 1, id);
 
@@ -4365,16 +4372,16 @@ begin
     //если (пропускать логин и мы не в игре)
     if isPassLogin and (not IsGamel) then begin
       //отсылаем данные, сначала длину, а потом сам пакет
-      send(CSockl,PacketB,2,0);
-      repeat until send(CSockl,PacketB,recv(SSockl,PacketB,$FFFF,0),0)<=0;
+      send(CSockl,PacketB, 2, 0);
+      repeat until send(CSockl, PacketB, recv(SSockl, PacketB, $FFFF, 0), 0)<=0;
     end else begin//иначе (пропускать логин и мы в игре)
       //прием пакетов
       repeat
-        if not GetSocketData(SSockl,Packet.DataB,Packet.Size-2) then break;
+        if not GetSocketData(SSockl, Packet.DataB, Packet.Size-2) then break;
         if IsGamel
-           then PacketProcesor(PacketB,CSockl,id,4)
-           else PacketProcesor(PacketB,CSockl,id,2);
-        if not GetSocketData(SSockl,Packet,2) then break;
+           then PacketProcesor(PacketB, CSockl, id, 4)
+           else PacketProcesor(PacketB, CSockl, id, 2);
+        if not GetSocketData(SSockl, Packet, 2) then break;
         //sendMSG('size: '+IntToStr(Packet.Size));
       until False;
     end;
@@ -4387,27 +4394,30 @@ begin
     while Thread[id].noFreeOnServerDisconnect do Sleep(1);
 
     EnterCriticalSection(_cs);
-    //сохраняем лог пакетов в файл
-    try
-      //сохраняем лог, если выбрано "запоминать пакеты"
-      if isSaveLog and (Thread[ID].Name<>'') then begin
-        sendMSG('Сохраняем лог пакетов...');
-        Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+' '+AddDateTime+'.txt');
+    if  not Thread[id].NoUsed then begin
+      //сохраняем лог пакетов в файл
+      try
+        //сохраняем лог, если выбрано "запоминать пакеты"
+        if isSaveLog and (Thread[ID].Name<>'') then begin
+          sendMSG('Сохраняем лог пакетов...');
+          Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+' '+AddDateTime+'.txt');
+        end;
+      except
+        //пропускаем ошибки при записи
       end;
-    except
-      //пропускаем ошибки при записи
+      //закрываем сокеты
+      DeinitSocket(SSockl,WSAGetLastError);
+      DeinitSocket(CSockl,WSAGetLastError);
+      //чистим лог пакетов
+      Thread[ID].Dump.Clear;
+      Thread[id].NoUsed:=True;
+    //    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
+      SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+      //sendMSG(format(ConnectBreak,[id]));
+      //обновляем Список соединений
+      SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+
     end;
-    //закрываем сокеты
-    DeinitSocket(SSockl);
-    DeinitSocket(CSockl);
-    //чистим лог пакетов
-    Thread[ID].Dump.Clear;
-    Thread[id].NoUsed:=True;
-//    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
-    SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
-    //sendMSG(format(ConnectBreak,[id]));
-    //обновляем Список соединений
-    SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
     sendMSG('Thread Exit: поток сервера Thread['+inttostr(id)+'].SH '+inttostr(Thread[id].SH)+'/'+inttostr(Thread[id].STH)+' SSock='+inttostr(Thread[id].SSock));
     CloseHandle(Thread[id].SH);
     LeaveCriticalSection(_cs);
@@ -4440,7 +4450,7 @@ begin
     EndThread(0);
   end;
 
-  if not ConnectToServer(Thread[id].CSock,Thread[id].Port,Thread[id].IP) then begin
+  if not ConnectToServer(Thread[id].CSock, Thread[id].Port, Thread[id].IP) then begin
     EndThread(0);
   end;
   // <-- socks5
@@ -4457,9 +4467,10 @@ begin
   SetEvent(Thread[id].ConnectEvent);
   Thread[id].Name:='';
   CSockl:=Thread[id].CSock;
+  sendMSG('Thread Start: поток клиента Thread['+inttostr(id)+'].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' CSock='+inttostr(Thread[id].CSock));
   LeaveCriticalSection(_cs);
 
-  GetSocketData(CSockl,Packet,2);
+  GetSocketData(CSockl, Packet, 2);
   EnterCriticalSection(_cs);
   if not Thread[id].AutoPing then begin
     Thread[id].IsGame:=False;
@@ -4469,16 +4480,16 @@ begin
   //если (пропускать логин и мы не в игре)
   if isPassLogin and (not IsGamel) then begin
     //отсылаем данные, сначала длину, а потом сам пакет
-    send(SSockl,PacketB,2,0);
-    repeat until send(SSockl,PacketB,recv(CSockl,PacketB,$FFFF,0),0)<=0;
+    send(SSockl, PacketB, 2, 0);
+    repeat until send(SSockl, PacketB, recv(CSockl, PacketB, $FFFF, 0), 0)<=0;
   end else begin //иначе (пропускать логин и мы в игре)
     repeat
       //прием пакетов
-      if not GetSocketData(CSockl,Packet.DataB,Packet.Size-2) then break;
+      if not GetSocketData(CSockl, Packet.DataB, Packet.Size-2) then break;
       if IsGamel
-        then PacketProcesor(PacketB,SSockl,id,3)
-        else PacketProcesor(PacketB,SSockl,id,1);
-      if not GetSocketData(CSockl,Packet,2) then break;
+        then PacketProcesor(PacketB, SSockl, id, 3)
+        else PacketProcesor(PacketB, SSockl, id, 1);
+      if not GetSocketData(CSockl, Packet, 2) then break;
     until False;
   end;
 
@@ -4491,10 +4502,32 @@ begin
   while Thread[id].noFreeOnClientDisconnect do Sleep(1);
 
   EnterCriticalSection(_cs);
-  //дождемся закрытия потока
-  //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
-  //обновляем Список соединений
-//  PostMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+
+  //сохраняем лог пакетов в файл
+  if  not Thread[id].NoUsed then begin
+    try
+      //сохраняем лог, если выбрано "запоминать пакеты"
+      if isSaveLog and (Thread[ID].Name<>'') then begin
+        sendMSG('Сохраняем лог пакетов...');
+        Thread[ID].Dump.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'logs\'+Thread[ID].Name+' '+AddDateTime+'.txt');
+      end;
+    except
+      //пропускаем ошибки при записи
+    end;
+    //закрываем сокеты
+    DeinitSocket(SSockl, WSAGetLastError);
+    DeinitSocket(CSockl, WSAGetLastError);
+    //чистим лог пакетов
+    Thread[ID].Dump.Clear;
+    Thread[id].NoUsed:=True;
+    //    PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].SH);
+    SendMessage(L2PacketHackMain.Handle, WM_ClearPacketsLog, 0, 0);
+    //sendMSG(format(ConnectBreak,[id]));
+    //обновляем Список соединений
+    SendMessage(L2PacketHackMain.Handle, WM_UpdateComboBox1, 0, 0);
+    //дождемся закрытия потока
+    //PostMessage(L2PacketHackMain.Handle, WM_Finished, 0, Thread[id].CH);
+  end;
   sendMSG('Thread Exit: поток клиента Thread['+inttostr(id)+'].CH '+inttostr(Thread[id].CH)+'/'+inttostr(Thread[id].CTH)+' CSock='+inttostr(Thread[id].CSock));
   Closehandle(Thread[id].CH);
   Thread[id].cd._id_mix:=False;

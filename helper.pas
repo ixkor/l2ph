@@ -23,7 +23,8 @@ uses
   //соединение с сервером
   function ConnectToServer(var hSocket: TSocket; Port: Word; IP: Integer): Boolean;
   //закрываем сокет
-  procedure DeInitSocket(const hSocket: Integer);
+//  procedure DeInitSocket(const hSocket: Integer);
+  procedure DeInitSocket(const hSocket, ExitCode: Integer);
   //инициализируем сокет
   function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
 
@@ -62,15 +63,17 @@ var
   SLThreadTerminate: boolean; //завершать работу потока? true - да, false - нет
   SLThreadStarted: boolean; //заущен поток? true - да, false - нет
 
-const
+resourcestring
   {The name of the debug info support L2phx}
-  UnLoadDllSuccessfully = 'Ѕиблиотека %s успешно выгружена';
-  LoadDllUnSuccessful = 'Ѕиблиотека %s отсутствует или заблокирована другим приложением';
-  LoadDllSuccessfully = '”спешно загрузили %s';
-  StartLocalServer = 'Ќа %d зарегистрирован локальный сервер';
-  FailedLocalServer = 'Ќе удалось зарегистрировать локальный сервер на порте %d'+ #13#10+ '¬озможно этот порт зан€т другим приложением';
-  CreateNewConnect = '—оздано новое соединение - %d';
-  ConnectBreak = '—оединение %d разорвано';
+  rsUnLoadDllSuccessfully = 'Ѕиблиотека %s успешно выгружена';
+  rsLoadDllUnSuccessful = 'Ѕиблиотека %s отсутствует или заблокирована другим приложением';
+  rsLoadDllSuccessfully = '”спешно загрузили %s';
+  rsStartLocalServer = 'Ќа %d зарегистрирован локальный сервер';
+  rsFailedLocalServer = 'Ќе удалось зарегистрировать локальный сервер на порте %d'+ #13#10+ '¬озможно этот порт зан€т другим приложением';
+  rsCreateNewConnect = '—оздано новое соединение - %d';
+  rsConnectBreak = '—оединение %d разорвано';
+
+const
   WSA_VER=$202;
 
 implementation
@@ -214,7 +217,7 @@ begin
   Result:=False;
   if listen(hSocket, 1)<>0 then
   begin
-    DeInitSocket(hSocket);
+    DeInitSocket(hSocket, WSAGetLastError);
     Exit;
   end;
   FillChar(Addr_in,SizeOf(sockaddr_in), 0);
@@ -222,8 +225,9 @@ begin
   Addr_in.sin_addr.s_addr:=inet_addr(PChar('0.0.0.0'));
   Addr_in.sin_port:=HToNS(0);
   AddrSize:=SizeOf(Addr_in);
-  while true do begin
-    if SLThreadTerminate then exit;
+//  while true do begin
+  while not SLThreadTerminate do begin
+//    if SLThreadTerminate then exit;
     if WaitForData(hSocket, 15) then begin
       NewSocket:=accept(hSocket, @Addr_in, @AddrSize);
       break;
@@ -231,8 +235,8 @@ begin
   end;
   if NewSocket>0 then Result:=True;
   if not Result then begin
-    DeInitSocket(hSocket);
-    DeInitSocket(NewSocket);
+    DeInitSocket(hSocket,WSAGetLastError);
+    DeInitSocket(NewSocket,WSAGetLastError);
   end;
 end;
 
@@ -246,19 +250,20 @@ begin
   Addr_in.sin_port:=Port;
   if connect(hSocket,Addr_in,SizeOf(Addr_in))=0 then Result:=True;
   if not Result then begin
-    DeInitSocket(hSocket);
+    DeInitSocket(hSocket,WSAGetLastError);
   end;
 end;
 
-procedure DeInitSocket(const hSocket: Integer);
+// «авершение работы сокета
+procedure DeInitSocket(const hSocket, ExitCode: Integer);
 begin
+  // ≈сли была ошибка - выводим ее
+  if ExitCode <> 0 then
+  begin
+    SendMSG('Ќа сокете: '+inttostr(hsocket)+' ошибка: '+inttostr(ExitCode)+' '+SysErrorMessage(ExitCode));
+  end;
   // «акрываем сокет
-  if hSocket <> INVALID_SOCKET then begin
-    sendMSG('WSA error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
-    //Shutdown(hSocket,2);  //выключаем сокет
-    closesocket(hSocket); //уничтожаем сокет
-  end else //ошибка, анализируем с помощью WSAGetLastError
-      sendMSG('WSA error ' + inttostr(WSAGetLastError)+'/'+inttostr(hsocket));
+  if hSocket <> INVALID_SOCKET then closesocket(hSocket);
 end;
 
 function InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
@@ -266,22 +271,25 @@ var
   Addr_in: sockaddr_in;
 begin
   Result:=False;
+  // создаем сокет
   hSocket := socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if hSocket = INVALID_SOCKET then
   begin
-    DeInitSocket(hSocket);
+    DeInitSocket(hSocket, WSAGetLastError);
     Exit;
   end;
   FillChar(Addr_in, SizeOf(sockaddr_in), 0);
   Addr_in.sin_family:= AF_INET;
+  // указываем за каким интерфейсом будем следить
   Addr_in.sin_addr.s_addr := inet_addr(PChar(IP));
   Addr_in.sin_port := HToNS(Port);
+  // св€зываем сокет с локальным адресом
   if bind(hSocket, Addr_in, SizeOf(sockaddr_in)) <> 0 then  //ошибка, если больше нул€
   begin
-    DeInitSocket(hSocket);
+    DeInitSocket(hSocket, WSAGetLastError);
     Exit;
   end;
-  Result := True;
+  Result:=True;
 end;
 
 function GetNamePacket(s:string):string;
@@ -538,21 +546,21 @@ begin
   // получаем версию прокси и количество поддерживаемых методов авторизации
   SetLength(buf,2);
   if(not GetSocketData(sock,buf[1],2))or(buf[1]<>#5)then begin
-    DeInitSocket(sock);
+    DeInitSocket(sock,WSAGetLastError);
     Exit;
   end;
 
   // получаем поддерживаемые клиентом методы авторизации
   SetLength(buf,2+Byte(buf[2]));
   if(not GetSocketData(sock,buf[3],Byte(buf[2])))then begin
-    DeInitSocket(sock);
+    DeInitSocket(sock,WSAGetLastError);
     Exit;
   end;
   authOk:=False;
   for i:=3 to Length(buf) do if buf[i]=#0 then authOk:=True;
 
   if not authOk then begin
-    DeInitSocket(sock);
+    DeInitSocket(sock,WSAGetLastError);
     Exit;
   end;
 
@@ -566,7 +574,7 @@ begin
   or(buf[1]<>#5) // провер€ем версию протокола
   or(buf[2]<>#1) // провер€ем команду CMD = CONNECT
   then begin
-    DeInitSocket(sock);
+    DeInitSocket(sock,WSAGetLastError);
     Exit;
   end;
 
