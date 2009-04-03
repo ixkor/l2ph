@@ -1,8 +1,0 @@
-function getVar (s: string; i: integer): variant;
-const x = 5;
-begin
-  Result := 'ваш '+ s +' = '+ IntToStr (i * x);
-end;
-
-begin end.
-

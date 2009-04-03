@@ -1,9 +1,0 @@
-procedure Init;
-var res: variant;
-begin
-   res := CallSF ('getVars', 'getVar', ['SP', 10]);
-   sendMSG(res);
-end;
-
-begin
-end.

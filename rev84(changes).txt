@@ -1,0 +1,155 @@
+Немного переписанный ПХ. багов наверное просто немеряно.
+продолжу издеваться над ним если не забракуют общую идею )
+
+По нововведениям:
+файлы скриптов *.scrypt
+файлы логов пакетов (декриптованых) *.plog
+файлы логов так и остались *.log
+файлы рав логов *.rawlog
+
+переименуйте, будте так добры -)
+
+по поводу того что такое равлоги - равлоги это логи непосредственно траффика между клиентом и сервером.
+если пх начнет выбивать ошибку связаную с декодировкой какогото определенного пакета то эту ситуации можно будет воспроизвести.
+это первое.
+второе - в равлогах можно обработать чистый лог используя "невхор.длл" без захода в игру.
+тобиш - клиентом с отключеной декодировкой в ПХ снимаеться большой обЪем данных и сохраняеться.
+эти данные можно будет прогнать через функции декрипт и крипт в невхоре и глянув лог проверки узнать на каком пакете начались несоответсвия и собственно сами пакеты до декодировки, после декодировки и после кодировки.
+кстати надо будет вынести еще 2 функции в невхор. ДекриптТраффик и КриптТраффик, и передавать им то что поступает с/в сокет (так как многие серверы начали кодировать весь траффик включая первые 2 байта пакетов)
+
+небольшие изменения в скриптах:
+в скриптах больше нет такой вещи как
+UserTab
+showtab;
+hidetab;
+
+есть такие вещи как
+UserForm;
+ShowForm;
+HideForm;
+
+UserForm это непосредственно форма, (тформ) а не (тобжект) так что с ней можно творить все что в голову взбредет в пределах конечно того что вообще можно делать с формой.
++ у нее отдельная кнопка на таскбаре. так что желательней использовать ее для скриптовых диалогов, дабы не растаскивать окна в поисках юзердиалога.
+...главное фрии не вызывать...
+
+
+вот в плагинах.. изменений чуток побольше.
+во всяком случае в том как передаются данные, сейчас передается екземпляр вот такого класса:
+
+  TPluginStruct = class (tobject)
+    private
+    public
+    userFormHandle: THandle;
+    ConnectInfo : tConnectInfo;
+    function ReadC(const pck: string; const index:integer):byte; Virtual; Abstract;
+    function ReadH(const pck: string; const index:integer):word; Virtual; Abstract;
+    function ReadD(const pck: string; const index:integer):integer; Virtual; Abstract;
+    function ReadF(const pck: string; const index:integer):double; Virtual; Abstract;
+    function ReadS(const pck: string; const index:integer):string; Virtual; Abstract;
+    function ReadCEx(const pck; const index:integer):byte; Virtual; Abstract;
+    function ReadHEx(const pck; const index:integer):word; Virtual; Abstract;
+    function ReadDEx(const pck; const index:integer):integer; Virtual; Abstract;
+    function ReadFEx(const pck; const index:integer):double; Virtual; Abstract;
+    function ReadSEx(const pck; const index:integer):string; Virtual; Abstract;
+    procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); Virtual; Abstract;
+    procedure WriteH(var pck: string; const v:word;    ind:integer=-1); Virtual; Abstract;
+    procedure WriteD(var pck: string; const v:integer; ind:integer=-1); Virtual; Abstract;
+    procedure WriteF(var pck: string; const v:double;  ind:integer=-1); Virtual; Abstract;
+    procedure WriteS(var pck: string; const v:string;  ind:integer=-1); Virtual; Abstract;
+    procedure WriteCEx(var pck; const v:byte;    ind:integer=-1); Virtual; Abstract;
+    procedure WriteHEx(var pck; const v:word;    ind:integer=-1); Virtual; Abstract;
+    procedure WriteDEx(var pck; const v:integer; ind:integer=-1); Virtual; Abstract;
+    procedure WriteFEx(var pck; const v:double;  ind:integer=-1); Virtual; Abstract;
+    procedure WriteSEx(var pck; const v:string;  ind:integer=-1); Virtual; Abstract;
+
+    function CreateAndRunTimerThread(const interval, usrParam: Cardinal;
+                                     const OnTimerProc: TOnTimer): Pointer; Virtual; Abstract;
+    procedure ChangeTimerThread(const timer: Pointer; const interval: Cardinal;
+                                const usrParam: Cardinal = $ffffffff;
+                                const OnTimerProc: TOnTimer = nil); Virtual; Abstract;
+    procedure DestroyTimerThread(var timer: Pointer); Virtual; Abstract;
+    function StringToHex(str1,Separator:String):String; Virtual; Abstract;
+    function HexToString(Hex:String):String; Virtual; Abstract;
+    function DataPckToStrPck(var pck): string; Virtual; Abstract;
+    procedure SendPacketData(var pck; const tid: integer; const ToServer: Boolean); Virtual; Abstract;
+    procedure SendPacketStr(pck: string; const tid: integer; const ToServer: Boolean); Virtual; Abstract;
+    procedure SendPacket(Size: Word; pck: string; tid: integer; ToServer: Boolean); Virtual; Abstract;
+    
+    function getConnectionName(id : integer):string; Virtual; Abstract;
+    function getConnectioidByName(name : string):integer; Virtual; Abstract;
+    Function GoFirstConnection:boolean; Virtual; Abstract;
+    Function GoNextConnection:boolean; Virtual; Abstract; 
+    procedure ShowUserForm(ActivateOnly:boolean);  Virtual; Abstract;
+    Procedure HideUserForm;  Virtual; Abstract;
+  end;
+
+с знакомыми вам всеми методами.
+SetStruct выглядит приблизительно так.
+
+function SetStruct(const struct: PPluginStruct): Boolean; stdcall;
+
+begin
+  ps := TPluginStruct(struct^);
+  Result:=True;
+end;
+
+кстати OnNewPacket тоже изменился. в него передаеться вот такой вот рекорд.
+
+  TPacket = packed record case Integer of
+    0: (Size: Word;
+        Data: array[0..$FFFD] of Byte);
+    1: (PacketAsByteArray: array[0..$FFFF] of Byte);
+    2: (PacketAsCharArray: TCharArray);
+    3: (pckSize: Word;
+        pckId: Byte;
+        pckData: array[0..$FFFC] of Byte);
+  end;
+
+где 
+TCharArray = array[0..$FFFF] of AnsiChar;
+
+
+думаю заметили что не передается масив рекордов thread. как в предыдущих версиях.
+теперь это возложено на следующее поле ConnectInfo : tConnectInfo;
+  tConnectInfo = packed record
+    ConnectID:integer;
+    ConnectName:string[200];
+  end;
+
+и 2 функции 
+    Function GoFirstConnection:boolean; Virtual; Abstract;
+    Function GoNextConnection:boolean; Virtual; Abstract; 
+
+первая переключается на первое соединение. 
+возращает результат true если успешно (соединение/я есть) и false если соединения отсуствуют.
+вторая переключается на следующее соединение.
+в момент переключения обе функции заполняют поле ConnectInfo данными об соединении (их аж целых 2.. а нужно больше ?) 
+к примеру демо плагин от старой версии. кусок оттуда:
+
+    if GoFirstConnection then
+      repeat
+      cntHP := ConnectInfo.ConnectID;
+      Say('Для выбора нужного соединения наберите в чате слово set и отправьте');
+      until GoNextConnection;
+
+с некоторой точки зрения неудобно, но, если учесть что у нас теперь 2 метода перехвата то это один из самых простых способов соединить их а не передавать 2 разных массива обьектов, увеличивая исполняемый код плагина.
+
+появилась userFormHandle: THandle;
+что даст возможность плагинам так же работать с пользовательской формой.
+не исключается вариант что пользовательский плагин будет создавать интерфейс и функции для работы с ним, а пользовательский скрипт управлять интерфейсом.
+в принципе. это можно было реализовать и раньше. (добавлено демо3, показывающее как можно прилепить свою форму поверх ползовательской) (изврат с сетпарентом)
+
+и самое главное, используйте лсп перехват на свой страх и риск.-))) 
+и только тогда когда соединение не перехватываеться обычным инжектом.
+из известных багов при использовании ЛСП - вылет клиента при отправке своего пакета/пакетов НА клиент. из за непредсказуемости возможной неправильной склейки принимаемых данных и добавляемого перед ними буффера
+
+на будущее:
+найти способ избавится от ограничености лсп по отношению к отправке данных на клиент.
+протестить это все дело, и желательно неоднократно %) и желательно убедится что крипт/декрипт и отлов траффика работает не хуже предыдущей версии пх.
+доработать редактор кода. (хоткеи в первую очередь ибо. где поиск по ф3?, процесс компиляции?)
++конструктор пакетов.
+переделать отрисовку в разборе пакетов с помощью trichview либо использовать конструктор пакетов для этих целей, там виднее будет.
+возможно простенький хекс редактор (исключения использования "конвертора")
+сохранения порядка использования скриптов и их состояния (загружен?) то же самое для плагинов.
+добавить подобие рекордов на базе тобжекта (составляем конкуренцию хкору, хай лучше бота пишет XD)
+заменить картинку в абоуте -)))
