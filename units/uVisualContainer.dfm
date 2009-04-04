@@ -284,6 +284,7 @@ object fVisual: TfVisual
               Top = 2
               Hint = #1057#1083#1077#1076#1080#1090#1100' '#1079#1072' '#1087#1086#1089#1083#1077#1076#1085#1080#1084' '#1087#1088#1080#1096#1077#1076#1096#1080#1084' '#1087#1072#1082#1077#1090#1086#1084
               Caption = 'ToolButton5'
+              Down = True
               ImageIndex = 7
               Style = tbsCheck
             end
@@ -395,7 +396,7 @@ object fVisual: TfVisual
         object Memo4: TJvRichEdit
           Left = 2
           Top = 15
-          Width = 771
+          Width = 431
           Height = 197
           Hint = #1050#1072#1078#1076#1072#1103' '#1085#1086#1074#1072#1103' '#1089#1090#1088#1086#1082#1072' '#1089#1095#1080#1090#1072#1077#1090#1089#1103' '#1085#1086#1074#1099#1084' '#1087#1072#1082#1077#1090#1086#1084
           Align = alClient
@@ -485,7 +486,7 @@ object fVisual: TfVisual
           object Memo8: TJvRichEdit
             Left = 0
             Top = 13
-            Width = 408
+            Width = 68
             Height = 218
             Hint = #1054#1082#1085#1086' '#1087#1086#1076#1088#1086#1073#1085#1086#1081' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1080' '#1087#1072#1082#1077#1090#1072
             Align = alClient
@@ -866,7 +867,7 @@ object fVisual: TfVisual
         object Panel13: TPanel
           Left = 2
           Top = 2
-          Width = 922
+          Width = 431
           Height = 25
           Align = alClient
           AutoSize = True
@@ -875,7 +876,7 @@ object fVisual: TfVisual
           object ToolBar6: TToolBar
             Left = 0
             Top = 0
-            Width = 922
+            Width = 431
             Height = 25
             Align = alClient
             ButtonHeight = 23

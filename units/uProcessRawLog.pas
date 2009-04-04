@@ -16,8 +16,8 @@ type
     ToolBar1: TToolBar;
     btnOpenRaw: TToolButton;
     ToolButton1: TToolButton;
-    btnNoExplore: TToolButton;
-    btnExplore: TToolButton;
+    btnNoExplode: TToolButton;
+    btnExplode: TToolButton;
     ToolButton6: TToolButton;
     btnShowDirrection: TToolButton;
     btnShowTimeStamp: TToolButton;
@@ -35,8 +35,8 @@ type
     waitbar: TPanel;
     Label3: TLabel;
     ProgressBar1: TProgressBar;
-    procedure btnNoExploreClick(Sender: TObject);
-    procedure btnExploreClick(Sender: TObject);
+    procedure btnNoExplodeClick(Sender: TObject);
+    procedure btnExplodeClick(Sender: TObject);
     procedure btnOpenRawClick(Sender: TObject);
     procedure btnShowDirrectionClick(Sender: TObject);
     procedure btnUseLibClick(Sender: TObject);
@@ -130,17 +130,17 @@ begin
     end;
 
 end;
-procedure TfProcessRawLog.btnNoExploreClick(Sender: TObject);
+procedure TfProcessRawLog.btnNoExplodeClick(Sender: TObject);
 begin
-btnExplore.Down := false;
+btnExplode.Down := false;
 btnDecrypt.Down := false;
-btnNoExplore.Down := true;
+btnNoExplode.Down := true;
 end;
 
-procedure TfProcessRawLog.btnExploreClick(Sender: TObject);
+procedure TfProcessRawLog.btnExplodeClick(Sender: TObject);
 begin
-btnExplore.Down := true;
-btnNoExplore.Down := false;
+btnExplode.Down := true;
+btnNoExplode.Down := false;
 end;
 
 procedure TfProcessRawLog.btnOpenRawClick(Sender: TObject);
@@ -188,7 +188,7 @@ var
   dataToServ, DataToClient : array[0..$ffff] of byte;
   BufSizeToServ, BufSizeToClient : cardinal;
   pcktSize:word;
-  TmpPacket, TmpPacket2 : TPacket;
+  TmpPacket, TmpPacket2,tmppacket3 : TPacket;
   pcktCount:integer;
   pm : integer;
 begin
@@ -250,9 +250,9 @@ begin
      end;
 
    ms.ReadBuffer(data,size);
-   if (btnNoExplore.Down) and (not btnDecrypt.Down) then
+   if (btnNoExplode.Down) and (not btnDecrypt.Down) then
      addcolored(dTime, Dirrection, ByteArrayToHex(data,Size))
-   else //explore
+   else //Explode
      case Dirrection of
      PCK_GS_ToServer, PCK_LS_ToServer :
        begin
@@ -270,22 +270,22 @@ begin
                begin
                  inc(pcktCount);
                  move(data[0],TmpPacket.PacketAsByteArray[0],pcktSize);
-                 encdec.Packet := TmpPacket;
-                 encdec.DecodePacket(Dirrection);
-                 TmpPacket2 := encdec.Packet;
-                 addcolored(dTime,Dirrection,ByteArrayToHex(encdec.Packet.Data[0], encdec.Packet.Size-2)); //рисуем
-                 AddPacketToLog(dTime,false, encdec.Packet);
-                 encdec.EncodePacket(Dirrection);
+                 TmpPacket2 := TmpPacket;
+                 encdec.DecodePacket(TmpPacket2,Dirrection);
+                 tmppacket3 := TmpPacket2;
+                 addcolored(dTime,Dirrection,ByteArrayToHex(TmpPacket2.PacketAsByteArray, TmpPacket2.Size)); //рисуем
+                 AddPacketToLog(dTime,false, TmpPacket2);
+                 encdec.EncodePacket(tmppacket3,Dirrection);
 
-                 if not CompareMem(@tmpPacket,@encdec.Packet,tmpPacket.Size) then
+                 if not CompareMem(@tmpPacket,@tmppacket3, tmpPacket.Size) then
                    begin
                    //Неправильно расшифровует либо криптует
                    JvRichEdit1.Lines.Add('Пакет #'+inttostr(pcktCount)+' до декриптовки/криптовки:');
-                   ByteArrayToHex(TmpPacket.PacketAsByteArray[0], TmpPacket.Size);
+                   JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket.PacketAsByteArray[0], TmpPacket.Size));
                    JvRichEdit1.Lines.Add('Вид декриптованого:');
-                   ByteArrayToHex(TmpPacket2.PacketAsByteArray[0], TmpPacket.Size);
+                   JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket2.PacketAsByteArray[0], TmpPacket.Size));
                    JvRichEdit1.Lines.Add('После декриптовки/криптовки:');
-                   ByteArrayToHex(encdec.Packet.PacketAsByteArray[0], encdec.Packet.Size);
+                   JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket3.PacketAsByteArray[0], TmpPacket.Size));;
                    end;
                end
              else
@@ -298,7 +298,7 @@ begin
              end;
            end;
        end;
-       
+
      PCK_GS_ToClient, PCK_LS_ToClient :
        begin
          Move(data, DataToClient[BufSizeToClient], Size);
@@ -316,22 +316,22 @@ begin
                begin
                  inc(pcktCount);
                  move(data[0],TmpPacket.PacketAsByteArray[0],pcktSize);
-                 encdec.Packet := TmpPacket;
-                 encdec.DecodePacket(Dirrection);
-                 TmpPacket2 := encdec.Packet;
-                 addcolored(dTime,Dirrection,ByteArrayToHex(encdec.Packet.Data[0], encdec.Packet.Size-2)); //рисуем
-                 AddPacketToLog(dTime, true, encdec.Packet);
-                 encdec.EncodePacket(Dirrection);
-                 
-                 if not CompareMem(@tmpPacket,@encdec.Packet,tmpPacket.Size) then
+                 TmpPacket2 := TmpPacket;
+                 encdec.DecodePacket(TmpPacket2,Dirrection);
+                 tmppacket3 := TmpPacket2;
+                 addcolored(dTime,Dirrection,ByteArrayToHex(TmpPacket2.PacketAsByteArray, TmpPacket2.Size)); //рисуем
+                 AddPacketToLog(dTime,false, TmpPacket2);
+                 encdec.EncodePacket(tmppacket3,Dirrection);
+
+                 if not CompareMem(@tmpPacket,@tmppacket3, tmpPacket.Size) then
                    begin
                    //Неправильно расшифровует либо криптует
                    JvRichEdit1.Lines.Add('Пакет #'+inttostr(pcktCount)+' до декриптовки/криптовки:');
-                   ByteArrayToHex(TmpPacket.PacketAsByteArray[0], TmpPacket.Size);
+                   JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket.PacketAsByteArray[0], TmpPacket.Size));
                    JvRichEdit1.Lines.Add('Вид декриптованого:');
-                   ByteArrayToHex(TmpPacket2.PacketAsByteArray[0], TmpPacket.Size);
+                   JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket2.PacketAsByteArray[0], TmpPacket.Size));
                    JvRichEdit1.Lines.Add('После декриптовки/криптовки:');
-                   ByteArrayToHex(encdec.Packet.PacketAsByteArray[0], encdec.Packet.Size);
+                   JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket3.PacketAsByteArray[0], TmpPacket.Size));;
                    end;
                end
                else
@@ -377,8 +377,8 @@ end;
 
 procedure TfProcessRawLog.btnDecryptClick(Sender: TObject);
 begin
-  btnNoExplore.Down := false;
-  btnExplore.Down := true;
+  btnNoExplode.Down := false;
+  btnExplode.Down := true;
 end;
 
 procedure TfProcessRawLog.ToolButton2Click(Sender: TObject);

@@ -642,11 +642,11 @@ begin
   case dwReason of
     DLL_PROCESS_ATTACH :
       begin
+        hookthis := false;
         cOverlapped := TOverlapped.create;
         glCS:=TCriticalSection.Create;
         try
         getmem(tmp,1024);
-        hookthis := false;
         if getmodulefilenamea(0,tmp,1024)>0 then
           begin
             sprocessname:=strpas(tmp);

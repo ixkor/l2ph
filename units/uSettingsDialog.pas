@@ -9,7 +9,7 @@ uses
   winsock,
   math, 
   IniFiles, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Mask, JvExMask, JvSpin, ComCtrls;
+  Dialogs, StdCtrls, ExtCtrls, Mask, JvExMask, JvSpin, ComCtrls, siComp;
 
 type
   TfSettings = class(TForm)
@@ -46,6 +46,7 @@ type
     ChkShowLogWinOnStart: TCheckBox;
     chkNoFree: TCheckBox;
     chkRaw: TCheckBox;
+    lang: TsiLang;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -90,7 +91,7 @@ begin
   //максимальное количество строк в логе пакетов
   MaxLinesInPktLog:=Options.ReadInteger('General','MaxLinesInPktLog',3000);
 
-  
+
   isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe');
   isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','5001;5002;2222');
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
@@ -174,7 +175,12 @@ with GlobalSettings do
       
     end;
 
-    if oldProto <> GlobalProtocolVersion then fPacketFilter.LoadPacketsIni;
+    if oldProto <> GlobalProtocolVersion then
+      begin
+        fPacketFilter.LoadPacketsIni;
+        if InterfaceEnabled then
+        fPacketFilter.UpdateBtnClick(nil);
+      end;
   end;
 
   GlobalNoFreeAfterDisconnect := chkNoFree.Checked;
@@ -279,6 +285,7 @@ end;
 
 procedure TfSettings.ChkLSPInterceptClick(Sender: TObject);
 begin
+ChkLSPIntercept.Checked := false;
   if not InterfaceEnabled then exit;
   isLSP.Enabled := not ChkLSPIntercept.Checked;
   if ChkLSPIntercept.Checked then
@@ -351,6 +358,7 @@ end;
 
 procedure TfSettings.ChkNoDecryptClick(Sender: TObject);
 begin
+if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
 end;
 

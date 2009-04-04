@@ -4,8 +4,8 @@ object dmData: TdmData
   OnDestroy = DataModuleDestroy
   Left = 321
   Top = 326
-  Height = 397
-  Width = 829
+  Height = 670
+  Width = 890
   object LSPControl: TLSPModuleControl
     onLspModuleState = LSPControlLspModuleState
     onConnect = LSPControlConnect

@@ -3,7 +3,7 @@ object fAbout: TfAbout
   Top = 395
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
-  Caption = #1054' '#1075#1083#1102#1082#1072#1083#1082#1077
+  Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1077'..'
   ClientHeight = 112
   ClientWidth = 307
   Color = clBtnFace
@@ -14,7 +14,7 @@ object fAbout: TfAbout
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poDesktopCenter
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
@@ -404,7 +404,8 @@ object fAbout: TfAbout
     Font.Name = 'Verdana'
     Font.Style = []
     Lines.Strings = (
-      #1040#1073#1086#1091#1090' '#1089#1083#1077#1087#1080#1090#1077' '#1089#1072#1084#1080' !!!! %)')
+      'Z245193560959, R183025505328'
+      'E360790044610, U392200550010')
     ParentFont = False
     ReadOnly = True
     TabOrder = 0

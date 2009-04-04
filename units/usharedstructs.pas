@@ -59,7 +59,7 @@ type
   end;
 
 
-  TNewPacket = procedure(FromServer : boolean; Caller: TObject)  of object; // Caller это TencDec к примеру -> TencDec(caller).name вызывает акшин только TencDec 
+  TNewPacket = procedure(var Packet:tpacket;FromServer : boolean; Caller: TObject)  of object; // Caller это TencDec к примеру -> TencDec(caller).name вызывает акшин только TencDec 
   TNewAction = procedure (action : byte; Caller: TObject)  of object; //Caller зависит от action
   TStringArray = array of string;
 

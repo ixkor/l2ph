@@ -11,6 +11,7 @@ object fProcessRawLog: TfProcessRawLog
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -40,24 +41,24 @@ object fProcessRawLog: TfProcessRawLog
       ImageIndex = 5
       Style = tbsSeparator
     end
-    object btnNoExplore: TToolButton
+    object btnNoExplode: TToolButton
       Left = 37
       Top = 2
       Hint = #1053#1077' '#1073#1091#1076#1077#1090' '#1088#1072#1089#1082#1083#1077#1080#1074#1072#1090#1100' '#1087#1072#1082#1077#1090#1099' '#1087#1088#1080#1096#1077#1076#1096#1080#1093' '#1086#1076#1085#1080#1084' '#1082#1091#1089#1082#1086#1084' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
-      Caption = 'btnNoExplore'
+      Caption = 'btnNoExplode'
       ImageIndex = 1
       Style = tbsCheck
-      OnClick = btnNoExploreClick
+      OnClick = btnNoExplodeClick
     end
-    object btnExplore: TToolButton
+    object btnExplode: TToolButton
       Left = 60
       Top = 2
       Hint = #1041#1091#1076#1077#1090' '#1088#1072#1079#1073#1080#1074#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1085#1072' '#1087#1072#1082#1077#1090#1099' ('#1087#1099#1090#1072#1090#1089#1103')'
-      Caption = 'btnExplore'
+      Caption = 'btnExplode'
       Down = True
       ImageIndex = 2
       Style = tbsCheck
-      OnClick = btnExploreClick
+      OnClick = btnExplodeClick
     end
     object btnDecrypt: TToolButton
       Left = 83

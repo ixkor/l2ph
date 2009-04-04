@@ -4,6 +4,7 @@ interface
 
 uses
   uResourceStrings,
+  forms,
   uencdec,
   Windows,
   SysUtils,
@@ -27,7 +28,7 @@ type
   hServerThread, hClientThread  : integer;  //хендлы потоков
   idServerThread, idClientThread : LongWord;  //threadid потоков
   sLastMessage : String;
-  CriticalSectionS, CriticalSectionC  : TCriticalSection;
+  CriticalSection : TCriticalSection;
  private
  Public
   active : boolean;
@@ -44,7 +45,7 @@ type
   Procedure EncryptAndSend(Packet:Tpacket; ToServer:Boolean);
   procedure SendNewAction(action : byte);
   procedure NewAction(action : byte; Caller: TObject);
-  procedure NewPacket(FromServer: boolean; Caller: TObject);
+  procedure NewPacket(var Packet:tpacket; FromServer: boolean; Caller: TObject);
  Published
   constructor create(SockEngine : TObject);
   Procedure   RUN;
@@ -69,7 +70,7 @@ type
    function  InitSocket(var hSocket: TSocket; Port: Word; IP: String): Boolean;
    function  AuthSocks5(var sock:integer; var srvIP: Integer; var srvPort: Word): Boolean;
    function  GetSocketData(Socket: TSocket; var Data; const Size: Word): Boolean;
-   function  ConnectToServer(var hSocket: TSocket; Port: Word; IP: Integer): Boolean;   
+   function  ConnectToServer(var hSocket: TSocket; Port: Word; IP: Integer): Boolean;
 
  public
    //Установать перед Init
@@ -98,6 +99,7 @@ uses uglobalfuncs, umain, Math;
 { TSocketEngine }
 procedure TSocketEngine.DeInitSocket;
 begin
+  if isGlobalDestroying then exit;
   // Если была ошибка - выводим ее
   if (ExitCode <> 0) and (ExitCode <> 5) then
   begin
@@ -166,18 +168,15 @@ begin
   //поток с коннектом на сервер
   thisTunel.hClientThread :=BeginThread(nil, 0, @ClientBody, thisTunel, 0, thisTunel.idClientThread);
 
-  thisTunel.CriticalSectionS.Enter;
   thisTunel.SendNewAction(Ttunel_Action_connect_server);
-  thisTunel.CriticalSectionS.Leave;
+
   EventTimeout := (WaitForSingleObject(thisTunel.ConnectOrErrorEvent, 30000) <> 0);
   if (EventTimeout) or (not thisTunel.TunelWork) then
     begin
       CloseHandle(thisTunel.ConnectOrErrorEvent);
-      thisTunel.CriticalSectionS.Enter;
       thisTunel.MustBeDestroyed := true; //Ставим флаг уведомляющий о том что этот обьект не нужен.
       thisTunel.TunelWork := false;
       AddToLog(Format(rsTunelTimeout, [integer(pointer(thisTunel))]));
-      thisTunel.CriticalSectionS.Leave;
 
       DeinitSocket(thisTunel.serversocket,WSAGetLastError);
       TerminateThread(thisTunel.hServerThread,0);
@@ -186,64 +185,59 @@ begin
 
 
   ip := RedirrectIP;
-  thisTunel.CriticalSectionS.Enter;
   AddToLog(Format(rsTunelConnected, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
-  thisTunel.CriticalSectionS.Leave;
-  AccumulatorLen := 1;
-  LastResult := recv(thisTunel.serversocket, StackAccumulator[0], 1, 0);//Читаем ПЕРВЫЙ байт чтобы задать значение
-  if LastResult > 0 then
-    thisTunel.AddToRawLog(PCK_GS_ToServer, StackAccumulator[0], LastResult);
-
+  //////////////////////////////////////////////////////////////
+  AccumulatorLen := 0;
+  LastResult := 1;
+  
   While (LastResult > 0) and (thisTunel.serversocket <> -1) do
   begin //Читаем пока не отвалимся
     //Сколько еще в буфере ?!
     ioctlsocket(thisTunel.serversocket, FIONREAD, Longint(BytesInStack));
     if BytesInStack = 0 then
       BytesInStack := 1;
-
     LastResult := recv(thisTunel.serversocket, StackAccumulator[AccumulatorLen], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+
     if LastResult > 0 then
     begin
-    
-    thisTunel.AddToRawLog(PCK_GS_ToServer, StackAccumulator[AccumulatorLen], LastResult);
     inc(AccumulatorLen, LastResult);
-    
+    thisTunel.AddToRawLog(PCK_GS_ToServer, StackAccumulator[AccumulatorLen], LastResult);
+
     if not thisTunel.EncDec.Settings.isNoProcessToServer then
       begin
-        if AccumulatorLen >= 2 then
+        if AccumulatorLen > 2 then
           begin //В акумуляторе данных на 2+ байтикоф
-            //дергаем пакет с акамулятора (сейчас важна длина)
+            ThisTunel.CriticalSection.enter;
+            //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             //Хватит ли в акамуляторе данных для пакета ?
-              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen >= 2) and (curPacket.Size > 0) do
+              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen > 2) and (curPacket.Size > 2) do
                 begin
-                  if curPacket.Size = 0 then
-                  begin
-                    {Ахтунг! пакет! с нулевой длиной!
-                    поступаем так же как и в клиентбоди}
-                    curPacket.Size := AccumulatorLen;
-                  end;
-                  thisTunel.CriticalSectionS.Enter;
                   //смещаем и уменьшаем длину акумулятора
-                  move(StackAccumulator[curPacket.Size], StackAccumulator[0], AccumulatorLen-curPacket.Size);
+                  move(StackAccumulator[curPacket.Size], StackAccumulator[0], AccumulatorLen);
+                  //забиваем нулями
+                  fillchar(curPacket.PacketAsCharArray[curPacket.Size],AccumulatorLen-curPacket.Size,#0);
+                  //уменьшаем длину в акамуляторе
+                  dec(AccumulatorLen,curPacket.Size);
+                  //декодируем
+                  thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToServer);
 
+                  //если после декодировки и обработки пакет все еще есть то
+                  if curPacket.Size > 2 then
+                  begin
+                    //кодируем
+                    thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToServer);
+                    //и отправляем
+                    send(thisTunel.clientsocket, curPacket, curPacket.Size, 0);
+                  end;
 
-                  dec(AccumulatorLen, curPacket.Size);
-                  thisTunel.EncDec.Packet := curPacket;
-                  thisTunel.EncDec.DecodePacket(PCK_GS_ToServer);
-                  //тут можно встроить доп обработку.
-                  //пакет уже прошел декод скрипты и обработку встроеную в пх.
-
-                  thisTunel.EncDec.EncodePacket(PCK_GS_ToServer);
-                  curPacket := thisTunel.EncDec.Packet;
-                  thisTunel.CriticalSectionS.Leave;
-                  send(thisTunel.clientsocket, curPacket, curPacket.Size, 0);
-
-                  if AccumulatorLen >= 2 then
                   //повторно загоняем пакет. для вайла
-                  curPacket.PacketAsCharArray := StackAccumulator
-                  else curPacket.Size := 0;
+                  if AccumulatorLen >= 2 then
+                      curPacket.PacketAsCharArray := StackAccumulator
+                    else
+                      FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
+              ThisTunel.CriticalSection.leave;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
     else //не надо декодить. просто шлем.
@@ -253,7 +247,7 @@ begin
       end;
     end;
   end;//While LastResult <> SOCKET_ERROR do
-    thisTunel.CriticalSectionS.Enter;
+
     AddToLog(Format(rsTunelServerDisconnect, [integer(pointer(thisTunel))]));
 
     //сюда попадаем когда отвалился сервер
@@ -262,7 +256,6 @@ begin
     thisTunel.Visual.ThisOneDisconnected;
     //
     //не разрываем связь если отключен сервер и noFreeOnServerDisconnect
-    thisTunel.CriticalSectionS.Leave;
     while (thisTunel.noFreeAfterDisconnect)  do Sleep(1);
 
     //закрываем сокеты
@@ -291,9 +284,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     EndThread(0);
   end;
   ip := RedirrectIP;
-  thisTunel.CriticalSectionC.Enter;
   AddToLog(Format(rsTunelConnecting, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
-  thisTunel.CriticalSectionC.Leave;
   if not ConnectToServer(thisTunel.clientsocket, RedirrectPort, RedirrectIP) then
   begin
     SetEvent(thisTunel.ConnectOrErrorEvent); //разрешаем сдвинутся с места в сервербоди
@@ -306,72 +297,60 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     send(thisTunel.serversocket, socks5ok[1], Length(socks5ok), 0);
   end;
 
-  thisTunel.CriticalSectionC.Enter;
   thisTunel.sendNewAction(Ttunel_Action_connect_client);
-  thisTunel.CriticalSectionC.Leave;
-  
   thisTunel.TunelWork := true;
   SetEvent(thisTunel.ConnectOrErrorEvent); //разрешаем сдвинутся с места в сервербоди
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  AccumulatorLen := 1;
-  LastResult := recv(thisTunel.clientsocket, StackAccumulator[0], 1, 0);//Читаем ПЕРВЫЙ байт чтобы задать значение
+  AccumulatorLen := 0;
+  LastResult := 1;
   
-  if LastResult > 0 then
-    thisTunel.AddToRawLog(PCK_GS_ToClient, StackAccumulator[0], LastResult);
-      
   While (LastResult > 0) and (thisTunel.clientsocket <> -1) do
   begin //Читаем пока не отвалимся
     //Сколько еще в буфере ?!
     ioctlsocket(thisTunel.clientsocket, FIONREAD, Longint(BytesInStack));
     if BytesInStack = 0 then
       BytesInStack := 1;
-
     LastResult := recv(thisTunel.clientsocket, StackAccumulator[AccumulatorLen], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+
     if LastResult > 0 then
     begin
-    thisTunel.AddToRawLog(PCK_GS_ToClient, StackAccumulator[AccumulatorLen], LastResult);
     inc(AccumulatorLen, LastResult);
+    thisTunel.AddToRawLog(PCK_GS_ToClient, StackAccumulator[AccumulatorLen], LastResult);
 
     if not thisTunel.EncDec.Settings.isNoProcessToClient then
       begin
-        if AccumulatorLen >= 2 then
+        if AccumulatorLen > 2 then
           begin //В акумуляторе данных на 2+ байтикоф
+            ThisTunel.CriticalSection.enter;
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             //Хватит ли в акамуляторе данных для пакета ?
-              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen >= 2) and (curPacket.Size > 0) do
+              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen > 2) and (curPacket.Size > 2) do
                 begin
-                  //дергаем пакет с акамулятора
-                  if curPacket.Size = 0 then
-                  begin
-                    {Ахтунг! пакет! с нулевой длиной!
-                    это озачает что траффиг криптован и мы его не разобрали!
-                    по большому счету можно просто уведомить юзверя и дисконекнуть.. но.. мы продолжим работать..
-                    будем считать что у пакета длина = длина данных в акуме}
-                    curPacket.Size := AccumulatorLen;
-                  end;
-
                   //смещаем и уменьшаем длину акумулятора
-                  move(StackAccumulator[curPacket.Size], StackAccumulator[0], AccumulatorLen-curPacket.Size);
-                  //CopyMemory(@StackAccumulator[curPacket.Size], @StackAccumulator[0], AccumulatorLen-curPacket.Size);
+                  move(StackAccumulator[curPacket.Size], StackAccumulator[0], AccumulatorLen);
+                  //забиваем нулями
+                  fillchar(curPacket.PacketAsCharArray[curPacket.Size],AccumulatorLen-curPacket.Size,#0);
+                  //уменьшаем длину в акамуляторе
                   dec(AccumulatorLen,curPacket.Size);
-                  thisTunel.CriticalSectionC.Enter;
-                  thisTunel.EncDec.Packet.PacketAsByteArray := curPacket.PacketAsByteArray;
-                  thisTunel.EncDec.DecodePacket(PCK_GS_ToClient);
-                  //тут можно встроить доп обработку.
-                  //пакет уже прошел декод скрипты и обработку встроеную в пх.
-
-                  thisTunel.EncDec.EncodePacket(PCK_GS_ToClient);
-                  curPacket.PacketAsByteArray := thisTunel.EncDec.Packet.PacketAsByteArray;
-                  thisTunel.CriticalSectionC.Leave;
-                  send(thisTunel.serversocket, curPacket, curPacket.Size, 0);
+                  //декодируем
+                  thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToClient);
+                  //если после декодировки и обработки пакет все еще есть то
+                  if curPacket.Size > 2 then
+                  begin
+                    //кодируем
+                    thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToClient);
+                    //и отправляем
+                    send(thisTunel.serversocket, curPacket, curPacket.Size, 0);
+                  end;
 
                   //повторно загоняем пакет. для вайла
                   if AccumulatorLen >= 2 then
-                  //повторно загоняем пакет. для вайла
-                  curPacket.PacketAsCharArray := StackAccumulator
-                  else curPacket.Size := 0;                  
+                      curPacket.PacketAsCharArray := StackAccumulator
+                    else
+                      FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
+              ThisTunel.CriticalSection.leave;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
     else //не надо декодить. просто шлем.
@@ -382,7 +361,6 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     end;
   end;//While LastResult <> SOCKET_ERROR do
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  thisTunel.CriticalSectionC.Enter;
   AddToLog(Format(rsTunelClientDisconnect, [integer(pointer(thisTunel))]));
 
   thisTunel.sendNewAction(Ttunel_Action_disconnect_client);
@@ -391,7 +369,6 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   //Интересно.. а так можно сделать ? -)
   thisTunel.Visual.ThisOneDisconnected;
   //
-  thisTunel.CriticalSectionC.Leave;
   while thisTunel.noFreeAfterDisconnect do Sleep(1);
 
   //закрываем сокеты
@@ -470,11 +447,12 @@ end;
 
 procedure TSocketEngine.sendNewAction(Action: integer);
 begin
-    NewAction(action, Self);
+  NewAction(action, Self);
 end;
 
 procedure TSocketEngine.sendMSG(MSG: string);
 begin
+if isGlobalDestroying then exit;
   sLastMessage := MSG;
   sendNewAction(TSocketEngine_Action_MSG);
 end;
@@ -625,6 +603,7 @@ procedure TSocketEngine.destroyDeadTunels;
 var
   i: integer;
 begin
+  if isGlobalDestroying then exit;
   if not Assigned(tunels) then exit;
   i := 0;
   while i < tunels.Count do
@@ -641,7 +620,9 @@ end;
 
 procedure TSocketEngine.NewAction(Action: byte; Caller: TObject);
 begin
-SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
+ if isGlobalDestroying then exit;
+  if caller <> nil then
+    SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
 end;
 
 { Ttunel }
@@ -651,8 +632,7 @@ begin
   active := false;
   TSocketEngine(SockEngine).tunels.Add(self);
   isRawAllowed := GlobalRawAllowed;
-  CriticalSectionS := TCriticalSection.Create;
-  CriticalSectionC := TCriticalSection.Create;
+  CriticalSection := TCriticalSection.Create;
   AddToLog(Format(rsTunelCreated, [integer(pointer(Self))]));
   TunelWork := false;
   noFreeAfterDisconnect := GlobalNoFreeAfterDisconnect;
@@ -662,6 +642,8 @@ begin
   EncDec.ParentTtunel := Self;
   EncDec.ParentLSP := nil;
   EncDec.Settings := GlobalSettings;
+  EncDec.onNewPacket := NewPacket;
+  EncDec.onNewAction := NewAction;
   RawLog := TMemoryStream.Create;
 end;
 
@@ -669,6 +651,10 @@ destructor Ttunel.destroy;
 var
   i: integer;
 begin
+  AddToLog(Format(rsTunelDestroy, [integer(pointer(Self))]));
+  if assigned(curSockEngine) then TSocketEngine(curSockEngine).DeinitSocket(serversocket,WSAGetLastError);
+  if assigned(curSockEngine) then TSocketEngine(curSockEngine).DeinitSocket(clientsocket,WSAGetLastError);
+
   if not Assigned(TSocketEngine(curSockEngine).tunels) then exit;
   i := 0;
   while i < TSocketEngine(curSockEngine).tunels.Count do
@@ -681,36 +667,41 @@ begin
     inc(i);
   end;
 
-  AddToLog(Format(rsTunelDestroy, [integer(pointer(Self))]));
   if Assigned(encdec) then EncDec.destroy;
-  if assigned(curSockEngine) then TSocketEngine(curSockEngine).DeinitSocket(serversocket,WSAGetLastError);
-  if assigned(curSockEngine) then TSocketEngine(curSockEngine).DeinitSocket(clientsocket,WSAGetLastError);
   if hServerThread <> 0 then TerminateThread(hServerThread, 0);
   if hClientThread <> 0 then TerminateThread(hClientThread, 0);
   sendNewAction(Ttulel_action_tunel_destroyed);
-  CriticalSectionS.Destroy;
-  CriticalSectionC.Destroy;
+  CriticalSection.Destroy;
   RawLog.Destroy;
   inherited;
 end;
 
 procedure Ttunel.NewAction(action: byte; Caller: TObject);
 begin
+  if isGlobalDestroying then exit;
   SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
 end;
 
-procedure Ttunel.NewPacket(FromServer: boolean; Caller: TObject);
+procedure Ttunel.NewPacket(var packet:tpacket; FromServer: boolean; Caller: TObject);
+var
+tmp : SendMessageParam;
 begin
-  SendMessage(L2PacketHackMain.Handle,WM_NewPacket,integer(FromServer),integer(Caller));
+  if isGlobalDestroying then exit;
+  tmp := SendMessageParam.Create;
+  tmp.packet := Packet;
+  tmp.FromServer := FromServer;
+  tmp.tunel := TencDec(Caller).ParentTtunel;
+  tmp.Id := TencDec(Caller).Ident;
+  SendMessage(L2PacketHackMain.Handle, WM_NewPacket, integer(@tmp), 0);
+  Packet := tmp.packet;
+  tmp.Destroy;
 end;
 
 procedure Ttunel.RUN;
 begin
   //устанавливаем идентификатор, передаем указатели на невхор, передаем события.
   EncDec.Ident := serversocket;
-  EncDec.onNewAction := NewAction;
   EncDec.init;
-  EncDec.onNewPacket := NewPacket;//TSocketEngine(curSockEngine).onNewPacket;
   //Стартуем поток обрабатывающий данные к серверу
   hServerThread := BeginThread(nil, 0, @ServerBody, self, 0, idServerThread);
   ResumeThread(hServerThread);
@@ -722,23 +713,25 @@ procedure Ttunel.EncryptAndSend(Packet: Tpacket; ToServer: Boolean);
 var
   sSendTo : TSocket;
 begin
-EncDec.Packet := Packet;
+
+if isGlobalDestroying then exit;
 if ToServer then
   begin
-    EncDec.EncodePacket(PCK_GS_ToServer);
+    EncDec.EncodePacket(Packet, PCK_GS_ToServer);
     sSendTo := clientsocket;
   end
   else
   begin
-    EncDec.EncodePacket(PCK_GS_ToClient);
+    EncDec.EncodePacket(packet, PCK_GS_ToClient);
     sSendTo := serversocket;
   end;
-Packet := EncDec.Packet;
+
 Send(sSendTo, Packet, packet.Size, 0);
 end;
 
 procedure Ttunel.SendNewAction(action: byte);
 begin
+  if isGlobalDestroying then exit;
   NewAction(Action, self)
 end;
 
@@ -746,6 +739,7 @@ procedure Ttunel.AddToRawLog(dirrection: byte; var data; size: word);
 var
   dtime: Double;
 begin
+if isGlobalDestroying then exit;
   if not isRawAllowed then exit;
   RawLog.WriteBuffer(dirrection,1);
   RawLog.WriteBuffer(size,2);

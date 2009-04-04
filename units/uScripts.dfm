@@ -1,8 +1,8 @@
 object fScript: TfScript
   Left = 165
   Top = 253
-  Width = 870
-  Height = 640
+  Width = 729
+  Height = 513
   Caption = #1057#1082#1088#1080#1087#1090#1099'/'#1057#1082#1088#1080#1087#1090#1080#1085#1075
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,22 +11,23 @@ object fScript: TfScript
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
-    Left = 688
+    Left = 547
     Top = 25
     Width = 5
-    Height = 539
+    Height = 412
     Align = alRight
   end
   object Instruction: TJvLabel
     Left = 0
     Top = 25
-    Width = 688
-    Height = 539
+    Width = 547
+    Height = 412
     Hint = ' '
     Align = alClient
     Alignment = taRightJustify
@@ -48,16 +49,16 @@ object fScript: TfScript
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 587
-    Width = 862
+    Top = 460
+    Width = 721
     Height = 19
     Panels = <>
     SimplePanel = True
   end
   object JvTabBar1: TJvTabBar
     Left = 0
-    Top = 564
-    Width = 862
+    Top = 437
+    Width = 721
     Align = alBottom
     Orientation = toBottom
     AutoFreeClosed = False
@@ -70,7 +71,7 @@ object fScript: TfScript
   object ToolBar2: TToolBar
     Left = 0
     Top = 0
-    Width = 862
+    Width = 721
     Height = 25
     EdgeBorders = [ebBottom]
     Images = imgBT
@@ -203,10 +204,10 @@ object fScript: TfScript
     end
   end
   object pnlScriptList: TPanel
-    Left = 693
+    Left = 552
     Top = 25
     Width = 169
-    Height = 539
+    Height = 412
     Align = alRight
     TabOrder = 3
     object Panel9: TPanel
@@ -249,7 +250,7 @@ object fScript: TfScript
       Left = 1
       Top = 19
       Width = 167
-      Height = 519
+      Height = 392
       Hint = #1057#1087#1080#1089#1086#1082' '#1089#1082#1088#1080#1087#1090#1086#1074' '#1074' '#1087#1086#1088#1103#1076#1082#1077' '#1080#1093' '#1074#1099#1087#1086#1083#1085#1077#1085#1080#1103
       Align = alClient
       BevelInner = bvNone

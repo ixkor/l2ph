@@ -7,6 +7,7 @@ uses
   usharedstructs,
   Classes,
   windows,
+  forms,
   sysutils;
 
 type
@@ -27,6 +28,7 @@ type
     fonNewPacket : TNewPacket;
     fonNewAction : TNewAction;
     xorC, xorS: TCodingClass;         //ксор
+    LastPacket:Tpacket;
   private
     isInterlude : boolean;
     crSectionDec,
@@ -36,7 +38,6 @@ type
 
     pckCount: Integer;                //счетчик пакетов
     MaxLinesInPktLog : integer;
-
     //////////////////////////////////////////////////////////////////////////////////////////////
     CorrectXorData : TPacket;
     CorrectorData: PCorrectorData;
@@ -45,16 +46,16 @@ type
     Procedure Corrector(var data; const enc: Boolean = False; const FromServer: Boolean = False);
 
     //Детект нового ключа
-    Procedure CorrectXor();
+    Procedure CorrectXor(Packet:Tpacket);
     //////////////////////////////////////////////////////////////////////////////////////////////
     
     //опять стандартное
     procedure sendAction(act : integer);
-    Procedure ProcessRecivedPacket; //обрабатываем пакет (вытягиваем имя соединения, etc)
+    Procedure ProcessRecivedPacket(var packet:tpacket); //обрабатываем пакет (вытягиваем имя соединения, etc)
     public
     ParentTtunel, ParentLSP : Tobject;
     Ident : cardinal;
-    Packet: TPacket; //Содержит пакет над которым в данный момент производятся действия
+//    Packet: TPacket; //Содержит пакет над которым в данный момент производятся действия
 
     CharName: String;                     //имя пользователя
     sLastPacket  : string;
@@ -65,8 +66,8 @@ type
 
     Settings : TEncDecSettings;
 
-    procedure DecodePacket(Dirrection: byte); //Старый PacketProcesor
-    Procedure EncodePacket(Dirrection: byte); //старый сендпакет
+    procedure DecodePacket(var Packet:Tpacket;Dirrection: byte); //Старый PacketProcesor
+    Procedure EncodePacket(var Packet:Tpacket;Dirrection: byte); //старый сендпакет
 
     constructor create;
     Procedure INIT; //инициализация, вызывать после креейта
@@ -110,7 +111,7 @@ begin
   
   //корректор.
   if Settings.isChangeXor then
-    CorrectXor;
+    CorrectXor(Packet);
 
    case Dirrection of
       PCK_GS_ToClient, PCK_LS_ToClient:
@@ -120,24 +121,23 @@ begin
         //запоминание 3го пакета (на сервер)
         //Обход смены XOR ключа. в 4м пакете (на клиент)
         //может изменить флаг InitXOR поэтому у нас есть InitXOR_copy.
-        if Settings.isChangeXor then CorrectXor;
+        if Settings.isChangeXor then CorrectXor(packet);
 
         //собственно декрипт, если есть ключ и не стоит галочка "не декриптовать".
         if InitXOR_copy and (not Settings.isNoDecrypt) then
           xorS.DecryptGP(packet.data, Packet.Size - 2);
 
-
-        LeaveCriticalSection(crSectionDec);
-
+        LastPacket := Packet;
         if Assigned(onNewPacket) then
-          onNewPacket(true, self);
-        EnterCriticalSection(crSectionDec);
+          onNewPacket(Packet, true, self);
+
+
         if Packet.Size = 0 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
         else
           //вытягиваем имя соединения и прочее
           if (not Settings.isNoDecrypt) then
-            ProcessRecivedPacket;
+            ProcessRecivedPacket(packet);
             
           LeaveCriticalSection(crSectionDec);
       end;
@@ -155,14 +155,12 @@ begin
         if Settings.isGraciaOff and (not Settings.isNoDecrypt) then
           Corrector(Packet.Size);
 
-        LeaveCriticalSection(crSectionDec);
 
         //отправка скриптам
         if Assigned(onNewPacket) then
-          onNewPacket(false, self);
+          onNewPacket(packet, false, self);
 
-        EnterCriticalSection(crSectionDec);
-               
+
         if Packet.Size = 0 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0); 
 
@@ -327,7 +325,7 @@ begin
       xorC := L2Xor.Create;
 end;
 
-procedure TencDec.EncodePacket(Dirrection: byte);
+procedure TencDec.EncodePacket;
 var
   isToServer : boolean;
   CurrentCoddingClass : TCodingClass;
@@ -360,6 +358,7 @@ begin
       InitXOR := true;
       SetInitXORAfterEncode := false;
     end;
+  LastPacket := Packet;
   LeaveCriticalSection(crSectionEnc);
 end;
 

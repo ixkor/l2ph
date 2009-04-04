@@ -2,7 +2,7 @@ unit LSPControl;
 
 interface
 
-uses LSPInstalation, LSPStructures, windows, messages, sysutils, Classes;
+uses LSPInstalation, LSPStructures, windows, messages, sysutils, Classes, SyncObjs;
 
 const
   LSP_Install_success = 1;
@@ -85,7 +85,6 @@ var
   cs : RTL_CRITICAL_SECTION;
   Mmsg: MSG;  //сообщение
 
-
 procedure Register;
 
 implementation
@@ -101,9 +100,11 @@ end;
 // Процедура обработки сообщений
 function WindowProc (wnd: HWND; msg: integer; wparam: WPARAM; lparam: LPARAM):LRESULT;STDCALL;
 begin
-result := 0;
+
+  result := 0;
   case msg of
   WM_action:
+  begin
     case lparam of
     Action_client_connect:
       this_component.addclient(wparam);
@@ -113,9 +114,8 @@ result := 0;
       this_component.clientsend(wparam);
     Action_client_recv:
       this_component.clientrecv(wparam);
-
   end;
-  wm_destroy:;
+  end;
   else
     Result := DefWindowProc(wnd,msg,wparam,lparam);
   end;
@@ -209,6 +209,7 @@ begin
       CloseHandle(MutexHandle);
       TerminateThread(ReciverMEssageProcessThreadHandle, 0); //Рубаем нить с обработкой сообщений
       DestroyWindow(ShareMain.MapData^.ReciverHandle); //убиваем окно рецивера
+      ShareMain.MapData^.ReciverHandle := 0;
       windows.UnregisterClass(apendix, HInstance);
     end;
   inherited destroy;

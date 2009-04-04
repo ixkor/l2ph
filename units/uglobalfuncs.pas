@@ -33,7 +33,13 @@ uses
   Ttunel_Action_disconnect_client = 9; //
   Ttulel_action_tunel_created = 10; //
   Ttulel_action_tunel_destroyed = 11; //  
-
+  type
+  SendMessageParam = class
+  packet:tpacket;
+  FromServer:boolean;
+  Id:integer;
+  tunel:Tobject;
+  end;
   //конвертации//
   function SymbolEntersCount(s: string): string;
   function HexToString(Hex:String):String;
@@ -60,6 +66,7 @@ uses
 
   function GetNamePacket(s:string):string; // вырезаем название пакета из строки
   var
+  isGlobalDestroying : boolean;
   hXorLib:THandle; //хендл библиотеки невхор. устанавливается в SettingsDialog
   pInjectDll : Pointer; //поинер к инжект.длл устанавливается в SettingsDialog
   CreateXorIn: Function(Value:PCodingClass):HRESULT; stdcall; //сюда подключаем невхор (глобал)

@@ -98,7 +98,7 @@ type
     procedure ListViewWindowProcEx(var Message: TMessage) ;
     procedure CreateParams (var Params : TCreateParams); override;
   public
-    procedure ScryptProcessPacket(var newpacket: tpacket; FromServer: boolean; Caller: TObject);
+    procedure ScryptProcessPacket(var newpacket: tpacket; FromServer: boolean; Id:integer);
     procedure ScriptCheckClick(Sender: TObject);
     procedure DestroyAllScripts;
     Function FindScriptByName(name:string):Tscript;
@@ -674,16 +674,14 @@ begin
 StatusBar.SimpleText := (Sender as TControl).Hint;
 end;
 
-procedure TfScript.ScryptProcessPacket(var newpacket: tpacket; FromServer: boolean; Caller: TObject);
+procedure TfScript.ScryptProcessPacket;
 //сюда попадаем перед выводом
 
 var
   temp:string;
   i:integer;
-  id:integer;
   cScript : TScript;
 begin
-  id := tencdec(caller).Ident;
   { TODO :
   ќбработка пакета плагинами и скриптами
   по какойто причине багнуто.

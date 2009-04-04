@@ -16,7 +16,7 @@ const
   Action_closesocket = 7;
 
   //события
-  WM_action = $04F0;               
+  WM_action = $04F1;               
 
 type
 

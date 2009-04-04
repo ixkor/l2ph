@@ -43,7 +43,7 @@ type
     DisconnectAfterDestroy : boolean;
     noFreeAfterDisconnect: boolean;
     procedure NewAction(action : byte; Caller: TObject);
-    procedure NewPacket(FromServer: boolean; Caller: TObject);
+    procedure NewPacket(var Packet:Tpacket;FromServer: boolean; Caller: TObject);
     constructor create(SocketN:integer);
     Procedure   INIT;
     destructor  destroy; override;
@@ -402,14 +402,14 @@ end;
   //SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
 end;
 
-procedure TlspConnection.NewPacket(FromServer: boolean; Caller: TObject);
+procedure TlspConnection.NewPacket(var Packet:Tpacket;FromServer: boolean; Caller: TObject);
 begin
-  fScript.ScryptProcessPacket(TencDec(caller).Packet, FromServer, TencDec(caller)); //отсылаем плагинам и скриптам
-  if TencDec(caller).Packet.Size > 2 then //плагины либо скрипты могли обнулить
-  Visual.NewPacket(TencDec(caller).Packet, FromServer, Caller, -1);
+
+  fScript.ScryptProcessPacket(packet, FromServer, TencDec(Caller).Ident); //отсылаем плагинам и скриптам
+  if Packet.Size > 2 then //плагины либо скрипты могли обнулить
+  Visual.NewPacket(Packet, FromServer, Caller, -1);
 end;
 
-  //SendMessage(L2PacketHackMain.Handle,WM_NewPacket,integer(FromServer),integer(Caller));
 
 procedure TdmData.LSPControlRecv(SocketNum: Cardinal; var buffer: Tbuffer;
   var len: Cardinal);
@@ -419,6 +419,7 @@ var
   PcktLen : Word;
   ResultBuff : Tbuffer;
   ResultLen : cardinal;
+  tmppack:tpacket;
 begin
 
   CriticalSection.Enter;
@@ -440,18 +441,19 @@ begin
   while (LspConnection.TempBufferRecvLen >= PcktLen) and (PcktLen > 0) and (LspConnection.TempBufferRecvLen > 2) do
   begin
     //Засовывем данные с временного буффера в структуру идущую на обработку 
-    Move(LspConnection.TempBufferRecv[0], LspConnection.EncDec.Packet.PacketAsCharArray, PcktLen);
+    Move(LspConnection.TempBufferRecv[0], tmppack.PacketAsCharArray[0], PcktLen);
     //Сдвигаем буффер и Уменьшаем счетчик длинны временого буфера
     move(LspConnection.TempBufferRecv[PcktLen], LspConnection.TempBufferRecv[0], LspConnection.TempBufferRecvLen);
     dec(LspConnection.TempBufferRecvLen, PcktLen);
     //обрабатываем пакет
-    LspConnection.EncDec.DecodePacket(PCK_GS_ToClient);
-    LspConnection.EncDec.EncodePacket(PCK_GS_ToClient);
+    LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToClient);
+    LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToClient);
+
 
     //Перемещаем обработаное во временный результирующий буффер
-    Move(LspConnection.EncDec.Packet.PacketAsCharArray, ResultBuff[ResultLen], LspConnection.EncDec.Packet.Size);
+    Move(tmppack.PacketAsCharArray[0],  ResultBuff[ResultLen], tmppack.Size);
     //увеличиваем длиннну временного результирующего буффера
-    inc(ResultLen, LspConnection.EncDec.Packet.Size);
+    inc(ResultLen, tmppack.Size);
 
     if LspConnection.TempBufferRecvLen > 2 then
       //получаем длинну пакета хранящегося в временном буфере
@@ -490,6 +492,7 @@ var
   PcktLen : Word;
   ResultBuff : Tbuffer;
   ResultLen : cardinal;
+  tmppack:tpacket;
 begin
   CriticalSection.Enter;
   LspConnection := FindLspConnectionBySockNum(SocketNum);
@@ -509,19 +512,19 @@ begin
   while (LspConnection.TempBufferSendLen >= PcktLen) and (PcktLen > 0) and (LspConnection.TempBufferSendLen > 2) do
   begin
     //Засовывем данные с временного буффера в структуру идущую на обработку 
-    Move(LspConnection.TempBufferSend[0], LspConnection.EncDec.Packet.PacketAsCharArray, PcktLen);
+    Move(LspConnection.TempBufferSend[0], tmppack.PacketAsCharArray[0], PcktLen);
     //Сдвигаем и Уменьшаем счетчик длинны временого буфера
     move(LspConnection.TempBufferSend[PcktLen], LspConnection.TempBufferSend[0], LspConnection.TempBufferSendLen);
     dec(LspConnection.TempBufferSendLen, PcktLen);
 
     //обрабатываем пакет
-    LspConnection.EncDec.DecodePacket(PCK_GS_ToServer);
-    LspConnection.EncDec.EncodePacket(PCK_GS_ToServer);
+    LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToServer);
+    LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToServer);
 
     //Перемещаем обработаное во временный результирующий буффер
-    Move(LspConnection.EncDec.Packet.PacketAsCharArray, ResultBuff[ResultLen], LspConnection.EncDec.Packet.Size);
+    Move(tmppack.PacketAsCharArray[0], ResultBuff[ResultLen], tmppack.Size);
     //увеличиваем длиннну временного результирующего буффера
-    inc(ResultLen, LspConnection.EncDec.Packet.Size);
+    inc(ResultLen, tmppack.Size);
 
     if LspConnection.TempBufferSendLen > 2 then
     //получаем длинну пакета хранящегося в временном буфере
@@ -563,27 +566,27 @@ var
 begin
   CriticalSection.Enter;
   //кодируем
-  currentLSP.EncDec.Packet := Packet;
   if ToServer then
     Dirrection := PCK_GS_ToServer
   else
     Dirrection := PCK_GS_ToClient;
-  currentLSP.EncDec.EncodePacket(Dirrection);
+  currentLSP.EncDec.EncodePacket(packet, Dirrection);
 
   //Записываем в буффер совместимый с сендту
   FillChar(dmData.LSPControl.tmpbuff, $ffff, #0);
 
-  Move(currentLSP.EncDec.Packet, dmData.LSPControl.tmpbuff, currentLSP.EncDec.Packet.Size);
+
+  Move(Packet.PacketAsByteArray[0], dmData.LSPControl.tmpbuff[0], Packet.Size);
   
   //получаем номер сокета
   s := TlspConnection(currentLSP).SocketNum;
 
 
   if ToServer then
-    dmData.LSPControl.SendToServer(s, dmData.LSPControl.tmpbuff, currentLSP.EncDec.Packet.Size)
+    dmData.LSPControl.SendToServer(s, dmData.LSPControl.tmpbuff, Packet.Size)
   else
     //exit;{ TODO : Временная мера, надеюсь }
-    dmData.LSPControl.SendToClient(s, dmData.LSPControl.tmpbuff, currentLSP.EncDec.Packet.Size);
+    dmData.LSPControl.SendToClient(s, dmData.LSPControl.tmpbuff, Packet.Size);
   CriticalSection.Leave;
 end;
 
@@ -951,13 +954,13 @@ begin
   if sMethodName = 'SHOWFORM' then
     begin
       UserForm.Show;
-      L2PacketHackMain.ShowUserForm.Enabled := true;
+      L2PacketHackMain.nUserFormShow.Enabled := true;
     end
     else
   if sMethodName = 'HIDEFORM' then
       begin
       UserForm.Hide;
-      L2PacketHackMain.ShowUserForm.Enabled := false;
+      L2PacketHackMain.nUserFormShow.Enabled := false;
     end
 end;
 

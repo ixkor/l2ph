@@ -1,8 +1,8 @@
 object fConvert: TfConvert
   Left = 192
   Top = 114
-  Width = 770
-  Height = 232
+  Width = 729
+  Height = 219
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103
@@ -14,27 +14,28 @@ object fConvert: TfConvert
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  Position = poDesktopCenter
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox4: TGroupBox
     Left = 0
     Top = 0
-    Width = 762
-    Height = 198
+    Width = 721
+    Height = 185
     Align = alClient
     Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103':'
     TabOrder = 0
     object Splitter5: TSplitter
       Left = 356
       Top = 15
-      Height = 162
+      Height = 149
       ResizeStyle = rsUpdate
     end
     object Panel5: TPanel
       Left = 359
       Top = 15
-      Width = 401
-      Height = 162
+      Width = 360
+      Height = 149
       Align = alClient
       BevelOuter = bvNone
       Caption = 'Panel5'
@@ -42,8 +43,8 @@ object fConvert: TfConvert
       object Memo7: TMemo
         Left = 23
         Top = 21
-        Width = 378
-        Height = 141
+        Width = 337
+        Height = 128
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -59,7 +60,7 @@ object fConvert: TfConvert
         Left = 0
         Top = 21
         Width = 23
-        Height = 141
+        Height = 128
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 1
@@ -85,13 +86,13 @@ object fConvert: TfConvert
       object Panel3: TPanel
         Left = 0
         Top = 0
-        Width = 401
+        Width = 360
         Height = 21
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
         DesignSize = (
-          401
+          360
           21)
         object Label1: TLabel
           Left = 23
@@ -101,7 +102,7 @@ object fConvert: TfConvert
           Caption = 'Hex:'
         end
         object CheckBox1: TCheckBox
-          Left = 248
+          Left = 207
           Top = 0
           Width = 145
           Height = 15
@@ -115,7 +116,7 @@ object fConvert: TfConvert
       Left = 2
       Top = 15
       Width = 354
-      Height = 162
+      Height = 149
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 1
@@ -123,7 +124,7 @@ object fConvert: TfConvert
         Left = 0
         Top = 21
         Width = 354
-        Height = 141
+        Height = 128
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -189,8 +190,8 @@ object fConvert: TfConvert
     end
     object StatusBar1: TStatusBar
       Left = 2
-      Top = 177
-      Width = 758
+      Top = 164
+      Width = 717
       Height = 19
       Panels = <>
       SimplePanel = True

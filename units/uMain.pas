@@ -7,71 +7,92 @@ uses
   uGlobalFuncs,
   uResourceStrings,
   advApiHook,
+  SyncObjs,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   ComCtrls, Menus, XPMan, JvExComCtrls, JvComCtrls, JvExControls, JvLabel,
-  ExtCtrls, AppEvnts, Dialogs, JvComponentBase, JvTrayIcon;
+  ExtCtrls, AppEvnts, Dialogs, JvComponentBase, JvTrayIcon, siComp,
+  ActnList;
 
 type
   TL2PacketHackMain = class(TForm)
     StatusBar1: TStatusBar;
     XPManifest1: TXPManifest;
     MainMenu1: TMainMenu;
-    N4: TMenuItem;
-    N10: TMenuItem;
-    Log1: TMenuItem;
+    nFile: TMenuItem;
+    nSettings: TMenuItem;
     N11: TMenuItem;
-    N5: TMenuItem;
-    N8: TMenuItem;
-    N9: TMenuItem;
-    l1: TMenuItem;
-    N12: TMenuItem;
-    N13: TMenuItem;
+    nExitApp: TMenuItem;
+    nHelp: TMenuItem;
+    nAboutDlgShow: TMenuItem;
+    nAdditional: TMenuItem;
+    nProcessesShow: TMenuItem;
+    nConvertorShow: TMenuItem;
     pcClientsConnection: TJvPageControl;
-    N1: TMenuItem;
-    JvLabel1: TJvLabel;
+    nPscketFilterShow: TMenuItem;
+    Splash: TJvLabel;
     UnUsedObjectsDestroyer: TTimer;
-    packetsini1: TMenuItem;
+    nReloadPacketsIni: TMenuItem;
     N2: TMenuItem;
     ApplicationEvents1: TApplicationEvents;
-    ShowUserForm: TMenuItem;
+    nUserFormShow: TMenuItem;
     N6: TMenuItem;
-    N7: TMenuItem;
+    nOpenPlog: TMenuItem;
     dlgOpenLog: TOpenDialog;
-    RAW1: TMenuItem;
-    N3: TMenuItem;
-    N16: TMenuItem;
-    N17: TMenuItem;
+    nOpenRawLog: TMenuItem;
+    nAutomation: TMenuItem;
+    nScriptsShow: TMenuItem;
+    nPluginsShow: TMenuItem;
     trayMenu: TPopupMenu;
     nScripts: TMenuItem;
     MenuItem1: TMenuItem;
     nPlugins: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem4: TMenuItem;
-    MenuItem5: TMenuItem;
+    nExit: TMenuItem;
     JvTrayIcon1: TJvTrayIcon;
-    dasdas1: TMenuItem;
+    nShowHide: TMenuItem;
+    N14: TMenuItem;
+    nLanguage: TMenuItem;
+    lang: TsiLang;
+    RusLang: TMenuItem;
+    EngLang: TMenuItem;
+    ActionList1: TActionList;
+    Action2: TAction;
+    Action3: TAction;
+    Action4: TAction;
+    Action5: TAction;
+    Action6: TAction;
+    Action7: TAction;
+    Action8: TAction;
+    Action9: TAction;
+    Action10: TAction;
+    l2ph1: TMenuItem;
     procedure FormCreate(Sender: TObject);
-    procedure N10Click(Sender: TObject);
-    procedure Log1Click(Sender: TObject);
-    procedure N12Click(Sender: TObject);
-    procedure N13Click(Sender: TObject);
-    procedure N1Click(Sender: TObject);
-    procedure N9Click(Sender: TObject);
+    procedure nSettingsClick(Sender: TObject);
+    procedure nProcessesShowClick(Sender: TObject);
+    procedure nConvertorShowClick(Sender: TObject);
+    procedure nPscketFilterShowClick(Sender: TObject);
+    procedure nAboutDlgShowClick(Sender: TObject);
     procedure UnUsedObjectsDestroyerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure N5Click(Sender: TObject);
-    procedure packetsini1Click(Sender: TObject);
+    procedure nExitAppClick(Sender: TObject);
+    procedure nReloadPacketsIniClick(Sender: TObject);
     procedure ApplicationEvents1Hint(Sender: TObject);
-    procedure ShowUserFormClick(Sender: TObject);
-    procedure N7Click(Sender: TObject);
+    procedure nUserFormShowClick(Sender: TObject);
+    procedure nOpenPlogClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure RAW1Click(Sender: TObject);
-    procedure N17Click(Sender: TObject);
-    procedure N16Click(Sender: TObject);
+    procedure nOpenRawLogClick(Sender: TObject);
+    procedure nPluginsShowClick(Sender: TObject);
+    procedure nScriptsShowClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure JvTrayIcon1Click(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure dasdas1Click(Sender: TObject);
+    procedure nShowHideClick(Sender: TObject);
+    procedure nExitClick(Sender: TObject);
+    procedure RusLangClick(Sender: TObject);
+    procedure EngLangClick(Sender: TObject);
+    procedure Action9Execute(Sender: TObject);
+    procedure l2ph1Click(Sender: TObject);
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
@@ -88,11 +109,12 @@ type
 
 var
   L2PacketHackMain: TL2PacketHackMain;
+  c_s : TCriticalSection;
 
 implementation
 uses uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
-  uAboutDialog, uData, uUserForm, uProcessRawLog, uScripts;
+  uAboutDialog, uData, uUserForm, uProcessRawLog, uScripts, Math;
  
 
 {$R *.dfm}
@@ -103,35 +125,37 @@ procedure TL2PacketHackMain.init;
 var
   ver : string;
 begin
-  ver := uGlobalFuncs.getversion;
-  JvLabel1.Caption := 'L2PacketHack v' + ver + 'a'+#10#13#10#13+'[Нет соединений]';
-  Caption := 'L2PacketHack v' + ver + ' by CoderX.ru Team';
-  fAbout.Memo1.Clear;
-  fAbout.Memo1.Lines.Add('L2PacketHack v' + ver);
-  fAbout.Memo1.Lines.Add('by CoderX.ru Team');
-  fAbout.Memo1.Lines.Add('');
-  fAbout.Memo1.Lines.Add('Поддержать проект:');
-  fAbout.Memo1.Lines.Add('Z245193560959, R183025505328');
-  fAbout.Memo1.Lines.Add('E360790044610, U392200550010');
-  AddToLog('Стартует L2ph v' + ver);
-  sockEngine := TSocketEngine.create;
-  sockEngine.ServerPort := htons(LocalPort);
-  sockEngine.StartServer;
-  sockEngine.isSocks5 := false;//Можно менять в процессе работы, на текущие нити влять не будет
-
   //размер формы
   Top :=Options.ReadInteger('General','Top',0);
   Left :=Options.ReadInteger('General','Left',600);
   Width :=Options.ReadInteger('General','Widht',700);
   Height :=Options.ReadInteger('General','Heigth',960);
 
+  ver := uGlobalFuncs.getversion;
+  Splash.Caption := 'L2PacketHack v'+ ver + 'a'+#10#13#10#13+'[No Connections]';
+  Caption := 'L2PacketHack v' + ver + ' by CoderX.ru Team';
+  fAbout.Memo1.Lines.Insert(0, lang.GetTextOrDefault('IDS_6' (* 'Поддержать проект:' *) ));
+  fAbout.Memo1.Lines.Insert(0,'');
+  fAbout.Memo1.Lines.Insert(0, ' by CoderX.ru Team');
+  fAbout.Memo1.Lines.Insert(0,'L2PacketHack v' + ver);
+
+
+
+
+  AddToLog(lang.GetTextOrDefault('IDS_9' (* 'Стартует L2ph v' *) ) + ver);
+  sockEngine := TSocketEngine.create;
+  sockEngine.ServerPort := htons(LocalPort);
+  sockEngine.StartServer;
+  sockEngine.isSocks5 := false;//Можно менять в процессе работы, на текущие нити влять не будет
 end;
 
 
 
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 begin
+
   HookCode(@ShowMessage,@ShowMessageNew,@ShowMessageOld);
+  c_s := TCriticalSection.Create;
   DoubleBuffered := true;
   FillVersion_a;
   SysMsgIdList := TStringList.Create;
@@ -143,32 +167,36 @@ begin
 
 end;
 
-procedure TL2PacketHackMain.N10Click(Sender: TObject);
+procedure TL2PacketHackMain.nSettingsClick(Sender: TObject);
 begin
-fSettings.Show;
+  if GetForegroundWindow = fSettings.Handle then
+    fSettings.Hide
+  else
+    fSettings.Show;
 end;
 
-procedure TL2PacketHackMain.Log1Click(Sender: TObject);
-begin
-fLog.Show;
-end;
-
-procedure TL2PacketHackMain.N12Click(Sender: TObject);
+procedure TL2PacketHackMain.nProcessesShowClick(Sender: TObject);
 begin
 fProcesses.Show;
 end;
 
-procedure TL2PacketHackMain.N13Click(Sender: TObject);
+procedure TL2PacketHackMain.nConvertorShowClick(Sender: TObject);
 begin
-fConvert.Show;
+  if GetForegroundWindow = fConvert.Handle then
+    fConvert.Hide
+  else
+    fConvert.Show;
 end;
 
-procedure TL2PacketHackMain.N1Click(Sender: TObject);
+procedure TL2PacketHackMain.nPscketFilterShowClick(Sender: TObject);
 begin
-fPacketFilter.show;
+  if GetForegroundWindow = fPacketFilter.Handle then
+    fPacketFilter.Hide
+  else
+    fPacketFilter.Show;
 end;
 
-procedure TL2PacketHackMain.N9Click(Sender: TObject);
+procedure TL2PacketHackMain.nAboutDlgShowClick(Sender: TObject);
 begin
 fAbout.show;
 end;
@@ -185,6 +213,7 @@ var
   NewReddirectIP: Integer;
   IPb:array[0..3] of Byte absolute NewReddirectIP;
 begin
+c_s.Enter;
   msg.ResultHi := LocalPort;
   NewReddirectIP := msg.WParam;
   sockEngine.RedirrectIP := NewReddirectIP;
@@ -205,25 +234,38 @@ begin
     msg.ResultLo:=0;
     AddToLog (Format(rsInjectConnectInterceptedIgnoder, [IPb[0],IPb[1],IPb[2],IPb[3],ntohs(msg.LParamLo)]));
   end;
+c_s.Leave;
 end;
 
 
 procedure TL2PacketHackMain.NewPacket(var msg: TMessage);
 var
-  Packet : TPacket;
+  temp : SendMessageParam;
+  {Packet : TPacket;
   FromServer : boolean;
   Tunel : Ttunel;
+  cEncDec : tencdec;}
 begin
-  packet := TencDec(msg.LParam).Packet;
+c_s.Enter;
+{ TODO : туточки }
+temp := SendMessageParam(pointer(msg.WParam)^);
+fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
+if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
+Ttunel(temp.tunel).Visual.NewPacket(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec, -1);
+
+{  cEncDec := TencDec(pointer(msg.LParam));
+  packet := cEncDec.Packet;
   FromServer := boolean(msg.WParam);
 
-  if assigned(TencDec(msg.LParam).ParentTtunel) then
+  if assigned(cEncDec.ParentTtunel) then
   begin
-    Tunel := Ttunel(TencDec(msg.LParam).ParentTtunel);
-    fScript.ScryptProcessPacket(Packet, FromServer, TencDec(msg.LParam)); //отсылаем плагинам и скриптам
+    Tunel := Ttunel(cEncDec.ParentTtunel);
+    fScript.ScryptProcessPacket(Packet, FromServer, cEncDec); //отсылаем плагинам и скриптам
     if Packet.Size > 2 then //плагины либо скрипты могли обнулить
-    Tunel.Visual.NewPacket(Packet, FromServer, TencDec(msg.LParam), -1);
+    Tunel.Visual.NewPacket(Packet, FromServer, cEncDec, -1);
   end;
+}
+c_s.Leave;
 end;
 
 procedure TL2PacketHackMain.NewAction(var msg: TMessage);
@@ -235,6 +277,7 @@ var
   i:integer;
 
 begin
+c_s.Enter;
 action := byte(msg.wparam);
 
 case action of
@@ -325,13 +368,17 @@ case action of
     end; 
 
   end;
+c_s.Leave;
 end;
 
 procedure TL2PacketHackMain.FormDestroy(Sender: TObject);
 begin
-  UnhookCode(@ShowMessageOld); 
-if Assigned(sockEngine) then
-  sockEngine.destroy;
+  isGlobalDestroying := true;
+  UnhookCode(@ShowMessageOld);
+  c_s.Destroy;
+  if Assigned(sockEngine) then
+    sockEngine.destroy;
+    
   SysMsgIdList.Destroy;
   ItemsList.Destroy;
   NpcIdList.Destroy;
@@ -340,12 +387,12 @@ if Assigned(sockEngine) then
 
 end;
 
-procedure TL2PacketHackMain.N5Click(Sender: TObject);
+procedure TL2PacketHackMain.nExitAppClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TL2PacketHackMain.packetsini1Click(Sender: TObject);
+procedure TL2PacketHackMain.nReloadPacketsIniClick(Sender: TObject);
 begin
   Reload;
 end;
@@ -355,12 +402,15 @@ begin
   StatusBar1.SimpleText := Application.Hint;
 end;
 
-procedure TL2PacketHackMain.ShowUserFormClick(Sender: TObject);
+procedure TL2PacketHackMain.nUserFormShowClick(Sender: TObject);
 begin
-UserForm.show;
+if (GetForegroundWindow = UserForm.Handle) or not nUserFormShow.Enabled then
+  UserForm.Hide
+else
+  UserForm.show;
 end;
 
-procedure TL2PacketHackMain.N7Click(Sender: TObject);
+procedure TL2PacketHackMain.nOpenPlogClick(Sender: TObject);
 var
   NewPacketLogWiev : TpacketLogWiev;
 begin
@@ -376,24 +426,36 @@ procedure TL2PacketHackMain.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if AllowExit then Application.Terminate;
-  if MessageDlg('Вы уверены что хотите выйти из программы?'#10#13'Все соединения прервутся!',mtConfirmation,[mbYes, mbNo],0)=mrYes then Application.Terminate;
+  if MessageDlg(pchar(
+                lang.GetTextOrDefault('IDS_18' (* 'Вы уверены что хотите выйти из программы?' *) ) + #10#13+
+                lang.GetTextOrDefault('IDS_19' (* 'Все соединения прервутся!' *) )),
+                mtConfirmation,[mbYes, mbNo],0)=mrYes then Application.Terminate;
   CanClose:=False;
 end;
 
-procedure TL2PacketHackMain.RAW1Click(Sender: TObject);
+procedure TL2PacketHackMain.nOpenRawLogClick(Sender: TObject);
 begin
-fProcessRawLog.Show;
+  if GetForegroundWindow = fProcessRawLog.Handle then
+    fProcessRawLog.Hide
+  else
+    fProcessRawLog.Show;
 end;
 
-procedure TL2PacketHackMain.N17Click(Sender: TObject);
+procedure TL2PacketHackMain.nPluginsShowClick(Sender: TObject);
 begin
-//ShowMessage('Недоработано. временно отключил.');
-fPlugins.Show;
+  if GetForegroundWindow = fPlugins.Handle then
+    fPlugins.Hide
+  else
+    fPlugins.Show;
+
 end;
 
-procedure TL2PacketHackMain.N16Click(Sender: TObject);
+procedure TL2PacketHackMain.nScriptsShowClick(Sender: TObject);
 begin
-fScript.show;
+  if GetForegroundWindow = fScript.Handle then
+    fScript.Hide
+  else
+    fScript.Show;
 //ShowMessage('Глобальные скрипты еще даже не начинал делать.. отладка имеющегося кода. эта опция не работает. ждите.');
 end;
 
@@ -416,7 +478,7 @@ begin
 if L2PacketHackMain.Visible then SetForegroundWindow(L2PacketHackMain.Handle);}
 end;
 
-procedure TL2PacketHackMain.dasdas1Click(Sender: TObject);
+procedure TL2PacketHackMain.nShowHideClick(Sender: TObject);
 begin
   if JvTrayIcon1.ApplicationVisible then
     JvTrayIcon1.HideApplication
@@ -425,6 +487,40 @@ begin
     JvTrayIcon1.ShowApplication;
     SetForegroundWindow(L2PacketHackMain.Handle);
     end;
+end;
+
+procedure TL2PacketHackMain.nExitClick(Sender: TObject);
+begin
+close;
+end;
+
+procedure TL2PacketHackMain.RusLangClick(Sender: TObject);
+begin
+EngLang.Checked := true;
+RusLang.Checked := false;
+lang.Language := 'Rus';
+fSettings.lang.Language := 'Rus';
+end;
+
+procedure TL2PacketHackMain.EngLangClick(Sender: TObject);
+begin
+EngLang.Checked := false;
+RusLang.Checked := true;
+lang.Language := 'Eng';
+fSettings.lang.Language := 'Eng';
+end;
+
+procedure TL2PacketHackMain.Action9Execute(Sender: TObject);
+begin
+  if Visible then BringToFront; 
+end;
+
+procedure TL2PacketHackMain.l2ph1Click(Sender: TObject);
+begin
+if GetForegroundWindow = fLog.Handle then
+  fLog.Hide
+else
+  fLog.Show;
 end;
 
 end.

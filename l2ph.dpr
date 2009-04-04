@@ -34,6 +34,7 @@ uses
 {$R *.res}
 
 begin
+  isGlobalDestroying := false;
   Application.Initialize;
   Application.Title := 'L2PacketHack';
   Application.CreateForm(TL2PacketHackMain, L2PacketHackMain);
