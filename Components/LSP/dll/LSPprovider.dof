@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=
+OutputDir=..\..\..\build
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -135,6 +135,9 @@ Item0=component\
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=component\
+[HistoryLists\hlOutputDirectorry]
+Count=1
+Item0=..\..\..\build
 [HistoryLists\hlBPLOutput]
 Count=2
 Item0=.

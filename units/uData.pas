@@ -98,6 +98,8 @@ type
     function ConnectNameById(id:integer):string;
     function ConnectIdByName(cname:string):integer;
     procedure SetConName(Id:integer; Name:string);
+    
+              //Каламбурное название :)
     Procedure setNoDisconnectOnDisconnect(id:integer; NoFree:boolean;IsServer:boolean);
     Procedure setNoFreeOnConnectionLost(id:integer; NoFree:boolean);
     procedure DoDisconnect(id:integer);
@@ -961,12 +963,12 @@ begin
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, false, false);
   end else
-  if sMethodName = 'NOCLOSEFRAMEAFTERDOSCONNECT' then begin
+  if sMethodName = 'NOCLOSEFRAMEAFTERDISCONNECT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoFreeOnConnectionLost(ConId, true);
   end else
-  if sMethodName = 'CLOSEFRAMEAFTERDOSCONNECT' then begin
+  if sMethodName = 'CLOSEFRAMEAFTERDISCONNECT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoFreeOnConnectionLost(ConId, false);

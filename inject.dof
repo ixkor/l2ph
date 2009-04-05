@@ -80,7 +80,7 @@ UnsafeType=0
 UnsafeCode=0
 UnsafeCast=0
 [Linker]
-MapFile=3
+MapFile=0
 OutputObjs=0
 ConsoleApp=1
 DebugInfo=0
@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\Build\plugins
+OutputDir=build\
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -139,4 +139,4 @@ Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlOutputDirectorry]
 Count=1
-Item0=..\Build\plugins
+Item0=build\

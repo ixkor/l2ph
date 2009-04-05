@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\Build\plugins
+OutputDir=..\Build\plugins\
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -139,4 +139,4 @@ Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlOutputDirectorry]
 Count=1
-Item0=..\Build\plugins
+Item0=..\Build\plugins\
