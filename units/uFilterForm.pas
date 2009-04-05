@@ -184,22 +184,6 @@ var
   data : array[0..255] of Byte;
   temp : string;
 begin
-i := 0;
-while i < LSPConnections.Count do
-  begin
-    if not TlspConnection(LSPConnections.Items[i]).mustbedestroyed then
-      TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh;
-    inc(i);
-  end;
-
-i := 0;
-while i < sockEngine.tunels.Count do
-  begin
-    if not Ttunel(sockEngine.tunels.Items[i]).MustBeDestroyed then
-      Ttunel(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
-    inc(i);
-  end;
-
   //сохраняем фильтр в файл
   for i:=0 to (ListView2.Items.Count div 8)-1 do begin
     data[i]:=0;
@@ -226,7 +210,7 @@ while i < sockEngine.tunels.Count do
   end;
 
   Options.WriteString('Snifer','FilterC',temp);
-
+  refreshexisting;
 end;
 
 procedure TfPacketFilter.refreshexisting;
@@ -246,9 +230,18 @@ begin
   while i < sockEngine.tunels.Count do
   begin
     if assigned(TlspConnection(sockEngine.tunels.Items[i]).Visual) then
-      TlspConnection(sockEngine.tunels.Items[i]).Visual.PacketListRefresh; 
+      TlspConnection(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
     inc(i);
   end;
+
+  i := 0;
+  while i < PacketLogWievs.Count do
+  begin
+    if assigned(TpacketLogWiev(PacketLogWievs.Items[i]).Visual) then
+      TpacketLogWiev(PacketLogWievs.Items[i]).Visual.PacketListRefresh;
+    inc(i);
+  end;
+
 end;
 
 end.

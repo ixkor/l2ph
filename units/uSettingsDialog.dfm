@@ -13,7 +13,6 @@ object fSettings: TfSettings
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poMainFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96

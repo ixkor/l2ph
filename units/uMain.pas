@@ -386,6 +386,7 @@ end;
 procedure TL2PacketHackMain.nReloadPacketsIniClick(Sender: TObject);
 begin
   Reload;
+  fPacketFilter.refreshexisting;
 end;
 
 procedure TL2PacketHackMain.ApplicationEvents1Hint(Sender: TObject);

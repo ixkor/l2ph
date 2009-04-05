@@ -14,7 +14,6 @@ object fConvert: TfConvert
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDesktopCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96

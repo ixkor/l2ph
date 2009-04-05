@@ -111,6 +111,7 @@ type
     ProgressBar1: TProgressBar;
     Label3: TLabel;
     lang: TsiLang;
+    ReloadThis: TToolButton;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -123,7 +124,7 @@ type
     procedure ToolButton17Click(Sender: TObject);
     procedure ToolButton6Click(Sender: TObject);
     procedure tbtnSaveClick(Sender: TObject);
-    procedure ToolButton10Click(Sender: TObject);
+    procedure CloseConnectionClick(Sender: TObject);
     procedure tbtnClearClick(Sender: TObject);
     procedure tbtnFilterDelClick(Sender: TObject);
     procedure tbtnDeleteClick(Sender: TObject);
@@ -149,6 +150,7 @@ type
     procedure btnSaveRawClick(Sender: TObject);
     procedure OpenBtnClick(Sender: TObject);
     procedure FrameResize(Sender: TObject);
+    procedure ReloadThisClick(Sender: TObject);
   private
     { Private declarations }
     typ0 : String;
@@ -1186,7 +1188,7 @@ begin
   end;
 end;
 
-procedure TfVisual.ToolButton10Click(Sender: TObject);
+procedure TfVisual.CloseConnectionClick(Sender: TObject);
 begin
 if MessageDlg(lang.GetTextOrDefault('reallywant' (* 'Это действие закроет данный диалог и прервет текущее соединение' *) ) + #10#13+lang.GetTextOrDefault('reallywant2' (* 'если оно существует. Вы уверены ?' *) ),mtWarning,[mbYes,mbNo],0) = mrCancel then exit;
   if assigned(currenttunel) then
@@ -1873,7 +1875,7 @@ var
 begin
 while dumpacumulator.Count > 0 do
 begin
-  if Dump.Count < MaxLinesInPktLog then
+  if Dump.Count >= MaxLinesInPktLog then
     SavePacketLog;
   if dumpacumulator.Count = 0 then exit;
   PacketNumber := Dump.Count;
@@ -1891,6 +1893,12 @@ end;
 procedure TfVisual.Translate;
 begin
   Lang.Language := L2PacketHackMain.lang.Language;
+end;
+
+procedure TfVisual.ReloadThisClick(Sender: TObject);
+begin
+  Reload;
+  PacketListRefresh;
 end;
 
 end.
