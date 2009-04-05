@@ -37,7 +37,9 @@ type
   Visual: TfVisual;
   AssignedTabSheet : TTabSheet;
   TunelWork:boolean;
-  noFreeAfterDisconnect : Boolean;
+  noFreeAfterDisconnect : Boolean; //не будет высвобождать обьект при дисконекте
+  noFreeOnServerDisconnect : boolean; //При дисконекте сервера будет инициализироваться дисконект клиента
+  noFreeOnClientDisconnect : boolean; //и наоборот
   MustBeDestroyed : boolean;
   CharName : string;
   EncDec : TEncDec;
@@ -248,22 +250,31 @@ begin
     end;
   end;//While LastResult <> SOCKET_ERROR do
 
-    AddToLog(Format(rsTunelServerDisconnect, [integer(pointer(thisTunel))]));
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //сюда попадаем когда отвалился сервер
+  //Пишем в лог
+  AddToLog(Format(rsTunelServerDisconnect, [integer(pointer(thisTunel))]));
 
-    //сюда попадаем когда отвалился сервер
-    thisTunel.sendNewAction(Ttunel_Action_disconnect_server);
-    //Интересно.. а так можно сделать ? -)
-    thisTunel.Visual.ThisOneDisconnected;
-    //
-    //не разрываем связь если отключен сервер и noFreeOnServerDisconnect
-    while (thisTunel.noFreeAfterDisconnect)  do Sleep(1);
+  //уведомляем плугины
+  thisTunel.sendNewAction(Ttunel_Action_disconnect_server);
+    
+  //дисейблим некоторые кнопки в визуале
+  thisTunel.Visual.ThisOneDisconnected;
 
-    //закрываем сокеты
-    DeinitSocket(thisTunel.serversocket,WSAGetLastError);
-    DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
-    thisTunel.TunelWork := false;
+  //пишем в лог (добиваем сокет)
+  DeinitSocket(thisTunel.serversocket,WSAGetLastError);
+
+  //не разрываем связь c клиентом если отключен сервер и noFreeOnServerDisconnect
+  while thisTunel.noFreeOnServerDisconnect do sleep(1);
+
+  //закрываем  клиент
+  DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
+  thisTunel.TunelWork := false;
+
+  //ставим этому обьекту статус камикадзе если надо.
+  if not thisTunel.noFreeAfterDisconnect then
     thisTunel.MustBeDestroyed := true;
-  end;
+end;
 end;
 
 Procedure ClientBody(thisTunel:Ttunel);
@@ -361,21 +372,31 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     end;
   end;//While LastResult <> SOCKET_ERROR do
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //сюда попадаем когда отвалился клиент
+    
+  //Пишем в лог
   AddToLog(Format(rsTunelClientDisconnect, [integer(pointer(thisTunel))]));
 
+  //уведомляем плугины
   thisTunel.sendNewAction(Ttunel_Action_disconnect_client);
 
-  //не разрываем связь если отключен сервер и noFreeOnServerDisconnect
-  //Интересно.. а так можно сделать ? -)
+  //дисейблим некоторые кнопки в визуале
   thisTunel.Visual.ThisOneDisconnected;
-  //
-  while thisTunel.noFreeAfterDisconnect do Sleep(1);
 
-  //закрываем сокеты
-  DeinitSocket(thisTunel.serversocket,WSAGetLastError);
+  //пишем в лог (добиваем сокет)
   DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
+
+  //не разрываем связь c сервером если отключен клиент и noFreeOnClientDisconnect
+  while thisTunel.noFreeOnClientDisconnect do sleep(1);
+
+
+  //закрываем серверный сокет
+  DeinitSocket(thisTunel.serversocket,WSAGetLastError);
   thisTunel.TunelWork := false;
 
+  //ставим этому обьекту статус камикадзе если надо.
+  if not thisTunel.noFreeAfterDisconnect then
+    thisTunel.MustBeDestroyed := true;
 end;
 end;
 
@@ -636,6 +657,8 @@ begin
   AddToLog(Format(rsTunelCreated, [integer(pointer(Self))]));
   TunelWork := false;
   noFreeAfterDisconnect := GlobalNoFreeAfterDisconnect;
+  noFreeOnClientDisconnect := false;
+  noFreeOnServerDisconnect := false;
   MustBeDestroyed := false;
   cursockengine := SockEngine;
   EncDec := TencDec.create;
@@ -694,7 +717,6 @@ begin
   tmp.Id := TencDec(Caller).Ident;
   SendMessage(L2PacketHackMain.Handle, WM_NewPacket, integer(@tmp), 0);
   Packet := tmp.packet;
-  tmp.Destroy;
 end;
 
 procedure Ttunel.RUN;

@@ -98,6 +98,7 @@ type
   private
     { Private declarations }
     procedure NewPacket(var msg: TMessage); Message WM_NewPacket;
+    procedure ProcessPacket(var msg: TMessage); Message WM_ProcessPacket;
     procedure NewAction(var msg: TMessage); Message WM_NewAction;
     procedure ReadMsg(var msg: TMessage); Message WM_Dll_Log;
   public
@@ -241,30 +242,16 @@ end;
 procedure TL2PacketHackMain.NewPacket(var msg: TMessage);
 var
   temp : SendMessageParam;
-  {Packet : TPacket;
-  FromServer : boolean;
-  Tunel : Ttunel;
-  cEncDec : tencdec;}
 begin
 c_s.Enter;
 { TODO : туточки }
 temp := SendMessageParam(pointer(msg.WParam)^);
 fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
 if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
-Ttunel(temp.tunel).Visual.NewPacket(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec, -1);
+Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
 
-{  cEncDec := TencDec(pointer(msg.LParam));
-  packet := cEncDec.Packet;
-  FromServer := boolean(msg.WParam);
-
-  if assigned(cEncDec.ParentTtunel) then
-  begin
-    Tunel := Ttunel(cEncDec.ParentTtunel);
-    fScript.ScryptProcessPacket(Packet, FromServer, cEncDec); //отсылаем плагинам и скриптам
-    if Packet.Size > 2 then //плагины либо скрипты могли обнулить
-    Tunel.Visual.NewPacket(Packet, FromServer, cEncDec, -1);
-  end;
-}
+{ TODO : here }
+PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
 c_s.Leave;
 end;
 
@@ -468,6 +455,7 @@ end;
 
 procedure TL2PacketHackMain.FormActivate(Sender: TObject);
 begin
+{ TODO : При переключении с другого приложение на пх - в таскбаре не активируется кнопка. }
   ShowWindow(Application.Handle, SW_HIDE);
 end;
 
@@ -496,16 +484,16 @@ end;
 
 procedure TL2PacketHackMain.RusLangClick(Sender: TObject);
 begin
-EngLang.Checked := true;
-RusLang.Checked := false;
+EngLang.Checked := false;
+RusLang.Checked := true;
 lang.Language := 'Rus';
 fSettings.lang.Language := 'Rus';
 end;
 
 procedure TL2PacketHackMain.EngLangClick(Sender: TObject);
 begin
-EngLang.Checked := false;
-RusLang.Checked := true;
+EngLang.Checked := true;
+RusLang.Checked := false;
 lang.Language := 'Eng';
 fSettings.lang.Language := 'Eng';
 end;
@@ -521,6 +509,14 @@ if GetForegroundWindow = fLog.Handle then
   fLog.Hide
 else
   fLog.Show;
+end;
+
+procedure TL2PacketHackMain.ProcessPacket(var msg: TMessage);
+var
+visual:tfvisual;
+begin
+  visual := TfVisual(pointer(msg.WParam)^);
+  visual.processpacketfromacum;
 end;
 
 end.

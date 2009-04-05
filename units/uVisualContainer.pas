@@ -162,11 +162,13 @@ type
     HexViewOffset: boolean;   //показывать смещение в Hex формате
     SelAttributes: TColor;
   public
-    dump : TStringList;
+    dump, dumpacumulator : TStringList;
     hexvalue: string; //дл€ вывода HEX в расшифровке пакетов
     currenttunel, currentLSP, CurrentTpacketLog : Tobject;
     CharName : string;
-    procedure NewPacket(var newpacket: tpacket; FromServer: boolean; Caller: TObject; PacketNumber:integer);
+    procedure ProcessPacket(newpacket: tpacket; FromServer: boolean; Caller: TObject; PacketNumber:integer);
+    Procedure processpacketfromacum();
+    procedure AddPacketToAcum(newpacket: tpacket; FromServer: boolean; Caller: TObject);
     procedure init();
     procedure deinit();
     procedure ListViewChange(Item: TListItem; Memo, Memo2: TJvRichEdit);
@@ -180,7 +182,6 @@ type
     procedure sendThis(str:string);
 
     Procedure SavePacketLog;                      //сохран€ет Dump в файл
-    Procedure AddPacketToLog(Packet: TPacket;FromServer:boolean); //‘орматирует и ƒобавл€ет пакет в Dump
     Procedure PacketListRefresh;
     Procedure DisableBtns;
     Procedure EnableBtns;
@@ -209,6 +210,7 @@ begin
       btnSaveRaw.Visible := TlspConnection(currentLSP).isRawAllowed;
 
   Dump := TStringList.Create;
+  dumpacumulator := TStringList.Create;
   ToolButton7.Down := GlobalSettings.isSaveLog;
   if CurrentTpacketLog <> nil then //просмотр логов. просто скрываем все ненужное.
     begin
@@ -235,9 +237,10 @@ procedure TfVisual.deinit;
 begin
   SavePacketLog;
   Dump.Destroy;
+  dumpacumulator.Destroy;
 end;
 
-procedure TfVisual.NewPacket;
+procedure TfVisual.Processpacket;
     Procedure AddToListView5(ItemImageIndex:byte; ItemCaption:String; ItemPacketNumber: LongWord; ItemId, ItemSubId : word; Visible : boolean);
     var
       str : string;
@@ -297,14 +300,10 @@ var
   i: integer;
 
 begin
-  if PacketNumber = -1 then
-    begin
-      PacketNumber := Dump.Count;
-      AddPacketToLog(newpacket, FromServer);
-    end;
-
-  if PacketNumber >= Dump.Count then exit;
+  if PacketNumber < 0 then exit; //или -1 0_о
+  if PacketNumber >= Dump.Count then exit; //или индекс оф боундс -)
   if newpacket.Size = 0 then exit; // если пустой пакет выходим
+  
   id := newpacket.Data[0];
   SubId := Word(id shl 8+Byte(newpacket.Data[1]));
 
@@ -1181,35 +1180,6 @@ begin
   SaveThis.Free;
 end;
 
-procedure TfVisual.AddPacketToLog;
-var
-  TimeStep : TDateTime;
-  TimeStepB: array [0..7] of Byte;
-  apendix : string;
-  sLastPacket : string;
-begin
-  //на серве - апендикс 04, на клиент = 03
-  if FromServer then
-    apendix := '03'
-  else
-    apendix := '04';
-
-  TimeStep := now;
-  Move(TimeStep,TimeStepB,8);
-
-  sLastPacket :=
-           Apendix +
-           ByteArrayToHex(TimeStepB,8) +
-           ByteArrayToHex(Packet.PacketAsByteArray, Packet.Size);
-
-  Dump.Add(sLastPacket);
-
-//  sendAction(TencDec_Action_LOG);
-
-  if Dump.Count < MaxLinesInPktLog then
-    SavePacketLog;
-end;
-
 procedure TfVisual.ToolButton10Click(Sender: TObject);
 begin
 if MessageDlg('Ёто действие закроет данный диалог и прервет текущее соединение'#10#13'если оно существует. ¬ы уверены ?',mtWarning,[mbYes,mbNo],0) = mrCancel then exit;
@@ -1302,7 +1272,7 @@ begin
       FromServer := (str[2]='3');
       Delete(str,1,18);
       HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
-      NewPacket(Currentpacket, FromServer, nil, i);
+      ProcessPacket(Currentpacket, FromServer, nil, i);
     end;
   finally
     ListView5.Items.EndUpdate;
@@ -1842,6 +1812,57 @@ procedure TfVisual.FrameResize(Sender: TObject);
 begin
 waitbar.Left := round((Self.Width-waitbar.Width)/2);
 waitbar.Top := round((Self.Height-waitbar.Height)/2);
+end;
+
+procedure TfVisual.AddPacketToAcum;
+var
+  TimeStep : TDateTime;
+  TimeStepB: array [0..7] of Byte;
+  apendix : string;
+  sLastPacket : string;
+begin
+  //на серве - апендикс 04, на клиент = 03
+  if FromServer then
+    apendix := '03'
+  else
+    apendix := '04';
+
+  TimeStep := now;
+  Move(TimeStep,TimeStepB,8);
+
+  sLastPacket :=
+           Apendix +
+           ByteArrayToHex(TimeStepB,8) +
+           ByteArrayToHex(newpacket.PacketAsByteArray, newpacket.Size);
+
+  dumpacumulator.Add(sLastPacket);
+
+//  sendAction(TencDec_Action_LOG);
+
+end;
+
+procedure TfVisual.processpacketfromacum;
+var
+  packetnumber:integer;
+  str : string;
+  FromServer:boolean;
+  Currentpacket : TPacket;
+begin
+while dumpacumulator.Count > 0 do
+begin
+  if Dump.Count < MaxLinesInPktLog then
+    SavePacketLog;
+  if dumpacumulator.Count = 0 then exit;
+  PacketNumber := Dump.Count;
+  dump.Add(dumpacumulator.Strings[0]);
+  dumpacumulator.Delete(0);
+  //смотрим второй байт в каждом пакете
+  str := dump.Strings[PacketNumber];
+  FromServer := (str[2]='3');
+  Delete(str,1,18);
+  HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
+  ProcessPacket(Currentpacket, FromServer, nil, packetnumber);
+end;
 end;
 
 end.

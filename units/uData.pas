@@ -98,7 +98,8 @@ type
     function ConnectNameById(id:integer):string;
     function ConnectIdByName(cname:string):integer;
     procedure SetConName(Id:integer; Name:string);
-    Procedure setNoFreeOnDisconnect(id:integer; NoFree:boolean);
+    Procedure setNoDisconnectOnDisconnect(id:integer; NoFree:boolean;IsServer:boolean);
+    Procedure setNoFreeOnConnectionLost(id:integer; NoFree:boolean);
     procedure DoDisconnect(id:integer);
     function Compile(var fsScript: TfsScript; var JvHLEditor: TJvHLEditor; var StatBat:TStatusBar): Boolean;
   end;
@@ -404,10 +405,13 @@ end;
 
 procedure TlspConnection.NewPacket(var Packet:Tpacket;FromServer: boolean; Caller: TObject);
 begin
-
   fScript.ScryptProcessPacket(packet, FromServer, TencDec(Caller).Ident); //отсылаем плагинам и скриптам
   if Packet.Size > 2 then //плагины либо скрипты могли обнулить
-  Visual.NewPacket(Packet, FromServer, Caller, -1);
+  Visual.AddPacketToAcum(Packet, FromServer, Caller);
+  { TODO : here }
+
+  //ух.. и длинная же строчка..
+  PostMessage(L2PacketHackMain.Handle, WM_ProcessPacket,integer(pointer(tfvisual(ttunel(TencDec(Caller).ParentTtunel).Visual))),integer(@packet));
 end;
 
 
@@ -619,8 +623,12 @@ begin
   fsScript.AddMethod('procedure SendToServer('+fss+')',CallMethod);
   fsScript.AddMethod('procedure SendToClientEx(CharName:string;'+fss+')',CallMethod);
   fsScript.AddMethod('procedure SendToServerEx(CharName:string;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure NoFreeOnDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure FreeOnDisconnect('+fss+')',CallMethod);
+  fsScript.AddMethod('procedure NoCloseFrameAfterDisconnect('+fss+')',CallMethod);
+  fsScript.AddMethod('procedure CloseFrameAfterDisconnect('+fss+')',CallMethod);
+  fsScript.AddMethod('procedure NoCloseClientAfterServerDisconnect('+fss+')',CallMethod);
+  fsScript.AddMethod('procedure CloseClientAfterServerDisconnect('+fss+')',CallMethod);
+  fsScript.AddMethod('procedure NoCloseServerAfterClientDisconnect('+fss+')',CallMethod);
+  fsScript.AddMethod('procedure CloseServerAfterClientDisconnect('+fss+')',CallMethod);
   fsScript.AddMethod('procedure Disconnect('+fss+')',CallMethod);
   fsScript.AddMethod('function ConnectNameByID(id:integer;'+fss+'):string',CallMethod);
   fsScript.AddMethod('function ConnectIDByName(name:string;'+fss+'):integer',CallMethod);
@@ -933,18 +941,36 @@ begin
     ConId:=TfsScript(Integer(Params[1])).Variables['ConnectID'];
     SetConName(ConId, String(Params[0]));
   end else
-  if sMethodName = 'NOFREEONDISCONNECT' then begin
+  if sMethodName = 'NOCLOSESERVERAFTERCLIENTDISCONNECT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
-    setNoFreeOnDisconnect(ConId, true);
+    setNoDisconnectOnDisconnect(ConId, true, false);
   end else
-  if sMethodName = 'FREEONDISCONNECT' then begin
+  if sMethodName = 'CLOSESERVERAFTERCLIENTDISCONNECT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
-    setNoFreeOnDisconnect(ConId, false);
-  end
-
-   else
+    setNoDisconnectOnDisconnect(ConId, false, true);
+  end else
+  if sMethodName = 'NOCLOSECLIENTAFTERSERVERDISCONNECT' then begin
+    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
+    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
+    setNoDisconnectOnDisconnect(ConId, true, true);
+  end else
+  if sMethodName = 'CLOSECLIENTAFTERSERVERDISCONNECT' then begin
+    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
+    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
+    setNoDisconnectOnDisconnect(ConId, false, false);
+  end else
+  if sMethodName = 'NOCLOSEFRAMEAFTERDOSCONNECT' then begin
+    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
+    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
+    setNoFreeOnConnectionLost(ConId, true);
+  end else
+  if sMethodName = 'CLOSEFRAMEAFTERDOSCONNECT' then begin
+    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
+    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
+    setNoFreeOnConnectionLost(ConId, false);
+  end ELSE
   if sMethodName = 'DISCONNECT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
@@ -984,7 +1010,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if TlspConnection(sockEngine.tunels.Items[i]).SocketNum = tid then
+    if Ttunel(sockEngine.tunels.Items[i]).serversocket = tid then
       begin
         Ttunel(sockEngine.tunels.Items[i]).EncryptAndSend(Packet, toserver);
         exit;
@@ -1093,29 +1119,21 @@ begin
   end;
 end;
 
-procedure TdmData.setNoFreeOnDisconnect(id: integer; NoFree: boolean);
+procedure TdmData.setNoDisconnectOnDisconnect(id: integer; NoFree: boolean;IsServer:boolean);
 var
   i : integer;
 begin
 // Совместимо.
 //Назначить nofree
   i := 0;
-  while i < LSPConnections.Count do
-  begin
-    if TlspConnection(LSPConnections.Items[i]).SocketNum = id then
-      begin
-        TlspConnection(LSPConnections.Items[i]).noFreeAfterDisconnect := NoFree;
-        exit;
-      end;
-    inc(i);
-  end;
-
-  i := 0;
   while i < sockEngine.tunels.Count do
   begin
     if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
       begin
-        Ttunel(sockEngine.tunels.Items[i]).noFreeAfterDisconnect := NoFree;
+        if IsServer then
+        Ttunel(sockEngine.tunels.Items[i]).noFreeOnServerDisconnect := NoFree
+        else
+        Ttunel(sockEngine.tunels.Items[i]).noFreeOnClientDisconnect := NoFree;
         exit;
       end;
     inc(i);
@@ -1194,6 +1212,36 @@ begin
     inc(i);
   end;
 end;
+
+procedure TdmData.setNoFreeOnConnectionLost(id: integer; NoFree:boolean);
+var
+  i : integer;
+begin
+// Совместимо.
+//Назначить nofree
+  i := 0;
+  while i < LSPConnections.Count do
+  begin
+    if TlspConnection(LSPConnections.Items[i]).SocketNum = id then
+      begin
+        TlspConnection(LSPConnections.Items[i]).noFreeAfterDisconnect := NoFree;
+        exit;
+      end;
+    inc(i);
+  end;
+
+  i := 0;
+  while i < sockEngine.tunels.Count do
+  begin
+    if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
+      begin
+        Ttunel(sockEngine.tunels.Items[i]).noFreeAfterDisconnect := NoFree;
+        exit;
+      end;
+    inc(i);
+  end;
+end;
+
 
 { TpacketLogWiev }
 
