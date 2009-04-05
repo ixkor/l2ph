@@ -1,9 +1,8 @@
 object L2PacketHackMain: TL2PacketHackMain
-  Left = 341
-  Top = 365
+  Left = 279
+  Top = 213
   Width = 784
   Height = 590
-  Caption = 'Action1'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -156,10 +155,14 @@ object L2PacketHackMain: TL2PacketHackMain
         object RusLang: TMenuItem
           Caption = #1056#1091#1089#1089#1082#1080#1081
           Checked = True
+          GroupIndex = 1
+          RadioItem = True
           OnClick = RusLangClick
         end
         object EngLang: TMenuItem
           Caption = 'English'
+          GroupIndex = 1
+          RadioItem = True
           OnClick = EngLangClick
         end
       end
@@ -2826,6 +2829,7 @@ object L2PacketHackMain: TL2PacketHackMain
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    OnChangeLanguage = langChangeLanguage
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

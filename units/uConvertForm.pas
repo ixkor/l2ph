@@ -32,6 +32,8 @@ type
     procedure Memo6Change(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Memo7Change(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -150,6 +152,18 @@ end;
 procedure TfConvert.Memo7Change(Sender: TObject);
 begin
   if CheckBox1.Checked then Button5Click(Sender);
+end;
+
+procedure TfConvert.FormCreate(Sender: TObject);
+begin
+  loadpos(self);
+
+end;
+
+procedure TfConvert.FormDestroy(Sender: TObject);
+begin
+  savepos(self);
+  
 end;
 
 end.

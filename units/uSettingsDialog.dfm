@@ -76,7 +76,7 @@ object fSettings: TfSettings
         object ChkNoDecrypt: TCheckBox
           Left = 6
           Top = 18
-          Width = 183
+          Width = 300
           Height = 17
           Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1077#1090' '#1090#1088#1072#1092#1080#1082' '#1082#1072#1082' '#1086#1085' '#1087#1088#1080#1093#1086#1076#1080#1090
           Caption = #1053#1077' '#1076#1077#1096#1080#1092#1088#1086#1074#1099#1074#1072#1090#1100' '#1090#1088#1072#1092#1080#1082
@@ -88,7 +88,7 @@ object fSettings: TfSettings
         object ChkChangeXor: TCheckBox
           Left = 6
           Top = 34
-          Width = 183
+          Width = 300
           Height = 17
           Hint = #1054#1073#1093#1086#1076' '#1079#1072#1097#1080#1090' '#1084#1077#1085#1103#1102#1097#1080#1093' '#1085#1072#1095#1072#1083#1100#1085#1099#1081' '#1082#1083#1102#1095' '#1096#1080#1092#1088#1072#1094#1080#1080' XOR'
           Caption = #1054#1073#1093#1086#1076' '#1089#1084#1077#1085#1099' XOR '#1082#1083#1102#1095#1072
@@ -100,7 +100,7 @@ object fSettings: TfSettings
         object ChkKamael: TCheckBox
           Left = 6
           Top = 50
-          Width = 167
+          Width = 300
           Height = 17
           Hint = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1076#1083#1103' '#1089#1077#1088#1074#1077#1088#1086#1074' '#1090#1080#1087#1072' Kamael - Hellbound - Gracia'
           Caption = 'Kamael-Hellbound-Gracia'
@@ -114,7 +114,7 @@ object fSettings: TfSettings
         object ChkGraciaOff: TCheckBox
           Left = 6
           Top = 66
-          Width = 203
+          Width = 300
           Height = 17
           Hint = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1090#1086#1083#1100#1082#1086' '#1076#1083#1103' '#1088#1091#1089#1089#1082#1086#1075#1086' '#1086#1092#1080#1094#1080#1072#1083#1100#1085#1086#1075#1086' '#1089#1077#1088#1074#1077#1088#1072' L2.RU'
           Caption = 'Gracia (off server) ('#1091#1089#1090#1072#1088#1077#1083#1086' '#1085#1072' '#1083'2.'#1088#1091')'
@@ -201,7 +201,7 @@ object fSettings: TfSettings
       object ChkIntercept: TCheckBox
         Left = 12
         Top = 14
-        Width = 245
+        Width = 309
         Height = 17
         Hint = #1056#1072#1079#1088#1077#1096#1072#1077#1090' '#1087#1086#1080#1089#1082' '#1085#1086#1074#1099#1093' '#1082#1083#1080#1077#1085#1090#1086#1074', '#1080' '#1087#1077#1088#1077#1093#1074#1072#1090' '#1080#1093' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1081'.'
         Caption = #1055#1077#1088#1077#1093#1074#1072#1090';  '#1048#1089#1082#1072#1090#1100' '#1082#1083#1080#1077#1085#1090'                    '#1089#1077#1082'.'
@@ -228,7 +228,7 @@ object fSettings: TfSettings
       object ChkSocks5: TCheckBox
         Left = 12
         Top = 213
-        Width = 116
+        Width = 309
         Height = 17
         Hint = #1055#1072#1082#1077#1090#1093#1072#1082' '#1088#1072#1073#1086#1090#1072#1077#1090' '#1082#1072#1082' '#1087#1088#1086#1082#1089#1080'-'#1089#1077#1088#1074#1077#1088
         Caption = 'Socks5 '#1089#1077#1088#1074#1077#1088
@@ -249,7 +249,7 @@ object fSettings: TfSettings
       object ChkLSPIntercept: TCheckBox
         Left = 12
         Top = 137
-        Width = 214
+        Width = 317
         Height = 17
         Hint = #1048#1089#1087#1086#1083#1100#1079#1091#1077#1090' LSP '#1076#1083#1103' '#1087#1077#1088#1077#1093#1074#1072#1090#1072' '#1090#1088#1072#1092#1092#1080#1082#1072'.'
         Caption = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' LSP '#1087#1077#1088#1077#1093#1074#1072#1090
@@ -436,6 +436,21 @@ object fSettings: TfSettings
         Identifier = 'isNewxor.EditLabel.Caption'
         PropertyType = tkLString
         ValuesEx = {CFF1E5E2E4EEEDE8EC204E6577786F7201C8ECFF204E6577586F7201}
+      end
+      item
+        Identifier = 'isIgnorePorts.EditLabel.Caption'
+        PropertyType = tkLString
+        ValuesEx = {
+          CDE5E8E3F0EEE2FBE520EFEEF0F2FB3A01446F206E6F7420696E746572636570
+          7420636F6E6E656374696F6E73206F6E20706F7274733A01}
+      end
+      item
+        Identifier = 'isClientsList.EditLabel.Caption'
+        PropertyType = tkLString
+        ValuesEx = {
+          D1F7E8F2E0F2FC20EAEBE8E5EDF2E0ECE82FE1EEF2E0ECE820EFF0EEE3F0E0EC
+          ECFB3A01496E7465726365707420636F6E6E656374696F6E7320696E20746865
+          657365206170706C69636174696F6E733A01}
       end>
     Left = 16
     Top = 16

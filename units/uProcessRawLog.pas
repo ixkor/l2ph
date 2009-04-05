@@ -4,9 +4,10 @@ interface
 
 uses
   usharedstructs,
+  uVisualContainer,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ImgList, ComCtrls, ToolWin, StdCtrls, JvExStdCtrls, JvRichEdit,
-  ExtCtrls;
+  ExtCtrls, siComp;
 
 type
   TfProcessRawLog = class(TForm)
@@ -35,6 +36,7 @@ type
     waitbar: TPanel;
     Label3: TLabel;
     ProgressBar1: TProgressBar;
+    lang: TsiLang;
     procedure btnNoExplodeClick(Sender: TObject);
     procedure btnExplodeClick(Sender: TObject);
     procedure btnOpenRawClick(Sender: TObject);
@@ -51,6 +53,7 @@ type
     { Private declarations }
   public
     filename:string;
+    visual : TfVisual;
     procedure addcolored(dTime:tdatetime; Direction:byte; data:string);
     procedure parserawlog(filename:string);
     Function AnotherLoadLibraryXor(const name: string): boolean;
@@ -63,10 +66,9 @@ var
   fProcessRawLog: TfProcessRawLog;
 
 implementation
-uses uresourcestrings, uGlobalFuncs, uencdec, uvisualcontainer;
+uses uresourcestrings, uGlobalFuncs, uencdec;
 var
   encdec : TencDec;
-  visual : TfVisual;
   anotherXorLib : thandle;
   AnotherCreateXorIn: Function(Value:PCodingClass):HRESULT; stdcall; //сюда подключаем невхор (глобал)
   AnotherCreateXorOut: Function(Value:PCodingClass):HRESULT; stdcall; //обе устанавливаются в устанавливается в SettingsDialog (глобал)
@@ -243,13 +245,13 @@ begin
    ms.ReadBuffer(size,2);
    ms.ReadBuffer(dtime,8);
 
-   if ms.Position + Size > ms.Size then
+   if (ms.Position + Size > ms.Size) or (size <= 11) then
      begin
-       MessageBox(0,'Лог RAW пакетов скорей всего поврежден','Ошибка',MB_OK);
+       MessageBox(0,pchar(Lang.GetTextOrDefault('Corrupted' (* 'Лог RAW пакетов скорей всего поврежден' *) )),pchar(Lang.GetTextOrDefault('Error' (* 'Ошибка' *) )),MB_OK);
        break;
      end;
 
-   ms.ReadBuffer(data,size);
+   ms.ReadBuffer(data[0],size);
    if (btnNoExplode.Down) and (not btnDecrypt.Down) then
      addcolored(dTime, Dirrection, ByteArrayToHex(data,Size))
    else //Explode
@@ -274,17 +276,17 @@ begin
                  encdec.DecodePacket(TmpPacket2,Dirrection);
                  tmppacket3 := TmpPacket2;
                  addcolored(dTime,Dirrection,ByteArrayToHex(TmpPacket2.PacketAsByteArray, TmpPacket2.Size)); //рисуем
-                 AddPacketToLog(dTime,false, TmpPacket2);
+                 AddPacketToLog(dTime, false, TmpPacket2);
                  encdec.EncodePacket(tmppacket3,Dirrection);
 
                  if not CompareMem(@tmpPacket,@tmppacket3, tmpPacket.Size) then
                    begin
                    //Неправильно расшифровует либо криптует
-                   JvRichEdit1.Lines.Add('Пакет #'+inttostr(pcktCount)+' до декриптовки/криптовки:');
+                   JvRichEdit1.Lines.Add(Lang.GetTextOrDefault('packetnum' (* 'Пакет #' *) )+inttostr(pcktCount)+Lang.GetTextOrDefault('be4decrypt' (* ' до декриптовки/криптовки:' *) ));
                    JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket.PacketAsByteArray[0], TmpPacket.Size));
-                   JvRichEdit1.Lines.Add('Вид декриптованого:');
+                   JvRichEdit1.Lines.Add(Lang.GetTextOrDefault('decrypted' (* 'Вид декриптованого:' *) ));
                    JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket2.PacketAsByteArray[0], TmpPacket.Size));
-                   JvRichEdit1.Lines.Add('После декриптовки/криптовки:');
+                   JvRichEdit1.Lines.Add(Lang.GetTextOrDefault('afterencrypt' (* 'После декриптовки/криптовки:' *) ));
                    JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket3.PacketAsByteArray[0], TmpPacket.Size));;
                    end;
                end
@@ -326,11 +328,11 @@ begin
                  if not CompareMem(@tmpPacket,@tmppacket3, tmpPacket.Size) then
                    begin
                    //Неправильно расшифровует либо криптует
-                   JvRichEdit1.Lines.Add('Пакет #'+inttostr(pcktCount)+' до декриптовки/криптовки:');
+                   JvRichEdit1.Lines.Add(Lang.GetTextOrDefault('packetnum' (* 'Пакет #' *) )+inttostr(pcktCount)+Lang.GetTextOrDefault('be4decrypt' (* ' до декриптовки/криптовки:' *) ));
                    JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket.PacketAsByteArray[0], TmpPacket.Size));
-                   JvRichEdit1.Lines.Add('Вид декриптованого:');
+                   JvRichEdit1.Lines.Add(Lang.GetTextOrDefault('decrypted' (* 'Вид декриптованого:' *) ));
                    JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket2.PacketAsByteArray[0], TmpPacket.Size));
-                   JvRichEdit1.Lines.Add('После декриптовки/криптовки:');
+                   JvRichEdit1.Lines.Add(Lang.GetTextOrDefault('afterencrypt' (* 'После декриптовки/криптовки:' *) ));
                    JvRichEdit1.Lines.Add(ByteArrayToHex(TmpPacket3.PacketAsByteArray[0], TmpPacket.Size));;
                    end;
                end
@@ -405,13 +407,16 @@ begin
            ByteArrayToHex(TimeStepB,8) +
            ByteArrayToHex(Packet.PacketAsByteArray, Packet.Size);
 
-  visual.Dump.Add(sLastPacket);
+  visual.dump.Add(sLastPacket);
 end;
 
 procedure TfProcessRawLog.FormCreate(Sender: TObject);
 begin
+loadpos(self);
+
 //создаем визуал сами (без визуал.инит)
 visual := TfVisual.Create(TabSheet3);
+visual.translate;
 visual.TabSheet2.TabVisible := false;
 visual.TabSheet2.Hide;
 visual.TabSheet3.TabVisible := false;
@@ -432,8 +437,10 @@ end;
 
 procedure TfProcessRawLog.FormDestroy(Sender: TObject);
 begin
-visual.Dump.Destroy;
-visual.Destroy;
+  savepos(self);
+
+  visual.Dump.Destroy;
+  visual.Destroy;
 end;
 
 procedure TfProcessRawLog.CreateParams(var Params: TCreateParams);

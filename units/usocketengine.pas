@@ -203,7 +203,7 @@ begin
     if LastResult > 0 then
     begin
     inc(AccumulatorLen, LastResult);
-    thisTunel.AddToRawLog(PCK_GS_ToServer, StackAccumulator[AccumulatorLen], LastResult);
+    thisTunel.AddToRawLog(PCK_GS_ToServer, StackAccumulator[AccumulatorLen-LastResult], LastResult);
 
     if not thisTunel.EncDec.Settings.isNoProcessToServer then
       begin
@@ -326,7 +326,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     if LastResult > 0 then
     begin
     inc(AccumulatorLen, LastResult);
-    thisTunel.AddToRawLog(PCK_GS_ToClient, StackAccumulator[AccumulatorLen], LastResult);
+    thisTunel.AddToRawLog(PCK_GS_ToClient, StackAccumulator[AccumulatorLen-LastResult], LastResult);
 
     if not thisTunel.EncDec.Settings.isNoProcessToClient then
       begin

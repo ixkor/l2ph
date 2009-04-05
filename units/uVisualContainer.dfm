@@ -1,26 +1,26 @@
 object fVisual: TfVisual
   Left = 0
   Top = 0
-  Width = 443
-  Height = 270
+  Width = 761
+  Height = 628
   Align = alClient
   TabOrder = 0
   OnResize = FrameResize
   object PageControl1: TPageControl
     Left = 0
     Top = 5
-    Width = 443
-    Height = 265
-    ActivePage = TabSheet1
+    Width = 761
+    Height = 623
+    ActivePage = TabSheet2
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       object JvNetscapeSplitter1: TJvNetscapeSplitter
-        Left = 40
+        Left = 358
         Top = 29
         Width = 7
-        Height = 208
+        Height = 566
         Align = alRight
         AutoSnap = False
         MinSize = 1
@@ -35,16 +35,16 @@ object fVisual: TfVisual
       object GroupBox12: TGroupBox
         Left = 0
         Top = 29
-        Width = 40
-        Height = 208
+        Width = 358
+        Height = 566
         Align = alClient
         Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1086#1074':'
         TabOrder = 0
         object ListView5: TListView
           Left = 2
           Top = 15
-          Width = 36
-          Height = 191
+          Width = 354
+          Height = 549
           Hint = #1057#1087#1080#1089#1086#1082' '#1087#1088#1080#1085#1103#1090#1099#1093' '#1080' '#1086#1090#1086#1089#1083#1072#1085#1085#1099#1093' '#1087#1072#1082#1077#1090#1086#1074
           Align = alClient
           BevelInner = bvNone
@@ -53,8 +53,6 @@ object fVisual: TfVisual
             item
               AutoSize = True
               Caption = 'Name'
-              WidthType = (
-                -58)
             end
             item
               Caption = #8470
@@ -86,10 +84,10 @@ object fVisual: TfVisual
         end
       end
       object Panel1: TPanel
-        Left = 47
+        Left = 365
         Top = 29
         Width = 388
-        Height = 208
+        Height = 566
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
@@ -97,7 +95,7 @@ object fVisual: TfVisual
           Left = 0
           Top = 0
           Width = 388
-          Height = 208
+          Height = 566
           Align = alClient
           Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072' '#1087#1072#1082#1077#1090#1072':'
           TabOrder = 0
@@ -133,7 +131,7 @@ object fVisual: TfVisual
             Left = 2
             Top = 234
             Width = 384
-            Height = 215
+            Height = 330
             Hint = #1054#1082#1085#1086' '#1087#1086#1076#1088#1086#1073#1085#1086#1081' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1080' '#1087#1072#1082#1077#1090#1072
             Align = alClient
             AutoSize = False
@@ -156,7 +154,7 @@ object fVisual: TfVisual
       object Panel5: TPanel
         Left = 0
         Top = 0
-        Width = 435
+        Width = 753
         Height = 29
         Align = alTop
         BevelInner = bvRaised
@@ -165,7 +163,7 @@ object fVisual: TfVisual
         object Panel4: TPanel
           Left = 2
           Top = 2
-          Width = 361
+          Width = 679
           Height = 25
           Align = alClient
           AutoSize = True
@@ -174,7 +172,7 @@ object fVisual: TfVisual
           object ToolBar1: TToolBar
             Left = 0
             Top = 0
-            Width = 361
+            Width = 679
             Height = 25
             Align = alClient
             ButtonHeight = 23
@@ -186,7 +184,6 @@ object fVisual: TfVisual
               Left = 0
               Top = 2
               Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1083#1086#1075' '#1082#1072#1082'..'
-              Caption = 'tbtnSave'
               ImageIndex = 0
               OnClick = tbtnSaveClick
             end
@@ -194,7 +191,6 @@ object fVisual: TfVisual
               Tag = 1
               Left = 23
               Top = 2
-              Caption = 'btnSaveRaw'
               ImageIndex = 21
               Visible = False
               OnClick = btnSaveRawClick
@@ -204,7 +200,6 @@ object fVisual: TfVisual
               Left = 46
               Top = 2
               Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1083#1086#1075
-              Caption = 'tbtnClear'
               ImageIndex = 1
               OnClick = tbtnClearClick
             end
@@ -212,7 +207,6 @@ object fVisual: TfVisual
               Left = 69
               Top = 2
               Width = 14
-              Caption = 'ToolButton1'
               ImageIndex = 5
               Style = tbsSeparator
             end
@@ -220,7 +214,6 @@ object fVisual: TfVisual
               Left = 83
               Top = 2
               Hint = #1059#1073#1088#1072#1090#1100' '#1074#1089#1077' '#1087#1072#1082#1077#1090#1099' '#1090#1077#1082#1091#1097#1077#1075#1086' '#1090#1080#1087#1072' '#1080#1079' '#1092#1080#1083#1100#1090#1088#1072
-              Caption = 'tbtnFilterDel'
               Enabled = False
               ImageIndex = 2
               OnClick = tbtnFilterDelClick
@@ -229,7 +222,6 @@ object fVisual: TfVisual
               Left = 106
               Top = 2
               Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1083#1086#1075#1072
-              Caption = 'tbtnDelete'
               Enabled = False
               ImageIndex = 3
               OnClick = tbtnDeleteClick
@@ -238,7 +230,6 @@ object fVisual: TfVisual
               Left = 129
               Top = 2
               Width = 11
-              Caption = 'ToolButton15'
               ImageIndex = 16
               Style = tbsSeparator
             end
@@ -246,7 +237,6 @@ object fVisual: TfVisual
               Left = 140
               Top = 2
               Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1082#1077#1090' '#1074' '#1055#1086#1089#1099#1083#1082#1091
-              Caption = 'tbtnToSend'
               Enabled = False
               ImageIndex = 4
               OnClick = tbtnToSendClick
@@ -255,7 +245,6 @@ object fVisual: TfVisual
               Left = 163
               Top = 2
               Width = 14
-              Caption = 'ToolButton2'
               ImageIndex = 6
               Style = tbsSeparator
             end
@@ -263,7 +252,6 @@ object fVisual: TfVisual
               Left = 177
               Top = 2
               Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
-              Caption = 'ToolButton4'
               Down = True
               ImageIndex = 5
               Style = tbsCheck
@@ -273,7 +261,6 @@ object fVisual: TfVisual
               Left = 200
               Top = 2
               Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1082#1083#1080#1077#1085#1090#1072
-              Caption = 'ToolButton3'
               Down = True
               ImageIndex = 6
               Style = tbsCheck
@@ -283,7 +270,6 @@ object fVisual: TfVisual
               Left = 223
               Top = 2
               Hint = #1057#1083#1077#1076#1080#1090#1100' '#1079#1072' '#1087#1086#1089#1083#1077#1076#1085#1080#1084' '#1087#1088#1080#1096#1077#1076#1096#1080#1084' '#1087#1072#1082#1077#1090#1086#1084
-              Caption = 'ToolButton5'
               Down = True
               ImageIndex = 7
               Style = tbsCheck
@@ -291,9 +277,8 @@ object fVisual: TfVisual
             object ToolButton7: TToolButton
               Left = 246
               Top = 2
-              Hint = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1083#1086#1075' '#1072#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080
+              Hint = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1083#1086#1075' '#1087#1077#1088#1077#1076' '#1072#1074#1090#1086' '#1086#1095#1080#1089#1090#1082#1086#1081
               AllowAllUp = True
-              Caption = 'ToolButton7'
               ImageIndex = 8
               Style = tbsCheck
             end
@@ -301,7 +286,6 @@ object fVisual: TfVisual
               Left = 269
               Top = 2
               Width = 14
-              Caption = 'ToolButton9'
               ImageIndex = 12
               Style = tbsSeparator
             end
@@ -309,7 +293,6 @@ object fVisual: TfVisual
               Left = 283
               Top = 2
               Hint = #1055#1086#1082#1072#1079#1072#1090#1100'/'#1089#1087#1088#1103#1090#1072#1090#1100' '#1092#1080#1083#1100#1090#1088#1099
-              Caption = 'ToolButton6'
               ImageIndex = 9
               Style = tbsCheck
               OnClick = ToolButton6Click
@@ -318,7 +301,6 @@ object fVisual: TfVisual
               Left = 306
               Top = 2
               Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1089#1084#1077#1097#1077#1085#1080#1077' '#1074' Hex/Dec'
-              Caption = 'ToolButton17'
               ImageIndex = 10
               Style = tbsCheck
               OnClick = ToolButton17Click
@@ -326,7 +308,7 @@ object fVisual: TfVisual
           end
         end
         object Panel7: TPanel
-          Left = 363
+          Left = 681
           Top = 2
           Width = 70
           Height = 25
@@ -357,7 +339,6 @@ object fVisual: TfVisual
               Left = 23
               Top = 2
               Hint = #1059#1073#1080#1090#1100' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1077' '#1080' ('#1080#1083#1080') '#1047#1072#1082#1088#1099#1090#1100' '#1076#1072#1085#1085#1099#1081' '#1092#1088#1077#1081#1084
-              Caption = 'ToolButton10'
               ImageIndex = 11
               OnClick = ToolButton10Click
             end
@@ -365,7 +346,6 @@ object fVisual: TfVisual
               Left = 46
               Top = 2
               Hint = #1047#1072#1082#1088#1099#1090#1100' '#1076#1072#1085#1085#1099#1081' '#1083#1086#1075
-              Caption = 'ToolButton8'
               ImageIndex = 20
               Visible = False
               OnClick = ToolButton8Click
@@ -380,7 +360,7 @@ object fVisual: TfVisual
       object Splitter7: TSplitter
         Left = 0
         Top = 243
-        Width = 435
+        Width = 753
         Height = 6
         Cursor = crVSplit
         Align = alTop
@@ -388,7 +368,7 @@ object fVisual: TfVisual
       object GroupBox7: TGroupBox
         Left = 0
         Top = 29
-        Width = 435
+        Width = 753
         Height = 214
         Align = alTop
         Caption = #1055#1072#1082#1077#1090#1099' '#1085#1072' '#1086#1090#1087#1088#1072#1074#1082#1091':'
@@ -396,9 +376,8 @@ object fVisual: TfVisual
         object Memo4: TJvRichEdit
           Left = 2
           Top = 15
-          Width = 431
+          Width = 749
           Height = 197
-          Hint = #1050#1072#1078#1076#1072#1103' '#1085#1086#1074#1072#1103' '#1089#1090#1088#1086#1082#1072' '#1089#1095#1080#1090#1072#1077#1090#1089#1103' '#1085#1086#1074#1099#1084' '#1087#1072#1082#1077#1090#1086#1084
           Align = alClient
           AutoSize = False
           Font.Charset = DEFAULT_CHARSET
@@ -419,29 +398,28 @@ object fVisual: TfVisual
       object Panel10: TPanel
         Left = 0
         Top = 249
-        Width = 435
-        Height = 231
+        Width = 753
+        Height = 346
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
         object Splitter2: TSplitter
           Left = 364
           Top = 0
-          Height = 231
+          Height = 346
         end
         object Panel2: TPanel
           Left = 0
           Top = 0
           Width = 364
-          Height = 231
+          Height = 346
           Align = alLeft
           BevelOuter = bvNone
-          Caption = 'Panel2'
           TabOrder = 0
           object Label1: TLabel
             Left = 0
             Top = 0
-            Width = 100
+            Width = 364
             Height = 13
             Align = alTop
             Caption = #1042#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1087#1072#1082#1077#1090':'
@@ -450,7 +428,7 @@ object fVisual: TfVisual
             Left = 0
             Top = 13
             Width = 364
-            Height = 218
+            Height = 333
             Hint = #1054#1082#1085#1086' HEX '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1080' '#1087#1072#1082#1077#1090#1072
             Align = alClient
             AutoSize = False
@@ -469,16 +447,15 @@ object fVisual: TfVisual
         object Panel3: TPanel
           Left = 367
           Top = 0
-          Width = 68
-          Height = 231
+          Width = 386
+          Height = 346
           Align = alClient
           BevelOuter = bvNone
-          Caption = 'Panel3'
           TabOrder = 1
           object Label2: TLabel
             Left = 0
             Top = 0
-            Width = 109
+            Width = 386
             Height = 13
             Align = alTop
             Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072' '#1087#1072#1082#1077#1090#1072
@@ -486,8 +463,8 @@ object fVisual: TfVisual
           object Memo8: TJvRichEdit
             Left = 0
             Top = 13
-            Width = 68
-            Height = 218
+            Width = 386
+            Height = 333
             Hint = #1054#1082#1085#1086' '#1087#1086#1076#1088#1086#1073#1085#1086#1081' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1080' '#1087#1072#1082#1077#1090#1072
             Align = alClient
             AutoSize = False
@@ -507,7 +484,7 @@ object fVisual: TfVisual
       object Panel8: TPanel
         Left = 0
         Top = 0
-        Width = 435
+        Width = 753
         Height = 29
         Align = alTop
         BevelInner = bvRaised
@@ -516,7 +493,7 @@ object fVisual: TfVisual
         object Panel9: TPanel
           Left = 2
           Top = 2
-          Width = 385
+          Width = 703
           Height = 25
           Align = alClient
           AutoSize = True
@@ -525,7 +502,7 @@ object fVisual: TfVisual
           object ToolBar2: TToolBar
             Left = 0
             Top = 0
-            Width = 385
+            Width = 703
             Height = 25
             Align = alClient
             EdgeBorders = []
@@ -535,7 +512,6 @@ object fVisual: TfVisual
               Left = 0
               Top = 2
               Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1087#1072#1082#1077#1090#1099
-              Caption = 'tbtnSave'
               ImageIndex = 0
               OnClick = SaveBntClick
             end
@@ -543,7 +519,6 @@ object fVisual: TfVisual
               Left = 23
               Top = 2
               Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1087#1072#1082#1077#1090#1099
-              Caption = 'tbtnClear'
               ImageIndex = 13
               OnClick = OpenBtnClick
             end
@@ -551,7 +526,6 @@ object fVisual: TfVisual
               Left = 46
               Top = 2
               Width = 14
-              Caption = 'ToolButton1'
               ImageIndex = 5
               Style = tbsSeparator
             end
@@ -559,7 +533,6 @@ object fVisual: TfVisual
               Left = 60
               Top = 2
               Hint = #1054#1090#1087#1088#1072#1074#1083#1103#1090#1100' '#1085#1072' '#1089#1077#1088#1074#1077#1088
-              Caption = 'ToolButton4'
               Down = True
               ImageIndex = 16
               Style = tbsCheck
@@ -569,7 +542,6 @@ object fVisual: TfVisual
               Left = 83
               Top = 2
               Hint = #1054#1090#1087#1088#1072#1074#1083#1103#1090#1100' '#1085#1072' '#1082#1083#1080#1077#1085#1090
-              Caption = 'ToolButton3'
               ImageIndex = 17
               Style = tbsCheck
               OnClick = ToClientClick
@@ -578,7 +550,6 @@ object fVisual: TfVisual
               Left = 106
               Top = 2
               Width = 7
-              Caption = 'ToolButton19'
               ImageIndex = 16
               Style = tbsSeparator
             end
@@ -586,7 +557,6 @@ object fVisual: TfVisual
               Left = 113
               Top = 2
               Hint = #1050#1072#1078#1076#1072#1103' '#1089#1090#1088#1086#1082#1072' '#1101#1090#1086' '#1086#1090#1076#1077#1083#1100#1085#1099#1081' '#1087#1072#1082#1077#1090
-              Caption = 'EachLinePacket'
               ImageIndex = 15
               Style = tbsCheck
             end
@@ -594,7 +564,6 @@ object fVisual: TfVisual
               Left = 136
               Top = 2
               Width = 8
-              Caption = 'ToolButton13'
               ImageIndex = 15
               Style = tbsSeparator
             end
@@ -602,7 +571,6 @@ object fVisual: TfVisual
               Left = 144
               Top = 2
               Hint = #1054#1090#1087#1088#1072#1074#1080#1090#1100
-              Caption = 'SendBtn'
               ImageIndex = 4
               OnClick = SendBtnClick
             end
@@ -610,7 +578,6 @@ object fVisual: TfVisual
               Left = 167
               Top = 2
               Width = 66
-              Caption = 'ToolButton9'
               ImageIndex = 12
               Style = tbsSeparator
             end
@@ -618,7 +585,6 @@ object fVisual: TfVisual
               Left = 233
               Top = 2
               Hint = #1054#1090#1087#1088#1072#1074#1083#1103#1090#1100' '#1087#1086' '#1090#1072#1081#1084#1077#1088#1091' '#1082#1072#1078#1076#1099#1077' '#1093#1093#1093' '#1089#1077#1082#1091#1085#1076
-              Caption = 'SendByTimer'
               ImageIndex = 14
               Style = tbsCheck
               OnClick = SendByTimerClick
@@ -642,7 +608,7 @@ object fVisual: TfVisual
           end
         end
         object Panel11: TPanel
-          Left = 387
+          Left = 705
           Top = 2
           Width = 46
           Height = 25
@@ -665,7 +631,6 @@ object fVisual: TfVisual
               Hint = 
                 #1053#1077' '#1079#1072#1082#1088#1099#1074#1072#1090#1100' '#1101#1090#1086#1090' '#1092#1088#1077#1081#1084' '#1087#1086#1089#1083#1077' '#1076#1080#1089#1082#1086#1085#1085#1077#1082#1090#1072' '#1089#1074#1103#1079#1072#1085#1086#1075#1086' '#1089' '#1085#1080#1084' '#1089#1086#1077#1076#1080#1085 +
                 #1077#1085#1080#1103
-              Caption = 'ToolButton11'
               ImageIndex = 12
               Style = tbsCheck
               OnClick = ToolButton30Click
@@ -674,7 +639,6 @@ object fVisual: TfVisual
               Left = 23
               Top = 2
               Hint = #1059#1073#1080#1090#1100' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1077' '#1080' ('#1080#1083#1080') '#1047#1072#1082#1088#1099#1090#1100' '#1076#1072#1085#1085#1099#1081' '#1092#1088#1077#1081#1084
-              Caption = 'ToolButton10'
               ImageIndex = 11
               OnClick = ToolButton10Click
             end
@@ -688,65 +652,16 @@ object fVisual: TfVisual
       object GroupBox8: TGroupBox
         Left = 0
         Top = 29
-        Width = 435
-        Height = 208
+        Width = 753
+        Height = 566
         Align = alClient
         Caption = #1057#1082#1088#1080#1087#1090' '#1074#1099#1087#1086#1083#1085#1103#1077#1084#1099#1081' '#1087#1086' '#1085#1072#1078#1072#1090#1080#1102' '#1082#1085#1086#1087#1082#1080' '#1042#1099#1087#1086#1083#1085#1080#1090#1100':'
         TabOrder = 0
-        object Panel6: TPanel
-          Left = 2
-          Top = 179
-          Width = 431
-          Height = 27
-          Align = alBottom
-          BevelOuter = bvNone
-          TabOrder = 0
-          object Button2: TButton
-            Left = 3
-            Top = 5
-            Width = 72
-            Height = 19
-            Hint = 
-              #1055#1088#1086#1074#1077#1088#1103#1077#1090' '#1089#1080#1085#1090#1072#1082#1089#1080#1089' '#1089#1082#1088#1080#1087#1090#1072' '#1080' '#1089#1090#1072#1088#1090#1091#1077#1090' '#1077#1075#1086' '#1085#1072' '#1074#1099#1087#1086#1083#1085#1077#1085#1080#1077', '#1084#1086#1078#1085#1086' ' +
-              #1086#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1082#1085#1086#1087#1082#1086#1081' '#1057#1090#1086#1087' '#1080#1083#1080' '#1087#1086#1076#1086#1078#1076#1072#1090#1100' '#1087#1086#1082#1072' '#1089#1082#1088#1080#1087#1090' '#1089#1072#1084' '#1079#1072#1082#1086#1085#1095#1080#1090' '#1088 +
-              #1072#1073#1086#1090#1091
-            Caption = #1042#1099#1087#1086#1083#1085#1080#1090#1100
-            TabOrder = 0
-          end
-          object Button6: TButton
-            Left = 129
-            Top = 5
-            Width = 62
-            Height = 19
-            Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1082#1088#1080#1087#1090' '#1080#1079' '#1092#1072#1081#1083#1072
-            Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
-            TabOrder = 1
-          end
-          object Button8: TButton
-            Left = 195
-            Top = 5
-            Width = 68
-            Height = 19
-            Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1089#1082#1088#1080#1087#1090' '#1074' '#1092#1072#1081#1083
-            Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-            TabOrder = 2
-          end
-          object Button3: TButton
-            Left = 78
-            Top = 5
-            Width = 47
-            Height = 19
-            Hint = #1054#1089#1090#1072#1085#1072#1074#1083#1080#1074#1072#1077#1090' '#1074#1099#1087#1086#1083#1085#1077#1085#1080#1077' '#1089#1082#1088#1080#1087#1090#1072' ('#1084#1086#1078#1077#1090' '#1089#1088#1072#1073#1086#1090#1072#1090#1100' '#1085#1077' '#1089#1088#1072#1079#1091')'
-            Caption = #1057#1090#1086#1087
-            Enabled = False
-            TabOrder = 3
-          end
-        end
         object JvHLEditor2: TJvHLEditor
           Left = 2
           Top = 15
-          Width = 431
-          Height = 164
+          Width = 749
+          Height = 549
           Cursor = crIBeam
           Lines.Strings = (
             'begin'
@@ -858,7 +773,7 @@ object fVisual: TfVisual
       object Panel12: TPanel
         Left = 0
         Top = 0
-        Width = 435
+        Width = 753
         Height = 29
         Align = alTop
         BevelInner = bvRaised
@@ -867,7 +782,7 @@ object fVisual: TfVisual
         object Panel13: TPanel
           Left = 2
           Top = 2
-          Width = 431
+          Width = 749
           Height = 25
           Align = alClient
           AutoSize = True
@@ -876,7 +791,7 @@ object fVisual: TfVisual
           object ToolBar6: TToolBar
             Left = 0
             Top = 0
-            Width = 431
+            Width = 749
             Height = 25
             Align = alClient
             ButtonHeight = 23
@@ -887,7 +802,6 @@ object fVisual: TfVisual
               Left = 0
               Top = 2
               Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1089#1082#1088#1080#1087#1090
-              Caption = 'tbtnSave'
               ImageIndex = 0
               OnClick = ToolButton25Click
             end
@@ -895,7 +809,6 @@ object fVisual: TfVisual
               Left = 23
               Top = 2
               Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1082#1088#1080#1087#1090' '#1080#1079' '#1092#1072#1081#1083#1072
-              Caption = 'tbtnClear'
               ImageIndex = 13
               OnClick = ToolButton27Click
             end
@@ -903,7 +816,6 @@ object fVisual: TfVisual
               Left = 46
               Top = 2
               Width = 14
-              Caption = 'ToolButton1'
               ImageIndex = 5
               Style = tbsSeparator
             end
@@ -911,7 +823,6 @@ object fVisual: TfVisual
               Left = 60
               Top = 2
               Hint = #1042#1099#1087#1086#1083#1085#1080#1090#1100' '#1089#1082#1088#1080#1087#1090
-              Caption = 'tbtnFilterDel'
               ImageIndex = 18
               OnClick = btnExecuteClick
             end
@@ -919,7 +830,6 @@ object fVisual: TfVisual
               Left = 83
               Top = 2
               Hint = #1055#1088#1077#1088#1074#1072#1090#1100' '#1074#1099#1087#1086#1083#1085#1077#1085#1080#1077' '#1089#1082#1088#1080#1087#1090#1072
-              Caption = 'tbtnDelete'
               Enabled = False
               ImageIndex = 19
               OnClick = btnTerminateClick
@@ -932,7 +842,7 @@ object fVisual: TfVisual
   object Panel14: TPanel
     Left = 0
     Top = 0
-    Width = 443
+    Width = 761
     Height = 5
     Align = alTop
     BevelOuter = bvNone
@@ -2000,5 +1910,237 @@ object fVisual: TfVisual
     Options = [ofOverwritePrompt, ofHideReadOnly, ofExtensionDifferent, ofEnableSizing]
     Left = 16
     Top = 240
+  end
+  object lang: TsiLang
+    Version = '6.1.0.1'
+    IsInheritedOwner = True
+    StringsTypes.Strings = (
+      'TIB_STRINGLIST'
+      'TSTRINGLIST')
+    SmartExcludeProps.Strings = (
+      'Action4.Caption'
+      'Action5.Caption'
+      'Action6.Caption'
+      'Action7.Caption'
+      'Action8.Caption'
+      'Action9.Caption'
+      'Action10.Caption'
+      'TL2PacketHackMain.Caption'
+      'Memo4.Hint')
+    UseInheritedData = True
+    AutoSkipEmpties = True
+    NumOfLanguages = 2
+    LangDelim = 1
+    DoNotTranslate.Strings = (
+      'Action2'
+      'Action3')
+    LangNames.Strings = (
+      'Rus'
+      'Eng')
+    Language = 'Rus'
+    ExcludedProperties.Strings = (
+      'Category'
+      'SecondaryShortCuts'
+      'HelpKeyword'
+      'InitialDir'
+      'HelpKeyword'
+      'ActivePage'
+      'ImeName'
+      'DefaultExt'
+      'FileName'
+      'FieldName'
+      'PickList'
+      'DisplayFormat'
+      'EditMask'
+      'KeyList'
+      'LookupDisplayFields'
+      'DropDownSpecRow'
+      'TableName'
+      'DatabaseName'
+      'IndexName'
+      'MasterFields'
+      'TabStops'
+      'SyntaxType')
+    Left = 392
+    Top = 8
+    TranslationData = {
+      737443617074696F6E730D0A54616253686565743101CFF0EEF1ECEEF2F00156
+      696577010D0A47726F7570426F78313201CBEEE320EFE0EAE5F2EEE23A015061
+      636B657420646174613A010D0A47726F7570426F783601D0E0F1F8E8F4F0EEE2
+      EAE020EFE0EAE5F2E03A01446563727970746564207061636B65743A010D0A54
+      616253686565743201CFEEF1FBEBEAE0015061636B65742073656E64010D0A47
+      726F7570426F783701CFE0EAE5F2FB20EDE020EEF2EFF0E0E2EAF33A01506163
+      6B657428732920666F722073656E64010D0A4C6162656C3101C2FBE4E5EBE5ED
+      EDFBE920EFE0EAE5F23A0153656C6563746564207061636B65743A010D0A4C61
+      62656C3201D0E0F1F8E8F4F0EEE2EAE020EFE0EAE5F2E0015061636B65742064
+      6174613A010D0A54616253686565743301C4EEEFEEEBEDE8F2E5EBFCEDEE0141
+      64646974696F6E616C010D0A47726F7570426F783801D1EAF0E8EFF220E2FBEF
+      EEEBEDFFE5ECFBE920EFEE20EDE0E6E0F2E8FE20EAEDEEEFEAE820C2FBEFEEEB
+      EDE8F2FC3A0153696D706C652073637279707420776861742077696C6C206265
+      206578656375746564207768656E2052756E20627574746F6E20707573686564
+      010D0A4C6162656C3301CFE5F0E5F1F2F0E0E8E2E0E5F2F1FF20F1EFE8F1EEEA
+      20EFE0EAE5F2EEE22E2E01576F726B696E672E2E2E010D0A4E3101CDE520EFEE
+      EAE0E7FBE2E0F2FC20FDF2EEF220EFE0EAE5F201446F206E6F742073686F7720
+      74686973207061636B6574010D0A4E3201C4EEE1E0E2E8F2FC20FDF2EEF220EF
+      E0EAE5F220E220EFEEF1FBEBEAF3014164642074686973207061636B65742074
+      6F207061636B65742073656E646572010D0A737448696E74730D0A4C69737456
+      6965773501D1EFE8F1EEEA20EFF0E8EDFFF2FBF520E820EEF2EEF1EBE0EDEDFB
+      F520EFE0EAE5F2EEE2014C697374206F662073656E646564206F722072656369
+      766564207061636B657473010D0A4D656D6F3301CEEAEDEE2048455820F0E0F1
+      F8E8F4F0EEE2EAE820EFE0EAE5F2E001486578206F6620746865207061636B65
+      743A010D0A4D656D6F3201CEEAEDEE20EFEEE4F0EEE1EDEEE920F0E0F1F8E8F4
+      F0EEE2EAE820EFE0EAE5F2E0014465736372797074696F6E206F662074686520
+      7061636B65743A010D0A7462746E5361766501D1EEF5F0E0EDE8F2FC20EBEEE3
+      20EAE0EA2E2E0153617665207061636B6574206C6F672061732E2E2E010D0A74
+      62746E436C65617201CEF7E8F1F2E8F2FC20EBEEE301436C656172206C6F6701
+      0D0A7462746E46696C74657244656C01D3E1F0E0F2FC20E2F1E520EFE0EAE5F2
+      FB20F2E5EAF3F9E5E3EE20F2E8EFE020E8E720F4E8EBFCF2F0E00144656C6574
+      6520616C6C207061636B657473206F662073616D6520747970652066726F6D20
+      66696C746572010D0A7462746E44656C65746501D3E4E0EBE8F2FC20E8E720EB
+      EEE3E00144656C6574652066726F6D207061636B6574206C6973742028706572
+      6D616E656E7429010D0A7462746E546F53656E6401C4EEE1E0E2E8F2FC20EFE0
+      EAE5F220E220CFEEF1FBEBEAF3014164642074686973207061636B657420746F
+      207061636B65742073656E646572010D0A546F6F6C427574746F6E3401CFE0EA
+      E5F2FB20EEF220F1E5F0E2E5F0E00146726F6D20736572766572010D0A546F6F
+      6C427574746F6E3301CFE0EAE5F2FB20EEF220EAEBE8E5EDF2E00146726F6D20
+      636C69656E74010D0A546F6F6C427574746F6E3501D1EBE5E4E8F2FC20E7E020
+      EFEEF1EBE5E4EDE8EC20EFF0E8F8E5E4F8E8EC20EFE0EAE5F2EEEC014175746F
+      207363726F6F6C646F776E010D0A546F6F6C427574746F6E3701D1EEF5F0E0ED
+      FFF2FC20EBEEE320EFE5F0E5E420E0E2F2EE20EEF7E8F1F2EAEEE90153617665
+      206C6F67206265666F7265206175746F636C656172010D0A546F6F6C42757474
+      6F6E3601CFEEEAE0E7E0F2FC2FF1EFF0FFF2E0F2FC20F4E8EBFCF2F0FB015368
+      6F772F486964652066696C74657273010D0A546F6F6C427574746F6E313701CF
+      EEEAE0E7FBE2E0F2FC20F1ECE5F9E5EDE8E520E2204865782F4465630153686F
+      77206F666673657420696E206865782F646563010D0A546F6F6C427574746F6E
+      333701CDE520E7E0EAF0FBE2E0F2FC20FDF2EEF220F4F0E5E9EC20EFEEF1EBE5
+      20E4E8F1EAEEEDEDE5EAF2E020F1E2FFE7E0EDEEE3EE20F120EDE8EC20F1EEE5
+      E4E8EDE5EDE8FF01446F206E6F7420636C6F73652074686973206672616D6520
+      616674657220646973636F6E6E656374010D0A546F6F6C427574746F6E333801
+      D3E1E8F2FC20F1EEE5E4E8EDE5EDE8E520E82028E8EBE82920C7E0EAF0FBF2FC
+      20E4E0EDEDFBE920F4F0E5E9EC01436C6F73652077696E646F772028616E6420
+      636F6E6E656374696F6E29010D0A546F6F6C427574746F6E3801C7E0EAF0FBF2
+      FC20E4E0EDEDFBE920EBEEE301436C6F7365206C6F67010D0A4D656D6F3501CE
+      EAEDEE2048455820F0E0F1F8E8F4F0EEE2EAE820EFE0EAE5F2E001486578206F
+      6620746865207061636B65743A010D0A4D656D6F3801CEEAEDEE20EFEEE4F0EE
+      E1EDEEE920F0E0F1F8E8F4F0EEE2EAE820EFE0EAE5F2E0014465736372797074
+      696F6E206F6620746865207061636B65743A010D0A53617665426E7401D1EEF5
+      F0E0EDE8F2FC20EFE0EAE5F2FB0153617665207061636B6574287329010D0A4F
+      70656E42746E01C7E0E3F0F3E7E8F2FC20EFE0EAE5F2FB014C6F616420706163
+      6B6574287329010D0A546F53657276657201CEF2EFF0E0E2EBFFF2FC20EDE020
+      F1E5F0E2E5F00177696C6C2073656E642073656E6420746F2073657276657201
+      0D0A546F436C69656E7401CEF2EFF0E0E2EBFFF2FC20EDE020EAEBE8E5EDF201
+      77696C6C2073656E6420746F20636C69656E74010D0A456163684C696E655061
+      636B657401CAE0E6E4E0FF20F1F2F0EEEAE020FDF2EE20EEF2E4E5EBFCEDFBE9
+      20EFE0EAE5F20145616368206C696E65203D206E6577207061636B6574010D0A
+      53656E6442746E01CEF2EFF0E0E2E8F2FC0153454E44010D0A53656E64427954
+      696D657201CEF2EFF0E0E2EBFFF2FC20EFEE20F2E0E9ECE5F0F320EAE0E6E4FB
+      E520F5F5F520F1E5EAF3EDE40153656E642062792074696D6572206561636820
+      78787820736563010D0A4A765370696E456469743201C8EDF2E5F0E2E0EB20F1
+      F0E0E1E0F2FBE2E0EDE8FF20F2E0E9ECE5F0E00154696D657220696E74657276
+      616C010D0A546F6F6C427574746F6E333001CDE520E7E0EAF0FBE2E0F2FC20FD
+      F2EEF220F4F0E5E9EC20EFEEF1EBE520E4E8F1EAEEEDEDE5EAF2E020F1E2FFE7
+      E0EDEEE3EE20F120EDE8EC20F1EEE5E4E8EDE5EDE8FF01446F206E6F7420636C
+      6F73652074686973206672616D6520616674657220646973636F6E6E65637401
+      0D0A546F6F6C427574746F6E333101D3E1E8F2FC20F1EEE5E4E8EDE5EDE8E520
+      E82028E8EBE82920C7E0EAF0FBF2FC20E4E0EDEDFBE920F4F0E5E9EC01436C6F
+      73652077696E646F772028616E6420636F6E6E656374696F6E29010D0A546F6F
+      6C427574746F6E323501D1EEF5F0E0EDE8F2FC20F1EAF0E8EFF2015361766520
+      736372697074010D0A546F6F6C427574746F6E323701C7E0E3F0F3E7E8F2FC20
+      F1EAF0E8EFF220E8E720F4E0E9EBE0014C6F616420736372697074010D0A6274
+      6E4578656375746501C2FBEFEEEBEDE8F2FC20F1EAF0E8EFF201457865637574
+      6520736372697074010D0A62746E5465726D696E61746501CFF0E5F0E2E0F2FC
+      20E2FBEFEEEBEDE5EDE8E520F1EAF0E8EFF2E0015465726D696E617465207363
+      72697074010D0A7374446973706C61794C6162656C730D0A7374466F6E74730D
+      0A546656697375616C014D532053616E7320536572696601010D0A4C69737456
+      69657735014D532053616E7320536572696601010D0A4D656D6F3301436F7572
+      696572204E657701010D0A4D656D6F3201436F7572696572204E657701010D0A
+      4D656D6F3401436F7572696572204E657701010D0A4D656D6F3501436F757269
+      6572204E657701010D0A4D656D6F3801436F7572696572204E657701010D0A4A
+      76484C456469746F723201436F7572696572204E657701010D0A73744D756C74
+      694C696E65730D0A4A76484C456469746F72322E4C696E657301626567696E2C
+      2220206275663A3D232434413B222C2220205772697465442830293B222C2220
+      20577269746544283130293B222C222020577269746553282727293B222C2220
+      20577269746553282748656C6C6F21212127293B222C22202053656E64546F43
+      6C69656E743B222C656E642E01010D0A7374446C677343617074696F6E730D0A
+      5761726E696E67015761726E696E67015761726E696E67010D0A4572726F7201
+      4572726F72014572726F72010D0A496E666F726D6174696F6E01496E666F726D
+      6174696F6E01496E666F726D6174696F6E010D0A436F6E6669726D01436F6E66
+      69726D01436F6E6669726D010D0A59657301265965730126596573010D0A4E6F
+      01264E6F01264E6F010D0A4F4B014F4B014F4B010D0A43616E63656C0143616E
+      63656C0143616E63656C010D0A41626F7274012641626F7274012641626F7274
+      010D0A52657472790126526574727901265265747279010D0A49676E6F726501
+      2649676E6F7265012649676E6F7265010D0A416C6C0126416C6C0126416C6C01
+      0D0A4E6F20546F20416C6C014E266F20746F20416C6C014E266F20746F20416C
+      6C010D0A59657320546F20416C6C0159657320746F2026416C6C015965732074
+      6F2026416C6C010D0A48656C70012648656C70012648656C70010D0A73745374
+      72696E67730D0A4944535F313801C2FB20F3E2E5F0E5EDFB20F7F2EE20F5EEF2
+      E8F2E520E2FBE9F2E820E8E720EFF0EEE3F0E0ECECFB3F0141726520796F7520
+      73757265203F010D0A4944535F313901C2F1E520F1EEE5E4E8EDE5EDE8FF20EF
+      F0E5F0E2F3F2F1FF2101416C6C20636F6E6E656374696F6E732077696C6C2062
+      6520636C6F73656421010D0A4944535F3601CFEEE4E4E5F0E6E0F2FC20EFF0EE
+      E5EAF23A01537570706F727420746869732070726F6A6563743A010D0A494453
+      5F3901D1F2E0F0F2F3E5F2204C32706820760153746172747570206F66204C32
+      70682076010D0A627974650120E1E0E9F228E029012062797465287329010D0A
+      656E6462015BCAEEEDE5F620EFEEE2F2EEF0FFFEF9E5E3EEF1FF20E1EBEEEAE0
+      2020015B456E64206F662072657065617420626C6F636B2020010D0A4944535F
+      31303901C2FBE4E5EBE5EDEDFBE920EFE0EAE5F23A20F2E8EF202D2030780153
+      656C6563746564207061636B6574203A2074797065202D3078010D0A4944535F
+      31323601C2F0E5ECFF20EFF0E8F5EEE4E03A20015265636976652074696D653A
+      20010D0A4944535F32333201C2FBE4E5EBE5EDEDFBE920EFE0EAE5F23A015365
+      6C6563746564207061636B65743A010D0A7265616C6C7977616E743201E5F1EB
+      E820EEEDEE20F1F3F9E5F1F2E2F3E5F22E20C2FB20F3E2E5F0E5EDFB203F0141
+      726520796F752073757265203F010D0A7265616C6C7977616E7401DDF2EE20E4
+      E5E9F1F2E2E8E520E7E0EAF0EEE5F220E4E0EDEDFBE920E4E8E0EBEEE320E820
+      EFF0E5F0E2E5F220F2E5EAF3F9E5E520F1EEE5E4E8EDE5EDE8E5015468697320
+      77696C6C20636C6F73652074686973206469616C6F6720616E6420636F6E6E65
+      6374696F6E2E010D0A73697A65012C20F0E0E7ECE5F0202D20012C2073697A65
+      202D20010D0A73697A65320150E0E7ECE5F03A200153697A653A20010D0A736B
+      69702073637279707401CFF0EEEFF3F1EAE0E5EC20F1EAF0E8EFF201536B6970
+      20736372697074010D0A736B697001CFF0EEEFF3F1EAE0E5EC2001536B697020
+      010D0A737461727462015BCDE0F7E0EBEE20EFEEE2F2EEF0FFFEF9E5E3EEF1FF
+      20E1EBEEEAE020015B626567696E206F662072657065617420626C6F636B2020
+      010D0A7479706530780154E8EF3A20307801547970654C203078010D0A756E6B
+      6E6F77696E6401CDE5E8E7E2E5F1F2EDFBE920E8E4E5EDF2E8F4E8EAE0F2EEF0
+      202D3E203F286E616D65292101556E6B6E6F776E20696E646566696361746F72
+      202D3E203F286E616D652921010D0A73744F74686572537472696E67730D0A64
+      6C67536176654C6F672E46696C74657201CBEEE320EFE0EAE5F2EEE220282A2E
+      704C6F67297C2A2E704C6F677CC2F1E520F4E0E9EBFB20282A2E2A297C2A2E2A
+      015061636B6574206C6F6720282A2E704C6F67297C2A2E704C6F677C416C6C20
+      66696C657320282A2E2A297C2A2E2A010D0A646C67536176654C6F675261772E
+      46696C74657201CBEEE320EFE0EAE5F2EEE220282A2E7261774C6F67297C2A2E
+      7261774C6F677CC2F1E520F4E0E9EBFB20282A2E2A297C2A2E2A015061636B65
+      7420524157206C6F6720282A2E7261774C6F67297C2A2E7261774C6F677C416C
+      6C2066696C657320282A2E2A297C2A2E2A010D0A446C67536176655061636B65
+      742E46696C74657201C4E5EAF0E8EFF2EEE2E0EDFBE520EFE0EAE5F2FB20282A
+      2E70636B74297C2A2E70636B747CC2F1E520F4E0E9EBFB20282A2E2A297C2A2E
+      2A015061636B657428732920282A2E70636B74297C2A2E70636B747C416C6C20
+      66696C657320282A2E2A297C2A2E2A010D0A446C674F70656E5061636B65742E
+      46696C74657201C4E5EAF0E8EFF2EEE2E0EDFBE520EFE0EAE5F2FB20282A2E70
+      636B74297C2A2E70636B747CC2F1E520F4E0E9EBFB20282A2E2A297C2A2E2A01
+      7061636B657428732920282A2E70636B74297C2A2E70636B747C416C6C206669
+      6C657320282A2E2A297C2A2E2A010D0A446C674F70656E5363726970742E4669
+      6C74657201D4E0E9EB20F1EAF0E8EFF2E020282A2E736372697074297C2A2E73
+      63726970747CC2F1E520F4E0E9EBFB20282A2E2A297C2A2E2A01536372697074
+      2066696C6520282A2E736372697074297C2A2E7363726970747C416C6C206669
+      6C657320282A2E2A297C2A2E2A010D0A646C67536176655363726970742E4669
+      6C74657201D4E0E9EB20F1EAF0E8EFF2E020282A2E736372697074297C2A2E73
+      63726970747CC2F1E520F4E0E9EBFB20282A2E2A297C2A2E2A01536372697074
+      2066696C6520282A2E736372697074297C2A2E7363726970747C416C6C206669
+      6C657320282A2E2A297C2A2E2A010D0A73744C6F63616C65730D0A7374436F6C
+      6C656374696F6E730D0A4C69737456696577352E436F6C756D6E735B305D2E43
+      617074696F6E014E616D65014E616D65010D0A4C69737456696577352E436F6C
+      756D6E735B315D2E43617074696F6E01B901B9010D0A4C69737456696577352E
+      436F6C756D6E735B325D2E43617074696F6E014964014964010D0A7374436861
+      72536574730D0A546656697375616C0144454641554C545F4348415253455401
+      44454641554C545F43484152534554010D0A4C69737456696577350144454641
+      554C545F434841525345540144454641554C545F43484152534554010D0A4D65
+      6D6F330144454641554C545F434841525345540144454641554C545F43484152
+      534554010D0A4D656D6F320144454641554C545F434841525345540144454641
+      554C545F43484152534554010D0A4D656D6F340144454641554C545F43484152
+      5345540144454641554C545F43484152534554010D0A4D656D6F350144454641
+      554C545F434841525345540144454641554C545F43484152534554010D0A4D65
+      6D6F380144454641554C545F434841525345540144454641554C545F43484152
+      534554010D0A4A76484C456469746F72320144454641554C545F434841525345
+      540144454641554C545F43484152534554010D0A}
   end
 end

@@ -116,9 +116,14 @@ begin
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);
   chkNoFree.Checked := Options.ReadBool('General','NoFreeAfterDisconnect',False);
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
-
   InterfaceEnabled := true;
-  
+  if Options.ReadString('General', 'language', 'Rus') = 'Rus' then
+    L2PacketHackMain.RusLang.Checked := true
+  else
+    L2PacketHackMain.EngLang.Checked := true;
+
+  L2PacketHackMain.lang.Language := Options.ReadString('General', 'language', 'Rus');
+
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
 
@@ -270,15 +275,11 @@ end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
 begin
+  savepos(self);
   //—охранимс€ напоследок
   //координаты и размер окна
-  Options.WriteInteger('General','Top',L2PacketHackMain.Top);
-  Options.WriteInteger('General','Left',L2PacketHackMain.Left);
-  Options.WriteInteger('General','Widht',L2PacketHackMain.Width);
-  Options.WriteInteger('General','Heigth',L2PacketHackMain.Height);
   Options.UpdateFile;
-  Options.Free;
-  
+  Options.Destroy;
   if hXorLib <> 0 then FreeLibrary(hXorLib);
   if not isInject.Enabled then FreeMem(pInjectDll);
 end;
@@ -379,6 +380,7 @@ end;
 
 procedure TfSettings.FormCreate(Sender: TObject);
 begin
+  loadpos(self);
   InterfaceEnabled := false;
 end;
 

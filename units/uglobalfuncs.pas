@@ -12,6 +12,7 @@ uses
   PSAPI,
   advApiHook,
   inifiles,
+  Controls,
   Messages,
   uencdec;
 
@@ -87,7 +88,9 @@ uses
 
   procedure AddToLog (msg: String); //добавл€ем запись в frmLogForm.log
   procedure ShowMessageNew(const Msg: string);
-
+  procedure loadpos(Control:TControl);
+  procedure savepos(Control:TControl);
+  
   function DataPckToStrPck(var pck): string; stdcall;
  var
   l2pxversion_array: array[0..3] of Byte; //теперь заполн€етс€ вызовом FillVersion_a
@@ -110,6 +113,38 @@ uses
   
 implementation
 uses udata, usocketengine, ulogform;
+
+procedure savepos(Control:TControl);
+var
+ini : Tinifile;
+begin
+  ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'windows.ini');
+  ini.WriteInteger(Control.ClassName,'top', Control.Top);
+  ini.WriteInteger(Control.ClassName,'left', Control.Left);
+  ini.WriteInteger(Control.ClassName,'width', Control.Width);
+  ini.WriteInteger(Control.ClassName,'height', Control.Height);
+  ini.Destroy;
+end;
+
+procedure loadpos(Control:TControl);
+var
+ini : Tinifile;
+begin
+if not FileExists(ExtractFilePath(ParamStr(0))+'windows.ini') then exit;
+ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'windows.ini');
+if not ini.SectionExists(Control.ClassName) then
+  begin
+    ini.Destroy;
+    exit;
+  end;
+
+control.Top := ini.ReadInteger(Control.ClassName,'top', control.Top);
+control.Left := ini.ReadInteger(Control.ClassName,'left', control.Left);
+control.Width := ini.ReadInteger(Control.ClassName,'width', control.Width);
+control.height := ini.ReadInteger(Control.ClassName,'height', control.height);
+ini.Destroy;
+end;
+
 
 function DataPckToStrPck(var pck): string; stdcall;
 var

@@ -13,6 +13,8 @@ type
     TabSheet2: TTabSheet;
     FoundProcesses: TListBox;
     FoundClients: TListBox;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -23,7 +25,18 @@ var
   fProcesses: TfProcesses;
 
 implementation
+uses uglobalfuncs;
 
 {$R *.dfm}
+
+procedure TfProcesses.FormCreate(Sender: TObject);
+begin
+  loadpos(self);
+end;
+
+procedure TfProcesses.FormDestroy(Sender: TObject);
+begin
+  savepos(self);
+end;
 
 end.

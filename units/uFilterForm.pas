@@ -69,6 +69,8 @@ end;
 
 procedure TfPacketFilter.FormCreate(Sender: TObject);
 begin
+loadpos(self);
+
 PacketsFromS := TStringList.Create;
 PacketsFromC := TStringList.Create;
 PacketsNames := TStringList.Create;
@@ -77,6 +79,8 @@ end;
 
 procedure TfPacketFilter.FormDestroy(Sender: TObject);
 begin
+savepos(self);
+
 PacketsFromC.Destroy;
 PacketsFromS.Destroy;
 PacketsNames.Destroy;

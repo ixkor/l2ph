@@ -93,6 +93,7 @@ type
     procedure EngLangClick(Sender: TObject);
     procedure Action9Execute(Sender: TObject);
     procedure l2ph1Click(Sender: TObject);
+    procedure langChangeLanguage(Sender: TObject);
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
@@ -127,10 +128,6 @@ var
   ver : string;
 begin
   //размер формы
-  Top :=Options.ReadInteger('General','Top',0);
-  Left :=Options.ReadInteger('General','Left',600);
-  Width :=Options.ReadInteger('General','Widht',700);
-  Height :=Options.ReadInteger('General','Heigth',960);
 
   ver := uGlobalFuncs.getversion;
   Splash.Caption := 'L2PacketHack v'+ ver + 'a'+#10#13#10#13+'[No Connections]';
@@ -154,7 +151,8 @@ end;
 
 procedure TL2PacketHackMain.FormCreate(Sender: TObject);
 begin
-
+  loadpos(self);
+  
   HookCode(@ShowMessage,@ShowMessageNew,@ShowMessageOld);
   c_s := TCriticalSection.Create;
   DoubleBuffered := true;
@@ -207,6 +205,11 @@ begin
   if Assigned(sockEngine) then sockEngine.destroyDeadTunels;
   if Assigned(dmData) then dmData.destroyDeadLSPConnections;
   if Assigned(dmData) then dmData.destroyDeadLogWievs;
+  //Убираем пейджконтрол если нет закладок
+  if pcClientsConnection.Visible then
+    if pcClientsConnection.ActivePage = nil then
+      pcClientsConnection.Hide;
+
 end;
 
 procedure TL2PacketHackMain.ReadMsg(var msg: TMessage);
@@ -360,6 +363,7 @@ end;
 
 procedure TL2PacketHackMain.FormDestroy(Sender: TObject);
 begin
+  savepos(self);
   isGlobalDestroying := true;
   UnhookCode(@ShowMessageOld);
   c_s.Destroy;
@@ -484,18 +488,14 @@ end;
 
 procedure TL2PacketHackMain.RusLangClick(Sender: TObject);
 begin
-EngLang.Checked := false;
-RusLang.Checked := true;
+EngLang.Checked := False;
 lang.Language := 'Rus';
-fSettings.lang.Language := 'Rus';
 end;
 
 procedure TL2PacketHackMain.EngLangClick(Sender: TObject);
 begin
 EngLang.Checked := true;
-RusLang.Checked := false;
 lang.Language := 'Eng';
-fSettings.lang.Language := 'Eng';
 end;
 
 procedure TL2PacketHackMain.Action9Execute(Sender: TObject);
@@ -517,6 +517,36 @@ visual:tfvisual;
 begin
   visual := TfVisual(pointer(msg.WParam)^);
   visual.processpacketfromacum;
+end;
+
+procedure TL2PacketHackMain.langChangeLanguage(Sender: TObject);
+var
+  i : integer;
+begin
+  if not assigned(fSettings) then exit;
+  if not fSettings.InterfaceEnabled then exit;
+  fSettings.lang.Language := lang.Language;
+
+  //переводим все фреймы (изврат?)
+  fProcessRawLog.visual.Translate;
+  if Assigned(LSPConnections) then
+  for i := 0 to LSPConnections.Count -1 do
+    TlspConnection(LSPConnections.Items[i]).Visual.Translate;
+
+  if Assigned(sockEngine) then
+  for i := 0 to sockEngine.tunels.Count -1 do
+    Ttunel(sockEngine.tunels.Items[i]).Visual.Translate;
+    
+  if Assigned(PacketLogWievs) then
+  for i := 0 to PacketLogWievs.Count -1 do
+    TpacketLogWiev(PacketLogWievs.Items[i]).Visual.Translate;
+  //
+  fProcessRawLog.lang.Language := lang.Language;
+  if assigned(Options) then
+    begin
+      Options.WriteString('General','language',lang.Language);
+      Options.UpdateFile;
+    end;
 end;
 
 end.

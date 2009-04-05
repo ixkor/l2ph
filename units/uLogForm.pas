@@ -15,6 +15,7 @@ type
     Button1: TButton;
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   protected
     procedure CreateParams(var Params : TCreateParams); override;
   private
@@ -33,6 +34,7 @@ implementation
 
 procedure TfLog.FormDestroy(Sender: TObject);
 begin
+  savepos(self);
   if isDestroying then exit;
   Log.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2ph'+' '+AddDateTime+'.log');
 end;
@@ -69,6 +71,12 @@ procedure TfLog.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
+end;
+
+procedure TfLog.FormCreate(Sender: TObject);
+begin
+  loadpos(self);
+
 end;
 
 end.

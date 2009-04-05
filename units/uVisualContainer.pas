@@ -12,7 +12,7 @@ uses
   Dialogs, ImgList, JvExControls, JvEditorCommon, JvEditor, JvHLEditor,
   StdCtrls, ComCtrls, ToolWin, JvExStdCtrls, JvRichEdit, ExtCtrls, Menus,
   JvExExtCtrls, JvNetscapeSplitter, Mask, JvExMask, JvSpin, JvLabel,
-  fs_iinterpreter, fs_ipascal;
+  fs_iinterpreter, fs_ipascal, siComp;
 
 type
 
@@ -34,11 +34,6 @@ type
     Splitter2: TSplitter;
     TabSheet3: TTabSheet;
     GroupBox8: TGroupBox;
-    Panel6: TPanel;
-    Button2: TButton;
-    Button6: TButton;
-    Button8: TButton;
-    Button3: TButton;
     JvHLEditor2: TJvHLEditor;
     imgBT: TImageList;
     ImageList2: TImageList;
@@ -115,6 +110,7 @@ type
     waitbar: TPanel;
     ProgressBar1: TProgressBar;
     Label3: TLabel;
+    lang: TsiLang;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -170,6 +166,7 @@ type
     Procedure processpacketfromacum();
     procedure AddPacketToAcum(newpacket: tpacket; FromServer: boolean; Caller: TObject);
     procedure init();
+    Procedure Translate();
     procedure deinit();
     procedure ListViewChange(Item: TListItem; Memo, Memo2: TJvRichEdit);
 
@@ -202,6 +199,7 @@ uses uencdec, uMain, uSocketEngine, uFilterForm, uData, uScripts;
 
 procedure TfVisual.init;
 begin
+  translate();
   Panel7.Width := 46;
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
@@ -685,7 +683,7 @@ begin
     try
     Memo.Clear;
     Memo.Lines.Add(StringToHex(Copy(PktStr,12,Length(PktStr)-11),' '));
-    GroupBox6.Caption:='Выделенный пакет: тип - 0x'+IntToHex(id,2)+', '+Item.Caption+', размер - '+IntToStr(Size);
+    GroupBox6.Caption:='Выделенный пакет: тип - 0x'+IntToHex(id,2)+', '+Item.Caption+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
     finally
     Memo.Lines.EndUpdate;
     end;
@@ -722,8 +720,8 @@ begin
     //Memo2.Lines.BeginUpdate;
     Memo2.Clear;
     Memo2.Lines.Add('Tип: 0x'+IntToHex(id,2)+' ('+Item.Caption+')');
-    Memo2.Lines.Add('Pазмер: '+IntToStr(Size-2)+'+2');
-    Memo2.Lines.Add('Время прихода: '+FormatDateTime('hh:nn:ss:zzz',ptime));
+    Memo2.Lines.Add(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) )+IntToStr(Size-2)+'+2');
+    Memo2.Lines.Add(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) )+FormatDateTime('hh:nn:ss:zzz',ptime));
     //GetType - возвращает строчку типа d(Count:For.0001) из packets.ini
     //StrIni - строчка из packets.ini по ID из пакета
     //PktStr - пакет
@@ -796,7 +794,7 @@ begin
           end;
         end else begin
           for j:=1 to StrToInt(tmp_value) do begin
-            Memo2.Lines.Add('[Начало повторяющегося блока '+inttostr(j)+'/'+tmp_value+']');
+            Memo2.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
             d:=Memo2.GetTextLen-Memo2.Lines.Count;
             PosInIni:=ii;
             for jj:=1 to StrToInt(tmp_param) do begin
@@ -837,7 +835,7 @@ begin
               Memo2.SelAttributes.BackColor:=SelAttributes;
               d:=Memo2.GetTextLen-Memo2.Lines.Count;
             end;
-            Memo2.Lines.Add('[Конец повторяющегося блока  '+inttostr(j)+'/'+tmp_value+']');
+            Memo2.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
             d:=Memo2.GetTextLen-Memo2.Lines.Count;
           end;
         end;
@@ -895,7 +893,7 @@ begin
           end;
           ii:=PosInIni;
           for j:=1 to StrToInt(tmp_value) do begin
-            Memo2.Lines.Add('[Начало повторяющегося блока '+inttostr(j)+'/'+tmp_value+']');
+            Memo2.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
             d:=Memo2.GetTextLen-Memo2.Lines.Count;
             PosInIni:=ii;
             for jj:=1 to StrToInt(tmp_param) do begin
@@ -936,7 +934,7 @@ begin
               Memo2.SelAttributes.BackColor:=SelAttributes;
               d:=Memo2.GetTextLen-Memo2.Lines.Count;
             end;
-            Memo2.Lines.Add('[Конец повторяющегося блока  '+inttostr(j)+'/'+tmp_value+']');
+            Memo2.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
             d:=Memo2.GetTextLen-Memo2.Lines.Count;
           end;
         end;
@@ -1017,12 +1015,12 @@ begin
       if Length(name)>4 then begin
         if name[1]<>'S' then begin
           d:=strtoint(copy(name,1,4)); Inc(PosInPkt,d);
-          value:='Пропускаем '+inttostr(d)+' байт(а)';
+          value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
         end else
-          value:='Пропускаем скрипт';
+          value:=lang.GetTextOrDefault('skip scrypt' (* 'Пропускаем скрипт' *) );
       end else begin
         d:=strtoint(name); Inc(PosInPkt,d);
-        value:='Пропускаем '+inttostr(d)+' байт(а)';
+        value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
       end;
       d:=(d+2)*3-1;
       SelAttributes:=$dadada;
@@ -1042,7 +1040,7 @@ begin
       Memo.SelAttributes.BackColor:=$dfdfaa;
       Inc(PosInPkt,d+2);
     end;
-    else value:= 'Неизвестный идентификатор -> ?(name)!';
+    else value:= lang.GetTextOrDefault('unknowind' (* 'Неизвестный идентификатор -> ?(name)!' *) );
   end;
   Result:=value;
   //проверяем на выход за границу пакета
@@ -1170,19 +1168,27 @@ procedure TfVisual.SavePacketLog;
 var
 SaveThis: TStringList;
 begin
-  if not ToolButton7.Down then exit;
-  SaveThis := TStringList.Create;
-  AddToLog(rsSavingPacketLog);
-  SaveThis.Assign(dump);
+  if ToolButton7.Down then
+  begin
+    SaveThis := TStringList.Create;
+    AddToLog(rsSavingPacketLog);
+    SaveThis.Assign(dump);
+  end;
   Dump.Clear;
-  if CharName <> '' then
-    SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+CharName+' '+AddDateTime+'.txt');
-  SaveThis.Free;
+  ListView5.Items.BeginUpdate;
+  ListView5.Items.Clear;
+  ListView5.Items.EndUpdate;
+  if ToolButton7.Down then
+  begin
+    if CharName <> '' then
+      SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+CharName+' '+AddDateTime+'.txt');
+    SaveThis.Free;
+  end;
 end;
 
 procedure TfVisual.ToolButton10Click(Sender: TObject);
 begin
-if MessageDlg('Это действие закроет данный диалог и прервет текущее соединение'#10#13'если оно существует. Вы уверены ?',mtWarning,[mbYes,mbNo],0) = mrCancel then exit;
+if MessageDlg(lang.GetTextOrDefault('reallywant' (* 'Это действие закроет данный диалог и прервет текущее соединение' *) ) + #10#13+lang.GetTextOrDefault('reallywant2' (* 'если оно существует. Вы уверены ?' *) ),mtWarning,[mbYes,mbNo],0) = mrCancel then exit;
   if assigned(currenttunel) then
     Ttunel(currenttunel).MustBeDestroyed := true;
   if Assigned(currentLSP) then
@@ -1421,13 +1427,13 @@ begin
     //начинаем разбирать пакет по заданному в packets.ini формату
     //смещение в ini
     if Pos(':',StrIni)=0 then PosInIni:=Length(StrIni)+1 else PosInIni:=Pos(':',StrIni);
-    Label1.Caption:='Выделенный пакет: тип - 0x'+IntToHex(id,2)+', '+Copy(StrIni,1,PosInIni-1)+', размер - '+IntToStr(Size);
+    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id,2)+', '+Copy(StrIni,1,PosInIni-1)+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
     //смещение в pkt
     PosInPkt:=13;
     Inc(PosInIni);
     //Memo8.Clear;
-    Memo8.Lines.Add('Tип: 0x'+IntToHex(id,2)+' ('+Copy(StrIni,1,PosInIni-2)+')');
-    Memo8.Lines.Add('Pазмер: '+IntToStr(Size-2)+'+2');
+    Memo8.Lines.Add(lang.GetTextOrDefault('type0x' (* 'Tип: 0x' *) )+IntToHex(id,2)+' ('+Copy(StrIni,1,PosInIni-2)+')');
+    Memo8.Lines.Add(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) )+IntToStr(Size-2)+'+2');
     Memo8.Lines.Add('');
     //GetType - возвращает строчку типа d(Count:For.0001) из packets.ini
     //StrIni - строчка из packets.ini по ID из пакета
@@ -1498,7 +1504,7 @@ begin
             end;
           end else begin
             for j:=1 to StrToInt(tmp_value) do begin
-              Memo8.Lines.Add('[Начало повторяющегося блока '+inttostr(j)+'/'+tmp_value+']');
+              Memo8.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
               d:=Memo8.GetTextLen-Memo8.Lines.Count;
               PosInIni:=ii;
               for jj:=1 to StrToInt(tmp_param) do begin
@@ -1535,7 +1541,7 @@ begin
                 Memo8.SelAttributes.BackColor:=SelAttributes;
                 d:=Memo8.GetTextLen-Memo8.Lines.Count;
               end;
-              Memo8.Lines.Add('[Конец повторяющегося блока  '+inttostr(j)+'/'+tmp_value+']');
+              Memo8.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
               d:=Memo8.GetTextLen-Memo8.Lines.Count;
             end;
           end;
@@ -1578,7 +1584,7 @@ begin
           end;
           ii:=PosInIni;
           for j:=1 to StrToInt(tmp_value) do begin
-            Memo8.Lines.Add('[Начало повторяющегося блока '+inttostr(j)+'/'+tmp_value+']');
+            Memo8.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
             d:=Memo8.GetTextLen-Memo8.Lines.Count;
             PosInIni:=ii;
             for jj:=1 to StrToInt(tmp_param) do begin
@@ -1616,7 +1622,7 @@ begin
               Memo8.SelAttributes.BackColor:=SelAttributes;
               d:=Memo8.GetTextLen-Memo8.Lines.Count;
             end;
-            Memo8.Lines.Add('[Конец повторяющегося блока  '+inttostr(j)+'/'+tmp_value+']');
+            Memo8.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
             d:=Memo8.GetTextLen-Memo8.Lines.Count;
           end;
         end else begin
@@ -1638,7 +1644,7 @@ begin
   end else begin
 //    Memo8.Clear;
 //    Memo5.Clear;
-    Label1.Caption:='Выделенный пакет:';
+    Label1.Caption:=lang.GetTextOrDefault('IDS_232' (* 'Выделенный пакет:' *) );
   end;
 end;
 procedure TfVisual.Memo4KeyUp(Sender: TObject; var Key: Word;
@@ -1740,6 +1746,8 @@ SendBtn.Enabled := false;
 JvSpinEdit2.Enabled := false;
 SendByTimer.Enabled := false;
 SendByTimer.Down := false;
+ToolButton37.Enabled := false;
+ToolButton30.Enabled := false;
 end;
 
 procedure TfVisual.btnExecuteClick(Sender: TObject);
@@ -1756,7 +1764,20 @@ begin
     dmData.RefreshPrecompile(fsScript);
     fsScript.Lines:=JvHLEditor2.Lines;
 
-    if dmData.Compile(fsScript,JvHLEditor2,L2PacketHackMain.StatusBar1) then begin
+    if dmData.Compile(fsScript,JvHLEditor2,L2PacketHackMain.StatusBar1) then
+    begin
+      if assigned(currenttunel) then
+      begin
+        fsScript.Variables['ConnectID'] := Ttunel(currenttunel).serversocket;
+        fsScript.Variables['ConnectName'] := Ttunel(currenttunel).EncDec.CharName;
+      end
+      else
+      if assigned(currentLSP) then
+      begin
+        fsScript.Variables['ConnectID'] := TlspConnection(currenttunel).SocketNum;
+        fsScript.Variables['ConnectName'] := TlspConnection(currenttunel).EncDec.CharName;
+      end;
+      
       btnExecute.Enabled:=False;
       btnTerminate.Enabled:=True;
       hScriptThread := BeginThread(nil, 0, @RunScript, Self, 0, idScriptThread);
@@ -1812,6 +1833,8 @@ procedure TfVisual.FrameResize(Sender: TObject);
 begin
 waitbar.Left := round((Self.Width-waitbar.Width)/2);
 waitbar.Top := round((Self.Height-waitbar.Height)/2);
+
+
 end;
 
 procedure TfVisual.AddPacketToAcum;
@@ -1863,6 +1886,11 @@ begin
   HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
   ProcessPacket(Currentpacket, FromServer, nil, packetnumber);
 end;
+end;
+
+procedure TfVisual.Translate;
+begin
+  Lang.Language := L2PacketHackMain.lang.Language;
 end;
 
 end.

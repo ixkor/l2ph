@@ -85,6 +85,8 @@ end;
 
 procedure TfPlugins.FormCreate(Sender: TObject);
 begin
+  loadpos(self);
+
   Plugins := TList.Create;
   PluginStruct := TPluginStructClass.create;
   btnRefreshPluginList.Click;
@@ -92,6 +94,8 @@ end;
 
 procedure TfPlugins.FormDestroy(Sender: TObject);
 begin
+savepos(self);
+
 while Plugins.Count > 0 do
   TPlugin(Plugins.Items[0]).Destroy;
 

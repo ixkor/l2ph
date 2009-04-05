@@ -209,6 +209,8 @@ end;
 
 procedure TfScript.FormCreate(Sender: TObject);
 begin
+  loadpos(self);
+
   ScriptList := TList.Create;
   RefreshScripts;
   OriginalListViewWindowProc := ScriptsListVisual.WindowProc;
@@ -219,6 +221,8 @@ end;
 
 procedure TfScript.FormDestroy(Sender: TObject);
 begin
+  savepos(self);
+
   DestroyAllScripts;
   ScriptList.Destroy;
 end;
@@ -371,7 +375,11 @@ end;
 procedure TfScript.JvTabBar1TabSelected(Sender: TObject;
   Item: TJvTabBarItem);
 begin
-  if item = nil then
+
+  if item <> nil then
+    currentScript := FindScriptByName(item.Caption);
+
+  if not Assigned(item) or not Assigned(currentScript) then 
     begin
       //Ничего не выбрано. глушим кнопки
       btnRename.Enabled := false;
@@ -382,7 +390,7 @@ begin
       btnFreeTest.Enabled := false;
       exit;
     end;
-  currentScript := FindScriptByName(item.Caption);
+
   currentScript.Editor.Visible := true;
   currentScript.Editor.JvHLEditor1.Visible := true;
   currentScript.Editor.BringToFront;

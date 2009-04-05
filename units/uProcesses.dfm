@@ -13,6 +13,8 @@ object fProcesses: TfProcesses
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object PageControl1: TPageControl
