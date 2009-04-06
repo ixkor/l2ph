@@ -124,10 +124,10 @@ begin
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);
   chkNoFree.Checked := Options.ReadBool('General','NoFreeAfterDisconnect',False);
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
-
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
-
+  InterfaceEnabled := true;
+  
   if iNewxor.Checked and (Length(isNewxor.Text) > 0) then
   if LoadLibraryXor(isNewxor.Text) then
   begin

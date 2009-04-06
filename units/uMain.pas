@@ -130,7 +130,7 @@ begin
   //размер формы
 
   ver := uGlobalFuncs.getversion;
-  Splash.Caption := 'L2PacketHack v'+ ver + 'a'+#10#13#10#13+'[No Connections]';
+  Splash.Caption := 'L2PacketHack v'+ ver +#10#13#10#13+'[No Connections]';
   Caption := 'L2PacketHack v' + ver + ' by CoderX.ru Team';
   fAbout.Memo1.Lines.Insert(0, lang.GetTextOrDefault('IDS_6' (* 'Поддержать проект:' *) ));
   fAbout.Memo1.Lines.Insert(0,'');

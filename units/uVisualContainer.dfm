@@ -1,26 +1,26 @@
 object fVisual: TfVisual
   Left = 0
   Top = 0
-  Width = 753
-  Height = 610
+  Width = 443
+  Height = 270
   Align = alClient
   TabOrder = 0
   OnResize = FrameResize
   object PageControl1: TPageControl
     Left = 0
     Top = 5
-    Width = 753
-    Height = 605
+    Width = 443
+    Height = 265
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       object JvNetscapeSplitter1: TJvNetscapeSplitter
-        Left = 350
+        Left = 40
         Top = 29
         Width = 7
-        Height = 548
+        Height = 208
         Align = alRight
         AutoSnap = False
         MinSize = 1
@@ -35,16 +35,16 @@ object fVisual: TfVisual
       object GroupBox12: TGroupBox
         Left = 0
         Top = 29
-        Width = 350
-        Height = 548
+        Width = 40
+        Height = 208
         Align = alClient
         Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1086#1074':'
         TabOrder = 0
         object ListView5: TListView
           Left = 2
           Top = 15
-          Width = 346
-          Height = 531
+          Width = 36
+          Height = 191
           Hint = #1057#1087#1080#1089#1086#1082' '#1087#1088#1080#1085#1103#1090#1099#1093' '#1080' '#1086#1090#1086#1089#1083#1072#1085#1085#1099#1093' '#1087#1072#1082#1077#1090#1086#1074
           Align = alClient
           BevelInner = bvNone
@@ -53,6 +53,8 @@ object fVisual: TfVisual
             item
               AutoSize = True
               Caption = 'Name'
+              WidthType = (
+                -58)
             end
             item
               Caption = #8470
@@ -86,10 +88,10 @@ object fVisual: TfVisual
         end
       end
       object Panel1: TPanel
-        Left = 357
+        Left = 47
         Top = 29
         Width = 388
-        Height = 548
+        Height = 208
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
@@ -97,7 +99,7 @@ object fVisual: TfVisual
           Left = 0
           Top = 0
           Width = 388
-          Height = 548
+          Height = 208
           Align = alClient
           Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072' '#1087#1072#1082#1077#1090#1072':'
           TabOrder = 0
@@ -160,7 +162,7 @@ object fVisual: TfVisual
       object Panel5: TPanel
         Left = 0
         Top = 0
-        Width = 745
+        Width = 435
         Height = 29
         Align = alTop
         BevelInner = bvRaised
@@ -169,7 +171,7 @@ object fVisual: TfVisual
         object Panel4: TPanel
           Left = 2
           Top = 2
-          Width = 671
+          Width = 361
           Height = 25
           Align = alClient
           AutoSize = True
@@ -178,7 +180,7 @@ object fVisual: TfVisual
           object ToolBar1: TToolBar
             Left = 0
             Top = 0
-            Width = 671
+            Width = 361
             Height = 25
             Align = alClient
             ButtonHeight = 23
@@ -348,7 +350,7 @@ object fVisual: TfVisual
           end
         end
         object Panel7: TPanel
-          Left = 673
+          Left = 363
           Top = 2
           Width = 70
           Height = 25
@@ -406,7 +408,7 @@ object fVisual: TfVisual
       object Splitter7: TSplitter
         Left = 0
         Top = 243
-        Width = 745
+        Width = 435
         Height = 6
         Cursor = crVSplit
         Align = alTop
@@ -414,7 +416,7 @@ object fVisual: TfVisual
       object GroupBox7: TGroupBox
         Left = 0
         Top = 29
-        Width = 745
+        Width = 435
         Height = 214
         Align = alTop
         Caption = #1055#1072#1082#1077#1090#1099' '#1085#1072' '#1086#1090#1087#1088#1072#1074#1082#1091':'
@@ -446,7 +448,7 @@ object fVisual: TfVisual
       object Panel10: TPanel
         Left = 0
         Top = 249
-        Width = 745
+        Width = 435
         Height = 328
         Align = alClient
         BevelOuter = bvNone
@@ -467,7 +469,7 @@ object fVisual: TfVisual
           object Label1: TLabel
             Left = 0
             Top = 0
-            Width = 364
+            Width = 100
             Height = 13
             Align = alTop
             Caption = #1042#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1087#1072#1082#1077#1090':'
@@ -497,7 +499,7 @@ object fVisual: TfVisual
         object Panel3: TPanel
           Left = 367
           Top = 0
-          Width = 378
+          Width = 68
           Height = 328
           Align = alClient
           BevelOuter = bvNone
@@ -505,7 +507,7 @@ object fVisual: TfVisual
           object Label2: TLabel
             Left = 0
             Top = 0
-            Width = 378
+            Width = 109
             Height = 13
             Align = alTop
             Caption = #1056#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072' '#1087#1072#1082#1077#1090#1072
@@ -536,7 +538,7 @@ object fVisual: TfVisual
       object Panel8: TPanel
         Left = 0
         Top = 0
-        Width = 745
+        Width = 435
         Height = 29
         Align = alTop
         BevelInner = bvRaised
@@ -545,7 +547,7 @@ object fVisual: TfVisual
         object Panel9: TPanel
           Left = 2
           Top = 2
-          Width = 695
+          Width = 385
           Height = 25
           Align = alClient
           AutoSize = True
@@ -554,7 +556,7 @@ object fVisual: TfVisual
           object ToolBar2: TToolBar
             Left = 0
             Top = 0
-            Width = 695
+            Width = 385
             Height = 25
             Align = alClient
             EdgeBorders = []
@@ -675,7 +677,7 @@ object fVisual: TfVisual
           end
         end
         object Panel11: TPanel
-          Left = 697
+          Left = 387
           Top = 2
           Width = 46
           Height = 25
@@ -809,7 +811,7 @@ object fVisual: TfVisual
   object Panel14: TPanel
     Left = 0
     Top = 0
-    Width = 753
+    Width = 443
     Height = 5
     Align = alTop
     BevelOuter = bvNone
