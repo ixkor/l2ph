@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ComCtrls, StdCtrls;
+  Dialogs, ComCtrls, StdCtrls, siComp;
 
 type
   TfProcesses = class(TForm)
@@ -13,6 +13,7 @@ type
     TabSheet2: TTabSheet;
     FoundProcesses: TListBox;
     FoundClients: TListBox;
+    lang: TsiLang;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private

@@ -7,7 +7,7 @@ uses
   Dialogs, ComCtrls, ExtCtrls, StdCtrls, CheckLst, JvExControls,
   JvEditorCommon, JvEditor, JvHLEditor, fs_iinterpreter, JvTabBar, uScriptEditor,
   ToolWin, ImgList, JvLabel, fs_iinirtti, fs_imenusrtti, fs_idialogsrtti,
-  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti;
+  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp;
 
 type
 
@@ -62,8 +62,10 @@ type
     btnShowHideList: TToolButton;
     ImageList1: TImageList;
     ScriptsListVisual: TListView;
-    Instruction: TJvLabel;
     ToolButton1: TToolButton;
+    lang: TsiLang;
+    Instruction: TJvLabel;
+    Button1: TButton;
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonDeleteClick(Sender: TObject);
     procedure Button9Click(Sender: TObject);
@@ -84,11 +86,11 @@ type
     procedure btnCompileClick(Sender: TObject);
     procedure btnInitTestClick(Sender: TObject);
     procedure ScriptsListVisualDblClick(Sender: TObject);
-    procedure HintMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure ToolButton1Click(Sender: TObject);
     procedure ScriptsListVisualSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
+    procedure ScriptsListVisualClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
 
@@ -104,6 +106,8 @@ type
     Function FindScriptByName(name:string):Tscript;
     procedure RefreshScripts;
     { Public declarations }
+    procedure savescryptorder;
+    procedure init;
   end;
 
 var
@@ -112,7 +116,7 @@ var
   currentScript : TScript;
 
 implementation
-uses uencdec, uplugindata, umain, Math, uData, uLogForm;
+uses usettingsdialog, uencdec, uplugindata, umain, Math, uData, uLogForm;
 {$R *.dfm}
 
 { TForm1 }
@@ -129,15 +133,43 @@ var
   SearchRec: TSearchRec;
   Mask: string;
   newScript : TScript;
+  i : integer;
+  tempname:string;
 begin
 
   Mask := ExtractFilePath(ParamStr(0))+'Scripts\*.Script';
   DestroyAllScripts;
+  //Сначала грузим в порядке очереди с инишки и компилим по надобности.
+  if assigned(Options) then
+    begin
+      i := 0;
+      while i < Options.ReadInteger('scripts','Scriptscount',0) do
+      begin
+        tempname := Options.ReadString('scripts','name'+inttostr(i),'')+'.script';
+        if fileexists(ExtractFilePath(ParamStr(0))+'Scripts\'+tempname) then
+          begin
+            newScript := TScript.create;
+            newScript.Load(tempname);
+            if Options.ReadBool('scripts','checked'+inttostr(i), false) then
+              begin
+              newScript.CompileThisScript;
+              if newScript.Compilled then
+                begin
+                  newScript.isRunning := true;
+                  newScript.ListItem.Checked := true;
+                end;
+              end;
+          end;
+        Inc(i);
+      end;
+    end;
+  //а потом все остальное
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
       Application.ProcessMessages;
       if (SearchRec.Attr and faDirectory) <> faDirectory then
+      if FindScriptByName(Copy(SearchRec.Name,1,Length(SearchRec.Name)-7)) = nil then //исключаем уже подгруженные
       begin
         newScript := TScript.create;
         newScript.Load(SearchRec.Name);
@@ -212,10 +244,14 @@ begin
   loadpos(self);
 
   ScriptList := TList.Create;
-  RefreshScripts;
   OriginalListViewWindowProc := ScriptsListVisual.WindowProc;
   ScriptsListVisual.WindowProc := ListViewWindowProcEx;
-  Instruction.Caption := RsScryptingInstructions;
+//  Instruction.Caption := RsScryptingInstructions;
+//  	RsScryptingInstructions: string = '';
+  (* 'Двойной клик по скрипту в списке скриптов '+#10#13+
+  'открывает его для редактирования'+#10#13#10#13+
+  'Скрипт не будет выполнятся для текущих соединений до тех пор - '+#10#13+
+  'пока он не будет успешно скомпилирован и отмечен галочкой в списке скриптов'+#10#13; *)
   JvTabBar1TabSelected(nil,nil);
 end;
 
@@ -229,18 +265,21 @@ end;
 
 procedure TfScript.ScriptCheckClick(Sender: TObject);
 begin
-{  ScriptsListVisual.Checked[TMenuItem(Sender).MenuIndex]:=TMenuItem(Sender).Checked;
-  ScriptsListVisualClickCheck(nil);
-  }
 end;
 
 { TScript }
 
 procedure TScript.CompileThisScript;
 begin
-  Compilled := dmData.Compile(fsScript, Editor.JvHLEditor1, fscript.StatusBar);
-
+  Compilled := dmData.Compile(fsScript, Editor.Editor, fscript.StatusBar);
   fscript.StatusBar.SimpleText := ScriptName +': '+ fscript.StatusBar.SimpleText;
+  if Compilled then
+    begin
+      Editor.Editor.LineStateDisplay.UnchangedColor := clLime;
+      Editor.Editor.LineStateDisplay.NewColor := clLime;
+      Editor.Editor.LineStateDisplay.SavedColor := clLime;
+      Editor.Editor.Invalidate;
+    end;
 end;
 
 constructor TScript.create;
@@ -252,13 +291,14 @@ begin
   fsScript.SyntaxType := 'PascalScript';
   mi := TMenuItem.Create(L2PacketHackMain.nScripts);
   Editor := TfScriptEditor.Create(fScript);
+  dmData.UpdateAutoCompleate(Editor.AutoComplete);
   Editor.Name := '';
   Tab := fScript.JvTabBar1.AddTab('');
   Editor.assignedTScript := self;
   Tab.Visible := false;
   Editor.Visible := false;
   Editor.Parent := fScript;
-  Editor.JvHLEditor1.Visible := false;
+  Editor.Editor.Visible := false;
 
   L2PacketHackMain.nScripts.Add(mi);
   mi.AutoCheck := True;
@@ -283,7 +323,7 @@ var
   i : integer;
 begin
   if Modified then
-    if MessageDlg(pchar('Желаете сохранить изменения в скрипте '+scriptname+' ?'),mtConfirmation,[mbYes, mbNo],0)=mrYes then
+    if MessageDlg(pchar(fScript.lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+scriptname+' ?'),mtConfirmation,[mbYes, mbNo],0)=mrYes then
       Save();
   i := 0;
   while i < ScriptList.Count do
@@ -326,31 +366,31 @@ begin
 
 if isnew then
   begin
-  Editor.JvHLEditor1.Lines.Text:=
-    'procedure Init; //Вызывается при включении скрипта'+sLineBreak+
+  Editor.Source.Lines.Text:=
+    fScript.lang.GetTextOrDefault('IDS_7' (* 'procedure Init; //Вызывается при включении скрипта' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end;'+sLineBreak+sLineBreak+
-    'procedure Free; //Вызывается при выключении скрипта'+sLineBreak+
+    fScript.lang.GetTextOrDefault('IDS_11' (* 'procedure Free; //Вызывается при выключении скрипта' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end;'+sLineBreak+sLineBreak+
-    'procedure OnConnect(WithClient: Boolean); //Вызывается при установке соединения'+sLineBreak+
+    fScript.lang.GetTextOrDefault('IDS_14' (* 'procedure OnConnect(WithClient: Boolean); //Вызывается при установке соединения' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end;'+sLineBreak+sLineBreak+
-    'procedure OnDisonnect(WithClient: Boolean); //Вызывается при потере соединения'+sLineBreak+
+    fScript.lang.GetTextOrDefault('IDS_17' (* 'procedure OnDisonnect(WithClient: Boolean); //Вызывается при потере соединения' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end;'+sLineBreak+sLineBreak+
-    '//основная часть скрипта'+sLineBreak+
-    '//вызывается при приходе каждого пакета если скрипт включен'+sLineBreak+
+    fScript.lang.GetTextOrDefault('IDS_22' (* '//основная часть скрипта' *) )+sLineBreak+
+    fScript.lang.GetTextOrDefault('IDS_23' (* '//вызывается при приходе каждого пакета если скрипт включен' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end.';
   end
   else
   if fullfilename <> '' then
-    Editor.JvHLEditor1.Lines.LoadFromFile(fullfilename)
+    Editor.Source.Lines.LoadFromFile(fullfilename)
   else
-    Editor.JvHLEditor1.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Filename);
+    Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Filename);
 
-  fsScript.Lines.Assign(Editor.JvHLEditor1.Lines);
+  fsScript.Lines.Assign(Editor.Source.Lines);
 
   mi.Caption := ScriptName;
 //  Editor.Name := ScriptName;
@@ -392,9 +432,10 @@ begin
     end;
 
   currentScript.Editor.Visible := true;
-  currentScript.Editor.JvHLEditor1.Visible := true;
+  currentScript.Editor.Editor.Visible := true;
   currentScript.Editor.BringToFront;
   currentScript.updatecontrols;
+  currentScript.Editor.SetFocus;
 end;
 
 function TfScript.FindScriptByName(name: string): Tscript;
@@ -419,14 +460,14 @@ procedure TfScript.JvTabBar1TabClosed(Sender: TObject;
 begin
   if item = nil then exit;
   if currentScript.Modified then
-    if MessageDlg('Желаете сохранить изменения в скрипте '+currentScript.ScriptName+' ?',mtConfirmation,[mbYes, mbNo],0)=mrYes then
+    if MessageDlg(lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+currentScript.ScriptName+' ?',mtConfirmation,[mbYes, mbNo],0)=mrYes then
       currentScript.Save
     else
       currentScript.LoadOriginal;
       
   Item.Visible := false;
   FindScriptByName(Item.Caption).Editor.Visible := false;
-  FindScriptByName(Item.Caption).Editor.JvHLEditor1.Visible := false;
+  FindScriptByName(Item.Caption).Editor.Editor.Visible := false;
 end;
 
 procedure TfScript.btnShowHideListClick(Sender: TObject);
@@ -443,24 +484,23 @@ end;
 procedure TfScript.BtnSaveClick(Sender: TObject);
 begin
   if currentScript = nil then exit;
-  
+
   currentScript.save;
-  StatusBar.SimpleText:='Скрипт '+currentScript.ScriptName+' сохранен';
 end;
 
 procedure TfScript.btnDeleteClick(Sender: TObject);
 begin
   if currentScript = nil then exit; 
-    if MessageDlg('Вы уверены что хотите удалить скрипт '+currentScript.ScriptName+' ?'
-      +sLineBreak+'Это действие необратимо и приведёт к утрате файла со скриптом.',mtConfirmation,[mbYes, mbNo],0)=mrYes then
+    if MessageDlg(lang.GetTextOrDefault('IDS_30' (* 'Вы уверены что хотите удалить скрипт ' *) )+currentScript.ScriptName+' ?'
+      +sLineBreak+lang.GetTextOrDefault('IDS_31' (* 'Это действие необратимо и приведёт к утрате файла со скриптом.' *) ),mtConfirmation,[mbYes, mbNo],0)=mrYes then
   begin
     if currentScript.delete then
       begin
-      StatusBar.SimpleText := 'Скрипт '+currentScript.ScriptName+' удален';
+      StatusBar.SimpleText := lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+currentScript.ScriptName+lang.GetTextOrDefault('IDS_33' (* ' удален' *) );
       currentScript.destroy;
       end
     else
-      StatusBar.SimpleText := 'Скрипт '+currentScript.ScriptName+' не был удален';
+      StatusBar.SimpleText := lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+currentScript.ScriptName+lang.GetTextOrDefault('IDS_35' (* ' не был удален' *) );
   end;
 end;
 
@@ -476,13 +516,13 @@ begin
     s:=ExtractFileName(DlgOpenScript.FileName);
     s:=Copy(s,1,LastDelimiter('.',s)-1);   
     if fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') then
-      if MessageDlg('Скрипт с таким названием уже существует, хотите его заменить?',mtConfirmation,[mbYes, mbNo],0)=mrNo then
+      if MessageDlg(lang.GetTextOrDefault('IDS_38' (* 'Скрипт с таким названием уже существует, хотите его заменить?' *) ),mtConfirmation,[mbYes, mbNo],0)=mrNo then
       begin
         r := true;
         // будем проверять пока ненажат Cancel или файла с таким именем нету
         while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') AND r do
         begin
-          r := InputQuery('Переименование скрипта','Такой скрипт существует'+sLineBreak+'Пожалуйста, укажите новое название', s);
+          r := InputQuery(lang.GetTextOrDefault('IDS_41' (* 'Переименование скрипта' *) ),lang.GetTextOrDefault('IDS_42' (* 'Такой скрипт существует' *) )+sLineBreak+lang.GetTextOrDefault('IDS_43' (* 'Пожалуйста, укажите новое название' *) ), s);
           if not r then exit;
         end;
       end;
@@ -504,17 +544,17 @@ begin
     // переименовываем пока скрипт с таким именем есть или не нажата кнопка Cancel
     while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') AND r  do
     begin
-      r:= InputQuery('Переименование скрипта','Пожалуйста, укажите новое название',s);
+      r:= InputQuery(lang.GetTextOrDefault('IDS_41' (* 'Переименование скрипта' *) ),lang.GetTextOrDefault('IDS_43' (* 'Пожалуйста, укажите новое название' *) ),s);
       if not r then exit;
     end;
 
     if currentScript.delete then
       begin
-        StatusBar.SimpleText := 'Скрипт '+currentScript.ScriptName+' был успешно переименован в '+s;
+        StatusBar.SimpleText := lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+currentScript.ScriptName+lang.GetTextOrDefault('IDS_49' (* ' был успешно переименован в ' *) )+s;
         currentScript.Save(s);
       end
       else
-        StatusBar.SimpleText := 'Скрипт '+currentScript.ScriptName+' не был переименован';
+        StatusBar.SimpleText := lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+currentScript.ScriptName+lang.GetTextOrDefault('IDS_51' (* ' не был переименован' *) );
 
 end;
 
@@ -524,13 +564,13 @@ var
   newscript:TScript;
 begin
   s:='NewScript';
-  if not InputQuery('Новый скрипт', 'Пожалуйста, укажите имя для создаваемого скрипта',s )then exit;
+  if not InputQuery(lang.GetTextOrDefault('IDS_53' (* 'Новый скрипт' *) ), lang.GetTextOrDefault('IDS_55' (* 'Пожалуйста, укажите имя для создаваемого скрипта' *) ),s )then exit;
   while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') do
-     if not InputQuery('Новый скрипт','Такой скрипт существует'+sLineBreak+'Пожалуйста, укажите название для создаваемого скрипта', s) then exit;
+     if not InputQuery(lang.GetTextOrDefault('IDS_53' (* 'Новый скрипт' *) ),lang.GetTextOrDefault('IDS_42' (* 'Такой скрипт существует' *) )+sLineBreak+lang.GetTextOrDefault('IDS_55' (* 'Пожалуйста, укажите название для создаваемого скрипта' *) ), s) then exit;
   newscript := TScript.Create;
   newscript.Load(s,True);
   newscript.Save;
-  StatusBar.SimpleText := 'Скрипт '+newscript.ScriptName+' создан';
+  StatusBar.SimpleText := lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+newscript.ScriptName+lang.GetTextOrDefault('Created' (* ' создан' *) );
 end;
 
 procedure TfScript.btnFreeTestClick(Sender: TObject);
@@ -578,8 +618,8 @@ end;
 
 procedure TScript.LoadOriginal;
 begin
-  Editor.JvHLEditor1.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
-  fsScript.Lines.Assign(Editor.JvHLEditor1.Lines);
+  Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  fsScript.Lines.Assign(Editor.Source.Lines);
   Modified := false;
   Tab.ImageIndex := 0;
   Compilled := false;
@@ -594,10 +634,13 @@ begin
     Tab.Caption := Filename;
     ScriptName := Filename;
   end;
-  
-  editor.JvHLEditor1.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  Editor.Editor.Modified := false;;
+  Editor.Editor.Invalidate;
+  editor.Source.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
   Modified := false;
   Tab.ImageIndex := 0;
+  fScript.StatusBar.SimpleText:=fScript.lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+ScriptName+fScript.lang.GetTextOrDefault('IDS_29' (* ' сохранен' *) );
+  
 end;
 
 procedure TfScript.ListViewWindowProcEx(var Message: TMessage);
@@ -630,7 +673,7 @@ end;
 
 procedure TScript.updatecontrols;
 begin
-  Editor.JvHLEditor1.ReadOnly := isRunning;
+  Editor.Source.ReadOnly := isRunning;
   fScript.btnLoad.Enabled := not isRunning;
   fScript.btnDelete.Enabled := not isRunning;
   fScript.btnCompile.Enabled := not isRunning;
@@ -650,8 +693,8 @@ if not Compilled and UseScript then
     result := false
 else
 if not UseScript and compilled then
-  fScript.StatusBar.SimpleText := ScriptName+': Не будет использоваться';
-  
+  fScript.StatusBar.SimpleText := ScriptName+fScript.lang.GetTextOrDefault('nouse' (* ': Не будет использоваться' *) );
+
 isRunning := Result;
 
 if result then
@@ -671,15 +714,9 @@ begin
   if scr = nil then exit; //0_о
   scr.Tab.Visible := true;
   scr.Editor.Visible := true;
-  scr.Editor.JvHLEditor1.Visible := true;
+  scr.Editor.Editor.Visible := true;
   scr.Tab.Selected := true;
   scr.Editor.BringToFront;
-end;
-
-procedure TfScript.HintMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
-begin
-StatusBar.SimpleText := (Sender as TControl).Hint;
 end;
 
 procedure TfScript.ScryptProcessPacket;
@@ -766,4 +803,39 @@ if (item.Index >= 0) and (item.index < ScriptsListVisual.Items.Count -1) then
 
 end;
 
+procedure TfScript.ScriptsListVisualClick(Sender: TObject);
+begin
+if assigned(currentScript) then
+  currentScript.Editor.Editor.SetFocus;
+end;
+
+procedure TfScript.savescryptorder;
+var
+i:integer;
+begin
+if not Assigned(Options) then exit;
+
+Options.WriteInteger('scripts','Scriptscount',ScriptsListVisual.Items.Count);
+i := 0;
+while i < ScriptsListVisual.Items.Count do
+begin
+  Options.WriteString('scripts','name'+inttostr(i), ScriptsListVisual.Items.Item[i].Caption);
+  Options.WriteBool('scripts','checked'+inttostr(i), ScriptsListVisual.Items.Item[i].Checked);
+  Inc(i);
+end;
+Options.UpdateFile;
+end;
+
+procedure TfScript.init;
+begin
+  RefreshScripts;
+end;
+
+procedure TfScript.Button1Click(Sender: TObject);
+begin
+   savescryptorder;//сохраняем порядок
+end;
+
 end.
+
+

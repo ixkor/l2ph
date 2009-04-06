@@ -29,6 +29,8 @@ object fProcessRawLog: TfProcessRawLog
       Top = 2
       Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1083#1086#1075' '#1082#1072#1082'..'
       ImageIndex = 0
+      ParentShowHint = False
+      ShowHint = True
       OnClick = btnOpenRawClick
     end
     object ToolButton1: TToolButton
@@ -43,6 +45,8 @@ object fProcessRawLog: TfProcessRawLog
       Top = 2
       Hint = #1053#1077' '#1073#1091#1076#1077#1090' '#1088#1072#1089#1082#1083#1077#1080#1074#1072#1090#1100' '#1087#1072#1082#1077#1090#1099' '#1087#1088#1080#1096#1077#1076#1096#1080#1093' '#1086#1076#1085#1080#1084' '#1082#1091#1089#1082#1086#1084' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
       ImageIndex = 1
+      ParentShowHint = False
+      ShowHint = True
       Style = tbsCheck
       OnClick = btnNoExplodeClick
     end
@@ -52,6 +56,8 @@ object fProcessRawLog: TfProcessRawLog
       Hint = #1041#1091#1076#1077#1090' '#1088#1072#1079#1073#1080#1074#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1085#1072' '#1087#1072#1082#1077#1090#1099' ('#1087#1099#1090#1072#1090#1089#1103')'
       Down = True
       ImageIndex = 2
+      ParentShowHint = False
+      ShowHint = True
       Style = tbsCheck
       OnClick = btnExplodeClick
     end
@@ -61,6 +67,8 @@ object fProcessRawLog: TfProcessRawLog
       Hint = #1055#1086#1087#1099#1090#1072#1090#1100#1089#1103' '#1076#1077#1082#1088#1080#1087#1090#1086#1074#1072#1090#1100' '#1076#1072#1085#1085#1099#1081' Raw '#1083#1086#1075
       Down = True
       ImageIndex = 3
+      ParentShowHint = False
+      ShowHint = True
       Style = tbsCheck
       OnClick = btnDecryptClick
     end
@@ -75,6 +83,8 @@ object fProcessRawLog: TfProcessRawLog
       Left = 114
       Top = 2
       ImageIndex = 7
+      ParentShowHint = False
+      ShowHint = True
       OnClick = ToolButton2Click
     end
     object ToolButton6: TToolButton
@@ -88,6 +98,8 @@ object fProcessRawLog: TfProcessRawLog
       Left = 155
       Top = 2
       ImageIndex = 6
+      ParentShowHint = False
+      ShowHint = True
       Style = tbsCheck
       OnClick = btnShowDirrectionClick
     end
@@ -95,6 +107,8 @@ object fProcessRawLog: TfProcessRawLog
       Left = 178
       Top = 2
       ImageIndex = 5
+      ParentShowHint = False
+      ShowHint = True
       Style = tbsCheck
       OnClick = btnShowDirrectionClick
     end
@@ -110,6 +124,8 @@ object fProcessRawLog: TfProcessRawLog
       Top = 2
       Hint = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1076#1088#1091#1075#1091#1102' '#1073#1080#1073#1083#1080#1086#1090#1077#1082#1091' '#1076#1083#1103' '#1076#1077#1082#1088#1080#1087#1090#1086#1074#1082#1080
       ImageIndex = 4
+      ParentShowHint = False
+      ShowHint = True
       Style = tbsCheck
       OnClick = btnUseLibClick
     end

@@ -36,6 +36,8 @@ object fSettings: TfSettings
         EditLabel.Width = 94
         EditLabel.Height = 13
         EditLabel.Caption = #1053#1077#1080#1075#1088#1086#1074#1099#1077' '#1087#1086#1088#1090#1099':'
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
       end
       object isClientsList: TLabeledEdit
@@ -47,6 +49,8 @@ object fSettings: TfSettings
         EditLabel.Width = 205
         EditLabel.Height = 13
         EditLabel.Caption = #1057#1095#1080#1090#1072#1090#1100' '#1082#1083#1080#1077#1085#1090#1072#1084#1080'/'#1073#1086#1090#1072#1084#1080' '#1087#1088#1086#1075#1088#1072#1084#1084#1099':'
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 1
       end
       object rgProtocolVersion: TRadioGroup
@@ -133,6 +137,8 @@ object fSettings: TfSettings
           EditLabel.Width = 97
           EditLabel.Height = 13
           EditLabel.Caption = #1055#1089#1077#1074#1076#1086#1085#1080#1084' Newxor'
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 4
           Text = 'newxor.dll'
         end
@@ -142,6 +148,8 @@ object fSettings: TfSettings
           Width = 15
           Height = 17
           Hint = #1047#1072#1075#1088#1091#1078#1072#1077#1090' '#1091#1082#1072#1079#1072#1085#1091#1102' '#1073#1080#1073#1083#1080#1086#1090#1077#1082#1091
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 5
           OnClick = iNewxorClick
         end
@@ -180,6 +188,8 @@ object fSettings: TfSettings
         EditLabel.Width = 243
         EditLabel.Height = 13
         EditLabel.Caption = #1080#1084#1103' '#1073#1080#1073#1083#1080#1086#1090#1082#1077#1080' '#1087#1077#1088#1077#1093#1074#1072#1090#1099#1074#1072#1102#1097#1077#1081' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1103
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         Text = 'inject.dll'
       end
@@ -195,6 +205,8 @@ object fSettings: TfSettings
           #1053#1072#1076#1077#1078#1085#1099#1081
           #1057#1082#1088#1099#1090#1085#1099#1081
           #1040#1083#1100#1090#1077#1088#1085#1072#1090#1080#1074#1085#1099#1081)
+        ParentShowHint = False
+        ShowHint = False
         TabOrder = 1
       end
       object ChkIntercept: TCheckBox
@@ -220,6 +232,8 @@ object fSettings: TfSettings
         MinValue = 0.100000000000000000
         ValueType = vtFloat
         Value = 5.000000000000000000
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 2
         BevelInner = bvNone
         BevelOuter = bvNone
@@ -242,6 +256,8 @@ object fSettings: TfSettings
         Width = 13
         Height = 17
         Hint = #1047#1072#1075#1088#1091#1078#1072#1077#1090' '#1091#1082#1072#1079#1072#1085#1091#1102' '#1073#1080#1073#1083#1080#1086#1090#1077#1082#1091
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 5
         OnClick = iInjectClick
       end
@@ -267,6 +283,8 @@ object fSettings: TfSettings
         EditLabel.Width = 142
         EditLabel.Height = 13
         EditLabel.Caption = #1055#1086#1083#1085#1099#1081' '#1087#1091#1090#1100' '#1082' LSP '#1084#1086#1076#1091#1083#1102'.'
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 7
         Text = 'c:\windows\system32\lsp.dll'
         OnChange = isLSPChange
@@ -355,6 +373,8 @@ object fSettings: TfSettings
         Width = 75
         Height = 23
         Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+        ParentShowHint = False
+        ShowHint = False
         TabOrder = 0
         OnClick = Button1Click
       end
@@ -364,6 +384,8 @@ object fSettings: TfSettings
         Width = 75
         Height = 23
         Caption = #1054#1090#1084#1077#1085#1072
+        ParentShowHint = False
+        ShowHint = False
         TabOrder = 1
         OnClick = Button2Click
       end

@@ -4,7 +4,7 @@ interface
 
 uses
   uGlobalFuncs, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls, siComp;
 
 type
   TfLog = class(TForm)
@@ -13,6 +13,7 @@ type
     Help: TLabel;
     Panel3: TPanel;
     Button1: TButton;
+    lang: TsiLang;
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -59,7 +60,7 @@ begin
     if fLog.Log.Lines.Count>MaxLinesInLog then begin
       fLog.Log.Lines.SaveToFile(PChar(ExtractFilePath(paramstr(0)))+'\logs\l2ph'+' '+AddDateTime+'.log');
       fLog.Log.Lines.Clear;
-      fLog.Log.Lines.Add(AddDateTimeNormal+' Сохраняем лог...');
+      fLog.Log.Lines.Add(AddDateTimeNormal+lang.GetTextOrDefault('IDS_4' (* ' Сохраняем лог...' *) ));
     end;
   except
   //ничего не делаем

@@ -6,7 +6,7 @@ del options.ini
 del *.log
 del *.txt
 del LSPprovider.jdbg
-del LSPprovider.map
+del *.map
 
 md Logs
 md Plugins

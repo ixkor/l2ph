@@ -7,7 +7,7 @@ uses
   usharedstructs,
   uPluginData,
   Menus, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, CheckLst;
+  Dialogs, StdCtrls, ExtCtrls, CheckLst, siComp;
 
 type
 
@@ -21,6 +21,7 @@ type
     clbPluginFuncs: TCheckListBox;
     Panel1: TPanel;
     btnRefreshPluginList: TButton;
+    lang: TsiLang;
     procedure btnRefreshPluginListClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);

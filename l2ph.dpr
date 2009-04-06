@@ -28,8 +28,7 @@ uses
   uPlugins in 'units\uPlugins.pas' {fPlugins},
   uPluginData in 'units\uPluginData.pas',
   uScripts in 'units\uScripts.pas' {fScript},
-  uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame},
-  uFindReplace in 'units\uFindReplace.pas' {fFindReplace};
+  uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame};
 
 {$R *.res}
 
@@ -49,9 +48,9 @@ begin
   Application.CreateForm(TfProcessRawLog, fProcessRawLog);
   Application.CreateForm(TfPlugins, fPlugins);
   Application.CreateForm(TfScript, fScript);
-  Application.CreateForm(TfFindReplace, fFindReplace);
   fSettings.init;
   L2PacketHackMain.INIT;
+  fScript.init;
   Application.Run;
 
 end.

@@ -29,11 +29,12 @@ type
   idServerThread, idClientThread : LongWord;  //threadid потоков
   sLastMessage : String;
   CriticalSection : TCriticalSection;
+  tempfilename : string;
  private
  Public
   active : boolean;
   isRawAllowed: boolean;
-  RawLog : TMemoryStream;
+  RawLog : TFileStream;
   Visual: TfVisual;
   AssignedTabSheet : TTabSheet;
   TunelWork:boolean;
@@ -667,7 +668,9 @@ begin
   EncDec.Settings := GlobalSettings;
   EncDec.onNewPacket := NewPacket;
   EncDec.onNewAction := NewAction;
-  RawLog := TMemoryStream.Create;
+  tempfilename := 'RAW.'+IntToStr(round(random(1000000)*10000))+'.temp';
+  RawLog := TFileStream.Create(tempfilename,fmOpenWrite or fmCreate);
+
 end;
 
 destructor Ttunel.destroy;
@@ -696,6 +699,7 @@ begin
   sendNewAction(Ttulel_action_tunel_destroyed);
   CriticalSection.Destroy;
   RawLog.Destroy;
+  DeleteFile(tempfilename);
   inherited;
 end;
 

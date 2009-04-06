@@ -5,7 +5,7 @@ interface
 uses
   uGlobalFuncs,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, siComp;
 
 type
   TfConvert = class(TForm)
@@ -28,6 +28,7 @@ type
     Button4: TButton;
     Button5: TButton;
     StatusBar1: TStatusBar;
+    lang: TsiLang;
     procedure Button4Click(Sender: TObject);
     procedure Memo6Change(Sender: TObject);
     procedure Button5Click(Sender: TObject);
@@ -57,14 +58,14 @@ try
   if RadioButton5.Checked then
   begin
     Memo7.Text:=StringToHex(Memo6.Text,' ');
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton6.Checked then
   begin
     SetLength(temp,Length(Memo6.Text)*2);
     Move(StringToWideString(Memo6.Text,1251)[1],temp[1],Length(temp));
     Memo7.Text:=StringToHex(temp,' ');
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton7.Checked then
   begin
@@ -72,7 +73,7 @@ try
     i64:=StrToInt64Def(Memo6.Text,0);
     Move(i64,temp[1],1);
     Memo7.Text:=StringToHex(temp,' ');
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton8.Checked then
   begin
@@ -80,7 +81,7 @@ try
     i64:=StrToInt64Def(Memo6.Text,0);
     Move(i64,temp[1],2);
     Memo7.Text:=StringToHex(temp,' ');
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton9.Checked then
   begin
@@ -88,10 +89,10 @@ try
     i64:=StrToInt64Def(Memo6.Text,0);
     Move(i64,temp[1],4);
     Memo7.Text:=StringToHex(temp,' ');
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
 except
-StatusBar1.SimpleText := 'ѕоследнее преобразование завершилось с ошибкой';
+StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_5' (* 'ѕоследнее преобразование завершилось с ошибкой' *) );
 end;
 Memo7.OnChange := Memo7Change;
 end;
@@ -112,7 +113,7 @@ try
   if RadioButton5.Checked then
   begin
     Memo6.Text:=HexToString(Memo7.Text);
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton6.Checked then
   begin
@@ -120,31 +121,31 @@ try
     SetLength(wtemp,Length(temp)div 2);
     Move(temp[1],wtemp[1],Length(temp));
     Memo6.Text:=WideStringToString(wtemp,1251);
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton7.Checked then
   begin
     i64:=0;
     Move((HexToString(Memo7.Text)+#0)[1],i64,1);
     Memo6.Text:=IntToStr(i64);
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton8.Checked then
   begin
     i64:=0;
     Move((HexToString(Memo7.Text)+#0#0)[1],i64,2);
     Memo6.Text:=IntToStr(i64);
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
   if RadioButton9.Checked then
   begin
     i64:=0;
     Move((HexToString(Memo7.Text)+#0#0#0#0)[1],i64,4);
     Memo6.Text:=IntToStr(i64);
-    StatusBar1.SimpleText := 'ѕоследнее преобразование прошло успешно';
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
   end;
 except
-StatusBar1.SimpleText := 'ѕоследнее преобразование завершилось с ошибкой';
+StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_5' (* 'ѕоследнее преобразование завершилось с ошибкой' *) );
 end;
 Memo6.OnChange := Memo6Change;
 end;

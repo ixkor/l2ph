@@ -86,6 +86,14 @@ uses uData, uLogForm, uFilterForm, uMain;
 
 procedure TfSettings.readsettings;
 begin
+
+  InterfaceEnabled := true;
+  if Options.ReadString('General', 'language', 'Rus') = 'Rus' then
+    L2PacketHackMain.RusLang.Checked := true
+  else
+    L2PacketHackMain.EngLang.Checked := true;
+  L2PacketHackMain.lang.Language := Options.ReadString('General', 'language', 'Rus');    
+  InterfaceEnabled := false;
   //максимальное количество строк в логе
   MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',300);
   //максимальное количество строк в логе пакетов
@@ -116,13 +124,6 @@ begin
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);
   chkNoFree.Checked := Options.ReadBool('General','NoFreeAfterDisconnect',False);
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
-  InterfaceEnabled := true;
-  if Options.ReadString('General', 'language', 'Rus') = 'Rus' then
-    L2PacketHackMain.RusLang.Checked := true
-  else
-    L2PacketHackMain.EngLang.Checked := true;
-
-  L2PacketHackMain.lang.Language := Options.ReadString('General', 'language', 'Rus');
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;

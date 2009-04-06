@@ -5,7 +5,7 @@ interface
 uses
   inifiles, 
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, siComp;
 
 type
   TfPacketFilter = class(TForm)
@@ -18,6 +18,7 @@ type
     Button1: TButton;
     Button13: TButton;
     UpdateBtn: TButton;
+    lang: TsiLang;
     procedure Button1Click(Sender: TObject);
     procedure Button13Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);

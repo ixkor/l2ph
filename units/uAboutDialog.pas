@@ -4,13 +4,14 @@ interface
 
 uses
   Shellapi, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls, siComp;
 
 type
   TfAbout = class(TForm)
     Memo1: TMemo;
     Image1: TImage;
     Label1: TLabel;
+    lang: TsiLang;
     procedure Label1Click(Sender: TObject);
   private
     { Private declarations }

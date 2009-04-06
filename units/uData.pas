@@ -5,6 +5,7 @@ interface
 uses
   uResourceStrings,
   uGlobalFuncs,
+  ecSyntMemo,
   SysUtils,
   Classes,
   Forms,
@@ -22,10 +23,10 @@ uses
   uUserForm,
   StrUtils,
   Variants,
-  JvHLEditor,
+  ecPopupCtrl,
   SyncObjs,
   fs_iinterpreter, fs_ipascal, fs_iinirtti, fs_imenusrtti, fs_idialogsrtti,
-  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti;
+  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp;
 
 type
   TlspConnection = class (tobject)
@@ -33,9 +34,12 @@ type
     AssignedTabSheet : TTabSheet;
     EncDec : TEncDec;
     SocketNum : integer;
+    tempfilename:string;
+
+  private
   public
     active : boolean;
-    RawLog : TMemoryStream;
+    RawLog : TFileStream;
     isRawAllowed:boolean;
     tempbufferRecv, tempbufferSend : array [0..$ffff] of byte;
     TempBufferRecvLen, TempBufferSendLen :cardinal;
@@ -70,6 +74,7 @@ type
     fsDialogsRTTI1: TfsDialogsRTTI;
     fsMenusRTTI1: TfsMenusRTTI;
     fsIniRTTI1: TfsIniRTTI;
+    lang: TsiLang;
     procedure LSPControlConnect(SocketNum: Cardinal; ip: String;
       port: Cardinal; exename: String; pid: Cardinal; hook: Boolean);
     procedure LSPControlDisconnect(SocketNum: Cardinal);
@@ -90,20 +95,21 @@ type
     procedure destroyDeadLogWievs;
     procedure encryptAndSend(CurrentLsp:TlspConnection; Packet: Tpacket; ToServer: Boolean);
     procedure RefreshPrecompile(var fsScript: TfsScript);
+    procedure UpdateAutoCompleate(var AutoComplete: TAutoCompletePopup);
     function CallMethod(Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
-
+    procedure reloadFuncs;
 
     procedure SendPacket(Packet: Tpacket; tid: integer; ToServer: Boolean);
     procedure SendPacketToName(Packet: Tpacket; cName: string; ToServer: Boolean);
     function ConnectNameById(id:integer):string;
     function ConnectIdByName(cname:string):integer;
     procedure SetConName(Id:integer; Name:string);
-    
+
               //Каламбурное название :)
     Procedure setNoDisconnectOnDisconnect(id:integer; NoFree:boolean;IsServer:boolean);
     Procedure setNoFreeOnConnectionLost(id:integer; NoFree:boolean);
     procedure DoDisconnect(id:integer);
-    function Compile(var fsScript: TfsScript; var JvHLEditor: TJvHLEditor; var StatBat:TStatusBar): Boolean;
+    function Compile(var fsScript: TfsScript; Editor: TSyntaxMemo; var StatBat:TStatusBar): Boolean;
   end;
 
 var
@@ -111,6 +117,7 @@ var
   Processes :TStringList;
   LSPConnections, PacketLogWievs:Tlist;
   sockEngine : TSocketEngine;
+  MyFuncs:TStringList;
 
 implementation
 uses uscripts, uPluginData, uPlugins, umain, uSettingsDialog, uProcesses, advApiHook;
@@ -284,6 +291,8 @@ begin
   LSPConnections := TList.Create;
   CriticalSection  := TCriticalSection.create;
   PacketLogWievs := TList.Create;
+  MyFuncs := TStringList.Create;
+  reloadFuncs;
   
 end;
 
@@ -298,6 +307,7 @@ begin
   LSPConnections.Destroy;
   PacketLogWievs.Destroy;
   CriticalSection.destroy;
+  MyFuncs.Destroy;
 end;
 
 
@@ -320,7 +330,8 @@ end;
 constructor TlspConnection.create;
 begin
   LSPConnections.Add(self);
-  RawLog := TMemoryStream.Create;
+  tempfilename := 'RAW.'+IntToStr(round(random(1000000)*10000))+'.temp';
+  RawLog := TFileStream.Create(tempfilename, fmOpenWrite or fmCreate);
   isRawAllowed := GlobalRawAllowed;
   SocketNum := SocketN;
   TempBufferSendLen := 0;
@@ -361,6 +372,7 @@ begin
   if Assigned(AssignedTabSheet) then
     AssignedTabSheet.Destroy;
   RawLog.Destroy;
+  DeleteFile(pchar(tempfilename));
   inherited;
 end;
 
@@ -432,7 +444,7 @@ begin
   LspConnection := FindLspConnectionBySockNum(SocketNum);
   if LspConnection = nil then exit;
     LspConnection.AddToRawLog(PCK_GS_ToClient, buffer[0], len);
-  
+
 
   ResultLen := 0;
   FillChar(ResultBuff,$ffff,#0);
@@ -598,6 +610,7 @@ end;
 
 
 
+
 procedure TdmData.RefreshPrecompile(var fsScript: TfsScript);
 var
   fss: string;
@@ -618,49 +631,13 @@ begin
     if k>0 then for k:=0 to High(funcs) do
       fsScript.AddMethod(funcs[k],CallMethod);
   end;
-  
 
-  fsScript.AddMethod('function HStr(Hex:String):String',CallMethod);
-  fsScript.AddMethod('procedure SendToClient('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure SendToServer('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure SendToClientEx(CharName:string;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure SendToServerEx(CharName:string;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure NoCloseFrameAfterDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure CloseFrameAfterDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure NoCloseClientAfterServerDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure CloseClientAfterServerDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure NoCloseServerAfterClientDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure CloseServerAfterClientDisconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('procedure Disconnect('+fss+')',CallMethod);
-  fsScript.AddMethod('function ConnectNameByID(id:integer;'+fss+'):string',CallMethod);
-  fsScript.AddMethod('function ConnectIDByName(name:string;'+fss+'):integer',CallMethod);
-  fsScript.AddMethod('procedure SetName(Name:string;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure Delay(msec: Cardinal)',CallMethod);
-  fsScript.AddMethod('procedure ShowForm',CallMethod);
-  fsScript.AddMethod('procedure HideForm',CallMethod);
-  fsScript.AddMethod('procedure WriteS(v:string;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure WriteC(v:byte; ind:integer=0;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure WriteD(v:integer; ind:integer=0;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure WriteH(v:word; ind:integer=0;'+fss+')',CallMethod);
-  fsScript.AddMethod('procedure WriteF(v:double; ind:integer=0;'+fss+')',CallMethod);
-  fsScript.AddMethod('function ReadS(var index:integer;'+fss+'):string',CallMethod);
-  fsScript.AddMethod('function ReadC(var index:integer;'+fss+'):byte',CallMethod);
-  fsScript.AddMethod('function ReadD(var index:integer;'+fss+'):integer',CallMethod);
-  fsScript.AddMethod('function ReadH(var index:integer;'+fss+'):word',CallMethod);
-  fsScript.AddMethod('function ReadF(var index:integer;'+fss+'):double',CallMethod);
-  fsScript.AddMethod('function LoadLibrary(LibName:String):Integer',CallMethod);
-  fsScript.AddMethod('function FreeLibrary(LibHandle:Integer):Boolean',CallMethod);
-  //for support DLL
-  fsScript.AddMethod('function StrToHex(str1:String):String;',CallMethod);
-  fsScript.AddMethod('procedure CallPr(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant)',CallMethod);
-  fsScript.AddMethod('function CallFnc(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):string',CallMethod);
-  fsScript.AddMethod('procedure TestFunc(LibHandle:integer;FunctionName:String;Count:Integer)',CallMethod);
-  fsScript.AddMethod('procedure TestFunc1(LibHandle:integer;FunctionName:String;Count1:variant)',CallMethod);
-  //for support DLL
-  fsScript.AddMethod('function CallFunction(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):variant',CallMethod);
-  // взаимодействие между скриптами
-  fsScript.AddMethod('function CallSF(ScriptName:String;FunctionName:String;Params:array of variant):variant',CallMethod);
-  fsScript.AddMethod('procedure sendMSG(msg:String;)',CallMethod);
+  i := 0;
+  while i < MyFuncs.Count do
+  begin
+    fsScript.AddMethod(Format(MyFuncs.Strings[i],[fss]),CallMethod);
+    inc(i);
+  end;
 
   fsScript.AddForm(UserForm);
   fsScript.AddVariable('buf','String','');
@@ -878,22 +855,22 @@ begin
       SelectedScript := fScript.FindScriptByName(Params[0]);
     if SelectedScript = nil then
       begin
-        AddToLog ('Script: скрипт с именем '+Params[0]+'не найден !');
+        AddToLog (lang.GetTextOrDefault('IDS_110' (* 'Script: скрипт с именем ' *) )+Params[0]+lang.GetTextOrDefault('IDS_111' (* 'не найден !' *) ));
       end
     else
       begin //Скрипт найден.
           if not SelectedScript.ListItem.Checked then
             //но при этом не отмечен
-            AddToLog ('Скрипт к которому вы обращаетесь ('+Params[0]+') не включен!')
+            AddToLog (lang.GetTextOrDefault('IDS_112' (* 'Скрипт к которому вы обращаетесь (' *) )+Params[0]+lang.GetTextOrDefault('IDS_113' (* ') не включен!' *) ))
           else
             try//все в порядке
             Result := SelectedScript.fsScript.CallFunction(Params[1], Params[2]);
             except
-            AddToLog ('При вызове '+Params[0]+' произошла ошибка в вызываемом методе! ('+inttostr(GetLastError)+')')
+            AddToLog (lang.GetTextOrDefault('IDS_114' (* 'При вызове ' *) )+Params[0]+lang.GetTextOrDefault('IDS_115' (* ' произошла ошибка в вызываемом методе! (' *) )+inttostr(GetLastError)+')')
             end;
 
       end;
-  end else 
+  end else
   if sMethodName = 'SENDMSG'  then
   begin
     if Params[0] <> null then
@@ -1171,28 +1148,35 @@ begin
 end;
 
 
-function TdmData.Compile(var fsScript: TfsScript;
-  var JvHLEditor: TJvHLEditor;var StatBat:TStatusBar): Boolean;
+function TdmData.Compile;
 var
   ps,x,y: Integer;
+  p:tpoint;
 begin
   RefreshPrecompile(fsScript);
-  fsScript.Lines:=JvHLEditor.Lines;
+  fsScript.Lines.Assign(Editor.Lines);
   if not fsScript.Compile then begin
     ps:=Pos(':',fsScript.ErrorPos);
     x:=StrToInt(Copy(fsScript.ErrorPos,ps+1,length(fsScript.ErrorPos)-ps));
     y:=StrToInt(Copy(fsScript.ErrorPos,1,ps-1));
-    if JvHLEditor.Visible then
-    begin
-      JvHLEditor.SetFocus;
-      JvHLEditor.SetCaret(x-1,y-1);
-      JvHLEditor.SelectWordOnCaret;
-      JvHLEditor.SelBackColor:=clRed;
+    Editor.Gutter.Objects.Items[0].Line := y-1;
+    p.X := x-1;
+    p.Y := y-1;
+    { TODO : Проверить правильность установки каретки }
+    if Editor.Visible then
+    try
+      Editor.SetFocus;
+    except
+    //....
     end;
-    StatBat.SimpleText:='Ошибка: '+fsScript.ErrorMsg + ', позиция: '+fsScript.ErrorPos;
+    Editor.CurrentLine := y-1;
+    Editor.ShowLine(y-1);
+    Editor.SelectLine(y-1);
+    Editor.Invalidate;
+    StatBat.SimpleText:=lang.GetTextOrDefault('IDS_149' (* 'Ошибка: ' *) )+fsScript.ErrorMsg + lang.GetTextOrDefault('IDS_150' (* ', позиция: ' *) )+fsScript.ErrorPos;
     Result:=False;
   end else begin
-    StatBat.SimpleText:='Скрипт проверен';
+    StatBat.SimpleText:=lang.GetTextOrDefault('IDS_151' (* 'Скрипт проверен' *) );
     Result:=True;
   end;
 end;
@@ -1244,6 +1228,92 @@ begin
   end;
 end;
 
+procedure TdmData.UpdateAutoCompleate;
+var
+  i : integer;
+  Orig, fname:String;
+begin
+  i := 0;
+  AutoComplete.Items.Clear;
+  AutoComplete.DisplayItems.Clear;
+  
+  while i < MyFuncs.Count do
+  begin
+    orig := MyFuncs.Strings[i];
+    fname := orig;
+    delete(fname, 1, pos(' ', fname));
+    if pos('(',fname) > 0 then
+      begin
+      delete(fname, pos('(',fname), length(fname)-pos('(',fname)+1);
+      fname := fname + '(';
+      end;
+    AutoComplete.DisplayItems.add(format(Orig,[''])+';');
+    AutoComplete.Items.add(fname);
+    inc(i);
+  end;
+
+  AutoComplete.DisplayItems.add('var buf: string;');
+  AutoComplete.Items.add('buf');
+
+  AutoComplete.DisplayItems.add('var pck: string;');
+  AutoComplete.Items.add('pck');
+
+  AutoComplete.DisplayItems.add('const buf: Boolean;');
+  AutoComplete.Items.add('FromServer');
+
+  AutoComplete.DisplayItems.add('const pck: Boolean;');
+  AutoComplete.Items.add('FromClient');
+
+  AutoComplete.DisplayItems.add('const buf: Integer;');
+  AutoComplete.Items.add('ConnectID');
+
+  AutoComplete.DisplayItems.add('const pck: string;');
+  AutoComplete.Items.add('ConnectName');
+
+end;
+
+procedure TdmData.reloadFuncs;
+begin
+  MyFuncs.Clear;
+  MyFuncs.Add('function HStr(Hex:String):String');
+  MyFuncs.Add('procedure SendToClient(%s)');
+  MyFuncs.Add('procedure SendToServer(%s)');
+  MyFuncs.Add('procedure SendToClientEx(CharName:string;%s)');
+  MyFuncs.Add('procedure SendToServerEx(CharName:string;%s)');
+  MyFuncs.Add('procedure NoCloseFrameAfterDisconnect(%s)');
+  MyFuncs.Add('procedure CloseFrameAfterDisconnect(%s)');
+  MyFuncs.Add('procedure NoCloseClientAfterServerDisconnect(%s)');
+  MyFuncs.Add('procedure CloseClientAfterServerDisconnect(%s)');
+  MyFuncs.Add('procedure NoCloseServerAfterClientDisconnect(%s)');
+  MyFuncs.Add('procedure CloseServerAfterClientDisconnect(%s)');
+  MyFuncs.Add('procedure Disconnect(%s)');
+  MyFuncs.Add('function ConnectNameByID(id:integer;%s):string');
+  MyFuncs.Add('function ConnectIDByName(name:string;%s):integer');
+  MyFuncs.Add('procedure SetName(Name:string;%s)');
+  MyFuncs.Add('procedure Delay(msec: Cardinal)');
+  MyFuncs.Add('procedure ShowForm()');
+  MyFuncs.Add('procedure HideForm()');
+  MyFuncs.Add('procedure WriteS(v:string;%s)');
+  MyFuncs.Add('procedure WriteC(v:byte; ind:integer=0;%s)');
+  MyFuncs.Add('procedure WriteD(v:integer; ind:integer=0;%s)');
+  MyFuncs.Add('procedure WriteH(v:word; ind:integer=0;%s)');
+  MyFuncs.Add('procedure WriteF(v:double; ind:integer=0;%s)');
+  MyFuncs.Add('function ReadS(var index:integer;%s):string');
+  MyFuncs.Add('function ReadC(var index:integer;%s):byte');
+  MyFuncs.Add('function ReadD(var index:integer;%s):integer');
+  MyFuncs.Add('function ReadH(var index:integer;%s):word');
+  MyFuncs.Add('function ReadF(var index:integer;%s):double');
+  MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
+  MyFuncs.Add('function FreeLibrary(LibHandle:Integer):Boolean');
+  MyFuncs.Add('function StrToHex(str1:String):String;');
+  MyFuncs.Add('procedure CallPr(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant)');
+  MyFuncs.Add('function CallFnc(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):string');
+  MyFuncs.Add('procedure TestFunc(LibHandle:integer;FunctionName:String;Count:Integer)');
+  MyFuncs.Add('procedure TestFunc1(LibHandle:integer;FunctionName:String;Count1:variant)');
+  MyFuncs.Add('function CallFunction(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):variant');
+  MyFuncs.Add('function CallSF(ScriptName:String;FunctionName:String;Params:array of variant):variant');
+  MyFuncs.Add('procedure sendMSG(msg:String;)');
+end;
 
 { TpacketLogWiev }
 

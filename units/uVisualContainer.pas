@@ -8,6 +8,7 @@ uses
   StrUtils,
   uREsourceStrings,
   LSPControl,
+  uScriptEditor,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ImgList, JvExControls, JvEditorCommon, JvEditor, JvHLEditor,
   StdCtrls, ComCtrls, ToolWin, JvExStdCtrls, JvRichEdit, ExtCtrls, Menus,
@@ -34,7 +35,6 @@ type
     Splitter2: TSplitter;
     TabSheet3: TTabSheet;
     GroupBox8: TGroupBox;
-    JvHLEditor2: TJvHLEditor;
     imgBT: TImageList;
     ImageList2: TImageList;
     PopupMenu1: TPopupMenu;
@@ -148,7 +148,6 @@ type
     procedure ToolButton27Click(Sender: TObject);
     procedure ToolButton25Click(Sender: TObject);
     procedure btnSaveRawClick(Sender: TObject);
-    procedure OpenBtnClick(Sender: TObject);
     procedure FrameResize(Sender: TObject);
     procedure ReloadThisClick(Sender: TObject);
   private
@@ -159,6 +158,7 @@ type
     kId: cardinal; //коэфф преобразования NpcID
     HexViewOffset: boolean;   //показывать смещение в Hex формате
     SelAttributes: TColor;
+    Edit:tfscripteditor;
   public
     dump, dumpacumulator : TStringList;
     hexvalue: string; //для вывода HEX в расшифровке пакетов
@@ -202,13 +202,27 @@ uses uencdec, uMain, uSocketEngine, uFilterForm, uData, uScripts;
 procedure TfVisual.init;
 begin
   translate();
+  { TODO : Воттут }
+  //dmData.UpdateEditor(JvHLEditor2);
   Panel7.Width := 46;
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
 
   if Assigned(currentLSP) then
       btnSaveRaw.Visible := TlspConnection(currentLSP).isRawAllowed;
-
+  edit := TfScriptEditor.Create(GroupBox8);
+  Edit.Parent := GroupBox8;
+  edit.Source.Lines.SetText(
+  'begin'#10#13+
+  'buf:=#$4A;'#10#13+
+  'WriteD(0);'#10#13+
+  'WriteD(10);'#10#13+
+  'WriteS('''');'#10#13+
+  'WriteS(''Hello!!!'');'#10#13+
+  'SendToClient;'#10#13+
+  'end.');
+  dmData.UpdateAutoCompleate(edit.AutoComplete);
+  
   Dump := TStringList.Create;
   dumpacumulator := TStringList.Create;
   ToolButton7.Down := GlobalSettings.isSaveLog;
@@ -238,6 +252,7 @@ begin
   SavePacketLog;
   Dump.Destroy;
   dumpacumulator.Destroy;
+  edit.Destroy;
 end;
 
 procedure TfVisual.Processpacket;
@@ -1166,20 +1181,22 @@ begin
     Dump.SaveToFile(dlgSaveLog.FileName);
 end;
 
+{$warnings off}
 procedure TfVisual.SavePacketLog;
 var
 SaveThis: TStringList;
 begin
   if ToolButton7.Down then
   begin
-    SaveThis := TStringList.Create;
     AddToLog(rsSavingPacketLog);
+    SaveThis := TStringList.Create;
     SaveThis.Assign(dump);
   end;
   Dump.Clear;
   ListView5.Items.BeginUpdate;
   ListView5.Items.Clear;
   ListView5.Items.EndUpdate;
+
   if ToolButton7.Down then
   begin
     if CharName <> '' then
@@ -1187,7 +1204,7 @@ begin
     SaveThis.Free;
   end;
 end;
-
+{$warnings on}
 procedure TfVisual.CloseConnectionClick(Sender: TObject);
 begin
 if MessageDlg(lang.GetTextOrDefault('reallywant' (* 'Это действие закроет данный диалог и прервет текущее соединение' *) ) + #10#13+lang.GetTextOrDefault('reallywant2' (* 'если оно существует. Вы уверены ?' *) ),mtWarning,[mbYes,mbNo],0) = mrCancel then exit;
@@ -1750,6 +1767,8 @@ SendByTimer.Enabled := false;
 SendByTimer.Down := false;
 ToolButton37.Enabled := false;
 ToolButton30.Enabled := false;
+btnExecute.Enabled := false;
+btnTerminate.Click;
 end;
 
 procedure TfVisual.btnExecuteClick(Sender: TObject);
@@ -1764,10 +1783,15 @@ procedure TfVisual.btnExecuteClick(Sender: TObject);
   end;
 begin
     dmData.RefreshPrecompile(fsScript);
-    fsScript.Lines:=JvHLEditor2.Lines;
-
-    if dmData.Compile(fsScript,JvHLEditor2,L2PacketHackMain.StatusBar1) then
+    fsScript.Lines.Assign(Edit.Source.Lines);
+    if dmData.Compile(fsScript,Edit.Editor,L2PacketHackMain.StatusBar1) then
     begin
+      //Делаем зелененькие поля.
+      Edit.Editor.LineStateDisplay.UnchangedColor := clLime;
+      Edit.Editor.LineStateDisplay.NewColor := clLime;
+      Edit.Editor.LineStateDisplay.SavedColor := clLime;
+      Edit.Editor.Invalidate;
+
       if assigned(currenttunel) then
       begin
         fsScript.Variables['ConnectID'] := Ttunel(currenttunel).serversocket;
@@ -1779,7 +1803,7 @@ begin
         fsScript.Variables['ConnectID'] := TlspConnection(currenttunel).SocketNum;
         fsScript.Variables['ConnectName'] := TlspConnection(currenttunel).EncDec.CharName;
       end;
-      
+
       btnExecute.Enabled:=False;
       btnTerminate.Enabled:=True;
       hScriptThread := BeginThread(nil, 0, @RunScript, Self, 0, idScriptThread);
@@ -1807,36 +1831,30 @@ end;
 
 procedure TfVisual.ToolButton27Click(Sender: TObject);
 begin
-  if DlgOpenScript.Execute then JvHLEditor2.Lines.LoadFromFile(DlgOpenScript.FileName);
+  if DlgOpenScript.Execute then
+    Edit.Source.Lines.LoadFromFile(DlgOpenScript.FileName);
 end;
 
 procedure TfVisual.ToolButton25Click(Sender: TObject);
 begin
-  if dlgSaveScript.Execute then JvHLEditor2.Lines.SaveToFile(dlgSaveScript.FileName);
+  if dlgSaveScript.Execute then
+    Edit.Source.Lines.SaveToFile(dlgSaveScript.FileName);
 end;
 
 procedure TfVisual.btnSaveRawClick(Sender: TObject);
 begin
-
 if dlgSaveLogRaw.Execute then
   if assigned(currenttunel) then
-    Ttunel(currenttunel).RawLog.SaveToFile(dlgSaveLogRaw.FileName) else
+    CopyFile(pchar(Ttunel(currenttunel).tempfilename), pchar(dlgSaveLogRaw.FileName), false)
+  else
   if Assigned(currentLSP) then
-    TlspConnection(currentLSP).RawLog.SaveToFile(dlgSaveLogRaw.FileName);
-    
-end;
-
-procedure TfVisual.OpenBtnClick(Sender: TObject);
-begin
-  if DlgOpenPacket.Execute then JvHLEditor2.Lines.LoadFromFile(DlgOpenPacket.FileName);
+    CopyFile(pchar(TlspConnection(currentLSP).tempfilename), pchar(dlgSaveLogRaw.FileName), false);
 end;
 
 procedure TfVisual.FrameResize(Sender: TObject);
 begin
-waitbar.Left := round((Self.Width-waitbar.Width)/2);
-waitbar.Top := round((Self.Height-waitbar.Height)/2);
-
-
+  waitbar.Left := round((Self.Width-waitbar.Width)/2);
+  waitbar.Top := round((Self.Height-waitbar.Height)/2);
 end;
 
 procedure TfVisual.AddPacketToAcum;
