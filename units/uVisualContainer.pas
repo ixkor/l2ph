@@ -763,6 +763,7 @@ begin
       param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
       offset:=PosinPkt-11;
       value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3); //считываем значение, сдвигаем указатели в соответствии с типом значения
+      if value = 'range error' then exit;
       if uppercase(Func)='GET' then begin
         try
           if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit; 
@@ -824,6 +825,7 @@ begin
               //param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1)
               offset:=PosinPkt-11;
               value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
+              if value = 'range error' then exit;
               try
 
                 if uppercase(Func)='GET' then
@@ -897,6 +899,7 @@ begin
               param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
               offset:=PosinPkt-11;
               value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
+              if value = 'range error' then exit;
               //распечатываем
               if HexViewOffset
                 then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
@@ -923,6 +926,7 @@ begin
               param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
               offset:=PosinPkt-11;
               value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
+              if value = 'range error' then exit;
               try
 
                 if uppercase(Func)='GET' then
@@ -1062,7 +1066,8 @@ begin
   Result:=value;
   //проверяем на выход за границу пакета
   //if PosInPkt>Size+10 then raise ERangeError.CreateFmt(result+' is not within the valid range of %d', [Size]);
-  if PosInPkt>Size+10 then result:='range error';
+  if PosInPkt>Size+10 then
+    result:='range error';
 end;
 
 

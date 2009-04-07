@@ -209,14 +209,14 @@ begin
 
     if not thisTunel.EncDec.Settings.isNoProcessToServer then
       begin
-        if AccumulatorLen > 2 then
+        if AccumulatorLen >= 2 then
           begin //В акумуляторе данных на 2+ байтикоф
             ThisTunel.CriticalSection.enter;
             try
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             //Хватит ли в акамуляторе данных для пакета ?
-              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen > 2) and (curPacket.Size > 2) do
+              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen >= 2) and (curPacket.Size >= 2) do
                 begin
                   //смещаем и уменьшаем длину акумулятора
                   move(StackAccumulator[curPacket.Size], StackAccumulator[0], AccumulatorLen);
@@ -228,7 +228,7 @@ begin
                   thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToServer);
 
                   //если после декодировки и обработки пакет все еще есть то
-                  if curPacket.Size > 2 then
+                  if curPacket.Size >= 2 then
                   begin
                     //кодируем
                     thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToServer);
@@ -335,7 +335,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
 
     if not thisTunel.EncDec.Settings.isNoProcessToClient then
       begin
-        if AccumulatorLen > 2 then
+        if AccumulatorLen >= 2 then
           begin //В акумуляторе данных на 2+ байтикоф
             ThisTunel.CriticalSection.enter;
             try
@@ -343,7 +343,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
             curPacket.PacketAsCharArray := StackAccumulator;
             if curPacket.Size=29754 then curPacket.Size:=267;
             //Хватит ли в акамуляторе данных для пакета ?
-              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen > 2) and (curPacket.Size > 2) do
+              while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen >= 2) and (curPacket.Size >= 2) do
                 begin
                   //смещаем и уменьшаем длину акумулятора
                   move(StackAccumulator[curPacket.Size], StackAccumulator[0], AccumulatorLen);
@@ -354,7 +354,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
                   //декодируем
                   thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToClient);
                   //если после декодировки и обработки пакет все еще есть то
-                  if curPacket.Size > 2 then
+                  if curPacket.Size >= 2 then
                   begin
                     //кодируем
                     thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToClient);
