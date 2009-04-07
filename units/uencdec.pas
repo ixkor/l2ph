@@ -143,9 +143,9 @@ begin
       end;
 
       PCK_GS_ToServer, PCK_LS_ToServer:
-      begin                   
+      begin
         EnterCriticalSection(crSectionDec);
-
+        if Packet.Size=29754 then Packet.Size:=267;
         //Декодирование
         if InitXOR and (not Settings.isNoDecrypt) then
           xorC.DecryptGP(Packet.Data, Packet.Size - 2);

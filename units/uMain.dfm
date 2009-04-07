@@ -1,6 +1,6 @@
 object L2PacketHackMain: TL2PacketHackMain
-  Left = 50
-  Top = 61
+  Left = 428
+  Top = 357
   Width = 784
   Height = 590
   Color = clBtnFace
@@ -106,7 +106,7 @@ object L2PacketHackMain: TL2PacketHackMain
       Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1079#1072#1094#1080#1103
       object nScriptsShow: TMenuItem
         Caption = #1057#1082#1088#1080#1087#1090#1099
-        ShortCut = 16459
+        ShortCut = 16453
         OnClick = nScriptsShowClick
       end
       object nPluginsShow: TMenuItem
@@ -128,12 +128,11 @@ object L2PacketHackMain: TL2PacketHackMain
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       object nPscketFilterShow: TMenuItem
         Caption = #1060#1080#1083#1100#1090#1088' '#1087#1072#1082#1077#1090#1086#1074
-        ShortCut = 16457
+        ShortCut = 16450
         OnClick = nPscketFilterShowClick
       end
       object nConvertorShow: TMenuItem
         Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103
-        ShortCut = 16469
         OnClick = nConvertorShowClick
       end
       object nProcessesShow: TMenuItem
@@ -2818,7 +2817,6 @@ object L2PacketHackMain: TL2PacketHackMain
       'TSTRINGLIST')
     SmartExcludeProps.Strings = (
       'Action4.Caption'
-      'Action5.Caption'
       'Action6.Caption'
       'Action7.Caption'
       'Action8.Caption'
@@ -3063,22 +3061,17 @@ object L2PacketHackMain: TL2PacketHackMain
     end
     object Action4: TAction
       Caption = 'Action4'
-      ShortCut = 16459
+      ShortCut = 16453
       OnExecute = nScriptsShowClick
-    end
-    object Action5: TAction
-      Caption = 'Action5'
-      ShortCut = 16460
-      OnExecute = nPluginsShowClick
     end
     object Action6: TAction
       Caption = 'Action6'
-      ShortCut = 16457
+      ShortCut = 16450
       OnExecute = nPscketFilterShowClick
     end
     object Action7: TAction
       Caption = 'Action7'
-      ShortCut = 16469
+      ShortCut = 16460
       OnExecute = nPluginsShowClick
     end
     object Action8: TAction

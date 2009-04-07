@@ -146,7 +146,7 @@ object fScriptEditor: TfScriptEditor
     SyncEditing.InactiveWordsStyle.BorderTypeBottom = blSolid
     SyncEditing.InactiveWordsStyle.BorderColorBottom = clBtnFace
     BackGround.GradColor = clNone
-    Options = [soOverwriteBlocks, soEnableBlockSel, soHideSelection, soHideDynamic, soAutoIndentMode, soBackUnindent, soGroupUndo, soDragText, soCallapseEmptyLines, soDrawCurLineFocus]
+    Options = [soOverwriteBlocks, soEnableBlockSel, soHideSelection, soHideDynamic, soAutoIndentMode, soBackUnindent, soGroupUndo, soDragText, soCallapseEmptyLines, soAlwaysShowCaret, soDrawCurLineFocus, soSmartCaret]
     OptionsEx = [soSmartPaste, soUseCaseFormat, soCorrectNonPrinted, soRightClickMoveCaret, soDisableAutoClose]
     BorderStyle = bsNone
     HorzRuler.Font.Charset = DEFAULT_CHARSET
@@ -880,7 +880,6 @@ object fScriptEditor: TfScriptEditor
       item
         Command = 217
         KeyStrokes = <>
-        Customizable = False
         Category = 'Navigation, columnar select'
         DisplayName = 'Move cursor to specified position and column select'
       end
@@ -1235,26 +1234,14 @@ object fScriptEditor: TfScriptEditor
       end
       item
         Command = 350
-        KeyStrokes = <
-          item
-            KeyDefs = <
-              item
-                ShortCut = 16393
-              end>
-          end>
+        KeyStrokes = <>
         Caption = '&Indent'
         Category = 'Indents and Tabs'
         DisplayName = 'Indent selection'
       end
       item
         Command = 351
-        KeyStrokes = <
-          item
-            KeyDefs = <
-              item
-                ShortCut = 8201
-              end>
-          end>
+        KeyStrokes = <>
         Caption = '&Unindent'
         Category = 'Indents and Tabs'
         DisplayName = 'Unindent selection'
@@ -1273,13 +1260,7 @@ object fScriptEditor: TfScriptEditor
       end
       item
         Command = 353
-        KeyStrokes = <
-          item
-            KeyDefs = <
-              item
-                ShortCut = 16457
-              end>
-          end>
+        KeyStrokes = <>
         Category = 'Indents and Tabs'
         DisplayName = 'Insert Tab char'
       end

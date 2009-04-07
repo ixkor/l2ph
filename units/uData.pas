@@ -454,7 +454,7 @@ begin
 
   //получаем длинну пакета хранящегося в временном буфере
   Move(LspConnection.TempBufferRecv[0], PcktLen, 2);
-
+  if PcktLen=29754 then PcktLen:=267;
   //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем пакет
   while (LspConnection.TempBufferRecvLen >= PcktLen) and (PcktLen > 0) and (LspConnection.TempBufferRecvLen > 2) do
   begin
@@ -463,6 +463,7 @@ begin
     //Сдвигаем буффер и Уменьшаем счетчик длинны временого буфера
     move(LspConnection.TempBufferRecv[PcktLen], LspConnection.TempBufferRecv[0], LspConnection.TempBufferRecvLen);
     dec(LspConnection.TempBufferRecvLen, PcktLen);
+    if PcktLen=29754 then PcktLen:=267;
     //обрабатываем пакет
     LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToClient);
     LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToClient);

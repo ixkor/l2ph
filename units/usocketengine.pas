@@ -36,6 +36,7 @@ type
   isRawAllowed: boolean;
   RawLog : TFileStream;
   Visual: TfVisual;
+  NeedDeinit: boolean;
   AssignedTabSheet : TTabSheet;
   TunelWork:boolean;
   noFreeAfterDisconnect : Boolean; //не будет высвобождать обьект при дисконекте
@@ -336,6 +337,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
             ThisTunel.CriticalSection.enter;
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
+            if curPacket.Size=29754 then curPacket.Size:=267;
             //’ватит ли в акамул€торе данных дл€ пакета ?
               while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen > 2) and (curPacket.Size > 2) do
                 begin
@@ -652,6 +654,7 @@ end;
 constructor Ttunel.create;
 begin
   active := false;
+  NeedDeinit := false;
   TSocketEngine(SockEngine).tunels.Add(self);
   isRawAllowed := GlobalRawAllowed;
   CriticalSection := TCriticalSection.Create;

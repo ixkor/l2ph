@@ -60,7 +60,6 @@ type
     Action2: TAction;
     Action3: TAction;
     Action4: TAction;
-    Action5: TAction;
     Action6: TAction;
     Action7: TAction;
     Action8: TAction;
@@ -252,7 +251,9 @@ c_s.Enter;
 temp := SendMessageParam(pointer(msg.WParam)^);
 fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
 if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
-Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
+if assigned(Ttunel(temp.tunel)) then
+  if not Ttunel(temp.tunel).MustBeDestroyed then
+    Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
 
 { TODO : here }
 PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
@@ -309,6 +310,22 @@ case action of
   Ttunel_Action_connect_server:
   begin
     Tunel := Ttunel(msg.LParam);
+    Tunel.AssignedTabSheet := TTabSheet.Create(pcClientsConnection);
+    Tunel.Visual := TfVisual.Create(Tunel.AssignedTabSheet);
+    Tunel.Visual.currentLSP := nil;
+    Tunel.Visual.CurrentTpacketLog := nil;
+    Tunel.Visual.currenttunel := Tunel;
+    Tunel.AssignedTabSheet.Caption := Tunel.CharName;
+    tunel.Visual.init;
+    Tunel.NeedDeinit := true;
+
+    Tunel.Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
+    Tunel.Visual.Parent := Tunel.AssignedTabSheet;
+    Tunel.AssignedTabSheet.PageControl := pcClientsConnection;
+    Tunel.active := true;
+
+    if not pcClientsConnection.Visible then pcClientsConnection.Visible  := true;
+
     for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, true);
   end; //
@@ -322,19 +339,6 @@ case action of
   Ttunel_Action_connect_client:
     begin ////Создавать такие вещи в нити нельзя.. а вот тут можно...
       Tunel := Ttunel(msg.LParam);
-      Tunel.AssignedTabSheet := TTabSheet.Create(pcClientsConnection);
-      Tunel.Visual := TfVisual.Create(Tunel.AssignedTabSheet);
-      Tunel.Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
-      Tunel.Visual.Parent := Tunel.AssignedTabSheet;
-      Tunel.AssignedTabSheet.PageControl := pcClientsConnection;
-      Tunel.AssignedTabSheet.Caption := Tunel.CharName;
-      Tunel.Visual.currentLSP := nil;
-      Tunel.Visual.CurrentTpacketLog := nil;
-      Tunel.Visual.currenttunel := Tunel;
-      tunel.Visual.init;
-      Tunel.active := true;
-      if not pcClientsConnection.Visible then pcClientsConnection.Visible  := true;
-      
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
         if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, false);
     end; //
@@ -353,9 +357,20 @@ case action of
   Ttulel_action_tunel_destroyed:
     begin
       Tunel := Ttunel(msg.LParam);
-      tunel.Visual.deinit;
-      if Assigned(Tunel.Visual) then Tunel.Visual.Destroy;
-      if Assigned(Tunel.AssignedTabSheet) then Tunel.AssignedTabSheet.Destroy;
+      if Tunel.NeedDeinit then
+        tunel.Visual.deinit;
+      if assigned(Tunel) then
+        if assigned(Tunel.Visual) then
+          begin
+          Tunel.Visual.Destroy;
+          Tunel.Visual := nil;
+          end;
+
+      if Assigned(Tunel.AssignedTabSheet) then
+        begin
+        Tunel.AssignedTabSheet.Destroy;
+        Tunel.AssignedTabSheet := nil;
+        end;
     end; 
 
   end;
@@ -369,13 +384,21 @@ begin
   UnhookCode(@ShowMessageOld);
   c_s.Destroy;
   if Assigned(sockEngine) then
-    sockEngine.destroy;
-    
+    begin
+      sockEngine.destroy;
+      sockEngine := nil;
+    end;
+
   SysMsgIdList.Destroy;
+  SysMsgIdList := nil;
   ItemsList.Destroy;
+  ItemsList := nil;
   NpcIdList.Destroy;
+  NpcIdList := nil;
   ClassIdList.Destroy;
+  ClassIdList := nil;
   SkillList.Destroy;
+  SkillList := nil;
 
 end;
 

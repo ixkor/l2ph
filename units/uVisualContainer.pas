@@ -1187,7 +1187,7 @@ var
 SaveThis: TStringList;
 begin
   if not assigned(dump) then exit;
-  try
+
   if ToolButton7.Down then
   begin
     AddToLog(rsSavingPacketLog);
@@ -1202,10 +1202,9 @@ begin
   if ToolButton7.Down then
   begin
     if CharName <> '' then
-      SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+CharName+' '+AddDateTime+'.txt');
+      if SaveThis.Count > 0 then
+        SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+CharName+' '+AddDateTime+'.txt');
     SaveThis.Free;
-  end;
-  except
   end;
 end;
 {$warnings on}

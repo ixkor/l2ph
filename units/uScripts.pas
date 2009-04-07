@@ -322,6 +322,7 @@ destructor TScript.destroy;
 var
   i : integer;
 begin
+  if currentScript = self then currentScript := nil;
   if Modified then
     if MessageDlg(pchar(fScript.lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+scriptname+' ?'),mtConfirmation,[mbYes, mbNo],0)=mrYes then
       Save();

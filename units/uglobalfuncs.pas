@@ -328,7 +328,9 @@ var sFile, Size:THandle;
 begin
   if pInjectDll <> nil then
   begin
-    FreeMem(pInjectDll);
+  { TODO : here }
+    if pInjectDll <> nil then
+      FreeMem(pInjectDll);
     AddToLog(format(rsUnLoadDllSuccessfully,[name]));
   end;
   

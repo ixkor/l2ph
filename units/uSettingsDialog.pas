@@ -233,11 +233,14 @@ end;
 procedure TfSettings.ChkKamaelClick(Sender: TObject);
 begin
   if not ChkKamael.Checked then ChkGraciaOff.Checked:=False;
+  if not InterfaceEnabled then exit;
+  GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.ChkGraciaOffClick(Sender: TObject);
 begin
   if ChkGraciaOff.Checked then ChkKamael.Checked := True;
+  if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
 end;
 
@@ -318,7 +321,8 @@ begin
         isNewxor.Enabled := true;
       end;
     end;
-    GenerateSettingsFromInterface;
+  if not InterfaceEnabled then exit;
+  GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.Button1Click(Sender: TObject);
@@ -346,10 +350,12 @@ begin
   begin
     ChkIntercept.Checked := false;
     FreeMem(pInjectDll);
+    pInjectDll := nil;
     AddToLog(format(rsUnLoadDllSuccessfully,[isInject.Text]));
     isInject.Enabled := true;
   end;
   isInject.Enabled := not iInject.Checked;
+  if not InterfaceEnabled then exit; 
   GenerateSettingsFromInterface;
 end;
 

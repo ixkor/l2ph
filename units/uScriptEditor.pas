@@ -2,7 +2,7 @@ unit uScriptEditor;
 
 interface
 
-uses
+uses 
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, JvExControls, JvEditorCommon, JvEditor, JvHLEditor, JvTabBar,
   StdCtrls, Mask, JvExMask, JvSpin, ComCtrls, ToolWin, ImgList, ecSyntAnal,

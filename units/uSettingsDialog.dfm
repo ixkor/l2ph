@@ -22,7 +22,7 @@ object fSettings: TfSettings
     Top = 0
     Width = 379
     Height = 345
-    ActivePage = TabSheet8
+    ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
     object TabSheet8: TTabSheet
