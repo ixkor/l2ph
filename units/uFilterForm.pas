@@ -223,7 +223,7 @@ begin
   while i < LSPConnections.Count do
   begin
     if assigned(TlspConnection(LSPConnections.Items[i]).Visual) then
-      TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh;
+        TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh;
     inc(i);
   end;
 

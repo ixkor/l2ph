@@ -276,7 +276,7 @@ begin
                  encdec.DecodePacket(TmpPacket2,Dirrection);
                  tmppacket3 := TmpPacket2;
                  addcolored(dTime,Dirrection,ByteArrayToHex(TmpPacket2.PacketAsByteArray, TmpPacket2.Size)); //рисуем
-                 AddPacketToLog(dTime, true, TmpPacket2);
+                 AddPacketToLog(dTime, false, TmpPacket2);
                  encdec.EncodePacket(tmppacket3,Dirrection);
 
                  if not CompareMem(@tmpPacket,@tmppacket3, tmpPacket.Size) then
@@ -322,7 +322,7 @@ begin
                  encdec.DecodePacket(TmpPacket2,Dirrection);
                  tmppacket3 := TmpPacket2;
                  addcolored(dTime,Dirrection,ByteArrayToHex(TmpPacket2.PacketAsByteArray, TmpPacket2.Size)); //рисуем
-                 AddPacketToLog(dTime, false, TmpPacket2);
+                 AddPacketToLog(dTime, true, TmpPacket2);
                  encdec.EncodePacket(tmppacket3,Dirrection);
 
                  if not CompareMem(@tmpPacket,@tmppacket3, tmpPacket.Size) then

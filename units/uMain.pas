@@ -253,10 +253,12 @@ fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
 if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
 if assigned(Ttunel(temp.tunel)) then
   if not Ttunel(temp.tunel).MustBeDestroyed then
-    Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
+    if assigned(Ttunel(temp.tunel).Visual) then
+      begin
+        Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
+        PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
+      end;
 
-{ TODO : here }
-PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
 c_s.Leave;
 end;
 

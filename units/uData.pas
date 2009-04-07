@@ -421,11 +421,13 @@ procedure TlspConnection.NewPacket(var Packet:Tpacket;FromServer: boolean; Calle
 begin
   fScript.ScryptProcessPacket(packet, FromServer, TencDec(Caller).Ident); //отсылаем плагинам и скриптам
   if Packet.Size > 2 then //плагины либо скрипты могли обнулить
-  Visual.AddPacketToAcum(Packet, FromServer, Caller);
-  { TODO : here }
+  if assigned(visual) then
+  begin
+    Visual.AddPacketToAcum(Packet, FromServer, Caller);
 
   //ух.. и длинная же строчка..
-  PostMessage(L2PacketHackMain.Handle, WM_ProcessPacket,integer(pointer(tfvisual(ttunel(TencDec(Caller).ParentTtunel).Visual))),integer(@packet));
+    PostMessage(L2PacketHackMain.Handle, WM_ProcessPacket,integer(pointer(tfvisual(ttunel(TencDec(Caller).ParentTtunel).Visual))),integer(@packet));
+  end;
 end;
 
 

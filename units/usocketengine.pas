@@ -212,6 +212,7 @@ begin
         if AccumulatorLen > 2 then
           begin //¬ акумул€торе данных на 2+ байтикоф
             ThisTunel.CriticalSection.enter;
+            try
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             //’ватит ли в акамул€торе данных дл€ пакета ?
@@ -241,7 +242,9 @@ begin
                     else
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
+            finally
               ThisTunel.CriticalSection.leave;
+            end;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
     else //не надо декодить. просто шлем.
@@ -335,6 +338,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
         if AccumulatorLen > 2 then
           begin //¬ акумул€торе данных на 2+ байтикоф
             ThisTunel.CriticalSection.enter;
+            try
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             if curPacket.Size=29754 then curPacket.Size:=267;
@@ -364,7 +368,9 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
                     else
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
-              ThisTunel.CriticalSection.leave;
+              finally
+                ThisTunel.CriticalSection.leave;
+              end;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
     else //не надо декодить. просто шлем.
@@ -654,6 +660,7 @@ end;
 constructor Ttunel.create;
 begin
   active := false;
+  Visual := nil;
   NeedDeinit := false;
   TSocketEngine(SockEngine).tunels.Add(self);
   isRawAllowed := GlobalRawAllowed;
@@ -717,6 +724,9 @@ var
 tmp : SendMessageParam;
 begin
   if isGlobalDestroying then exit;
+  if not assigned(caller) then exit;
+  if ttunel(TencDec(Caller).ParentTtunel).MustBeDestroyed then exit;
+  
   tmp := SendMessageParam.Create;
   tmp.packet := Packet;
   tmp.FromServer := FromServer;

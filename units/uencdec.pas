@@ -31,9 +31,6 @@ type
     LastPacket:Tpacket;
   private
     isInterlude : boolean;
-    crSectionDec,
-    crSectionEnc,
-    crSectionSomewhere: RTL_CRITICAL_SECTION;  //Уритикал секции
     SetInitXORAfterEncode : boolean; //Установить SetInitXOR в True после вызова EncodePacket
 
     pckCount: Integer;                //счетчик пакетов
@@ -93,9 +90,6 @@ begin
   SetInitXORAfterEncode := false;
   isInterlude := false;
   InitXOR:=False;
-  InitializeCriticalSection(crSectionDec);
-  InitializeCriticalSection(crSectionEnc);
-  InitializeCriticalSection(crSectionSomewhere);
   New(CorrectorData);
   CorrectorData._id_mix:=False;
 end;
@@ -116,7 +110,6 @@ begin
    case Dirrection of
       PCK_GS_ToClient, PCK_LS_ToClient:
       begin                       //от ГС
-        EnterCriticalSection(crSectionDec);
 
         //запоминание 3го пакета (на сервер)
         //Обход смены XOR ключа. в 4м пакете (на клиент)
@@ -131,6 +124,7 @@ begin
         if Assigned(onNewPacket) then
           onNewPacket(Packet, true, self);
 
+          
 
         if Packet.Size = 0 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
@@ -138,13 +132,11 @@ begin
           //вытягиваем имя соединения и прочее
           if (not Settings.isNoDecrypt) then
             ProcessRecivedPacket(packet);
-            
-          LeaveCriticalSection(crSectionDec);
+
       end;
 
       PCK_GS_ToServer, PCK_LS_ToServer:
       begin
-        EnterCriticalSection(crSectionDec);
         if Packet.Size=29754 then Packet.Size:=267;
         //Декодирование
         if InitXOR and (not Settings.isNoDecrypt) then
@@ -164,7 +156,6 @@ begin
         if Packet.Size = 0 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0); 
 
-        LeaveCriticalSection(crSectionDec);
       end;
     end;
   end;      
@@ -182,9 +173,6 @@ begin
   //м.б. ошибка. ничего страшного - игнор.
   end;
 
-  DeleteCriticalSection(crSectionDec);
-  DeleteCriticalSection(crSectionEnc);
-  DeleteCriticalSection(crSectionSomewhere);
   Dispose(CorrectorData);
   inherited destroy;
 end;
@@ -331,7 +319,6 @@ var
   CurrentCoddingClass : TCodingClass;
   NeedEncrypt : boolean;
 begin
-  EnterCriticalSection(crSectionEnc);
   isToServer := (Dirrection = PCK_GS_ToServer) or (Dirrection = PCK_LS_ToServer); //пакет идет на сервер ?
 
 
@@ -359,7 +346,6 @@ begin
       SetInitXORAfterEncode := false;
     end;
   LastPacket := Packet;
-  LeaveCriticalSection(crSectionEnc);
 end;
 
 
@@ -375,7 +361,6 @@ begin
 case pckCount of
 3:  CorrectXorData := Packet;
 4:  begin
-      EnterCriticalSection(crSectionSomewhere);
       TempPacket := Packet;
 //      SetLength(tmp, TempPacket.Size);
 //      Move(TempPacket, tmp[1], TempPacket.Size);
@@ -387,7 +372,6 @@ case pckCount of
       if (not Settings.isNoDecrypt) then xorC.DecryptGP(CorrectXorData.Data, CorrectXorData.Size-2);
       if (not Settings.isNoDecrypt) then xorC.EncryptGP(CorrectXorData.Data, CorrectXorData.Size-2);
       InitXOR:=True;
-      LeaveCriticalSection(crSectionSomewhere);
     end;
 end;
 end;
@@ -402,12 +386,10 @@ begin
   $00: begin
     if not InitXOR then
     begin
-      EnterCriticalSection(crSectionDec);
       isInterlude:=(Packet.Size>19);
       xorC.InitKey(Packet.Data[2], isInterlude);
       xorS.InitKey(Packet.Data[2], isInterlude);
       SetInitXORAfterEncode := true;
-      LeaveCriticalSection(crSectionDec);
       exit;
     end;
   end;
@@ -415,46 +397,40 @@ begin
   $15: begin
     if not Settings.isKamael then
     begin //and (pckCount=7)
-        EnterCriticalSection(crSectionDec);
         Offset := 1;
         while not ((Packet.Data[Offset]=0) and (Packet.Data[Offset+1]=0)) do Inc(Offset);
-        SetLength(WStr, Offset div 2);
+        SetLength(WStr, round((Offset+0.5)/2));
         Move(Packet.Data[1], WStr[1], Offset);
 
         CharName := WideStringToString(WStr, 1251);
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
-        LeaveCriticalSection(crSectionDec);
     end;
   end;
   //CharSelected
   $0B: begin
     if Settings.isKamael then
     begin // and (pckCount=6)
-        EnterCriticalSection(crSectionDec);
         Offset := 1;
         while not ((Packet.Data[Offset] = 0) and (Packet.Data[Offset + 1] = 0)) do Inc(Offset);
-        SetLength(WStr, Offset div 2);
+        SetLength(WStr, round((Offset+0.5)/2));
         Move(Packet.Data[1], WStr[1], Offset);
         CharName := WideStringToString(WStr, 1251);
         if Settings.isGraciaOff then
           Corrector(Packet.Size,False, True); // инициализация корректора
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
-        LeaveCriticalSection(crSectionDec);
     end;
   end;
   $2e: begin
     if (not InitXOR) and Settings.isKamael then
     begin
-      EnterCriticalSection(crSectionDec);
       isInterlude := True;
       xorC.InitKey(Packet.Data[2], isInterlude);
       xorS.InitKey(Packet.Data[2], isInterlude);
       if Settings.isGraciaOff then
         Corrector(Packet.Size,False,True); // инициализация корректора
       SetInitXORAfterEncode := true;
-      LeaveCriticalSection(crSectionDec);
       exit;
     end;
   end;

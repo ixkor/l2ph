@@ -1845,13 +1845,33 @@ begin
 end;
 
 procedure TfVisual.btnSaveRawClick(Sender: TObject);
+var
+ms : TFileStream;
 begin
 if dlgSaveLogRaw.Execute then
-  if assigned(currenttunel) then
-    CopyFile(pchar(Ttunel(currenttunel).tempfilename), pchar(dlgSaveLogRaw.FileName), false)
-  else
-  if Assigned(currentLSP) then
-    CopyFile(pchar(TlspConnection(currentLSP).tempfilename), pchar(dlgSaveLogRaw.FileName), false);
+begin
+  try
+  deletefile(dlgSaveLogRaw.FileName);
+  ms := TFileStream.Create(dlgSaveLogRaw.FileName, fmOpenWrite or fmCreate);
+  ms.Position := 0;
+
+    if assigned(currenttunel) then
+      begin
+      Ttunel(currenttunel).RawLog.Position := 0;
+      ms.CopyFrom(Ttunel(currenttunel).RawLog,Ttunel(currenttunel).RawLog.Size);
+      Ttunel(currenttunel).RawLog.Position := Ttunel(currenttunel).RawLog.Size;
+      end
+    else
+    if Assigned(currentLSP) then
+      begin
+      TlspConnection(currentLSP).RawLog.Position := 0;
+      ms.CopyFrom(TlspConnection(currentLSP).RawLog,TlspConnection(currentLSP).RawLog.Size);
+      TlspConnection(currentLSP).RawLog.Position := TlspConnection(currentLSP).RawLog.Size;
+      end;
+  finally
+    ms.Destroy;
+  end;
+end;
 end;
 
 procedure TfVisual.FrameResize(Sender: TObject);
