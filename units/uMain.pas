@@ -126,7 +126,7 @@ procedure TL2PacketHackMain.init;
 var
   ver : string;
 begin
-  //размер формы
+  deltemps; //Удаляем *.temp файлы
 
   ver := uGlobalFuncs.getversion;
   Splash.Caption := 'L2PacketHack v'+ ver +#10#13#10#13+'[No Connections]';

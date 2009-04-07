@@ -118,7 +118,7 @@ begin
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
   HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',1);
-  LocalPort := htons(Options.ReadInteger('General','LocalPort',$FEDC));
+  LocalPort := htons(Options.ReadInteger('General','LocalPort',6060));
   ChkAllowExit.Checked := Options.ReadBool('General','FastExit',False);
   ChkShowLogWinOnStart.Checked := Options.ReadBool('General','AutoShowLog',False);
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);
@@ -290,7 +290,7 @@ end;
 
 procedure TfSettings.ChkLSPInterceptClick(Sender: TObject);
 begin
-ChkLSPIntercept.Checked := false;
+  ChkLSPIntercept.Checked := false;
   if not InterfaceEnabled then exit;
   isLSP.Enabled := not ChkLSPIntercept.Checked;
   if ChkLSPIntercept.Checked then
@@ -366,7 +366,7 @@ end;
 
 procedure TfSettings.ChkNoDecryptClick(Sender: TObject);
 begin
-if not InterfaceEnabled then exit;
+  if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
 end;
 
@@ -381,8 +381,8 @@ end;
 
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);
 begin
+  if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
-  
 end;
 
 procedure TfSettings.FormCreate(Sender: TObject);

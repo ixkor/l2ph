@@ -219,6 +219,7 @@ procedure TfPacketFilter.refreshexisting;
 var
   i : integer;
 begin
+try
   i := 0;
   while i < LSPConnections.Count do
   begin
@@ -228,6 +229,7 @@ begin
   end;
 
   i := 0;
+  if assigned(sockEngine) then
   while i < sockEngine.tunels.Count do
   begin
     if assigned(TlspConnection(sockEngine.tunels.Items[i]).Visual) then
@@ -242,7 +244,8 @@ begin
       TpacketLogWiev(PacketLogWievs.Items[i]).Visual.PacketListRefresh;
     inc(i);
   end;
-
+except
+end;
 end;
 
 end.

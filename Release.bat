@@ -7,6 +7,8 @@ del *.log
 del *.txt
 del LSPprovider.jdbg
 del *.map
+del *.temp
+
 
 md Logs
 md Plugins

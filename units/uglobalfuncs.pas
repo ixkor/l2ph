@@ -61,7 +61,7 @@ uses
   //подгрузка библиотек
   Function LoadLibraryXor(const name: string): boolean; //подгрузка невхор.длл используется в SettingsDialog
   Function LoadLibraryInject (const name: string) : boolean; //подгрузка инжект.длл используется SettingsDialog
-
+  procedure deltemps;
   procedure GetProcessList(var sl: TStrings); //получаем список процессов используется в dmData.timerSearchProcesses
 
   procedure Reload;
@@ -145,6 +145,23 @@ control.height := ini.ReadInteger(Control.ClassName,'height', control.height);
 ini.Destroy;
 end;
 
+procedure deltemps;
+var
+  SearchRec: TSearchRec;
+  Mask: string;
+begin
+
+  Mask := ExtractFilePath(ParamStr(0))+'\*.temp';
+  if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+      if (SearchRec.Attr and faDirectory) <> faDirectory then
+      DeleteFile(pchar(ExtractFilePath(ParamStr(0))+'\'+SearchRec.Name));
+    until FindNext(SearchRec)<>0;
+    SysUtils.FindClose(SearchRec);
+  end;
+  {}
+end;
 
 function DataPckToStrPck(var pck): string; stdcall;
 var
