@@ -458,7 +458,7 @@ begin
   Move(LspConnection.TempBufferRecv[0], PcktLen, 2);
   if PcktLen=29754 then PcktLen:=267;
   //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем пакет
-  while (LspConnection.TempBufferRecvLen >= PcktLen) and (PcktLen > 0) and (LspConnection.TempBufferRecvLen > 2) do
+  while (LspConnection.TempBufferRecvLen >= PcktLen) and (PcktLen >= 2) and (LspConnection.TempBufferRecvLen >= 2) do
   begin
     //Засовывем данные с временного буффера в структуру идущую на обработку 
     Move(LspConnection.TempBufferRecv[0], tmppack.PacketAsCharArray[0], PcktLen);
@@ -530,10 +530,11 @@ begin
   Move(LspConnection.TempBufferSend[0], PcktLen, 2);
 
   //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем  попакетно
-  while (LspConnection.TempBufferSendLen >= PcktLen) and (PcktLen > 0) and (LspConnection.TempBufferSendLen > 2) do
+  while (LspConnection.TempBufferSendLen >= PcktLen) and (PcktLen >= 2) and (LspConnection.TempBufferSendLen >= 2) do
   begin
     //Засовывем данные с временного буффера в структуру идущую на обработку 
     Move(LspConnection.TempBufferSend[0], tmppack.PacketAsCharArray[0], PcktLen);
+
     //Сдвигаем и Уменьшаем счетчик длинны временого буфера
     move(LspConnection.TempBufferSend[PcktLen], LspConnection.TempBufferSend[0], LspConnection.TempBufferSendLen);
     dec(LspConnection.TempBufferSendLen, PcktLen);

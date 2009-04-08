@@ -118,7 +118,7 @@ begin
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
   HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',1);
-  LocalPort := htons(Options.ReadInteger('General','LocalPort',6060));
+  LocalPort := htons(Options.ReadInteger('General','LocalPort',56574));
   ChkAllowExit.Checked := Options.ReadBool('General','FastExit',False);
   ChkShowLogWinOnStart.Checked := Options.ReadBool('General','AutoShowLog',False);
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);

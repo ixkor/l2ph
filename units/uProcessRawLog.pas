@@ -66,7 +66,7 @@ var
   fProcessRawLog: TfProcessRawLog;
 
 implementation
-uses uresourcestrings, uGlobalFuncs, uencdec;
+uses upacketview, uresourcestrings, uGlobalFuncs, uencdec;
 var
   encdec : TencDec;
   anotherXorLib : thandle;
@@ -232,6 +232,7 @@ begin
  BufSizeToServ := 0;
  BufSizeToClient := 0;
  ProgressBar1.Max := ms.Size;
+ visual.dump.Clear;
  while ms.Position < ms.Size - 11 do
  begin
    dec(pm);
@@ -250,7 +251,6 @@ begin
        MessageBox(0,pchar(Lang.GetTextOrDefault('Corrupted' (* 'Лог RAW пакетов скорей всего поврежден' *) )),pchar(Lang.GetTextOrDefault('Error' (* 'Ошибка' *) )),MB_OK);
        break;
      end;
-
    ms.ReadBuffer(data[0],size);
    if (btnNoExplode.Down) and (not btnDecrypt.Down) then
      addcolored(dTime, Dirrection, ByteArrayToHex(data,Size))
@@ -432,6 +432,9 @@ visual.ToolButton7.Hide;
 visual.TabSheet1.Show;
 visual.Parent := TabSheet3;
 visual.Dump := TStringList.Create;
+visual.PacketView := TfPacketView.Create(self);
+visual.PacketView.Parent := visual.packetVievPanel;
+
 
 end;
 
@@ -440,6 +443,7 @@ begin
   savepos(self);
 
   visual.Dump.Destroy;
+  visual.PacketView.destroy;
   visual.Destroy;
 end;
 

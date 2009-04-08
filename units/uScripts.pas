@@ -469,6 +469,7 @@ begin
   Item.Visible := false;
   FindScriptByName(Item.Caption).Editor.Visible := false;
   FindScriptByName(Item.Caption).Editor.Editor.Visible := false;
+  currentScript := nil;
 end;
 
 procedure TfScript.btnShowHideListClick(Sender: TObject);

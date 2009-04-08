@@ -151,7 +151,7 @@ end;
 Procedure ServerBody(thisTunel:Ttunel);
 var
   StackAccumulator : TCharArray;
-  AccumulatorLen : LongWord;
+  AccumulatorLen : integer;
   BytesInStack : Longint;
   curPacket : TPacket;
   LastResult : integer;
@@ -224,16 +224,19 @@ begin
                   fillchar(curPacket.PacketAsCharArray[curPacket.Size],AccumulatorLen-curPacket.Size,#0);
                   //уменьшаем длину в акамуляторе
                   dec(AccumulatorLen,curPacket.Size);
-                  //декодируем
-                  thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToServer);
-
-                  //если после декодировки и обработки пакет все еще есть то
-                  if curPacket.Size >= 2 then
+                  if curPacket.Size > 2 then
                   begin
-                    //кодируем
-                    thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToServer);
-                    //и отправляем
-                    send(thisTunel.clientsocket, curPacket, curPacket.Size, 0);
+                    //декодируем
+                    thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToServer);
+
+                    //если после декодировки и обработки пакет все еще есть то
+                    if curPacket.Size >= 2 then
+                    begin
+                      //кодируем
+                      thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToServer);
+                      //и отправляем
+                      send(thisTunel.clientsocket, curPacket, curPacket.Size, 0);
+                    end;
                   end;
 
                   //повторно загоняем пакет. для вайла
@@ -286,7 +289,7 @@ Procedure ClientBody(thisTunel:Ttunel);
 var
   socks5ok : string;
   StackAccumulator : TCharArray;
-  AccumulatorLen : LongWord;
+  AccumulatorLen : integer;
   BytesInStack : Longint;
   curPacket : TPacket;
   LastResult : integer;
@@ -351,15 +354,18 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
                   fillchar(curPacket.PacketAsCharArray[curPacket.Size],AccumulatorLen-curPacket.Size,#0);
                   //уменьшаем длину в акамуляторе
                   dec(AccumulatorLen,curPacket.Size);
-                  //декодируем
-                  thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToClient);
-                  //если после декодировки и обработки пакет все еще есть то
-                  if curPacket.Size >= 2 then
+                  if curPacket.Size > 2 then
                   begin
-                    //кодируем
-                    thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToClient);
-                    //и отправляем
-                    send(thisTunel.serversocket, curPacket, curPacket.Size, 0);
+                    //декодируем
+                    thisTunel.EncDec.DecodePacket(curPacket, PCK_GS_ToClient);
+                    //если после декодировки и обработки пакет все еще есть то
+                    if curPacket.Size >= 2 then
+                    begin
+                      //кодируем
+                      thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToClient);
+                      //и отправляем
+                      send(thisTunel.serversocket, curPacket, curPacket.Size, 0);
+                    end;
                   end;
 
                   //повторно загоняем пакет. для вайла
@@ -446,16 +452,10 @@ begin
 end;
 
 destructor TSocketEngine.destroy;
-var
-  i : integer;
 begin
   SuspendThread(hServerListenThread);
-  i := 0;
-  while i < tunels.Count do
-    begin
-      Ttunel(tunels.Items[i]).Destroy;
-      inc(i);
-    end;
+  while tunels.Count > 0  do
+      Ttunel(tunels.Items[0]).Destroy;
   tunels.Destroy;
   TerminateThread(hServerListenThread, 0);
   WSACleanup;

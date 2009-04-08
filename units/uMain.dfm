@@ -1,6 +1,6 @@
 object L2PacketHackMain: TL2PacketHackMain
-  Left = 428
-  Top = 357
+  Left = 12
+  Top = 36
   Width = 784
   Height = 590
   Color = clBtnFace
@@ -11,6 +11,7 @@ object L2PacketHackMain: TL2PacketHackMain
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  Position = poDefault
   Visible = True
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
@@ -57,7 +58,7 @@ object L2PacketHackMain: TL2PacketHackMain
     Align = alClient
     TabOrder = 1
     Visible = False
-    ClientBorderWidth = 0
+    ClientBorderWidth = 1
   end
   object XPManifest1: TXPManifest
     Left = 142

@@ -23,6 +23,8 @@ type
     procedure EditorChange(Sender: TObject);
     procedure EditorKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure EditorMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
   private
     { Private declarations }
 
@@ -83,12 +85,21 @@ procedure TfScriptEditor.EditorKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if not Assigned(assignedTScript) then exit; //не назначен ? мы используемся в "дополнительно".
-  
+
+
+  //ctrl+w
+  if (Key in [Ord('W'), Ord('w'), Ord('Ц'), Ord('ц')]) and (Shift=[ssCtrl]) then fScript.JvTabBar1TabClosed(nil, TScript(assignedTScript).Tab) else
   // добавили комбинацию клавиш 'сохранить файл' - ctrl+s
-  if(Key in [Ord('S'), Ord('s')]) and (Shift=[ssCtrl]) then TScript(assignedTScript).Save else
+  if(Key in [Ord('S'), Ord('s'), Ord('Ы'), Ord('ы')]) and (Shift=[ssCtrl]) then TScript(assignedTScript).Save else
   // добавили комбинацию клавиш 'проверить синтаксис' - ctrl+f9
   if(Key=VK_F9)and(Shift=[ssCtrl]) then
     TScript(assignedTScript).CompileThisScript;
+end;
+
+procedure TfScriptEditor.EditorMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+Editor.SetFocus;
 end;
 
 end.

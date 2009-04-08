@@ -1,8 +1,8 @@
 object fProcessRawLog: TfProcessRawLog
-  Left = 215
-  Top = 168
-  Width = 847
-  Height = 727
+  Left = 22
+  Top = 66
+  Width = 747
+  Height = 703
   Caption = #1056#1072#1073#1086#1090#1072' '#1089' RAW '#1083#1086#1075#1086#1084' '#1090#1088#1072#1092#1080#1082#1072
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,6 +11,7 @@ object fProcessRawLog: TfProcessRawLog
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDefault
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -18,7 +19,7 @@ object fProcessRawLog: TfProcessRawLog
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 839
+    Width = 739
     Height = 29
     ButtonHeight = 23
     EdgeBorders = [ebTop, ebBottom]
@@ -133,8 +134,8 @@ object fProcessRawLog: TfProcessRawLog
   object PageControl1: TPageControl
     Left = 0
     Top = 29
-    Width = 839
-    Height = 664
+    Width = 739
+    Height = 640
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 1
@@ -144,8 +145,8 @@ object fProcessRawLog: TfProcessRawLog
       object memo1: TJvRichEdit
         Left = 0
         Top = 0
-        Width = 831
-        Height = 636
+        Width = 731
+        Height = 592
         AdvancedTypography = False
         Align = alClient
         AutoAdvancedTypography = False
@@ -205,8 +206,8 @@ object fProcessRawLog: TfProcessRawLog
       object JvRichEdit1: TJvRichEdit
         Left = 0
         Top = 0
-        Width = 831
-        Height = 636
+        Width = 731
+        Height = 592
         AdvancedTypography = False
         Align = alClient
         AutoAdvancedTypography = False

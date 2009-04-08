@@ -9,10 +9,11 @@ uses
   uREsourceStrings,
   LSPControl,
   uScriptEditor,
+  uPacketView,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ImgList, JvExControls, JvEditorCommon, JvEditor, JvHLEditor,
   StdCtrls, ComCtrls, ToolWin, JvExStdCtrls, JvRichEdit, ExtCtrls, Menus,
-  JvExExtCtrls, JvNetscapeSplitter, Mask, JvExMask, JvSpin, JvLabel,
+  JvExExtCtrls, Mask, JvExMask, JvSpin, JvLabel,
   fs_iinterpreter, fs_ipascal, siComp;
 
 type
@@ -20,19 +21,9 @@ type
   TfVisual = class(TFrame)
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
-    Panel1: TPanel;
-    GroupBox6: TGroupBox;
-    Splitter1: TSplitter;
-    Memo3: TJvRichEdit;
-    Memo2: TJvRichEdit;
     GroupBox12: TGroupBox;
     ListView5: TListView;
     TabSheet2: TTabSheet;
-    Splitter7: TSplitter;
-    GroupBox7: TGroupBox;
-    Memo4: TJvRichEdit;
-    Panel10: TPanel;
-    Splitter2: TSplitter;
     TabSheet3: TTabSheet;
     GroupBox8: TGroupBox;
     imgBT: TImageList;
@@ -41,13 +32,6 @@ type
     N1: TMenuItem;
     N2: TMenuItem;
     dlgSaveLog: TSaveDialog;
-    JvNetscapeSplitter1: TJvNetscapeSplitter;
-    Panel2: TPanel;
-    Memo5: TJvRichEdit;
-    Label1: TLabel;
-    Panel3: TPanel;
-    Memo8: TJvRichEdit;
-    Label2: TLabel;
     Panel4: TPanel;
     ToolBar1: TToolBar;
     tbtnSave: TToolButton;
@@ -112,14 +96,13 @@ type
     Label3: TLabel;
     lang: TsiLang;
     ReloadThis: TToolButton;
+    packetVievPanel: TPanel;
+    Splitter3: TSplitter;
+    GroupBox7: TGroupBox;
+    Memo4: TJvRichEdit;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure Memo2DblClick(Sender: TObject);
-    procedure Memo2KeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure Memo2MouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure tbtnToSendClick(Sender: TObject);
     procedure ToolButton17Click(Sender: TObject);
     procedure ToolButton6Click(Sender: TObject);
@@ -150,6 +133,8 @@ type
     procedure btnSaveRawClick(Sender: TObject);
     procedure FrameResize(Sender: TObject);
     procedure ReloadThisClick(Sender: TObject);
+    procedure TabSheet1Show(Sender: TObject);
+    procedure TabSheet3Show(Sender: TObject);
   private
     { Private declarations }
     typ0 : String;
@@ -160,6 +145,7 @@ type
     SelAttributes: TColor;
     Edit:tfscripteditor;
   public
+    PacketView: tfPacketView;  
     dump, dumpacumulator : TStringList;
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     currenttunel, currentLSP, CurrentTpacketLog : Tobject;
@@ -170,13 +156,7 @@ type
     procedure init();
     Procedure Translate();
     procedure deinit();
-    procedure ListViewChange(Item: TListItem; Memo, Memo2: TJvRichEdit);
 
-
-
-
-    function GetNpcID(const ar1 : cardinal) : string;
-    function GetValue(typ, name, PktStr: string; var PosInPkt: integer; size:word; Memo: TJvRichEdit): string;
     { Public declarations }
     procedure sendThis(str:string);
 
@@ -205,6 +185,8 @@ begin
   { TODO : Воттут }
   //dmData.UpdateEditor(JvHLEditor2);
   Panel7.Width := 46;
+  PacketView := TfPacketView.Create(self);
+  PacketView.Parent := packetVievPanel;
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
 
@@ -253,6 +235,7 @@ begin
   Dump.Destroy;
   dumpacumulator.Destroy;
   edit.Destroy;
+  PacketView.Destroy;
 end;
 
 procedure TfVisual.Processpacket;
@@ -415,12 +398,15 @@ begin
 end;
 
 procedure TfVisual.ListView5Click(Sender: TObject);
+var
+  sid : integer;
 begin
   typ0:='я';
   if ListView5.SelCount=1 then
     begin
-    EnableBtns;
-    ListViewChange(ListView5.Selected,Memo3,Memo2);
+      EnableBtns;
+      sid := StrToIntDef(ListView5.Selected.SubItems.strings[0],0);
+      PacketView.ParsePacket(ListView5.Selected.Caption, Dump.Strings[sid]);
     end;
 end;
 
@@ -428,742 +414,17 @@ end;
 procedure TfVisual.ListView5KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-ListView5Click(Sender);
+  ListView5Click(Sender);
 end;
 
-
-//-------------
-function GetType(const s:string; var i: Integer):string;
-begin
-  Result:='';
-  while (s[i]<>')')and(i<Length(s)) do begin
-    Result:=Result+s[i];
-    Inc(i);
-  end;
-  Result:=Result+s[i];
-end;
-//-------------
-function GetTyp(s:string):string;
-begin
-  //d(Count:For.0001)
-  //d(Count:Get.Func01)
-  //-(40)
-  Result:=s[1];
-end;
-function GetName(s:string):string;
-var
- k : integer;
-begin
-  Result:='';
-  k:=Pos('(',s);
-  if k=0 then exit;
-  inc(k);
-  while (s[k]<>':')and(k<Length(s)) do begin
-    Result:=Result+s[k];
-    Inc(k);
-  end;
-end;
-function GetFunc(s:string):string;
-var
- k : integer;
-begin
-  Result:='';
-  k:=Pos(':',s);
-  if k=0 then exit;
-  inc(k);
-  while (s[k]<>'.')and(k<Length(s)) do begin
-    Result:=Result+s[k];
-    Inc(k);
-  end;
-end;
-//-------------
-function GetParam(s:string):string;
-var
- k : integer;
-begin
-  Result:='';
-  k:=Pos('.',s);
-  //не нашли точку
-  if k=0 then exit;
-  inc(k);
-  while (s[k]<>'.') and (k<Length(s)) do begin //or(s[k]<>')')
-    Result:=Result+s[k];
-    Inc(k);
-  end;
-end;
-//-------------
-function GetParam2(s:string):string;
-var
- k, l : integer;
- s2: string;
-begin
-  Result:='';
-  k:=Pos('.',s);
-  //не нашли точку
-  if k=0 then exit;
-  //на следующий за точкой символ
-  inc(k);
-  l:=length(s);
-  s2:=copy(s,k, l-k+1);
-  //ищем вторую точку
-  k:=Pos('.',s2);
-  //не нашли точку
-  if k=0 then exit;
-  inc(k);
-  while (s2[k]<>')')and(k<Length(s2)) do begin
-    Result:=Result+s2[k];
-    Inc(k);
-  end;
-end;
-//-------------
-function GetFunc01(const ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.Func01 - возвращает название Item'а по его ID из значения аргумента
-begin
-  result:='0'; if ar1=0 then exit;
-  result:=ItemsList.Values[IntTostr(ar1)];
-  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Items ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
-end;
-
-//-------------
-function GetFunc02(const ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.Func02 - возвращает тип Say2
-begin
-  case ar1 of
-    0: result := 'ALL';
-    1: result := '! SHOUT';
-    2: result := '" TELL';
-    3: result := '# PARTY';
-    4: result := '@ CLAN';
-    5: result := 'GM';
-    6: result := 'PETITION_PLAYER';
-    7: result := 'PETITION_GM';
-    8: result := '+ TRADE';
-    9: result := '$ ALLIANCE';
-    10: result := 'ANNOUNCEMENT';
-    11: result := 'WILLCRASHCLIENT';
-    12: result := 'FAKEALL?';
-    13: result := 'FAKEALL?';
-    14: result := 'FAKEALL?';
-    15: result := 'PARTYROOM_ALL';
-    16: result := 'PARTYROOM_COMMANDER';
-    17: result := 'HERO_VOICE';
-    else result := '?';
-  end;
-  result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
-end;
-//-------------
-function GetFunc09(id: byte; ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.Func09 - разное.
-begin
-  result := '';
-  if (id in [$1B,$2D,$27]) then begin
-    case ar1 of // [C] 1B - RequestSocialAction,  [S] 2D - SocialAction
-                // CT1: [S] 27 - SocialAction
-       02: result := 'Greeting';
-       03: result := 'Victory';
-       04: result := 'Advance';
-       05: result := 'No';
-       06: result := 'Yes';
-       07: result := 'Bow';
-       08: result := 'Unaware';
-       09: result := 'Social Waiting';
-      $0A: result := 'Laugh';
-      $0B: result := 'Applaud';
-      $0C: result := 'Dance';
-      $0D: result := 'Sorrow';
-      $0E: result := 'Sorrow';
-      $0F: result := 'lvl-up light';
-      $10: result := 'Hero light';
-      else result := '?';
-    end;
-  end else if (id=$6D) then begin
-    case ar1 of //  [C] 6D - RequestRestartPoint.
-      0: result := 'res to town';
-      1: result := 'res to clanhall';
-      2: result := 'res to castle';
-      3: result := 'res to siege HQ';
-      4: result := 'res here and now :)';
-      else result := '?';
-    end;
-  end;
-  if (id=$6E) then begin
-    case ar1 of // [C] 6E - RequestGMCommand.
-      1: result := 'player status';
-      2: result := 'player clan';
-      3: result := 'player skills';
-      4: result := 'player quests';
-      5: result := 'player inventory';
-      6: result := 'player warehouse';
-      else result := '?';
-    end;
-  end;
-  if (id=$A0) then begin
-    case ar1 of // [C] A0 -RequestBlock
-      0: result := 'block name';
-      1: result := 'unblock name';
-      2: result := 'list blocked names';
-      3: result := 'block all';
-      4: result := 'unblock all';
-      else result := '?';
-    end;
-  end;
-  result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
-end;
-//-------------
-function GetSkill(const ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.Skill - возвращает название скила по его ID из значения аргумента
-begin
-  result:='0'; if ar1=0 then exit;
-  result:=SkillList.Values[inttostr(ar1)];
-  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Skill ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
-end;
-//-------------
-function GetMsgID(const ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.MsgID - возвращает текст по его ID из значения аргумента
-begin
-  result:='0'; if ar1=0 then exit;
-  result:=SysMsgidList.Values[inttostr(ar1)];
-  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown SysMsg ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
-end;
-//-------------
-//-------------
-function GetClassID(const ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.ClassID - профа
-begin
-  result:=ClassIdList.Values[inttostr(ar1)];
-  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Class ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
-end;
-//-------------
-function GetFSup(const ar1 : integer) : string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.FSup - Status Update ID
-begin
-  case ar1 of
-    01: result := 'Level';      02: result := 'EXP';         03: result := 'STR';
-    04: result := 'DEX';        05: result := 'CON';         06: result := 'INT';
-    07: result := 'WIT';        08: result := 'MEN';         09: result := 'cur_HP';
-    $0A: result := 'max_HP';   $0B: result := 'cur_MP';     $0C: result := 'max_MP';
-    $0D: result := 'SP';       $0E: result := 'cur_Load';   $0F: result := 'max_Load';
-    $11: result := 'P_ATK';    $12: result := 'ATK_SPD';    $13: result := 'P_DEF';
-    $14: result := 'Evasion';  $15: result := 'Accuracy';   $16: result := 'Critical';
-    $17: result := 'M_ATK';    $18: result := 'CAST_SPD';   $19: result := 'M_DEF';
-    $1A: result := 'PVP_FLAG'; $1B: result := 'KARMA';      $21: result := 'cur_CP';
-    $22: result := 'max_CP';
-    else result := '?'
-  end;
-  result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
-end;
-
-function prnoffset(offset:integer):string;
-begin
-  result:=inttostr(offset);
-  case Length(result) of
-    1: result:='000'+result;
-    2: result:='00'+result;
-    3: result:='0'+result;
-  end;
-end;
-
-
-procedure TfVisual.ListViewChange(Item: TListItem; Memo, Memo2: TJvRichEdit);
-var
-  sid, ii, j, jj: Integer;
-  id: Byte;
-  Size: Word;
-  PktStr, StrIni, Param0: string;
-  d, PosInIni, PosInPkt, offset: integer;
-  ptime: TDateTime;
-  SubID: word;
-  typ, name,func, tmp_param, param1, param2: string;
-  value, tmp_value: string;
-begin
-  if (Item.SubItems.Count>0)and(Item.Selected) then begin
-    //выделили пакет значит включаем кнопку
-    tbtnFilterDel.Enabled := true;
-    tbtnDelete.Enabled := true;
-
-    sid:=StrToInt(Item.SubItems.Strings[0]);
-    //строка пакета, sid номер пакета, cid номер соединения
-    PktStr:=HexToString(Dump.Strings[sid]);
-    if Length(PktStr)<12 then Exit;
-    Move(PktStr[2],ptime,8);
-    Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10]);
-    id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
-    SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
-    Memo.Lines.BeginUpdate;
-    try
-    Memo.Clear;
-    Memo.Lines.Add(StringToHex(Copy(PktStr,12,Length(PktStr)-11),' '));
-    GroupBox6.Caption:='Выделенный пакет: тип - 0x'+IntToHex(id,2)+', '+Item.Caption+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
-    finally
-    Memo.Lines.EndUpdate;
-    end;
-    //считываем строку из packets.ini для парсинга
-    if PktStr[1]=#04 then begin //client
-      if GlobalProtocolVersion<828 then begin //фиксим пакет 39 для Грация-Камаель
-        if (ID in [$39,$D0]) and (size>3) then begin //C4, C5, T0
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
-        end
-        else begin
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
-        end;
-      end else begin
-        if (ID=$D0) and (size>3) then begin //T1 и выше
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
-        end
-        else begin
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
-        end;
-      end;
-    end else begin //server
-      if (ID in [$FE]) and (size>3) then begin
-        StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknow:h(subID)');
-      end else begin
-        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
-      end;
-    end;
-    //начинаем разбирать пакет по заданному в packets.ini формату
-    //смещение в ini
-    PosInIni:=Pos(':',StrIni);
-    //смещение в pkt
-    PosInPkt:=13;
-    Inc(PosInIni);
-    //Memo2.Lines.BeginUpdate;
-    Memo2.Clear;
-    Memo2.Lines.Add('Tип: 0x'+IntToHex(id,2)+' ('+Item.Caption+')');
-    Memo2.Lines.Add(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) )+IntToStr(Size-2)+'+2');
-    Memo2.Lines.Add(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) )+FormatDateTime('hh:nn:ss:zzz',ptime));
-    //GetType - возвращает строчку типа d(Count:For.0001) из packets.ini
-    //StrIni - строчка из packets.ini по ID из пакета
-    //PktStr - пакет
-    //Param0 - строка d(Count:For.0001)
-    //PosInIni - смещение в строчке из packets.ini по ID из пакета
-    //PosInPkt - смещение в пакете
-    Memo.SelStart:=0;
-    Memo.SelLength:=2;
-    Memo.SelAttributes.BackColor:=$aaaadf;
-    Memo2.SelStart:=5;
-    Memo2.SelLength:=4;
-    Memo2.SelAttributes.BackColor:=$aaaadf;
-    d:=Memo2.GetTextLen-Memo2.Lines.Count;
-    try
-    while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<Size+10) do begin
-      Param0:=GetType(StrIni,PosInIni);
-      inc(PosInIni);
-      typ:=GetTyp(Param0); //считываем тип значения
-      name:=GetName(Param0); //считываем имя значения в скобках (name:func.par)
-      func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-      param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-      param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-      offset:=PosinPkt-11;
-      value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3); //считываем значение, сдвигаем указатели в соответствии с типом значения
-      if value = 'range error' then exit;
-      if uppercase(Func)='GET' then begin
-        try
-          if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit; 
-          if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-          if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-          if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-          if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-          if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-          if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-          if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-          if param1='SKILL' then    value:=GetSkill(strtoint(value));
-        except
-          //ShowMessage('ошибка при распознании пакета');
-          exit;
-        end;
-        //распечатываем
-        if HexViewOffset
-          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-        //Memo2.SelStart:=d+length(inttostr(offset))+1;
-        Memo2.SelStart:=d+5;
-        Memo2.SelLength:=1;
-        Memo2.SelAttributes.BackColor:=SelAttributes;
-        d:=Memo2.GetTextLen-Memo2.Lines.Count;
-      end else
-      //для С4, С5 и Т0-Интерлюдия
-      if uppercase(Func)='FOR' then begin
-        //распечатываем
-        if HexViewOffset
-          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-        //Memo2.SelStart:=d+length(inttostr(offset))+1;
-        Memo2.SelStart:=d+5;
-        Memo2.SelLength:=1;
-        Memo2.SelAttributes.BackColor:=SelAttributes;
-        d:=Memo2.GetTextLen-Memo2.Lines.Count;
-        tmp_param:=param1;
-        tmp_value:=value;
-        ii:=PosInIni;
-        if value='range error' then exit;
-        if StrToInt(value)=0 then begin
-          //пропускаем пустые значения
-          for jj:=1 to StrToInt(param1) do begin
-            Param0:=GetType(StrIni,PosInIni);
-            inc(PosInIni);
-          end;
-        end else begin
-          for j:=1 to StrToInt(tmp_value) do begin
-            Memo2.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
-            d:=Memo2.GetTextLen-Memo2.Lines.Count;
-            PosInIni:=ii;
-            for jj:=1 to StrToInt(tmp_param) do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              //param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1)
-              offset:=PosinPkt-11;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
-              if value = 'range error' then exit;
-              try
-
-                if uppercase(Func)='GET' then
-                begin
-                if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit;
-                  if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-                  if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-                  if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-                  if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-                  if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-                  if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-                  if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-                  if param1='SKILL' then    value:=GetSkill(strtoint(value));
-                end;
-              except
-                //ShowMessage('ошибка при распознании пакета');
-                exit;
-              end;
-              //распечатываем
-              if HexViewOffset
-                then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-                else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-              //Memo2.SelStart:=d+length(inttostr(offset))+1;
-              Memo2.SelStart:=d+5;
-              Memo2.SelLength:=1;
-              Memo2.SelAttributes.BackColor:=SelAttributes;
-              d:=Memo2.GetTextLen-Memo2.Lines.Count;
-            end;
-            Memo2.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
-            d:=Memo2.GetTextLen-Memo2.Lines.Count;
-          end;
-        end;
-      end else
-      //для Т1 - Камаель-Хелбаунд-Грация
-      {в функции LOOP первый параметр может быть больше 1,
-       значит его просто выводим, а остальное
-       в цикле до параметр 2}
-      if uppercase(Func)='LOOP' then begin
-        //распечатываем
-        if HexViewOffset
-          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-        //Memo2.SelStart:=d+length(inttostr(offset))+1;
-        Memo2.SelStart:=d+5;
-        Memo2.SelLength:=1;
-        Memo2.SelAttributes.BackColor:=SelAttributes;
-        d:=Memo2.GetTextLen-Memo2.Lines.Count;
-        tmp_param:=param2;
-        tmp_value:=value;
-        if value='range error' then exit;
-        if StrToInt(value)=0 then begin
-
-          //сделать проверку на то, что первый параметр может быть больше 1
-
-          //пропускаем пустые значения
-          for jj:=1 to StrToInt(param1) do begin
-            Param0:=GetType(StrIni,PosInIni);
-            inc(PosInIni);
-          end;
-        end else begin
-          //проверка, что param1 > 1
-          if strtoint(param1)>1 then begin
-            //распечатываем значения
-            for jj:=1 to StrToInt(param1)-1 do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-              offset:=PosinPkt-11;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
-              if value = 'range error' then exit;
-              //распечатываем
-              if HexViewOffset
-                then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-                else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-              //Memo2.SelStart:=d+length(inttostr(offset))+1;
-              Memo2.SelStart:=d+5;
-              Memo2.SelLength:=1;
-              Memo2.SelAttributes.BackColor:=SelAttributes;
-              d:=Memo2.GetTextLen-Memo2.Lines.Count;
-            end;
-          end;
-          ii:=PosInIni;
-          for j:=1 to StrToInt(tmp_value) do begin
-            Memo2.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
-            d:=Memo2.GetTextLen-Memo2.Lines.Count;
-            PosInIni:=ii;
-            for jj:=1 to StrToInt(tmp_param) do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-              offset:=PosinPkt-11;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo3);
-              if value = 'range error' then exit;
-              try
-
-                if uppercase(Func)='GET' then
-                begin
-                  if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit;
-                  if param1='FUNC01' then   value:=GetFunc01(StrToInt(value)) else
-                  if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-                  if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-                  if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-                  if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-                  if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-                  if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-                  if param1='SKILL' then    value:=GetSkill(strtoint(value));
-                end;
-              except
-                //ShowMessage('ошибка при распознании пакета');
-                exit;
-              end;
-              //распечатываем
-              if HexViewOffset
-                then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-                else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-              //Memo2.SelStart:=d+length(inttostr(offset))+1;
-              Memo2.SelStart:=d+5;
-              Memo2.SelLength:=1;
-              Memo2.SelAttributes.BackColor:=SelAttributes;
-              d:=Memo2.GetTextLen-Memo2.Lines.Count;
-            end;
-            Memo2.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
-            d:=Memo2.GetTextLen-Memo2.Lines.Count;
-          end;
-        end;
-      end else begin
-        //распечатываем
-        if HexViewOffset
-          then Memo2.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-          else Memo2.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-        //Memo2.SelStart:=d+length(inttostr(offset))+1;
-        Memo2.SelStart:=d+5;
-        Memo2.SelLength:=1;
-        Memo2.SelAttributes.BackColor:=SelAttributes;
-        d:=Memo2.GetTextLen-Memo2.Lines.Count;
-      end;
-    end;
-    except
-      //ошибка при распознании пакета
-    end;
-    //Memo2.Lines.EndUpdate;
-  end;  //*)
-end;
-
-function TfVisual.GetValue(typ, name, PktStr: string;
-  var PosInPkt: integer; size: word; Memo: TJvRichEdit): string;
-var
-  value: string;
-  d:integer;
-  pch: WideString;
-begin
-  hexvalue:='';
-  Memo.SelStart:=(PosInPkt-12)*3;
-  d:=0;
-  case typ[1] of
-    'd': begin
-      value:=IntToStr(PInteger(@PktStr[PosInPkt])^);
-      hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
-      Memo.SelLength:=11;
-      Memo.SelAttributes.BackColor:=$aadfdf;
-      SelAttributes:=$aadfdf;
-      Inc(PosInPkt,4);
-    end;  //integer (размер 4 байта)           d, h-hex
-    'c': begin
-      value:=IntToStr(PByte(@PktStr[PosInPkt])^);
-      hexvalue:=' (0x'+inttohex(Strtoint(value),2)+')';
-      SelLength:=2;
-      SelAttributes:=$aaaadf;
-      Memo.SelLength:=2;
-      Memo.SelAttributes.BackColor:=$aaaadf;
-      Inc(PosInPkt);
-    end;  //byte / char (размер 1 байт)        b
-    'f': begin
-      value:=FloatToStr(PDouble(@PktStr[PosInPkt])^);
-      //hexvalue:=value+' (0x'+inttohex(Strtoint(value),8)+')';
-      SelLength:=23;
-      SelAttributes:=$dfaaaa;
-      Memo.SelLength:=23;
-      Memo.SelAttributes.BackColor:=$dfaaaa;
-      Inc(PosInPkt,8);
-    end;  //double (размер 8 байт, float)      f
-    'h': begin
-      value:=IntToStr(PWord(@PktStr[PosInPkt])^);
-      hexvalue:=' (0x'+inttohex(Strtoint(value),4)+')';
-      SelLength:=5;
-      SelAttributes:=$dfaadf;
-      Memo.SelLength:=5;
-      Memo.SelAttributes.BackColor:=$dfaadf;
-      Inc(PosInPkt,2);
-    end;  //word (размер 2 байта)              w
-    'q': begin
-      value:=IntToStr(PInt64(@PktStr[PosInPkt])^);
-      SelLength:=23;
-      SelAttributes:=$aadfd0;
-      Memo.SelLength:=23;
-      Memo.SelAttributes.BackColor:=$aadfd0;
-      Inc(PosInPkt,8);
-    end;  //int64 (размер 8 байта)
-    '-','z': begin
-      if Length(name)>4 then begin
-        if name[1]<>'S' then begin
-          d:=strtoint(copy(name,1,4)); Inc(PosInPkt,d);
-          value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
-        end else
-          value:=lang.GetTextOrDefault('skip scrypt' (* 'Пропускаем скрипт' *) );
-      end else begin
-        d:=strtoint(name); Inc(PosInPkt,d);
-        value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
-      end;
-      d:=(d+2)*3-1;
-      SelAttributes:=$dadada;
-      Memo.SelLength:=d;
-      Memo.SelAttributes.BackColor:=$dadada;
-    end;
-    's':begin
-      d:=PosEx(#0#0,PktStr,PosInPkt)-PosInPkt;
-      if (d mod 2)=1 then Inc(d);
-      SetLength(pch,d div 2);
-      if d>=2 then Move(PktStr[PosInPkt],pch[1],d) else d:=0;
-      //value:=WideStringToString(pch,1251);
-      value:=pch; //преобразует автоматом
-      SelLength:=(d+2)*3-1;
-      SelAttributes:=$dfdfaa;
-      Memo.SelLength:=(d+2)*3-1;
-      Memo.SelAttributes.BackColor:=$dfdfaa;
-      Inc(PosInPkt,d+2);
-    end;
-    else value:= lang.GetTextOrDefault('unknowind' (* 'Неизвестный идентификатор -> ?(name)!' *) );
-  end;
-  Result:=value;
-  //проверяем на выход за границу пакета
-  //if PosInPkt>Size+10 then raise ERangeError.CreateFmt(result+' is not within the valid range of %d', [Size]);
-  if PosInPkt>Size+10 then
-    result:='range error';
-end;
-
-
-function TfVisual.GetNpcID(const ar1: cardinal): string;
-// внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.NpcID - возвращает текст по его ID из значения аргумента
-var
- _ar1: cardinal;
-begin
-  _ar1:=ar1-kId;
-  result:='0'; if ar1=0 then exit;
-  result:=NpcIdList.Values[inttostr(_ar1)];
-  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Npc ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
-end;
-
-
-procedure TfVisual.Memo2DblClick(Sender: TObject);
-var
- i, j: integer;
- str, str2: string;
-begin
- if str = '' then exit;
- str:=Memo2.Lines.Strings[Memo2.CaretPos.Y]; //считываем строку под курсором
- if str = '' then exit;
- try
-   case typ0[1] of
-     'd': SelAttributes:=$aadfdf;
-     'c': SelAttributes:=$aaaadf;
-     'f': SelAttributes:=$dfaaaa;
-     'h': SelAttributes:=$dfaadf;
-     'q': SelAttributes:=$aadfd0;
-     's': SelAttributes:=$dfdfaa;
-     else SelAttributes:=clWhite; //ошибочный тип переменной
-   end;
-   if typ0<>'я' then begin
-     Memo3.SelAttributes.BackColor:=SelAttributes;
-     Memo3.SelAttributes.Color:=clBlack;
-   end;
-   //считае смещение в пакете в зависимости от отображения его в hex/dec
-   if HexViewOffset
-     then
-       begin
-         if StrToIntDef('$'+copy(str,1,4),1) <> StrToIntDef('$'+copy(str,1,4),2) then exit; //простая проверка на то является ли параметр интом. изврат -)
-         i:=strtoint('$'+copy(str,1,4));
-       end
-     else
-       begin
-         if StrToIntDef(copy(str,1,4),1) <> StrToIntDef(copy(str,1,4),2) then exit; //простая проверка на то является ли параметр интом. изврат -)
-         i:=StrToInt(copy(str,1,4));
-       end;
-   Memo3.SelStart:=(i-1)*3;
-   case str[6] of
-     'd': begin Memo3.SelLength:=11; typ0:='d'; end;
-     'c': begin Memo3.SelLength:=2; typ0:='c'; end;
-     'f': begin Memo3.SelLength:=23; typ0:='f'; end;
-     'h': begin Memo3.SelLength:=5; typ0:='h'; end;
-     'q': begin Memo3.SelLength:=23; typ0:='q'; end;
-     's': begin
-         str2:=Memo2.Lines.Strings[Memo2.CaretPos.Y+1]; //считываем следующую строку
-         if str2 = '' then exit;
-         if str2[1]='[' then begin
-           str2:=Memo2.Lines.Strings[Memo2.CaretPos.Y+2];
-           if str2 <> '' then if str2[1]='[' then str2:=Memo2.Lines.Strings[Memo2.CaretPos.Y+3];
-         end;
-         j:=StrToIntDef(copy(str2,1,4),0);
-         Memo3.SelLength:=(j-i)*3-1;
-         if Memo3.SelLength=0 then Memo3.SelLength:=2;
-         typ0:='s';
-     end;
-     else Memo3.SelLength:=0; //ошибочный тип переменной
-   end;
-   Memo3.SelAttributes.BackColor:=clBlue;
-   Memo3.SelAttributes.Color:=clWhite;
-   Memo3.SetFocus;
-   Memo2.SetFocus;
- except;
-   //сообщение об ошибке
- end;
-end;
-procedure TfVisual.Memo2KeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  Memo2DblClick(Sender);
-end;
-
-procedure TfVisual.Memo2MouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  Memo2DblClick(Sender);
-end;
 
 procedure TfVisual.tbtnToSendClick(Sender: TObject);
 begin
   if Memo4.Text <> '' then
     EachLinePacket.Down := true;
-  Memo4.Lines.Add(Copy(Memo3.Text,1,Pos(sLineBreak,Memo3.Text)-1));
+    { TODO : Не забыть }
+
+  Memo4.Lines.Add(PacketView.currentpacket);//Copy(Memo3.Text,1,Pos(sLineBreak,Memo3.Text)-1));
 end;
 
 procedure TfVisual.ToolButton17Click(Sender: TObject);
@@ -1215,7 +476,7 @@ end;
 {$warnings on}
 procedure TfVisual.CloseConnectionClick(Sender: TObject);
 begin
-if MessageDlg(lang.GetTextOrDefault('reallywant' (* 'Это действие закроет данный диалог и прервет текущее соединение' *) ) + #10#13+lang.GetTextOrDefault('reallywant2' (* 'если оно существует. Вы уверены ?' *) ),mtWarning,[mbYes,mbNo],0) = mrCancel then exit;
+  if MessageDlg(lang.GetTextOrDefault('reallywant' (* 'Это действие закроет данный диалог и прервет текущее соединение' *) ) + #10#13+lang.GetTextOrDefault('reallywant2' (* 'если оно существует. Вы уверены ?' *) ),mtWarning,[mbYes,mbNo],0) = mrNo then exit;
   if assigned(currenttunel) then
     Ttunel(currenttunel).MustBeDestroyed := true;
   if Assigned(currentLSP) then
@@ -1287,8 +548,8 @@ begin
   ListView5.Items.BeginUpdate;
   try
     ListView5.Items.Clear;
-    Memo3.Clear;
-    Memo2.Clear;
+    PacketView.rvDescryption.Clear;
+    PacketView.rvHEX.Clear;
     ProgressBar1.Max := dump.Count;
     pm := 0;
     for i := 0 to Dump.Count-1 do
@@ -1404,276 +665,21 @@ end;
 
 procedure TfVisual.IDontknowHowToNameThis;
 var
-  //sid,
-  ii, j, jj: Integer;
-  id: Byte;
-  Size: Word;
-  PktStr, StrIni, Param0: string;
-  d, PosInIni, PosInPkt, offset: integer;
-  //ptime: TDateTime;
-  SubID: word;
-  typ, name,func, tmp_param, param1, param2: string;
-  value, tmp_value: string;
+  PktStr : string;
+  size : integer;
 begin
-  PktStr:=StringOfChar(' ',11)+HexToString(Memo4.Lines[Memo4.CaretPos.Y]);
-  Size:=Length(PktStr)-9;
-  Memo8.Clear;
-  Memo5.Clear;
-  if Size>2 then begin
-    id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
-    SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
-    //Memo5.Lines.BeginUpdate;
-    //Memo8.Lines.BeginUpdate;
-    Memo5.Lines.Add(StringToHex(Copy(PktStr,12,Length(PktStr)-11),' '));
-    //считываем строку из packets.ini для парсинга
-//    if PktStr[1]=#04 then begin //client
-    if ToServer.Down then
-    begin //from client
-      if GlobalProtocolVersion<828 then begin //фиксим пакет 39 для Грация-Камаель
-        if (ID in [$39,$D0]) and (size>3) then begin //C4, C5, T0
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
-        end
-        else begin
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
-        end;
-      end else begin
-        if (ID=$D0) and (size>3) then begin //T1 и выше
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)');
-        end
-        else begin
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:');
-        end;
-      end;
-    end else begin //from server
-      if (ID in [$FE]) and (size>3) then begin
-        StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknow:h(subID)');
-      end else begin
-        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
-      end;
-    end;
-    //начинаем разбирать пакет по заданному в packets.ini формату
-    //смещение в ini
-    if Pos(':',StrIni)=0 then PosInIni:=Length(StrIni)+1 else PosInIni:=Pos(':',StrIni);
-    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id,2)+', '+Copy(StrIni,1,PosInIni-1)+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
-    //смещение в pkt
-    PosInPkt:=13;
-    Inc(PosInIni);
-    //Memo8.Clear;
-    Memo8.Lines.Add(lang.GetTextOrDefault('type0x' (* 'Tип: 0x' *) )+IntToHex(id,2)+' ('+Copy(StrIni,1,PosInIni-2)+')');
-    Memo8.Lines.Add(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) )+IntToStr(Size-2)+'+2');
-    Memo8.Lines.Add('');
-    //GetType - возвращает строчку типа d(Count:For.0001) из packets.ini
-    //StrIni - строчка из packets.ini по ID из пакета
-    //PktStr - пакет
-    //Param0 - строка d(Count:For.0001)
-    //PosInIni - смещение в строчке из packets.ini по ID из пакета
-    //PosInPkt - смещение в пакете
-    Memo5.SelStart:=0;
-    Memo5.SelLength:=2;
-    Memo5.SelAttributes.BackColor:=$aaaadf;
-    Memo8.SelStart:=5;
-    Memo8.SelLength:=4;
-    Memo8.SelAttributes.BackColor:=$aaaadf;
-    d:=Memo8.GetTextLen-Memo8.Lines.Count;
-    try
-      while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<Size+10) do begin
-        Param0:=GetType(StrIni,PosInIni);
-        inc(PosInIni);
-        typ:=GetTyp(Param0); //считываем тип значения
-        name:=GetName(Param0); //считываем имя значения в скобках (name:func.par)
-        func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-        param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-        param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-        offset:=PosinPkt-11;
-        value:=GetValue(typ, name, PktStr, PosInPkt, size, memo5); //считываем значение, сдвигаем указатели в соответствии с типом значения
-        if uppercase(Func)='GET' then begin
-          try
-            if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-            if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-            if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-            if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-            if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-            if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-            if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-            if param1='SKILL' then    value:=GetSkill(strtoint(value));
-          except
-            //ShowMessage('ошибка при распознании пакета');
-            exit;
-          end;
-          //распечатываем
-          if HexViewOffset
-            then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-            else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-          Memo8.SelStart:=d+5;
-          Memo8.SelLength:=1;
-          Memo8.SelAttributes.BackColor:=SelAttributes;
-          d:=Memo8.GetTextLen-Memo8.Lines.Count;
-        end else
-        //для С4, С5 и Т0-Интерлюдия
-        if uppercase(Func)='FOR' then begin
-          //распечатываем
-          if HexViewOffset
-            then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-            else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-          Memo8.SelStart:=d+5;
-          Memo8.SelLength:=1;
-          Memo8.SelAttributes.BackColor:=SelAttributes;
-          d:=Memo8.GetTextLen-Memo8.Lines.Count;
-          tmp_param:=param1;
-          tmp_value:=value;
-          ii:=PosInIni;
-          if value='range error' then exit;
-          if StrToInt(value)=0 then begin
-            //пропускаем пустые значения
-            for jj:=1 to StrToInt(param1) do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-            end;
-          end else begin
-            for j:=1 to StrToInt(tmp_value) do begin
-              Memo8.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
-              d:=Memo8.GetTextLen-Memo8.Lines.Count;
-              PosInIni:=ii;
-              for jj:=1 to StrToInt(tmp_param) do begin
-                Param0:=GetType(StrIni,PosInIni);
-                inc(PosInIni);
-                typ:=GetTyp(Param0); //считываем тип значения
-                name:=GetName(Param0); //считываем имя значения в скобках (name:func.1)
-                func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-                param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-                //param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1)
-                offset:=PosinPkt-11;
-                value:=GetValue(typ, name, PktStr, PosInPkt, size, memo5);
-                try
-                  if uppercase(Func)='GET' then begin
-                    if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-                    if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-                    if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-                    if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-                    if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-                    if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-                    if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-                    if param1='SKILL' then    value:=GetSkill(strtoint(value));
-                  end;
-                except
-                  //ShowMessage('ошибка при распознании пакета');
-                  exit;
-                end;
-                //распечатываем
-                if HexViewOffset
-                  then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-                  else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-                Memo8.SelStart:=d+5;
-                Memo8.SelLength:=1;
-                Memo8.SelAttributes.BackColor:=SelAttributes;
-                d:=Memo8.GetTextLen-Memo8.Lines.Count;
-              end;
-              Memo8.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
-              d:=Memo8.GetTextLen-Memo8.Lines.Count;
-            end;
-          end;
-        end else
-        //для Т1-Камаель
-        if uppercase(Func)='LOOP' then begin
-          //распечатываем
-          if HexViewOffset
-            then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-            else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-          Memo8.SelStart:=d+5;
-          Memo8.SelLength:=1;
-          Memo8.SelAttributes.BackColor:=SelAttributes;
-          d:=Memo8.GetTextLen-Memo8.Lines.Count;
-          //проверку что param1=1?
-          tmp_param:=param2;
-          tmp_value:=value;
-          if value='range error' then exit;
-          if strtoint(param1)>1 then begin
-            //распечатываем значения
-            for jj:=1 to StrToInt(param1)-1 do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-              offset:=PosinPkt-11;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo5);
-              //распечатываем
-              if HexViewOffset
-                then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-                else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-              Memo8.SelStart:=d+5;
-              Memo8.SelLength:=1;
-              Memo8.SelAttributes.BackColor:=SelAttributes;
-              d:=Memo8.GetTextLen-Memo8.Lines.Count;
-            end;
-          end;
-          ii:=PosInIni;
-          for j:=1 to StrToInt(tmp_value) do begin
-            Memo8.Lines.Add(lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) )+inttostr(j)+'/'+tmp_value+']');
-            d:=Memo8.GetTextLen-Memo8.Lines.Count;
-            PosInIni:=ii;
-            for jj:=1 to StrToInt(tmp_param) do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-              offset:=PosinPkt-11;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size, memo5);
-              try
-                if uppercase(Func)='GET' then begin
-                  if StrToIntDef(value,1)<>StrToIntDef(value,2) then exit;
-                  if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-                  if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-                  if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-                  if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-                  if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-                  if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-                  if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-                  if param1='SKILL' then    value:=GetSkill(strtoint(value));
-                end;
-              except
-                //ShowMessage('ошибка при распознании пакета');
-                exit;
-              end;
-              //распечатываем
-              if HexViewOffset
-                then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value)
-                else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value);
-              Memo8.SelStart:=d+5;
-              Memo8.SelLength:=1;
-              Memo8.SelAttributes.BackColor:=SelAttributes;
-              d:=Memo8.GetTextLen-Memo8.Lines.Count;
-            end;
-            Memo8.Lines.Add(lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока  ' *) )+inttostr(j)+'/'+tmp_value+']');
-            d:=Memo8.GetTextLen-Memo8.Lines.Count;
-          end;
-        end else begin
-          //распечатываем
-          if HexViewOffset
-            then Memo8.Lines.Add(inttohex(offset,4)+' '+typ+' '+name+': '+value+hexvalue)
-            else Memo8.Lines.Add(prnoffset(offset)+' '+typ+' '+name+': '+value+hexvalue);
-          Memo8.SelStart:=d+5;
-          Memo8.SelLength:=1;
-          Memo8.SelAttributes.BackColor:=SelAttributes;
-          d:=Memo8.GetTextLen-Memo8.Lines.Count;
-        end;
-      end;
-    except
-      //ошибка расшифровки пакета
-    end;
-//    Memo5.Lines.EndUpdate;
-//    Memo8.Lines.EndUpdate;
-  end else begin
-//    Memo8.Clear;
-//    Memo5.Clear;
-    Label1.Caption:=lang.GetTextOrDefault('IDS_232' (* 'Выделенный пакет:' *) );
-  end;
+  PktStr := Memo4.Lines[Memo4.CaretPos.Y];
+  
+  size := length(HexToString(PktStr))+2;
+  if ToServer.Down then
+    PktStr:='0400000000000000000000'+PktStr
+    else
+    PktStr:='0300000000000000000000'+PktStr;
+
+  PacketView.ParsePacket(ListView5.Selected.Caption, PktStr, size);
+
 end;
+
 procedure TfVisual.Memo4KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
@@ -1744,17 +750,14 @@ begin
 end;
 
 procedure TfVisual.ToolButton30Click(Sender: TObject);
-var
- down : boolean;
 begin
-
-  down := (sender as TToolButton).Down;
-  setNofreeBtns(down);
+  setNofreeBtns(ToolButton37.Down);
+  
   if Assigned(currenttunel) then
-    Ttunel(currenttunel).noFreeAfterDisconnect := down;
+    Ttunel(currenttunel).noFreeAfterDisconnect := ToolButton37.Down;
   if Assigned(currentLSP) then
   begin
-  TlspConnection(currentLSP).noFreeAfterDisconnect := down;
+  TlspConnection(currentLSP).noFreeAfterDisconnect := ToolButton37.Down;
   end;
 end;
 
@@ -1945,6 +948,18 @@ procedure TfVisual.ReloadThisClick(Sender: TObject);
 begin
   Reload;
   PacketListRefresh;
+end;
+
+procedure TfVisual.TabSheet1Show(Sender: TObject);
+begin
+Splitter3.Show;
+packetVievPanel.Show;
+end;
+
+procedure TfVisual.TabSheet3Show(Sender: TObject);
+begin
+packetVievPanel.Hide;
+Splitter3.Hide;
 end;
 
 end.

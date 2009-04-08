@@ -28,7 +28,8 @@ uses
   uPlugins in 'units\uPlugins.pas' {fPlugins},
   uPluginData in 'units\uPluginData.pas',
   uScripts in 'units\uScripts.pas' {fScript},
-  uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame};
+  uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame},
+  uPacketView in 'units\uPacketView.pas' {fPacketView: TFrame};
 
 {$R *.res}
 

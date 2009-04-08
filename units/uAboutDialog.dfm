@@ -14,6 +14,7 @@ object fAbout: TfAbout
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage

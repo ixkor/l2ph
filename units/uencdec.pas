@@ -122,9 +122,8 @@ begin
 
         LastPacket := Packet;
         if Assigned(onNewPacket) then
-          onNewPacket(Packet, true, self);
-
-          
+          if Packet.Size > 2 then //не отправляем скриптам пакеты длинной 2 байта (физически)
+            onNewPacket(Packet, true, self);
 
         if Packet.Size = 0 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
