@@ -18,7 +18,7 @@ type
   TOnFree = TOnLoad;
   TOnCallMethod = function(const MethodName: String; var Params,
                            FuncResult: Variant): Boolean; stdcall;
-  TOnRefreshPrecompile = function(var funcs: TStringArray): Integer; stdcall;
+  TOnRefreshPrecompile = procedure; stdcall;
 
   TConnectInfo = class (tobject)
   ConnectionId: integer;
@@ -112,7 +112,7 @@ var
   Plugins : tlist;
   
 implementation
-uses uglobalFuncs, uMain, uUserForm, udata, usocketengine, uencdec, Controls;
+uses uscripts, uglobalFuncs, uMain, uUserForm, udata, usocketengine, uencdec, Controls;
 { TPluginDataClass }
 
 procedure TPluginStructClass.ChangeTimerThread(const timer: Pointer;
@@ -133,6 +133,7 @@ begin
   inherited;
   conNum := 0;
   userFormHandle := UserForm.Handle;
+  UserFuncs := TStringList.Create;
 end;
 
 function TPluginStructClass.CreateAndRunTimerThread(const interval,
@@ -164,6 +165,7 @@ end;
 
 destructor TPluginStructClass.Destroy;
 begin
+  UserFuncs.Destroy;
   inherited;
 end;
 
@@ -698,7 +700,7 @@ begin
   OnLoad:=GetProcAddress(hLib,'OnLoad');
   OnFree:=GetProcAddress(hLib,'OnFree');
   OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
-  OnRefreshPrecompile:=GetProcAddress(hLib,'OnRefreshPrecompile');
+  OnRefreshPrecompile := GetProcAddress(hLib,'OnRefreshPrecompile');
 
   if Assigned(OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
   if Assigned(OnConnect) then EnableFuncs:=EnableFuncs+[efOnConnect];
@@ -709,7 +711,7 @@ begin
   end;
   if Assigned(OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
   if Assigned(OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
-  if Assigned(OnRefreshPrecompile) then EnableFuncs:=EnableFuncs+[efOnRefreshPrecompile];
+  if Assigned(OnRefreshPrecompile) then EnableFuncs := EnableFuncs+[efOnRefreshPrecompile];
 
   Result:=True;
  finally

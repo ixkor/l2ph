@@ -23,8 +23,6 @@ type
     procedure EditorChange(Sender: TObject);
     procedure EditorKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure EditorMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
   private
     { Private declarations }
 
@@ -94,12 +92,6 @@ begin
   // добавили комбинацию клавиш 'проверить синтаксис' - ctrl+f9
   if(Key=VK_F9)and(Shift=[ssCtrl]) then
     TScript(assignedTScript).CompileThisScript;
-end;
-
-procedure TfScriptEditor.EditorMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
-begin
-Editor.SetFocus;
 end;
 
 end.

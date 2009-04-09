@@ -936,6 +936,7 @@ end;
 procedure TfVisual.Translate;
 begin
   Lang.Language := L2PacketHackMain.lang.Language;
+  if assigned(PacketView) then PacketView.lang.Language := L2PacketHackMain.lang.Language;
 end;
 
 procedure TfVisual.ReloadThisClick(Sender: TObject);

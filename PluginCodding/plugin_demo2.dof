@@ -101,7 +101,7 @@ DebugSourceDirs=
 UsePackages=0
 [Parameters]
 RunParams=
-HostApplication=
+HostApplication=C:\l2ph\Build\l2ph.exe
 Launcher=
 UseLauncher=0
 DebugCWD=

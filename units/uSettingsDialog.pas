@@ -15,8 +15,6 @@ type
   TfSettings = class(TForm)
     PageControl3: TPageControl;
     TabSheet8: TTabSheet;
-    isIgnorePorts: TLabeledEdit;
-    isClientsList: TLabeledEdit;
     TabSheet9: TTabSheet;
     Bevel1: TBevel;
     Bevel2: TBevel;
@@ -51,6 +49,8 @@ type
     Label1: TLabel;
     Label2: TLabel;
     JvSpinEdit2: TJvSpinEdit;
+    isIgnorePorts: TLabeledEdit;
+    isClientsList: TLabeledEdit;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);

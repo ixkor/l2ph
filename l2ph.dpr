@@ -6,6 +6,7 @@ uses
   FastMM4 in 'fastmm\FastMM4.pas',
   uExcepDialog in 'units\uExcepDialog.pas' {ExceptionDialog},
   Forms,
+  windows,
   uMain in 'units\uMain.pas' {L2PacketHackMain},
   uAboutDialog in 'units\uAboutDialog.pas' {fAbout},
   uConvertForm in 'units\uConvertForm.pas' {fConvert},
@@ -32,8 +33,29 @@ uses
   uPacketView in 'units\uPacketView.pas' {fPacketView: TFrame};
 
 {$R *.res}
+Procedure Check2stInstance;
+var
+ hMutex, hWindow : cardinal;
 
 begin
+ //ћьютекс нужен дабы исключить проблеммы при активном дебаггере с открытым пх.
+ hMutex := CreateMutex(nil, false, 'L2PH');
+ if GetLastError = ERROR_ALREADY_EXISTS then
+ begin
+   ReleaseMutex(hMutex);
+   CloseHandle(hMutex);
+   
+   hWindow := FindWindow('TL2PacketHackMain', nil);
+   if hWindow > 0 then
+   begin
+     SetForegroundWindow(hWindow);
+     ExitProcess(0);
+   end;
+ end;
+end;
+
+begin
+  Check2stInstance;
   isGlobalDestroying := false;
   Application.Initialize;
   Application.Title := 'L2PacketHack';
@@ -47,11 +69,12 @@ begin
   Application.CreateForm(TfSettings, fSettings);
   Application.CreateForm(TUserForm, UserForm);
   Application.CreateForm(TfProcessRawLog, fProcessRawLog);
-  Application.CreateForm(TfPlugins, fPlugins);
   Application.CreateForm(TfScript, fScript);
+  Application.CreateForm(TfPlugins, fPlugins);
   fSettings.init;
   L2PacketHackMain.INIT;
-  fScript.init;
+  fPlugins.init;
+  fScript.init;  
   Application.Run;
 
 end.

@@ -94,10 +94,8 @@ type
     procedure destroyDeadLSPConnections;
     procedure destroyDeadLogWievs;
     procedure encryptAndSend(CurrentLsp:TlspConnection; Packet: Tpacket; ToServer: Boolean);
-    procedure RefreshPrecompile(var fsScript: TfsScript);
-    procedure UpdateAutoCompleate(var AutoComplete: TAutoCompletePopup);
+
     function CallMethod(Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
-    procedure reloadFuncs;
 
     procedure SendPacket(Packet: Tpacket; tid: integer; ToServer: Boolean);
     procedure SendPacketToName(Packet: Tpacket; cName: string; ToServer: Boolean);
@@ -110,6 +108,10 @@ type
     Procedure setNoFreeOnConnectionLost(id:integer; NoFree:boolean);
     procedure DoDisconnect(id:integer);
     function Compile(var fsScript: TfsScript; Editor: TSyntaxMemo; var StatBat:TStatusBar): Boolean;
+
+    procedure DO_reloadFuncs;
+    procedure RefreshPrecompile(var fsScript: TfsScript);
+    procedure UpdateAutoCompleate(var AutoComplete: TAutoCompletePopup);
   end;
 
 var
@@ -301,8 +303,6 @@ begin
   CriticalSection  := TCriticalSection.create;
   PacketLogWievs := TList.Create;
   MyFuncs := TStringList.Create;
-  reloadFuncs;
-  
 end;
 
 procedure TdmData.DataModuleDestroy(Sender: TObject);
@@ -627,23 +627,11 @@ end;
 procedure TdmData.RefreshPrecompile(var fsScript: TfsScript);
 var
   fss: string;
-  i,k: Integer;
-  funcs: TStringArray;
+  i: Integer;
 begin
   fss:='fss:integer='+IntToStr(Integer(fsScript));
   fsScript.Clear;
   fsScript.AddRTTI;
-
-  // позволяем плагинам добавить свои функции в скрипты
-
-  for i:=0 to Plugins.Count - 1 do
-  with TPlugin(Plugins.Items[i]) do
-  if Loaded and Assigned(OnRefreshPrecompile) then begin
-    SetLength(funcs,0);
-    k := OnRefreshPrecompile(funcs);
-    if k>0 then for k:=0 to High(funcs) do
-      fsScript.AddMethod(funcs[k],CallMethod);
-  end;
 
   i := 0;
   while i < MyFuncs.Count do
@@ -934,37 +922,30 @@ begin
     SetConName(ConId, String(Params[0]));
   end else
   if sMethodName = 'NOCLOSESERVERAFTERCLIENTDISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, true, false);
   end else
   if sMethodName = 'CLOSESERVERAFTERCLIENTDISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, false, true);
   end else
   if sMethodName = 'NOCLOSECLIENTAFTERSERVERDISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, true, true);
   end else
   if sMethodName = 'CLOSECLIENTAFTERSERVERDISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, false, false);
   end else
   if sMethodName = 'NOCLOSEFRAMEAFTERDISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoFreeOnConnectionLost(ConId, true);
   end else
   if sMethodName = 'CLOSEFRAMEAFTERDISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoFreeOnConnectionLost(ConId, false);
   end ELSE
   if sMethodName = 'DISCONNECT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     DoDisconnect(ConId);
   end else
@@ -1271,21 +1252,23 @@ begin
   AutoComplete.DisplayItems.add('var pck: string;');
   AutoComplete.Items.add('pck');
 
-  AutoComplete.DisplayItems.add('const buf: Boolean;');
+  AutoComplete.DisplayItems.add('const FromServer: Boolean;');
   AutoComplete.Items.add('FromServer');
 
-  AutoComplete.DisplayItems.add('const pck: Boolean;');
+  AutoComplete.DisplayItems.add('const FromClient: Boolean;');
   AutoComplete.Items.add('FromClient');
 
-  AutoComplete.DisplayItems.add('const buf: Integer;');
+  AutoComplete.DisplayItems.add('const ConnectID: Integer;');
   AutoComplete.Items.add('ConnectID');
 
-  AutoComplete.DisplayItems.add('const pck: string;');
+  AutoComplete.DisplayItems.add('const ConnectName: string;');
   AutoComplete.Items.add('ConnectName');
 
 end;
 
-procedure TdmData.reloadFuncs;
+procedure TdmData.DO_reloadFuncs;
+var
+  i:integer;
 begin
   MyFuncs.Clear;
   MyFuncs.Add('function HStr(Hex:String):String');
@@ -1326,6 +1309,19 @@ begin
   MyFuncs.Add('function CallFunction(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):variant');
   MyFuncs.Add('function CallSF(ScriptName:String;FunctionName:String;Params:array of variant):variant');
   MyFuncs.Add('procedure sendMSG(msg:String;)');
+
+
+  if assigned(Plugins) then
+  begin
+  // позволяем плагинам добавить свои функции в скрипты
+  for i:=0 to Plugins.Count - 1 do
+    with TPlugin(Plugins.Items[i]) do
+      if Loaded and Assigned(OnRefreshPrecompile) then
+        OnRefreshPrecompile;
+        
+  MyFuncs.AddStrings(PluginStruct.UserFuncs);
+  end;
+  
 end;
 
 { TpacketLogWiev }

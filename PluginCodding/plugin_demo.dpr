@@ -12,7 +12,7 @@ uses
   FastMM4Messages in '..\fastmm\FastMM4Messages.pas';
 
 var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,1,      84   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,1,      98   );
   min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct;
   ppck: PPacket;
@@ -29,11 +29,11 @@ function GetPluginInfo(const ver: Integer): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.1+'+sLineBreak+
+            'Для версий 3.5.1.98+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.1+'+sLineBreak+
+            'Для версий 3.5.1.98+'+sLineBreak+
             'Автовыпивалка НР бутылок';
 end;
 

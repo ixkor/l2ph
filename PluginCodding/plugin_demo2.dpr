@@ -5,7 +5,8 @@ library plugin_demo2;
 uses
   FastMM4 in '..\fastmm\FastMM4.pas',
   FastMM4Messages in '..\fastmm\FastMM4Messages.pas',
-  
+  windows,
+
 // модуль с описаниями основных типов
 // используемых в плагине и программе
   usharedstructs in '..\units\usharedstructs.pas';
@@ -15,7 +16,7 @@ uses
 
 
 var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,1,      84   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,1,      98   );
   min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct; // структура передаваемая в плагин
 
@@ -26,11 +27,13 @@ function GetPluginInfo(const ver: Integer): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.1+'+sLineBreak+
+            'Для версий 3.5.1.98+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.1+';
+            'Для версий 3.5.1.98+'+sLineBreak+
+            'Показывает каким образом можно добавить свою функцию/процедуру в ПХ'+sLineBreak+
+            '';
 end;
 
 // Обязательно вызываемая функция.
@@ -88,16 +91,56 @@ begin
     Result:=True; // запрещаем дальнейшую обработку функции в программе
     FuncResult:=Pi;
   end;
+
+  if MethodName='SHOW_MY_MESSAGE' then begin
+    MessageBox(0,pchar(string(Params[0])),'',MB_OK);
+    Result:=True; // запрещаем дальнейшую обработку функции в программе
+    FuncResult:=0; //какой результат ? это процедура.
+  end;
 end;
 
 // Необязательно вызываемая функция. (может отсутствовать в плагине)
-// Вызывается перед компиляцией скриптов
-function OnRefreshPrecompile(var funcs: TStringArray): Integer; stdcall;
+// Вызывается после иницализации плагина, позволяет добавлять свои функции в редактор / скриптовый движек
+Procedure OnRefreshPrecompile; stdcall;
 begin
-  SetLength(funcs,1); // указываем количество добавляемых в скрипт функций
-  funcs[0]:='function Pi:Extended'; // одна из добавляемых функций
-  Result := 1;
+  ps.UserFuncs.Add('function Pi:Extended');
+  ps.UserFuncs.Add('procedure Show_my_message(msg:string)');
+  //а вот теперь внимание
+  //ps.UserFuncs.Add('procedure Show_my_message(%s)');
+  //%s говорит о том что функция в своих параметрах будет передавать изначально
+  //екземпляр класса TfsScript
+  //%s должен быть последней либо единственным параметром
+  //к примеру обьявление некоторых функций в пх
+  //
+  //'procedure SetName(Name:string;%s)'
+  //'procedure Disconnect(%s)'
+  //'procedure WriteS(v:string;%s)'
+  //
+  //обратите внимание на ";" перед параметром, он есть при условии что %s не единственный параметр функции
+  //что это дает:
+  //возможность выдергивать переменные с фастскрипта.
+  //как это делаеться в пх:
+  {
+  if sMethodName = 'DISCONNECT' then
+  begin
+    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
+    DoDisconnect(ConId);
+  end
+
+  либо
+
+  if sMethodName = 'SETNAME' then
+  begin
+    buf:=TfsScript(Integer(Params[1])).Variables['buf'];
+    ConId:=TfsScript(Integer(Params[1])).Variables['ConnectID'];
+    SetConName(ConId, String(Params[0]));
+  end  
+  }
+  //TfsScript(Integer(Params[0])) - екземпляр TfsScript
+
+
 end;
+
 
 // Необязательно вызываемая функция. (может отсутствовать в плагине)
 // Вызывается при приходе пакета, параметры:

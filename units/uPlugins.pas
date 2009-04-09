@@ -33,6 +33,7 @@ type
   private
     { Private declarations }
   public
+    procedure init;
     { Public declarations }
   end;
 
@@ -40,7 +41,7 @@ var
   fPlugins: TfPlugins;
 
 implementation
-uses uMain, uGlobalFuncs, uData, uUserForm;
+uses uScripts, uMain, uGlobalFuncs, uData, uUserForm, Math;
 
 {$R *.dfm}
 
@@ -50,6 +51,7 @@ var
   Mask, s: string;
   mi: TMenuItem;
   newplugin : TPlugin;
+  i:integer;
 begin
   Mask := ExtractFilePath(ParamStr(0))+'plugins\*.dll';
   clbPluginsList.Clear;
@@ -78,6 +80,18 @@ begin
     until FindNext(SearchRec)<>0;
     FindClose(SearchRec);
   end;
+
+  i:=0;
+  while i < clbPluginsList.Count do
+  begin
+    clbPluginsList.Checked[i] := Options.ReadBool('plugins',clbPluginsList.Items.Strings[i], false);
+    if clbPluginsList.Checked[i] then
+      begin
+        clbPluginsList.ItemIndex := i;
+        clbPluginsListClickCheck(nil)
+      end;
+    inc(i);
+  end;
 end;
 
 //Это не дубляж.
@@ -87,10 +101,6 @@ end;
 procedure TfPlugins.FormCreate(Sender: TObject);
 begin
   loadpos(self);
-
-  Plugins := TList.Create;
-  PluginStruct := TPluginStructClass.create;
-  btnRefreshPluginList.Click;
 end;
 
 procedure TfPlugins.FormDestroy(Sender: TObject);
@@ -123,7 +133,21 @@ begin
   else
     TPlugin(Plugins.Items[i]).FreePlugin;
 
-  L2PacketHackMain.nPlugins.Items[i].Checked:=clbPluginsList.Checked[i];
+  L2PacketHackMain.nPlugins.Items[i].Checked := clbPluginsList.Checked[i];
+
+  if Sender = nil then exit;
+  //релоадим доступные нам функции
+  dmData.DO_reloadFuncs;
+  //обновляем автокомплиты
+  
+  i := 0;
+  while i < ScriptList.Count do
+  begin
+    dmData.UpdateAutoCompleate(TScript(ScriptList.Items[i]).Editor.AutoComplete);
+    inc(i);
+  end;
+
+  Options.WriteBool('plugins',clbPluginsList.Items.Strings[i], clbPluginsList.Checked[i]);
 end;
 
 procedure TfPlugins.clbPluginsListClick(Sender: TObject);
@@ -158,6 +182,14 @@ procedure TfPlugins.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
+end;
+
+procedure TfPlugins.init;
+begin
+  Plugins := TList.Create;
+  PluginStruct := TPluginStructClass.create;
+  btnRefreshPluginList.Click;
+  dmData.DO_reloadFuncs;//обновляем доступные скриптам функции
 end;
 
 end.

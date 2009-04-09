@@ -1,6 +1,6 @@
 object L2PacketHackMain: TL2PacketHackMain
   Left = 12
-  Top = 36
+  Top = 27
   Width = 784
   Height = 590
   Color = clBtnFace

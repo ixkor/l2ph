@@ -180,7 +180,6 @@ object fScriptEditor: TfScriptEditor
     TabOrder = 0
     OnChange = EditorChange
     OnKeyUp = EditorKeyUp
-    OnMouseMove = EditorMouseMove
   end
   object SyntaxManager1: TSyntaxManager
     MenuPlainText = 'Plain Text'
