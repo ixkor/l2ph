@@ -137,12 +137,8 @@ type
     procedure TabSheet3Show(Sender: TObject);
   private
     { Private declarations }
-    typ0 : String;
     hScriptThread, idScriptThread: cardinal;
-    SelLength: integer;
-    kId: cardinal; //коэфф преобразования NpcID
     HexViewOffset: boolean;   //показывать смещение в Hex формате
-    SelAttributes: TColor;
     Edit:tfscripteditor;
   public
     PacketView: tfPacketView;  
@@ -401,7 +397,6 @@ procedure TfVisual.ListView5Click(Sender: TObject);
 var
   sid : integer;
 begin
-  typ0:='я';
   if ListView5.SelCount=1 then
     begin
       EnableBtns;
@@ -858,11 +853,10 @@ ms : TFileStream;
 begin
 if dlgSaveLogRaw.Execute then
 begin
-  try
   deletefile(dlgSaveLogRaw.FileName);
   ms := TFileStream.Create(dlgSaveLogRaw.FileName, fmOpenWrite or fmCreate);
-  ms.Position := 0;
-
+  try
+    ms.Position := 0;
     if assigned(currenttunel) then
       begin
       Ttunel(currenttunel).RawLog.Position := 0;

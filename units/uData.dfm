@@ -16,6 +16,7 @@ object dmData: TdmData
     Top = 16
   end
   object timerSearchProcesses: TTimer
+    Interval = 5000
     OnTimer = timerSearchProcessesTimer
     Left = 40
     Top = 72

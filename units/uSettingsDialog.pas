@@ -47,6 +47,10 @@ type
     chkNoFree: TCheckBox;
     chkRaw: TCheckBox;
     lang: TsiLang;
+    Bevel4: TBevel;
+    Label1: TLabel;
+    Label2: TLabel;
+    JvSpinEdit2: TJvSpinEdit;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -118,12 +122,16 @@ begin
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
   HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',1);
-  LocalPort := htons(Options.ReadInteger('General','LocalPort',56574));
+  JvSpinEdit2.Value := Options.ReadInteger('General','LocalPort',56574);
+  LocalPort := htons(round(JvSpinEdit2.Value));
   ChkAllowExit.Checked := Options.ReadBool('General','FastExit',False);
   ChkShowLogWinOnStart.Checked := Options.ReadBool('General','AutoShowLog',False);
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);
   chkNoFree.Checked := Options.ReadBool('General','NoFreeAfterDisconnect',False);
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
+  JvSpinEdit1.Value := Options.ReadFloat('General', 'interval', 5);
+  
+
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
   InterfaceEnabled := true;
@@ -197,6 +205,7 @@ with GlobalSettings do
   sInject := isInject.Text;
   sLSP := isLSP.Text;
   AllowExit := ChkAllowExit.Checked;
+  dmData.timerSearchProcesses.Interval := round(JvSpinEdit1.Value*1000);
 
 end;
 
@@ -215,6 +224,7 @@ begin
   Options.WriteString('General', 'isInject', isInject.Text);
   Options.WriteString('General', 'isLSP', isLSP.Text);
 
+  Options.WriteFloat('General', 'interval', JvSpinEdit1.Value);
   Options.WriteBool('General', 'Enable', ChkIntercept.Checked);
   Options.WriteBool('General', 'EnableLSP', ChkLSPIntercept.Checked);
   Options.WriteBool('General', 'Socks5', chkSocks5.Checked);
@@ -226,7 +236,8 @@ begin
   Options.WriteBool('General','AutoShowLog',ChkShowLogWinOnStart.Checked);
   Options.WriteInteger('Snifer','ProtocolVersion', rgProtocolVersion.ItemIndex);
   Options.WriteBool('General','NoFreeAfterDisconnect',chkNoFree.Checked);
-  Options.WriteBool('General','RAWdatarememberallowed',chkRaw.Checked); 
+  Options.WriteBool('General','RAWdatarememberallowed',chkRaw.Checked);
+  Options.WriteInteger('General','LocalPort',round(JvSpinEdit2.Value));
   Options.UpdateFile;
 end;
 
@@ -355,7 +366,11 @@ begin
     isInject.Enabled := true;
   end;
   isInject.Enabled := not iInject.Checked;
-  if not InterfaceEnabled then exit; 
+  HookMethod.Enabled := iInject.Checked;
+  ChkIntercept.Enabled := iInject.Checked;
+  JvSpinEdit1.Enabled := iInject.Checked;
+
+  if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
 end;
 

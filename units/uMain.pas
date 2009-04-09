@@ -247,7 +247,7 @@ var
   temp : SendMessageParam;
 begin
 c_s.Enter;
-{ TODO : туточки }
+try
 temp := SendMessageParam(pointer(msg.WParam)^);
 fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
 if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
@@ -258,8 +258,9 @@ if assigned(Ttunel(temp.tunel)) then
         Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
         PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
       end;
-
-c_s.Leave;
+finally
+  c_s.Leave;
+end;
 end;
 
 procedure TL2PacketHackMain.NewAction(var msg: TMessage);
@@ -272,6 +273,7 @@ var
 
 begin
 c_s.Enter;
+try
 action := byte(msg.wparam);
 
 case action of
@@ -297,11 +299,8 @@ case action of
               Tunel.CharName := EncDec.CharName;
             end;
         end;
-
-
-
-
-    end; //данные в name; обработчик - UpdateComboBox1 (требует видоизменения)
+    end; //данные в name;
+    
   TencDec_Action_ClearPacketLog:; //данные нет. просто акшин; обработчик ClearPacketsLog
   //TSocketEngine вызывает эти
   TSocketEngine_Action_MSG: //данные в sLastMessage; обработчик - Log
@@ -376,7 +375,9 @@ case action of
     end; 
 
   end;
-c_s.Leave;
+finally
+  c_s.Leave;
+end;
 end;
 
 procedure TL2PacketHackMain.FormDestroy(Sender: TObject);

@@ -229,7 +229,7 @@ begin
   if isDestroying then exit;
   try
   tmp:=TStringList.Create;
-  ListSearch := ';'+LowerCase(sClientsList); // в нижний регистр
+  ListSearch := LowerCase(sClientsList); // в нижний регистр
   // убираем все пробелы
   ListSearch := StringReplace (ListSearch, ' ', '', [rfReplaceAll]);
   // наслучай если пользователь использует ,  меняем ее на ;
@@ -241,33 +241,42 @@ begin
   for i:=0 to tmp.Count-1 do begin
     // ненадо проверять по количеству процессов (tmp.Count <> ListBox1.Items.Count)
     // наслучай если поле было отредактировано
-    if (fProcesses.FoundProcesses.Items.IndexOf(tmp.ValueFromIndex[i]+' ('+tmp.Names[i]+')')=-1) then begin
+    if (fProcesses.FoundProcesses.Items.IndexOf(tmp.ValueFromIndex[i]+' ('+tmp.Names[i]+')')=-1) then
+    begin
       fProcesses.FoundProcesses.Items.Clear;
       fProcesses.FoundClients.Items.Clear;
-      for k := 0 to tmp.Count - 1 do begin
+      for k := 0 to tmp.Count - 1 do
+      begin
         // добавляем в лист запущеных процессов
         fProcesses.FoundProcesses.Items.Add(tmp.ValueFromIndex[k]+' ('+tmp.Names[k]+')');
         //сравниваем найденные программы со списком необходимых программ
-        if AnsiPos(';'+tmp.ValueFromIndex[k]+';', ListSearch) > 0  then
+        if (AnsiPos(tmp.ValueFromIndex[k]+';', ListSearch) > 0) and (tmp.ValueFromIndex[k] <> '')  then
         begin
-          if fSettings.ChkIntercept.Checked and (Processes.Values[tmp.Names[k]]='') then begin
-            Processes.Values[tmp.Names[k]]:='error';
+          if fSettings.ChkIntercept.Checked and (Processes.Values[tmp.Names[k]]='') then
+          begin
+            Processes.Values[tmp.Names[k]] := 'error';
             cc := OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(tmp.Names[k]));
             case fSettings.HookMethod.ItemIndex of
-              0: begin
-                if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+fSettings.isInject.Text)) then begin
+              0:
+              begin
+                if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+fSettings.isInject.Text)) then
+                begin
                   Processes.Values[tmp.Names[k]]:='ok';
                   AddToLog (format(rsClientPatched0, [tmp.ValueFromIndex[k], tmp.Names[k]]));
                 end;
               end;
-              1: begin
-                if InjectDllEx(cc, pInjectDll) then begin
+              1:
+              begin
+                if InjectDllEx(cc, pInjectDll) then
+                begin
                   Processes.Values[tmp.Names[k]]:='ok';
                   AddToLog (format(rsClientPatched1, [tmp.ValueFromIndex[k], tmp.Names[k]]));
                 end;
               end;
-              2: begin
-                if InjectDllAlt(cc, PChar(ExtractFilePath(ParamStr(0))+fSettings.isInject.Text)) then begin
+              2:
+              begin
+                if InjectDllAlt(cc, PChar(ExtractFilePath(ParamStr(0))+fSettings.isInject.Text)) then
+                begin
                   Processes.Values[tmp.Names[k]]:='ok';
                   AddToLog (format(rsClientPatched2, [tmp.ValueFromIndex[k], tmp.Names[k]]));
                 end;
