@@ -7,7 +7,7 @@ uses
   Dialogs, ComCtrls, ExtCtrls, StdCtrls, CheckLst, JvExControls,
   JvEditorCommon, JvEditor, JvHLEditor, fs_iinterpreter, JvTabBar, uScriptEditor,
   ToolWin, ImgList, JvLabel, fs_iinirtti, fs_imenusrtti, fs_idialogsrtti,
-  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp;
+  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp, ecSyntAnal;
 
 type
 
@@ -66,6 +66,8 @@ type
     lang: TsiLang;
     Instruction: TJvLabel;
     Button1: TButton;
+    SyntAnalyser: TSyntAnalyzer;
+    ToolButton2: TToolButton;
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonDeleteClick(Sender: TObject);
     procedure Button9Click(Sender: TObject);
@@ -91,6 +93,7 @@ type
       Selected: Boolean);
     procedure ScriptsListVisualClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
   private
     { Private declarations }
 
@@ -241,6 +244,8 @@ end;
 
 procedure TfScript.FormCreate(Sender: TObject);
 begin
+  if FileExists('settings\editor.lxl') then
+    SyntAnalyser.LoadFromFile('settings\editor.lxl');
   loadpos(self);
 
   ScriptList := TList.Create;
@@ -836,6 +841,12 @@ end;
 procedure TfScript.Button1Click(Sender: TObject);
 begin
    savescryptorder;//сохраняем порядок
+end;
+
+procedure TfScript.ToolButton2Click(Sender: TObject);
+begin
+ if SyntAnalyser.Customize then
+   SyntAnalyser.SaveToFile('settings\editor.lxl');
 end;
 
 end.

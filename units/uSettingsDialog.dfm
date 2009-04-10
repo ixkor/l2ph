@@ -13,7 +13,7 @@ object fSettings: TfSettings
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDefault
+  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -306,7 +306,6 @@ object fSettings: TfSettings
         MinValue = 1024.000000000000000000
         ValueType = vtFloat
         Value = 1024.000000000000000000
-        Enabled = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 8

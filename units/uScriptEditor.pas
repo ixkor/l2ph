@@ -11,15 +11,14 @@ uses
 type
   TfScriptEditor = class(TFrame)
     Editor: TSyntaxMemo;
-    SyntaxManager1: TSyntaxManager;
-    AutoComplete: TAutoCompletePopup;
     Source: TSyntTextSource;
     SyntFindDialog1: TSyntFindDialog;
     SyntReplaceDialog1: TSyntReplaceDialog;
     SyntAutoReplace1: TSyntAutoReplace;
-    TemplatePopup1: TTemplatePopup;
     SyntKeyMapping1: TSyntKeyMapping;
-    SyntAnalyzer1: TSyntAnalyzer;
+    SyntaxManager1: TSyntaxManager;
+    AutoComplete: TAutoCompletePopup;
+    TemplatePopup1: TTemplatePopup;
     procedure EditorChange(Sender: TObject);
     procedure EditorKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);

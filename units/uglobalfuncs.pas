@@ -118,7 +118,7 @@ procedure savepos(Control:TControl);
 var
 ini : Tinifile;
 begin
-  ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'windows.ini');
+  ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'settings\windows.ini');
   ini.WriteInteger(Control.ClassName,'top', Control.Top);
   ini.WriteInteger(Control.ClassName,'left', Control.Left);
   ini.WriteInteger(Control.ClassName,'width', Control.Width);
@@ -130,8 +130,8 @@ procedure loadpos(Control:TControl);
 var
 ini : Tinifile;
 begin
-if not FileExists(ExtractFilePath(ParamStr(0))+'windows.ini') then exit;
-ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'windows.ini');
+if not FileExists(ExtractFilePath(ParamStr(0))+'settings\windows.ini') then exit;
+ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'settings\windows.ini');
 if not ini.SectionExists(Control.ClassName) then
   begin
     ini.Destroy;
@@ -184,15 +184,15 @@ end;
 Procedure Reload;
 begin
   //считываем systemmsg.ini
-  SysMsgIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'sysmsgid.ini');
+  SysMsgIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\sysmsgid.ini');
   //считываем itemname.ini
-  ItemsList.LoadFromFile(ExtractFilePath(ParamStr(0))+'itemsid.ini');
+  ItemsList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\itemsid.ini');
   //считываем npcname.ini
-  NpcIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'npcsid.ini');
+  NpcIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\npcsid.ini');
   //считываем ClassId.ini
-  ClassIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'classid.ini');
+  ClassIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\classid.ini');
   //считываем skillname.ini
-  SkillList.LoadFromFile(ExtractFilePath(ParamStr(0))+'skillsid.ini');
+  SkillList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\skillsid.ini');
 end;
 
 function TimeStepByteStr:string;

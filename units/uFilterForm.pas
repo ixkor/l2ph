@@ -107,7 +107,7 @@ begin
   PacketsFromC.Clear;
 
   //считываем packets.ini
-  PacketsNames.LoadFromFile(ExtractFilePath(Application.ExeName)+s);
+  PacketsNames.LoadFromFile(ExtractFilePath(Application.ExeName)+'settings\'+s);
   for i:=0 to PacketsNames.Count-1 do begin
     temp:=copy(PacketsNames[i],1,2); //взять первые два символа
     if temp='//' then continue; //комментарии

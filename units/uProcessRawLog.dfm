@@ -146,7 +146,7 @@ object fProcessRawLog: TfProcessRawLog
         Left = 0
         Top = 0
         Width = 731
-        Height = 592
+        Height = 612
         AdvancedTypography = False
         Align = alClient
         AutoAdvancedTypography = False

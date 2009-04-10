@@ -112,6 +112,7 @@ type
     procedure DO_reloadFuncs;
     procedure RefreshPrecompile(var fsScript: TfsScript);
     procedure UpdateAutoCompleate(var AutoComplete: TAutoCompletePopup);
+    procedure RefreshStandartFuncs;
   end;
 
 var
@@ -119,7 +120,8 @@ var
   Processes :TStringList;
   LSPConnections, PacketLogWievs:Tlist;
   sockEngine : TSocketEngine;
-  MyFuncs:TStringList;
+  MyFuncs, StandartFuncs:TStringList;
+
 
 implementation
 uses uscripts, uPluginData, uPlugins, umain, uSettingsDialog, uProcesses, advApiHook;
@@ -303,6 +305,8 @@ begin
   CriticalSection  := TCriticalSection.create;
   PacketLogWievs := TList.Create;
   MyFuncs := TStringList.Create;
+  StandartFuncs := TStringList.Create;
+  RefreshStandartFuncs;
 end;
 
 procedure TdmData.DataModuleDestroy(Sender: TObject);
@@ -317,6 +321,7 @@ begin
   PacketLogWievs.Destroy;
   CriticalSection.destroy;
   MyFuncs.Destroy;
+  StandartFuncs.Destroy;
 end;
 
 
@@ -1246,6 +1251,23 @@ begin
     inc(i);
   end;
 
+  i := 0;
+  while i < StandartFuncs.Count do
+  begin
+    orig := StandartFuncs.Strings[i];
+    fname := orig;
+    delete(fname, 1, pos(' ', fname));
+    if pos('(',fname) > 0 then
+      begin
+      delete(fname, pos('(',fname), length(fname)-pos('(',fname)+1);
+      fname := fname + '(';
+      end;
+    AutoComplete.DisplayItems.add(format(Orig,[''])+';');
+    AutoComplete.Items.add(fname);
+    inc(i);
+  end;
+  
+
   AutoComplete.DisplayItems.add('var buf: string;');
   AutoComplete.Items.add('buf');
 
@@ -1322,6 +1344,74 @@ begin
   MyFuncs.AddStrings(PluginStruct.UserFuncs);
   end;
   
+end;
+
+procedure TdmData.RefreshStandartFuncs;
+begin
+StandartFuncs.Clear;
+StandartFuncs.Add('function IntToStr(i: Integer): String');
+StandartFuncs.Add('function FloatToStr(e: Extended): String');
+StandartFuncs.Add('function DateToStr(e: Extended): String');
+StandartFuncs.Add('function TimeToStr(e: Extended): String');
+StandartFuncs.Add('function DateTimeToStr(e: Extended): String');
+StandartFuncs.Add('function VarToStr(v: Variant): String');
+StandartFuncs.Add('function StrToInt(s: String): Integer');
+StandartFuncs.Add('function StrToFloat(s: String): Extended');
+StandartFuncs.Add('function StrToDate(s: String): Extended');
+StandartFuncs.Add('function StrToTime(s: String): Extended');
+StandartFuncs.Add('function StrToDateTime(s: String): Extended');
+StandartFuncs.Add('function Format(Fmt: String; Args: array): String');
+StandartFuncs.Add('function FormatFloat(Fmt: String; Value: Extended): String');
+StandartFuncs.Add('function FormatDateTime(Fmt: String; DateTime: TDateTime): String');
+StandartFuncs.Add('function FormatMaskText(EditMask: string; Value: string): string');
+StandartFuncs.Add('function EncodeDate(Year, Month, Day: Word): TDateTime');
+StandartFuncs.Add('procedure DecodeDate(Date: TDateTime; var Year, Month, Day: Word)');
+StandartFuncs.Add('function EncodeTime(Hour, Min, Sec, MSec: Word): TDateTime');
+StandartFuncs.Add('procedure DecodeTime(Time: TDateTime; var Hour, Min, Sec, MSec: Word)');
+StandartFuncs.Add('function Date: TDateTime');
+StandartFuncs.Add('function Time: TDateTime');
+StandartFuncs.Add('function Now: TDateTime');
+StandartFuncs.Add('function DayOfWeek(aDate: DateTime): Integer');
+StandartFuncs.Add('function IsLeapYear(Year: Word): Boolean');
+StandartFuncs.Add('function DaysInMonth(nYear, nMonth: Integer): Integer');
+StandartFuncs.Add('function Length(s: String): Integer');
+StandartFuncs.Add('function Copy(s: String; from, count: Integer): String');
+StandartFuncs.Add('function Pos(substr, s: String): Integer');
+StandartFuncs.Add('procedure Delete(var s: String; from, count: Integer)');
+StandartFuncs.Add('procedure Insert(s: String; var s2: String; pos: Integer)');
+StandartFuncs.Add('function Uppercase(s: String): String');
+StandartFuncs.Add('function Lowercase(s: String): String');
+StandartFuncs.Add('function Trim(s: String): String');
+StandartFuncs.Add('function NameCase(s: String): String');
+StandartFuncs.Add('function CompareText(s, s1: String): Integer');
+StandartFuncs.Add('function Chr(i: Integer): Char');
+StandartFuncs.Add('function Chr(i: Integer): Char');
+StandartFuncs.Add('function Ord(ch: Char): Integer');
+StandartFuncs.Add('procedure SetLength(var S: String; L: Integer)');
+StandartFuncs.Add('function Round(e: Extended): Integer');
+StandartFuncs.Add('function Trunc(e: Extended): Integer');
+StandartFuncs.Add('function Int(e: Extended): Integer');
+StandartFuncs.Add('function Frac(X: Extended): Extended');
+StandartFuncs.Add('function Sqrt(e: Extended): Extended');
+StandartFuncs.Add('function Abs(e: Extended): Extended');
+StandartFuncs.Add('function Sin(e: Extended): Extended');
+StandartFuncs.Add('function Cos(e: Extended): Extended');
+StandartFuncs.Add('function ArcTan(X: Extended): Extended');
+StandartFuncs.Add('function Tan(X: Extended): Extended');
+StandartFuncs.Add('function Exp(X: Extended): Extended');
+StandartFuncs.Add('function Ln(X: Extended): Extended');
+StandartFuncs.Add('function Pi: Extended');
+StandartFuncs.Add('procedure Inc(var i: Integer; incr: Integer = 1)');
+StandartFuncs.Add('procedure Dec(var i: Integer; decr: Integer = 1)');
+StandartFuncs.Add('procedure RaiseException(Param: String)');
+StandartFuncs.Add('procedure ShowMessage(Msg: Variant)');
+StandartFuncs.Add('procedure Randomize');
+StandartFuncs.Add('function Random: Extended');
+StandartFuncs.Add('function ValidInt(cInt: String): Boolean');
+StandartFuncs.Add('function ValidFloat(cFlt: String): Boolean');
+StandartFuncs.Add('function ValidDate(cDate: String): Boolean');
+StandartFuncs.Add('function CreateOleObject(ClassName: String): Variant');
+StandartFuncs.Add('function VarArrayCreate(Bounds: Array; Typ: Integer): Variant');
 end;
 
 { TpacketLogWiev }

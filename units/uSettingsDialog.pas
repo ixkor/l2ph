@@ -103,9 +103,9 @@ begin
   //максимальное количество строк в логе пакетов
   MaxLinesInPktLog:=Options.ReadInteger('General','MaxLinesInPktLog',3000);
 
+  isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe;l2helper.exe;');
+  isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','5001;5002;5003;5004;2222;2106;80;2593;');
 
-  isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe');
-  isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','5001;5002;2222');
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
   ChkChangeXor.Checked:=Options.ReadBool('General','AntiXORkey',False);
   ChkKamael.Checked:=Options.ReadBool('General','ChkKamael',False);
@@ -388,7 +388,7 @@ end;
 procedure TfSettings.init;
 begin
   //считываем Options.ini в память
-  Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'Options.ini');
+  Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'settings\Options.ini');
   readsettings;
   GenerateSettingsFromInterface;
   if ChkShowLogWinOnStart.Checked then fLog.show;
