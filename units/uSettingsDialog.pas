@@ -9,7 +9,8 @@ uses
   winsock,
   math, 
   IniFiles, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Mask, JvExMask, JvSpin, ComCtrls, siComp;
+  Dialogs, StdCtrls, ExtCtrls, Mask, JvExMask, JvSpin, ComCtrls, siComp,
+  Buttons;
 
 type
   TfSettings = class(TForm)
@@ -37,13 +38,10 @@ type
     ChkChangeXor: TCheckBox;
     ChkKamael: TCheckBox;
     ChkGraciaOff: TCheckBox;
-    isNewxor: TLabeledEdit;
     iNewxor: TCheckBox;
     TabSheet1: TTabSheet;
     ChkAllowExit: TCheckBox;
     ChkShowLogWinOnStart: TCheckBox;
-    chkNoFree: TCheckBox;
-    chkRaw: TCheckBox;
     lang: TsiLang;
     Bevel4: TBevel;
     Label1: TLabel;
@@ -51,6 +49,17 @@ type
     JvSpinEdit2: TJvSpinEdit;
     isIgnorePorts: TLabeledEdit;
     isClientsList: TLabeledEdit;
+    GroupBox2: TGroupBox;
+    chkAutoSavePlog: TCheckBox;
+    ChkHexViewOffset: TCheckBox;
+    ChkShowLastPacket: TCheckBox;
+    chkRaw: TCheckBox;
+    chkNoFree: TCheckBox;
+    btnNewXor: TSpeedButton;
+    BtnInject: TSpeedButton;
+    BtnLsp: TSpeedButton;
+    dlgOpenDll: TOpenDialog;
+    isNewXor: TLabeledEdit;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -65,6 +74,9 @@ type
     procedure ChkNoDecryptClick(Sender: TObject);
     procedure rgProtocolVersionClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure BtnInjectClick(Sender: TObject);
+    procedure BtnLspClick(Sender: TObject);
+    procedure btnNewXorClick(Sender: TObject);
   protected
     procedure CreateParams(var Params : TCreateParams); override;
   private
@@ -93,10 +105,10 @@ begin
 
   InterfaceEnabled := true;
   if Options.ReadString('General', 'language', 'Rus') = 'Rus' then
-    L2PacketHackMain.RusLang.Checked := true
+    fMain.RusLang.Checked := true
   else
-    L2PacketHackMain.EngLang.Checked := true;
-  L2PacketHackMain.lang.Language := Options.ReadString('General', 'language', 'Rus');    
+    fMain.EngLang.Checked := true;
+  fMain.lang.Language := Options.ReadString('General', 'language', 'Rus');    
   InterfaceEnabled := false;
   //максимальное количество строк в логе
   MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',300);
@@ -110,8 +122,8 @@ begin
   ChkChangeXor.Checked:=Options.ReadBool('General','AntiXORkey',False);
   ChkKamael.Checked:=Options.ReadBool('General','ChkKamael',False);
   ChkGraciaOff.Checked:=Options.ReadBool('General', 'ChkGraciaOff', False);
-  isNewxor.Text:=Options.ReadString('General','isNewxor', 'newxor.dll');
-  isInject.Text:=Options.ReadString('General','isInject', 'inject.dll');
+  isNewxor.Text:=Options.ReadString('General','isNewxor', AppPath+'newxor.dll');
+  isInject.Text:=Options.ReadString('General','isInject', AppPath+'inject.dll');
   isLSP.Text := Options.ReadString('General','isLSP', ExtractFilePath(Application.ExeName)+'LSPprovider.dll'); //+ ПОЛНЫЙ путь. т.к. используется системой.
 
   iNewxor.Checked:=Options.ReadBool('General', 'iNewxor', False);
@@ -130,26 +142,33 @@ begin
   chkNoFree.Checked := Options.ReadBool('General','NoFreeAfterDisconnect',False);
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
   JvSpinEdit1.Value := Options.ReadFloat('General', 'interval', 5);
-  
+
+  ChkHexViewOffset.Checked := Options.ReadBool('General','HexViewOffset', True);
+  chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
+  ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
+
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
   InterfaceEnabled := true;
   
-  if iNewxor.Checked and (Length(isNewxor.Text) > 0) then
+  if iNewxor.Checked and (fileexists(isNewxor.Text)) then
   if LoadLibraryXor(isNewxor.Text) then
   begin
     isNewxor.Enabled := false;
+    btnNewXor.Enabled := false;
     iNewxor.Checked := true;
   end;
 
-  if iInject.Checked and (Length(isInject.Text) > 0) then
+  if iInject.Checked and (fileexists(isInject.Text)) then
   begin
     isInject.Enabled := false;
+    BtnInject.Enabled := false;
     iInject.Checked := true;
     ChkInterceptClick(nil);
   end
   else
+  if iInject.Checked then
    begin
    ChkLSPIntercept.Checked := false;
    ChkInterceptClick(nil);
@@ -159,6 +178,7 @@ begin
   if dmData.LSPControl.isLspModuleInstalled then //+ чуть чуть по другому. буду смотреть реально ли установлена
   begin
     isLSP.Enabled := false;
+    BtnLsp.Enabled := false;
     ChkLSPIntercept.Checked := true;
     ChkLSPInterceptClick(nil);
   end;
@@ -179,6 +199,9 @@ with GlobalSettings do
     isNoProcessToClient := False;
     isNoProcessToServer := False;
     GlobalRawAllowed := chkRaw.Checked;
+    HexViewOffset := ChkHexViewOffset.Checked;
+    isSaveLog := chkAutoSavePlog.Checked;
+    ShowLastPacket := ChkShowLastPacket.Checked;
     case rgProtocolVersion.ItemIndex of
       0: GlobalProtocolVersion := 560;
       1: GlobalProtocolVersion := 660;
@@ -238,6 +261,10 @@ begin
   Options.WriteBool('General','NoFreeAfterDisconnect',chkNoFree.Checked);
   Options.WriteBool('General','RAWdatarememberallowed',chkRaw.Checked);
   Options.WriteInteger('General','LocalPort',round(JvSpinEdit2.Value));
+  
+  Options.WriteBool('General','HexViewOffset',ChkHexViewOffset.Checked);
+  Options.WriteBool('General','AutoSaveLog',chkAutoSavePlog.Checked);
+  Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
   Options.UpdateFile;
 end;
 
@@ -263,9 +290,10 @@ begin
   if ChkIntercept.Checked then
     begin
       chkSocks5.Checked:= False;
-      ChkLSPIntercept.Checked := False;
       dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
       isLSP.Enabled := true;
+      BtnLsp.Enabled := true;
+      ChkLSPIntercept.Checked := False;
     end
   else
     exit;
@@ -278,9 +306,10 @@ begin
   if chkSocks5.Checked then
   begin
     ChkIntercept.Checked := False;
-    ChkLSPIntercept.Checked := False;
     dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
     isLSP.Enabled := true;
+    BtnLsp.Enabled := true;
+    ChkLSPIntercept.Checked := False;
   end;
   if Sender = nil then exit;
   ChkInterceptClick(nil);
@@ -301,9 +330,8 @@ end;
 
 procedure TfSettings.ChkLSPInterceptClick(Sender: TObject);
 begin
-  ChkLSPIntercept.Checked := false;
-  if not InterfaceEnabled then exit;
   isLSP.Enabled := not ChkLSPIntercept.Checked;
+  BtnLsp.Enabled := not ChkLSPIntercept.Checked;
   if ChkLSPIntercept.Checked then
   begin
     ChkSocks5.Checked := false;
@@ -317,9 +345,11 @@ begin
     if iNewxor.Checked then
     begin
       isNewxor.Enabled := false;
+      btnNewXor.Enabled := false;
       if not loadLibraryXOR(isNewxor.Text) then
         begin
           isNewxor.Enabled := true;
+          btnNewXor.Enabled := true;
           iNewxor.Checked := false;
         end;
 
@@ -330,6 +360,7 @@ begin
       begin
         FreeLibrary(hXorLib);
         isNewxor.Enabled := true;
+        btnNewXor.Enabled := true;
       end;
     end;
   if not InterfaceEnabled then exit;
@@ -355,6 +386,7 @@ begin
   if iInject.Checked then
   begin
     isInject.Enabled := false;
+    BtnInject.Enabled := false;
     if not LoadLibraryInject (isInject.Text) then iInject.Checked := false;
   end
   else
@@ -364,8 +396,10 @@ begin
     pInjectDll := nil;
     AddToLog(format(rsUnLoadDllSuccessfully,[isInject.Text]));
     isInject.Enabled := true;
+    BtnInject.Enabled := true;
   end;
   isInject.Enabled := not iInject.Checked;
+  BtnInject.Enabled := not iInject.Enabled;
   HookMethod.Enabled := iInject.Checked;
   ChkIntercept.Enabled := iInject.Checked;
   JvSpinEdit1.Enabled := iInject.Checked;
@@ -388,7 +422,7 @@ end;
 procedure TfSettings.init;
 begin
   //считываем Options.ini в память
-  Options:=TMemIniFile.Create(ExtractFilePath(Application.ExeName)+'settings\Options.ini');
+  Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
   readsettings;
   GenerateSettingsFromInterface;
   if ChkShowLogWinOnStart.Checked then fLog.show;
@@ -410,6 +444,26 @@ procedure TfSettings.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW;
+end;
+
+procedure TfSettings.BtnInjectClick(Sender: TObject);
+begin
+if dlgOpenDll.Execute then
+  isInject.Text := dlgOpenDll.FileName;
+end;
+
+procedure TfSettings.BtnLspClick(Sender: TObject);
+begin
+if dlgOpenDll.Execute then
+  isLSP.Text := dlgOpenDll.FileName;
+
+end;
+
+procedure TfSettings.btnNewXorClick(Sender: TObject);
+begin
+if dlgOpenDll.Execute then
+  isNewxor.Text := dlgOpenDll.FileName;
+
 end;
 
 end.

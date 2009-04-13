@@ -19,7 +19,9 @@ type
     isNoProcessToServer,
     isKamael,
     isGraciaOff,
-    isSaveLog : boolean;
+    isSaveLog,
+    ShowLastPacket,
+    HexViewOffset : boolean;
   end;
 
   {Используется плагинами}

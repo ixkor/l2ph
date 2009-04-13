@@ -1,13 +1,15 @@
-
 library LSPprovider;
 
 uses
+  FastMM4 in '..\..\..\fastmm\FastMM4.pas',
+  FastMM4Messages in '..\..\..\fastmm\FastMM4Messages.pas',
   JwaWS2spi,
   JwaWinType,
   JwaWinSock2,
   Windows,
   Sysutils,
   SyncObjs,
+  classes,
   math,
   overlapped in 'overlapped.pas',
   LSPStructures in '..\structures\LSPStructures.pas';
@@ -18,7 +20,7 @@ type
   s: TSocket;
   hWnd: HWND;
   wMsg: u_int;
-  lEvent: Longint;
+  lEvent: integer;
   lpErrno: Integer;
   end;
 
@@ -28,18 +30,20 @@ var
   glCS:TCriticalSection;
   cOverlapped: TOverlapped;
   hookthis:boolean;
-  ShareMain : TshareMain;
-  ShareClient : TshareClient;
+  Connections : TList;
   ReciverHandle:thandle = 0;
   ReciverWndClass:TWndClassEx;
   ReciverMEssageProcessThreadId: DWORD;
   ReciverMEssageProcessThreadHandle: THandle;
   Mmsg: MSG;  //сообщение
+  ShareMain : TshareMain;
 
 procedure debug(msg:string);
 begin
   OutputDebugString(pchar(msg));
 end;
+
+
 
 function isMainWork:boolean;
 var
@@ -51,7 +55,6 @@ try
   MutexHandle := OpenMutex(MUTEX_ALL_ACCESS, false, Mutexname);
   if MutexHandle <> 0 then
     begin
-      debug('Main APP work');
       CloseHandle(MutexHandle);
       Result := true;
     end
@@ -64,41 +67,52 @@ debug('!!!ERROR!!! isMainWork');
 end;
 end;
 
-function isSocketHooked(SockNum:cardinal):boolean;
+Function GetConnectionData(SockNum:integer): TClient;
 var
-  MutexHandle : THandle;
+  i : integer;
 begin
-result := false;
-glCS.Enter;
-try
-  //сокет захукан?
-  MutexHandle := CreateMutex(nil, false, pchar(Mutexname+inttostr(SockNum)));
-  If (GetLastError = ERROR_ALREADY_EXISTS) then
+  //Получаем екземпляр TClient по его сокетному номеру.
+  //Если не найден или не перехваываем - результат = nil;
+  Result := nil;
+  if not assigned(Connections) then exit;
+  i := 0;
+  while i < Connections.Count do
     begin
-      CloseHandle(MutexHandle);
-      Result := true //да.
-    end
-    else
-    begin //неа!
-      ReleaseMutex(MutexHandle);
-      CloseHandle(MutexHandle);
-      result := false;
+      if TClient(Connections.Items[i]).SockNum = SockNum then
+        begin
+          Result := TClient(Connections.Items[i]);
+          exit;
+        end;
+      inc(i);
     end;
-except
-debug('!!!ERROR!!! isSocketHooked');
-end;
-glCS.Leave;
 end;
 
-procedure connecttosharememory(SocketNum:cardinal);
+function isSocketHooked(SockNum:cardinal):boolean;
 begin
-    if ShareClient.SocketNum  = SocketNum then exit;
-    ShareClient.MapHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
-        PAGE_READWRITE, 0, SizeOf(TShareMapClient), pchar(Apendix + inttostr(SocketNum)));
-    ShareClient.MapData := MapViewOfFile(ShareClient.MapHandle, FILE_MAP_ALL_ACCESS,
-        0, 0, SizeOf(TShareMapClient));
-
+  Result := assigned(GetConnectionData(SockNum));
 end;
+
+procedure DeleteClient(SockNum:integer);
+var
+  i : integer;
+begin
+  if not Assigned(Connections) then exit;
+  //бежим пока не найдем наш
+  i := 0;
+  while i < Connections.Count do
+    begin
+      if TClient(Connections.Items[i]).SockNum = SockNum then
+        begin
+          UnmapViewOfFile(TClient(Connections.Items[i]).MemBuf);
+          CloseHandle(TClient(Connections.Items[i]).MemBufHandle);
+          TClient(Connections.Items[i]).Destroy;
+          Connections.Delete(i);
+          break;//нашли
+        end;
+      inc(i);
+    end;
+end;
+
 
 function ByteToHexStr(Data: Pointer; Len: Integer;calledfrom:string): String;
 var
@@ -108,7 +122,7 @@ begin
   result := '';
 try
   if Len = 0 then Exit;
-//  if Data = nil then exit;
+  if Data = nil then exit;
   I := 0;
   Octets := 0;
   PartOctets := 0;
@@ -151,52 +165,101 @@ end;
 
 function WindowProc (wnd: HWND; msg: integer; wparam: WPARAM; lparam: LPARAM):LRESULT;STDCALL;
 var
-  newbuf : array[0..$ffff] of byte;
-  len : cardinal;
+  Client : TClient;
 begin
-glCS.Enter;
 result := 0;
 try
   case msg of
   WM_action:
-    if isSocketHooked(wparam) and isMainWork then //обрабатываем акшины только когда захуканы. и работает основное
+    if isMainWork then //обрабатываем акшины только когда основное запущено.
     case lparam of
-    Action_sendtoserver: //отправка от имени клиента. просто до ужаса -)
+      Action_sendtoServer: //отправка от имени клиента.
       try
-        //debug('Action_sendtoserver event. buffsize ('+inttostr(ShareClient.MapData^.buffersize)+')');
-        connecttosharememory(wparam);
-        ShareClient.MapData^.ignorenextsend := true;
-        glCS.Leave;
-        move(ShareClient.MapData^.Buff[0],newbuf[0],ShareClient.MapData^.buffersize);
-        len := ShareClient.MapData^.buffersize;
-        send(wparam, newbuf, len, 0);
-        glCS.Enter;
+        Client := GetConnectionData(wparam);
+        if assigned(Client) then //перехвачено
+          begin
+            //если мы не находимся в WSPSend
+            if not client.inSend then
+              begin
+                //просто шлем данные с флагом 99
+                send(client.MemBuf^.SendRecv.SockNum, client.MemBuf^.SendRecv.CurrentBuff[0], client.MemBuf^.SendRecv.CurrentSize, 99);
+                FillChar(client.MemBuf^.SendRecv.CurrentBuff[0],$ffff,#0);
+                client.MemBuf^.SendRecv.CurrentSize := 0;
+              end
+              else //в данный момент мы в WSPSend
+              begin
+                //если структура не создана - ее нужно создать.
+                if not client.MemBuf^.SendProcessed.exists then
+                  begin
+                    client.MemBuf^.SendProcessed.exists := true;
+                    client.MemBuf^.SendProcessed.CurrentSize := 0;
+                    FillChar(client.MemBuf^.SendProcessed.CurrentBuff[0],$ffff,#0);
+                  end;
+
+                //Запихиваем данные
+                move(client.MemBuf^.SendRecv.CurrentBuff[0], client.MemBuf^.SendProcessed.CurrentBuff[client.MemBuf^.SendProcessed.CurrentSize], client.MemBuf^.SendRecv.CurrentSize);
+                inc(client.MemBuf^.SendProcessed.CurrentSize, client.MemBuf^.SendRecv.CurrentSize);
+                FillChar(client.MemBuf^.SendRecv.CurrentBuff[0],$ffff,#0);              
+                client.MemBuf^.SendRecv.CurrentSize := 0;
+              end;
+          end; {}
       except
       end;
-(*    Action_sendtoclient: //отправка от имени сервера. тут сложнее..
+
+      Action_sendtoClient: //отправка от имени сервера. тут поприкольней
       try
-      //запихиваем текущий буфер в акамулятор
-      { TODO : переписать этот бред!! }
-      //Данные на добавку
-      //ShareClient.MapData^.Buff;
-      //длина этих данных
-      //ShareClient.MapData^.buffersize
+       
+        debug('Action_sendtoClient');
+        Client := GetConnectionData(wparam);
+        if assigned(Client) then //перехвачено
+          begin
+            if not client.InRecv then
+            begin
+              debug('client.InRecv');
+              //Если мы не в WSPRecv
+              //создать структуру если ее нет, запихнуть туда данные
+              if not client.MemBuf^.RecvProcessed.exists then
+                begin
+                  client.MemBuf^.RecvProcessed.exists := true;
+                  client.MemBuf^.RecvProcessed.CurrentSize := 0;
+                  FillChar(client.MemBuf^.RecvProcessed.CurrentBuff[0],$ffff,#0);
+                end;
+                //Запихиваем данные
+                move(client.MemBuf^.SendRecv.CurrentBuff[0], client.MemBuf^.RecvProcessed.CurrentBuff[client.MemBuf^.RecvProcessed.CurrentSize], client.MemBuf^.SendRecv.CurrentSize);
+                inc(client.MemBuf^.RecvProcessed.CurrentSize, client.MemBuf^.SendRecv.CurrentSize);
+                FillChar(client.MemBuf^.SendRecv.CurrentBuff[0],$ffff,#0);
+                client.MemBuf^.SendRecv.CurrentSize := 0;
 
-      //текущие данные
-      //ShareClient.MapData^.toclientbuffer.Buff
-      //их длинна
-      //ShareClient.MapData^.toclientbuffer.buffsize
-
-      //Добавляем в акамулятор наши данные
-      Move(ShareClient.MapData^.Buff, ShareClient.MapData^.toclientbuffer.Buff[ShareClient.MapData^.toclientbuffer.buffsize], ShareClient.MapData^.buffersize);
-      //и увеличиваем их длину
-      inc(ShareClient.MapData^.toclientbuffer.buffsize, ShareClient.MapData^.buffersize);
+            end
+            else
+            begin
+             debug('not client.InRecv');
+             //если в WSPRecv
+             //создать афтер структуру если ее нет
+             //запихнуть туда данные
+              if not client.MemBuf^.RecvProcessed.exists then
+                begin
+                  debug('not Client.RecvStructAfter.exists');
+                  client.MemBuf^.RecvProcessed.exists := true;
+                  client.MemBuf^.RecvProcessed.CurrentSize := 0;
+                  FillChar(client.MemBuf^.RecvProcessed.CurrentBuff[0],$ffff,#0);
+                end;
+                //Запихиваем данные
+                move(client.MemBuf^.SendRecv.CurrentBuff[0], client.MemBuf^.RecvProcessed.CurrentBuff[client.MemBuf^.RecvProcessed.CurrentSize], client.MemBuf^.SendRecv.CurrentSize);
+                inc(client.MemBuf^.RecvProcessed.CurrentSize, client.MemBuf^.SendRecv.CurrentSize);
+                FillChar(client.MemBuf^.SendRecv.CurrentBuff[0],$ffff,#0);
+                client.MemBuf^.SendRecv.CurrentSize := 0;
+           end;
+          end; {}
       except
-      end;//*)
+      end;
 
-    Action_closesocket:
+      Action_closesocket:
       try
-        closesocket(wparam)
+        Client := GetConnectionData(wparam);
+        if Assigned(Client) then
+          closesocket(wparam);
+        Client.canWork := false;
       except
       end;
 
@@ -207,7 +270,6 @@ try
 except
 debug('!!!ERROR!!! WindowProc');
 end;
-glCS.Leave;
 end;
 
 
@@ -252,146 +314,168 @@ end;
 
 function WSPConnect(s: TSocket; name: PSockAddr; namelen: Integer; lpCallerData: LPWSABUF;
     lpCalleeData: LPWSABUF; lpSQOS: LPQOS; lpGQOS: LPQOS; var lpErrno: Integer): Integer; stdcall;
+var
+  NewClient : TClient;
 begin
-glCS.Enter;
-result := -1;
-try
-  if true then //isMainWork then
-  begin
+  result := -1;
+  NewClient := nil;
+  try
+    if isMainWork then
+    begin
     try
-      connecttosharememory(s);
-      if (ShareClient.MapData^.ReciverHandle <> 0) and (ShareClient.SocketNum  = s) then exit;
-      ShareClient.SocketNum  := s;
-      ShareClient.MapData^.ignorenextsend := false;
-    except
-      debug('!!!ERROR!!! WSPConnect>x1 s='+inttostr(s));
-    end;
-    //заполняем контейнер
-    if ReciverHandle = 0 then
-        try
-        ReciverHandle := CreateReciverWnd;
-        //Создаем Поток, который будет обрабатывать сообщения от приемника
-        ReciverMessageProcessThreadHandle := CreateThread(nil, 0, @pReciverMessageProcess, nil, 0, ReciverMEssageProcessThreadId);
-        ResumeThread(ReciverMEssageProcessThreadHandle);
-        except
-        debug('!!!ERROR!!! WSPConnect>x2 ReciverHandle='+inttostr(ReciverHandle)+', ReciverMessageProcessThreadHandle='+inttostr(ReciverMessageProcessThreadHandle));
-        end;
-    try
-    ShareClient.MapData^.ip := inet_ntoa(name.sin_addr);
-    ShareClient.MapData^.port := ntohs(Name.sin_port);
-    ShareClient.MapData^.ReciverHandle := ReciverHandle;
-    ShareClient.MapData^.application := sprocessname;
-    ShareClient.MapData^.pid := GetCurrentProcessId;
-
-
-    //уведомляем о коннекте
-    except
-      debug('!!!ERROR!!! WSPConnect>x3');
-    end;
-    try
-    SendMessage(ShareMain.MapData^.ReciverHandle,WM_action,s,Action_client_connect);
-    except
-      debug('!!!ERROR!!! WSPConnect>x4');
-    end;
-    //от нас отказались. закрываем файл.
-    if not isSocketHooked(s) then
-      begin
-        UnmapViewOfFile(ShareClient.MapData); //уничтожаем файл.
-        CloseHandle(ShareClient.MapHandle);
+      //создаем обьект хранящий данный о соединении в контексте этого приложения
+      NewClient := TClient.Create;
+      //присваем ему буффер, через него будем работать.
+      NewClient.MemBufHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
+        PAGE_READWRITE, 0, SizeOf(TMemoryBuffer), pchar(Apendix + inttostr(s)));
+      NewClient.MemBuf := MapViewOfFile(NewClient.MemBufHandle, FILE_MAP_ALL_ACCESS,
+        0, 0, SizeOf(TMemoryBuffer));
+      NewClient.MemBuf^.ConnectStruct.Exists := true;
+      NewClient.MemBuf^.ConnectStruct.SockNum := s;
+      NewClient.MemBuf^.ConnectStruct.pid := GetCurrentProcessId;
+      NewClient.MemBuf^.ConnectStruct.ip := inet_ntoa(name.sin_addr);
+      NewClient.MemBuf^.ConnectStruct.port := ntohs(Name.sin_port);
+      NewClient.MemBuf^.ConnectStruct.ReciverHandle := ReciverHandle;
+      NewClient.MemBuf^.ConnectStruct.application := sprocessname;
+      NewClient.canWork := false;
+      try
+        //уведомляем о коннекте
+        SendMessage(ShareMain.MapData^.ReciverHandle, WM_action, s, Action_client_connect);
+      except
+        debug('!!!ERROR!!! WSPConnect>x2');
       end;
-  end;
-  //производим коннект
-  result:=NextProcTable.lpWSPConnect(s,name,namelen,lpCallerData,lpCalleeData,
-          lpSQOS,lpGQOS,lpErrno);
-  //debug('WSPConnect application('+sprocessname+') +result('+inttostr(result)+') socket ('+inttostr(s)+') ip/port ('+(ShareClient.MapData^.ip)+':'+inttostr(ShareClient.MapData^.port)+') lpErrno ('+inttostr(lpErrno)+')');
+    except
+      debug('!!!ERROR!!! WSPConnect>x1');
+    end;
 
-except
-debug('!!!ERROR!!! WSPConnect '+inttostr(GetLastError));
-end;
-  glCS.Leave;
+
+    if assigned(NewClient) then
+    if NewClient.MemBuf^.ConnectStruct.HookIt then //Нас хотят видеть. -) добавляем клиента в соединения
+      begin
+      NewClient.canWork := true;
+      NewClient.SockNum := s;
+      NewClient.ControlHandle := ShareMain.MapData^.ReciverHandle;
+      NewClient.InRecv := false;
+      NewClient.inSend := false;
+      Connections.Add(NewClient);
+      NewClient.MemBuf^.RecvStruct.SockNum := s;
+      NewClient.MemBuf^.RecvStruct.CurrentSize := 0;
+      NewClient.MemBuf^.RecvStruct.exists := false;
+      NewClient.MemBuf^.SendStruct.SockNum := s;
+      NewClient.MemBuf^.SendStruct.CurrentSize := 0;
+      NewClient.MemBuf^.SendStruct.exists := false;
+      NewClient.MemBuf^.ConnectStruct.Exists := false;
+      NewClient.MemBuf^.SendRecv.CurrentSize := 0;
+      NewClient.MemBuf^.SendRecv.exists := false;
+      NewClient.MemBuf^.SendRecv.SockNum := s;
+
+      NewClient.MemBuf^.SendProcessed.CurrentSize := 0;
+      NewClient.MemBuf^.SendProcessed.exists := false;
+      NewClient.MemBuf^.SendProcessed.SockNum := s;
+      NewClient.MemBuf^.RecvProcessed.CurrentSize := 0;
+      NewClient.MemBuf^.RecvProcessed.exists := false;
+      NewClient.MemBuf^.RecvProcessed.SockNum := s;
+
+      end
+    else
+      //нас не хотят видеть -(
+      begin
+      //Убиваем созданое
+      NewClient.MemBuf^.ConnectStruct.Exists := false;
+      UnmapViewOfFile(NewClient.MemBuf);
+      CloseHandle(NewClient.MemBufHandle);
+      NewClient.Destroy;
+      end;
+    end;
+
+    //производим коннект
+    result:=NextProcTable.lpWSPConnect(s, name, namelen, lpCallerData, lpCalleeData,
+            lpSQOS, lpGQOS, lpErrno);
+  except
+    debug('!!!ERROR!!! WSPConnect '+inttostr(GetLastError));
+  end;
 end;
 
 function WSPCloseSocket(s: TSocket; var lpErrno: Integer): Integer; stdcall;
+var
+  Client : TClient;
 begin
+  Client := GetConnectionData(s);
   //нет перехвата на этом сокете ? отпрабатываем и выходим.
-  if not isSocketHooked(s) then
+  if not Assigned(Client) then
   begin
-    result:=NextProcTable.lpWSPCloseSocket(s,lperrno); //отключаемся
+    result := NextProcTable.lpWSPCloseSocket(s,lperrno); //отключаемся
     exit;
   end;
-
-  glCS.Enter;
+  //сюда попадаем если есть перехват.
   result := 0;
   try
-  //отключаемся.
-    connecttosharememory(s);
-    SendMessage(ShareMain.MapData^.ReciverHandle,WM_action,s,Action_client_disconnect); //уведомляем
-    result:=NextProcTable.lpWSPCloseSocket(s,lperrno); //отключаемся
-    //debug('WSPCloseSocket application('+sprocessname+') +result('+inttostr(result)+') socket ('+inttostr(s)+') lpErrno ('+inttostr(lpErrno)+')');
-    UnmapViewOfFile(ShareClient.MapData); //уничтожаем файл.
-    CloseHandle(ShareClient.MapHandle);
+    client.MemBuf^.DisconnectStruct.exists := true;
+    client.MemBuf^.DisconnectStruct.SockNum := s;
+    client.MemBuf^.DisconnectStruct.lpErrno := lpErrno;
+    SendMessage(Client.ControlHandle, WM_action, s, Action_client_disconnect); //уведомляем
+    result := NextProcTable.lpWSPCloseSocket(s, lperrno); //отключаемся
+    client.MemBuf^.DisconnectStruct.exists := false;
+    DeleteClient(s);    
   except
-  debug('WSPCloseSocket code = '+inttostr(GetLastError));
+    debug('WSPCloseSocket code = '+inttostr(GetLastError));
   end;
-  glCS.Leave;
 end;
 
 function WSPSend(s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD;
     var lpNumberOfBytesSent: DWORD; dwFlags: DWORD; lpOverlapped: LPWSAOVERLAPPED;
     lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE;
     lpThreadId: LPWSATHREADID; var lpErrno: Integer): Integer; stdcall;
+var
+  Client : TClient;
 begin
-  //если это соединение не перехвачено - просто отрабатываем и выходим.
-  if not isSocketHooked(s) then
-  begin
-      result:=NextProcTable.lpWSPSend(s,lpBuffers,dwBufferCount,lpNumberOfBytesSent,
-         dwFlags,lpOverlapped,lpCompletionRoutine,lpThreadId,lpErrno);
-      exit;
-  end;
-
-result := -1;
-try
-
-glCS.Enter;
-  //конектимся к шаредмемори
-  connecttosharememory(s);
-  //если это отправка вызваная моим приложением
-  if ShareClient.MapData^.ignorenextsend then
-    begin
-      //то просто отправляем сняв флаг указывающий что это отправка от моего приложения
-      ShareClient.MapData^.ignorenextsend := false;
-      //debug('WSPSend (Отправляется) s ('+inttostr(s)+'). lpBuffers.len = '+IntToStr(lpBuffers.len)+' lpNumberOfBytesSent ('+inttostr(lpNumberOfBytesSent)+') Буффер:'+sLineBreak+ByteToHexStr(lpBuffers.buf,lpBuffers^.len,'WSPSend x1'));
-      result:=NextProcTable.lpWSPSend(s,lpBuffers,dwBufferCount,lpNumberOfBytesSent,
-         dwFlags,lpOverlapped,lpCompletionRoutine,lpThreadId,lpErrno);
-    end
-  else
-    begin
-      //это отправка вызваная клиентом
-      //debug('WSPSend (на обработку) s ('+inttostr(s)+'). lpBuffers.len = '+IntToStr(lpBuffers.len)+' lpNumberOfBytesSent ('+inttostr(lpNumberOfBytesSent)+') Буффер:'+sLineBreak+ByteToHexStr(lpBuffers.buf,lpBuffers^.len,'WSPSend x1'));
-      //получаем буфер и длину
-      FillChar(ShareClient.MapData^.Buff[0], $ffff, #0);
-      CopyMemory(@ShareClient.MapData^.Buff[0], @lpBuffers^.buf[0], lpBuffers^.len);
-      ShareClient.MapData^.buffersize := lpBuffers^.len; //и его длину
-
-      //и сразу будем считать что функция уже обработана. правда ничего слать мы именно тут не будем
-      //но сделаем вид что отослали.
-      result := 0;
-      lpNumberOfBytesSent := lpBuffers.len;
-
-      //ну а сами данные, предварительно обработав:
-      SendMessage(ShareMain.MapData^.ReciverHandle,WM_action,s,Action_client_send);
-
-      //...отошлем сами
-      ShareClient.MapData^.ignorenextsend := true;
-      glCS.Leave;
-      //отправляем.
-      send(s, ShareClient.MapData^.Buff[0], ShareClient.MapData^.buffersize, 0);
-      glCS.enter;
-    end;
-glCS.leave;
-except
-debug('!!!ERROR!!! WSPSend');
+Client := GetConnectionData(s);
+//если не захуканы либо флаг = 99 (шлем сами) то просто исполняем и уходим
+if not assigned(Client) or (dwFlags = 99) then
+begin
+    if dwFlags = 99 then dwFlags := 0;
+    result:=NextProcTable.lpWSPSend(s,lpBuffers,dwBufferCount,lpNumberOfBytesSent,
+       dwFlags,lpOverlapped,lpCompletionRoutine,lpThreadId,lpErrno);
+    exit;
 end;
+
+//данные требуют обработки. попадаем сюда.
+//Заранее говорим что отправили все.
+result := 0;
+lpNumberOfBytesSent := lpBuffers.len;
+
+
+try
+  if not Client.canWork then
+    begin
+      Result := -1;
+      lpNumberOfBytesSent := 0;
+      exit;
+    end;
+
+  Client.InSend := true; //флаг нужный в оконном обработчике при action_sendtoServer
+  
+  Client.MemBuf^.SendStruct.exists := true;
+  //Пишем структуру полученый буфер
+  FillChar(Client.MemBuf^.SendStruct.CurrentBuff[0], $ffff, #0);
+  move(lpBuffers.buf[0], Client.MemBuf^.SendStruct.CurrentBuff[0], lpBuffers.len);
+  Client.MemBuf^.SendStruct.CurrentSize := lpBuffers.len;
+
+  //Уведомляем приложение
+  SendMessage(Client.ControlHandle, WM_action, s, Action_client_send); //уведомляем о приеме
+
+  //просто отправляем полученый буфер с флагом 99
+  if Client.MemBuf^.SendProcessed.CurrentSize > 0 then
+  send(s, Client.MemBuf^.SendProcessed.CurrentBuff[0], Client.MemBuf^.SendProcessed.CurrentSize, 99);
+
+  //уничтожаем результирующую структуру
+  Client.MemBuf^.SendProcessed.CurrentSize := 0; 
+  Client.MemBuf^.SendProcessed.exists := false;  //рабочая структура уничтожена
+  FillChar(Client.MemBuf^.SendProcessed.CurrentBuff[0], $ffff, #0);
+  Client.inSend := False; //снимаем флаг
+  except
+    debug('!!!ERROR!!! in WSPSend');
+  end; 
 end;
 
 
@@ -400,76 +484,63 @@ function WSPRecv(s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD;
     var lpNumberOfBytesRecvd, lpFlags: DWORD; lpOverlapped: LPWSAOVERLAPPED;
     lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE; lpThreadId: LPWSATHREADID;
     var lpErrno: Integer): Integer; stdcall;
+
+var
+  Client : TClient;
+  TempBuf : Tbuffer;
+  tempSize : Cardinal;
+
 begin
-  //debug('WSPRecv (вход)');
-  //нет перехвата на этом сокете ? отпрабатываем и выходим.
-  if not isSocketHooked(s) then
-  begin
-    //debug('WSPRecv (вылет)');
-
-      result:=NextProcTable.lpWSPRecv(s,lpBuffers,dwBufferCount,lpNumberOfBytesRecvd,
+Client := GetConnectionData(s);
+result := NextProcTable.lpWSPRecv(s,lpBuffers,dwBufferCount,lpNumberOfBytesRecvd,
                                 lpFlags,lpOverlapped,lpCompletionRoutine,lpThreadId,
                                 lpErrno);
-      exit;
-  end;
-  
-//сюда попадаем если хук на сокете включен  
-result := -1;
-try
-  glCS.Enter;
-  //Подсоединяемся к ShareClient.
-  connecttosharememory(s);
+                                
+//Если перехват этого соединения не установлен - выходим.
+if not assigned(Client) then exit;
+//Если установлен - попадаем сюда
 
-  //это получение данных клиентом. поэтому чтобы узнать что мы получаем приходится сначала вызвать
-  //функцию из нижестоящих провайдеров
-  //а потом уже менять данные через операции над памятью.
-  //благо указатели у нас и длины данных будут
-  result:=NextProcTable.lpWSPRecv(s,lpBuffers,dwBufferCount,lpNumberOfBytesRecvd,
-                                lpFlags,lpOverlapped,lpCompletionRoutine,lpThreadId,
-                                lpErrno);
-
-  //если операция завершилась без ошибок.
-  //и мы чтото получили
-  if (result=0) and (lpNumberOfBytesRecvd>0) then
+//если мы получили данные то выполняем наш код.
+if (result=0) and (lpNumberOfBytesRecvd>0) then
+begin
+  try
+  if not Client.canWork then
     begin
-    //debug('WSPRecv (на обработку)  S ('+inttostr(s)+'), dwBufferCount ('+IntToStr(dwBufferCount)+'), currentbuf.len ('+inttostr(lpBuffers.len)+'), lpNumberOfBytesRecvd = ('+inttostr(lpNumberOfBytesRecvd)+') буффер :'+sLineBreak+ByteToHexStr(lpBuffers.buf, lpNumberOfBytesRecvd,'WSPRecv x1'));
-    //пишем в шару то что клиент пытается получить.
-    FillChar(ShareClient.MapData^.Buff[0], $ffff, #0);
-    CopyMemory(@ShareClient.MapData^.Buff[0], lpBuffers.buf, lpnumberofbytesrecvd);
-    
-    //а так же кол-во принятых байтикоф
-    ShareClient.MapData^.buffersize := lpNumberOfBytesRecvd;
-    glCS.Leave;
-    //запускаем обработку в основном приложении
-    SendMessage(ShareMain.MapData^.ReciverHandle,WM_action,s,Action_client_recv); //уведомляем о приеме
-    glCS.Enter;
-
-    if (ShareClient.MapData^.toclientbuffer.buffsize > 0) then
-    try
-      move(ShareClient.MapData^.Buff[0], ShareClient.MapData^.Buff[ShareClient.MapData^.toclientbuffer.buffsize], ShareClient.MapData^.buffersize);
-      move(ShareClient.MapData^.toclientbuffer.Buff[0], ShareClient.MapData^.Buff[0], ShareClient.MapData^.toclientbuffer.buffsize);
-      inc(ShareClient.MapData^.buffersize, ShareClient.MapData^.toclientbuffer.buffsize);
-      ShareClient.MapData^.toclientbuffer.buffsize := 0;
-    except
+      Result := -1;
+      lpNumberOfBytesRecvd := 0;
+      exit;
     end;
+  Client.InRecv := true; //флаг нужный в оконном обработчике при action_sendtoClient
+  //В структуре уже есть (могут быть) данные добавленые нашим приложением через сообщение action_sendtoClient
+  //Запоминаем их
+  FillChar(TempBuf[0], $ffff, #0);
+  move(Client.MemBuf^.RecvStruct.CurrentBuff[0], TempBuf[0], Client.MemBuf^.RecvStruct.CurrentSize);
+  tempSize := Client.MemBuf^.RecvStruct.CurrentSize;
 
-    //обработанный буфер
-    lpnumberofbytesrecvd := ShareClient.MapData^.buffersize; //основное приложение могло изменить данные, новая длина полученых данных
+  //Пишем структуру полученый буфер
+  FillChar(Client.MemBuf^.RecvStruct.CurrentBuff[0], $ffff, #0);
+  move(lpBuffers.buf[0], Client.MemBuf^.RecvStruct.CurrentBuff[0], lpnumberofbytesrecvd);
+  Client.MemBuf^.RecvStruct.CurrentSize := lpNumberOfBytesRecvd;
 
-    
-    try
-    CopyMemory(lpBuffers.buf, @ShareClient.MapData^.Buff, ShareClient.MapData^.buffersize); //ну и буфер, естественно
-    //debug('WSPRecv (после обработки)  S ('+inttostr(s)+'), lpBuffers.len ('+inttostr(lpBuffers.len)+'), lpNumberOfBytesRecvd = ('+inttostr(lpNumberOfBytesRecvd)+') буффер :'+sLineBreak+ByteToHexStr(lpBuffers.buf, lpNumberOfBytesRecvd, 'WSPRecv x2'));
-    except
-      debug('!!!error!!!! WSPRecv вылет, скорей всего из за того что размер нового буфера не вместился в уже зарезервированный');
-    end;
-  end
-  else
-    debug('WSPRecv FAIL! (это не ошибка) result = '+inttostr(result)+',  lpNumberOfBytesRecvd = '+ inttostr(lpNumberOfBytesRecvd) );
-  glCS.Leave;
-except
-debug('!!!ERROR!!! WSPRecv хз что');
+  //Уведомляем приложение
+
+  SendMessage(Client.ControlHandle, WM_action, s, Action_client_recv); //уведомляем о приеме
+
+  //замещаем буфер который идет на клиент
+  lpnumberofbytesrecvd := Client.MemBuf^.RecvProcessed.CurrentSize; //основное приложение могло изменить данные, новая длина полученых данных
+  CopyMemory(@lpBuffers^.buf[0], @Client.MemBuf^.RecvProcessed.CurrentBuff[0], lpnumberofbytesrecvd);
+
+  //уничтожаем рабочую структуру
+  Client.MemBuf^.RecvProcessed.CurrentSize := 0;
+  Client.MemBuf^.RecvProcessed.exists := false;  //рабочая структура уничтожена
+  FillChar(Client.MemBuf^.RecvProcessed.CurrentBuff[0], $ffff, #0);
+  //снимаем флаг
+  Client.InRecv := False;
+  except
+    debug('!!!ERROR!!! in WSPRecv');
+  end; 
 end;
+
 end;
 
 
@@ -538,7 +609,6 @@ function WSPioctrl(s: TSocket; dwIoControlCode: DWORD; lpvInBuffer: LPVOID; cbIn
     lpOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE;
     lpThreadId: LPWSATHREADID; var lpErrno: Integer): Integer; stdcall;
 begin
-  glCS.Enter;
   result := NextProcTable.lpWSPIoctl(s, dwIoControlCode, lpvInBuffer, cbInBuffer,
       lpvOutBuffer, cbOutBuffer, lpcbBytesReturned,
       lpOverlapped, lpCompletionRoutine,
@@ -549,13 +619,11 @@ begin
           ') cbInBuffer ('+inttostr(cbInBuffer)+') cbOutBuffer ('+inttostr(cbOutBuffer)
           +') lpcbBytesReturned ('+inttostr(lpcbBytesReturned)+') lpThreadId ('+inttostr(lpThreadId.ThreadHandle)+')'
           +') lpErrno ('+inttostr(lpErrno)+')');
-  glCS.Leave;
 end;
 
 
 function WSPAsyncSelect(s: TSocket; hWnd: HWND; wMsg: u_int; lEvent: Longint; var lpErrno: Integer): Integer; stdcall;
 begin
-  glCS.Enter;
   result := NextProcTable.lpWSPAsyncSelect(s, hWnd, wMsg, lEvent, lpErrno);
 
   if isSocketHooked(s) then
@@ -563,8 +631,8 @@ begin
       ') wMsg ('+inttostr(wMsg)+') lEvent ('+inttostr(lEvent)
       +') lpErrno ('+inttostr(lpErrno)+')');
 
-  glCS.Leave;
 end;
+
 
 
 function WSPStartup(wVersionRequested: WORD; lpWSPData: LPWSPDATA;
@@ -590,11 +658,7 @@ begin
           result:=WSPStartupFunc(wVersionRequested,lpWSPData,lpProtocolInfo,UpcallTable,lpProcTable);
           if (result=0) then
             begin
-              glCS.Enter;
                 NextProcTable:=lpProcTable^;
-                ShareClient.MapHandle := 0;
-                ShareClient.MapData := nil;
-                ShareClient.SocketNum := 0;
                 if hookthis then
                 begin
                   //ставим свои функции перехвата.
@@ -602,11 +666,9 @@ begin
                   lpProcTable.lpWSPCloseSocket := WSPCloseSocket;
                   lpProcTable.lpWSPSend := WSPSend;
                   lpProcTable.lpWSPRecv := WSPRecv;
-//                  lpProcTable.lpWSPIoctl := WSPioctrl;
-//                  lpProcTable.lpWSPAsyncSelect := WSPAsyncSelect;
-//                  debug('Подгрузились в ('+sprocessname+')');
+                  lpProcTable.lpWSPIoctl := WSPioctrl;
+                  lpProcTable.lpWSPAsyncSelect := WSPAsyncSelect;
                 end;
-                glCS.Leave;
               exit;
             end;
         end
@@ -644,18 +706,29 @@ begin
       begin
         hookthis := false;
         cOverlapped := TOverlapped.create;
-        glCS:=TCriticalSection.Create;
+        glCS := TCriticalSection.Create;
         try
         getmem(tmp,1024);
         if getmodulefilenamea(0,tmp,1024)>0 then
           begin
             sprocessname:=strpas(tmp);
             debug(sprocessname+' - Подгрузила длл');
-            if isMainWork then
+
+            if isMainWork then //Работает ли основное ?
               begin
-              opensharemain;
-              if pos(LowerCase(ExtractFileName(sprocessname)),LowerCase(ShareMain.MapData^.ProcessesForHook)) > 0 then
-                hookthis := true; //нужно перехватывать
+                opensharemain; //Подсоединяемся к структуре в которой лежат данные об основном приложении
+                if pos(LowerCase(ExtractFileName(sprocessname)),LowerCase(ShareMain.MapData^.ProcessesForHook)) > 0 then
+                //наше прилодение в списке перехватываемых ?
+                begin
+                  hookthis := true; //нужно перехватывать
+                  ReciverHandle := CreateReciverWnd; //создаем ресайвер
+                  Connections := TList.Create;
+                  
+                  //Создаем Поток, который будет обрабатывать сообщения от приемника
+                  ReciverMessageProcessThreadHandle := CreateThread(nil, 0, @pReciverMessageProcess, nil, 0, ReciverMEssageProcessThreadId);
+                  //и запускаем его
+                  ResumeThread(ReciverMEssageProcessThreadHandle);
+                end;
               end;
           end
         else
@@ -671,14 +744,30 @@ begin
       
     DLL_PROCESS_DETACH :
       begin
-        if ReciverHandle <> 0 then
-        begin
-          TerminateThread(ReciverMEssageProcessThreadHandle,0);
-          DestroyWindow(ReciverHandle);
+        try
+          if hookthis then
+          begin
+          if Assigned(Connections) then
+          while Connections.Count > 0 do
+            begin
+              UnmapViewOfFile(TClient(Connections.Items[0]).MemBuf);
+              CloseHandle(TClient(Connections.Items[0]).MemBufHandle);
+              TClient(Connections.Items[0]).Destroy;
+              Connections.Delete(0);
+            end;
+            if Assigned(Connections) then
+            Connections.Destroy;
+
+            TerminateThread(ReciverMEssageProcessThreadHandle,0);
+            DestroyWindow(ReciverHandle);
+          end;
+        except
+
         end;
-        //debug(sprocessname+' Выгрузились');
+
         cOverlapped.destroy;
-        glCS.Free;
+        cOverlapped := nil;
+        glCS.Destroy;
       end;
 
     DLL_THREAD_ATTACH :
@@ -699,3 +788,5 @@ begin
   DLLProc := @DLLMain;
   DLLMain(DLL_PROCESS_ATTACH);
 end.
+
+

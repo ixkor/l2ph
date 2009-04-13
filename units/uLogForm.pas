@@ -23,6 +23,7 @@ type
     procedure AddLog(var msg: TMessage); Message WM_AddLog;
     { Private declarations }
   public
+    IsExists:boolean;
     { Public declarations }
   end;
 
@@ -35,6 +36,7 @@ implementation
 
 procedure TfLog.FormDestroy(Sender: TObject);
 begin
+  IsExists := false;
   savepos(self);
   if isDestroying then exit;
   Log.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2ph'+' '+AddDateTime+'.log');
@@ -71,13 +73,14 @@ end;
 procedure TfLog.CreateParams(var Params: TCreateParams);
 begin
   inherited;
+  with Params do 
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
 end;
 
 procedure TfLog.FormCreate(Sender: TObject);
 begin
   loadpos(self);
-
+  IsExists := true;
 end;
 
 end.

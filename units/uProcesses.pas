@@ -18,6 +18,7 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
+    procedure CreateParams (var Params : TCreateParams); override;
   public
     { Public declarations }
   end;
@@ -29,6 +30,14 @@ implementation
 uses uglobalfuncs;
 
 {$R *.dfm}
+
+procedure TfProcesses.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  with Params do
+    ExStyle := ExStyle OR WS_EX_APPWINDOW or WS_EX_CONTROLPARENT;
+
+end;
 
 procedure TfProcesses.FormCreate(Sender: TObject);
 begin

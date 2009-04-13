@@ -5,21 +5,19 @@ interface
 uses
   usharedstructs, uglobalfuncs, uresourcestrings, CommCtrl, Menus, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, ExtCtrls, StdCtrls, CheckLst, JvExControls,
-  JvEditorCommon, JvEditor, JvHLEditor, fs_iinterpreter, JvTabBar, uScriptEditor,
-  ToolWin, ImgList, JvLabel, fs_iinirtti, fs_imenusrtti, fs_idialogsrtti,
-  fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp, ecSyntAnal;
+  JvEditorCommon, JvEditor, JvHLEditor, uscripteditor,
+  siComp, ecSyntAnal, ImgList, ToolWin, JvTabBar, JvLabel, ecKeyMap;
 
 type
 
   TScript = class (tobject)
-    fsScript: TfsScript;
     mi: TMenuItem;
     Tab : TJvTabBarItem;
     Editor : TfScriptEditor;
     ListItem : TListItem;
   private
   public
-    ScriptName: string;
+    ScriptName: string;                            
     isRunning, Compilled, Modified: Boolean;
     cs: RTL_CRITICAL_SECTION;
     constructor create;
@@ -68,8 +66,11 @@ type
     Button1: TButton;
     SyntAnalyser: TSyntAnalyzer;
     ToolButton2: TToolButton;
-    procedure ButtonSaveClick(Sender: TObject);
-    procedure ButtonDeleteClick(Sender: TObject);
+    btnShowWatch: TToolButton;
+    btnShowClasses: TToolButton;
+    SyntKeyMapping1: TSyntKeyMapping;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure ButtonCheckSyntaxClick(Sender: TObject);
@@ -94,9 +95,12 @@ type
     procedure ScriptsListVisualClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
+    procedure btnShowWatchClick(Sender: TObject);
+    procedure btnShowClassesClick(Sender: TObject);
+    procedure ToolButton3Click(Sender: TObject);
   private
     { Private declarations }
-
+   ignorenextcheck : boolean;
   protected
     //у оригинального тлиствиева нет реакции на чек/унчек чекбоксов. но это исправимо.
     OriginalListViewWindowProc : TWndMethod;
@@ -119,7 +123,7 @@ var
   currentScript : TScript;
 
 implementation
-uses usettingsdialog, uencdec, uplugindata, umain, Math, uData, uLogForm;
+uses uClassesDLG, usettingsdialog, uencdec, uplugindata, umain, Math, uData, uLogForm;
 {$R *.dfm}
 
 { TForm1 }
@@ -183,18 +187,6 @@ begin
   {}
 end;
 
-procedure TfScript.ButtonSaveClick(Sender: TObject);
-begin
-{
-  }
-end;
-
-procedure TfScript.ButtonDeleteClick(Sender: TObject);
-begin
-{
-  {}
-end;
-
 procedure TfScript.Button9Click(Sender: TObject);
 var
   poz : integer;
@@ -244,9 +236,14 @@ end;
 
 procedure TfScript.FormCreate(Sender: TObject);
 begin
-  if FileExists('settings\editor.lxl') then
-    SyntAnalyser.LoadFromFile('settings\editor.lxl');
+  if FileExists(AppPath+'settings\editor.dat') then
+    SyntAnalyser.LoadFromFile(AppPath+'settings\editor.dat');
+
+  if FileExists(AppPath+'settings\editorkeys.dat') then
+    LoadComponentFromFile(SyntKeyMapping1, AppPath+'settings\editorkeys.dat');
+     
   loadpos(self);
+  ignorenextcheck := false;
 
   ScriptList := TList.Create;
   OriginalListViewWindowProc := ScriptsListVisual.WindowProc;
@@ -276,15 +273,12 @@ end;
 
 procedure TScript.CompileThisScript;
 begin
-  Compilled := dmData.Compile(fsScript, Editor.Editor, fscript.StatusBar);
+  Compilled := dmData.Compile(Editor.fsScript, Editor.Editor, fscript.StatusBar);
   fscript.StatusBar.SimpleText := ScriptName +': '+ fscript.StatusBar.SimpleText;
+  Editor.BreakNext := false;
+  Editor.Nomove := false;
   if Compilled then
-    begin
-      Editor.Editor.LineStateDisplay.UnchangedColor := clLime;
-      Editor.Editor.LineStateDisplay.NewColor := clLime;
-      Editor.Editor.LineStateDisplay.SavedColor := clLime;
       Editor.Editor.Invalidate;
-    end;
 end;
 
 constructor TScript.create;
@@ -292,10 +286,10 @@ begin
   ScriptList.Add(Self);
   isRunning := false;
   ScriptName := '';
-  fsScript := TfsScript.Create(nil);
-  fsScript.SyntaxType := 'PascalScript';
-  mi := TMenuItem.Create(L2PacketHackMain.nScripts);
   Editor := TfScriptEditor.Create(fScript);
+  Editor.init;
+  Editor.fsScript.SyntaxType := 'PascalScript';
+  mi := TMenuItem.Create(fMain.nScripts);
   dmData.UpdateAutoCompleate(Editor.AutoComplete);
   Editor.Name := '';
   Tab := fScript.JvTabBar1.AddTab('');
@@ -305,11 +299,11 @@ begin
   Editor.Parent := fScript;
   Editor.Editor.Visible := false;
 
-  L2PacketHackMain.nScripts.Add(mi);
+  fMain.nScripts.Add(mi);
   mi.AutoCheck := True;
   mi.Checked := False;
   mi.OnClick := fScript.ScriptCheckClick;
-  fsScript.Clear;
+  Editor.fsScript.Clear;
   ListItem := fScript.ScriptsListVisual.Items.add
 end;
 
@@ -327,7 +321,12 @@ destructor TScript.destroy;
 var
   i : integer;
 begin
-  if currentScript = self then currentScript := nil;
+  if currentScript = self then
+    begin
+    currentScript := nil;
+    fClassesDLG.fsTree1.Script := nil;
+    fClassesDLG.Hide;
+    end;
   if Modified then
     if MessageDlg(pchar(fScript.lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+scriptname+' ?'),mtConfirmation,[mbYes, mbNo],0)=mrYes then
       Save();
@@ -345,7 +344,7 @@ begin
   if isRunning then
     begin
       ListItem.Checked := false;
-      fsScript.CallFunction('Free',0);
+      Editor.fsScript.CallFunction('Free',0);
     end;
   except
   //ну и ? -)
@@ -353,8 +352,9 @@ begin
   ListItem.Destroy;
   mi.Destroy;
   tab.Destroy;
+  Editor.deinit;
   Editor.Destroy;
-  fsScript.Destroy;
+
   inherited;
 end;
 
@@ -396,7 +396,7 @@ if isnew then
   else
     Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Filename);
 
-  fsScript.Lines.Assign(Editor.Source.Lines);
+  Editor.fsScript.Lines.Assign(Editor.Source.Lines);
 
   mi.Caption := ScriptName;
 //  Editor.Name := ScriptName;
@@ -415,7 +415,8 @@ end;
 
 procedure TfScript.DestroyAllScripts;
 begin
-  while ScriptList.Count > 0 do TScript(ScriptList.Items[0]).destroy;
+  while ScriptList.Count > 0 do
+    TScript(ScriptList.Items[0]).destroy;
 end;
 
 procedure TfScript.JvTabBar1TabSelected(Sender: TObject;
@@ -423,7 +424,10 @@ procedure TfScript.JvTabBar1TabSelected(Sender: TObject;
 begin
 
   if item <> nil then
+    begin
     currentScript := FindScriptByName(item.Caption);
+    fClassesDLG.fsTree1.Script := currentScript.Editor.fsScript;
+    end;
 
   if not Assigned(item) or not Assigned(currentScript) then 
     begin
@@ -434,14 +438,20 @@ begin
       btnInitTest.Enabled := false;
       BtnSave.Enabled := false;
       btnFreeTest.Enabled := false;
+      btnShowWatch.Enabled := false;
+      btnShowClasses.Enabled := false;
       exit;
     end;
 
+  btnShowWatch.Enabled := true;
+  btnShowClasses.Enabled := true;
   currentScript.Editor.Visible := true;
   currentScript.Editor.Editor.Visible := true;
   currentScript.Editor.BringToFront;
   currentScript.updatecontrols;
   currentScript.Editor.SetFocus;
+  btnShowWatch.Down := currentScript.Editor.WatchList.Visible;
+
 end;
 
 function TfScript.FindScriptByName(name: string): Tscript;
@@ -463,18 +473,27 @@ end;
 
 procedure TfScript.JvTabBar1TabClosed(Sender: TObject;
   Item: TJvTabBarItem);
+  var
+  CloseScr:TScript;
 begin
   if item = nil then exit;
-  if currentScript.Modified then
-    if MessageDlg(lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+currentScript.ScriptName+' ?',mtConfirmation,[mbYes, mbNo],0)=mrYes then
-      currentScript.Save
+  CloseScr := FindScriptByName(Item.Caption);
+  if not assigned(CloseScr) then exit;
+  if CloseScr.Modified then
+    if MessageDlg(lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+CloseScr.ScriptName+' ?',mtConfirmation,[mbYes, mbNo],0)=mrYes then
+      CloseScr.Save
     else
-      currentScript.LoadOriginal;
+      CloseScr.LoadOriginal;
       
   Item.Visible := false;
   FindScriptByName(Item.Caption).Editor.Visible := false;
   FindScriptByName(Item.Caption).Editor.Editor.Visible := false;
-  currentScript := nil;
+  if CloseScr = currentScript then
+  begin
+    currentScript := nil;
+    fClassesDLG.fsTree1.Script := nil;
+    fClassesDLG.Hide;
+  end;
 end;
 
 procedure TfScript.btnShowHideListClick(Sender: TObject);
@@ -585,16 +604,21 @@ begin
 if currentScript = nil then exit;
 if currentScript.isRunning then
   begin
+  if currentScript.ListItem.Checked then
+    currentScript.ListItem.Checked := false
+  else
+  begin
     currentScript.isRunning := false;
     currentScript.ListItem.Checked := false;
     currentScript.updatecontrols;
     try
-      currentScript.fsScript.CallFunction('Free',0);
+      currentScript.Editor.fsScript.CallFunction('Free',0);
     except
       currentScript.isRunning := true; //я не представляю что должно произойти что бы мы сюда попали
       currentScript.ListItem.Checked := true; //но на всякий пожарный код пусть будет
       currentScript.updatecontrols;
     end;
+  end;
   end;
 end;
 
@@ -603,7 +627,6 @@ begin
   if currentScript = nil then exit;
   if not currentScript.Compilled then
     currentScript.CompileThisScript;
-  //Compile(fsScript1, JvHLEditor1);
 end;
 
 procedure TfScript.btnInitTestClick(Sender: TObject);
@@ -615,7 +638,7 @@ if currentScript.Compilled then
     currentScript.isRunning := true;
     currentScript.updatecontrols;
     try
-      currentScript.fsScript.CallFunction('Init',0);
+      currentScript.Editor.fsScript.CallFunction('Init',0);
     except
       currentScript.isRunning := false;
       currentScript.updatecontrols;
@@ -626,7 +649,7 @@ end;
 procedure TScript.LoadOriginal;
 begin
   Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
-  fsScript.Lines.Assign(Editor.Source.Lines);
+  Editor.fsScript.Lines.Assign(Editor.Source.Lines);
   Modified := false;
   Tab.ImageIndex := 0;
   Compilled := false;
@@ -665,10 +688,24 @@ begin
         begin
           if ((uNewState and LVIS_STATEIMAGEMASK) shr 12) <> ((uOldState and LVIS_STATEIMAGEMASK) shr 12) then
           begin
-            listItem := ScriptsListVisual.Items[iItem];
-            CheckedScrypt := FindScriptByName(listItem.Caption);
-            if CheckedScrypt <> nil then
-            listItem.Checked := CheckedScrypt.UseThisScript(listItem.Checked);
+            if ignorenextcheck then
+              begin
+                ignorenextcheck := false;
+                exit;
+              end
+            else
+              begin
+                listItem := ScriptsListVisual.Items[iItem];
+                CheckedScrypt := FindScriptByName(listItem.Caption);
+                if assigned(CheckedScrypt) then
+                if CheckedScrypt.isRunning and listItem.Checked then
+                  begin
+                    ignorenextcheck :=true;
+                    listItem.Checked := false
+                  end
+                else
+                  listItem.Checked := CheckedScrypt.UseThisScript(listItem.Checked);
+              end;
           end;
         end;
       end;
@@ -705,9 +742,9 @@ if not UseScript and compilled then
 isRunning := Result;
 
 if result then
-  fsScript.CallFunction('Init',0)
+  Editor.fsScript.CallFunction('Init',0)
 else
-  fsScript.CallFunction('Free',0);
+  Editor.fsScript.CallFunction('Free',0);
 if currentScript = Self then
   updatecontrols;
 end;
@@ -734,11 +771,6 @@ var
   i:integer;
   cScript : TScript;
 begin
-  { TODO :
-  Обработка пакета плагинами и скриптами
-  по какойто причине багнуто.
-  убрал его из обработки по месейджу..
-  этот кусок в тестовом режиме.!!! }
   
   //По прежнему без бутылки сюда не лезть.
   for i := 0 to Plugins.Count - 1 do
@@ -764,34 +796,35 @@ begin
         begin
         //по очереди посылаем всем включенным скриптам
         //EnterCriticalSection(_cs);
-        cScript.fsScript.Variables['pck'] := temp;
-        cScript.fsScript.Variables['ConnectID']:=id;
-        cScript.fsScript.Variables['ConnectName']:=dmdata.ConnectNameById(id);
-        cScript.fsScript.Variables['FromServer']:=FromServer;
-        cScript.fsScript.Variables['FromClient']:=not FromServer;
+        cScript.Editor.fsScript.Variables['pck'] := temp;
+        cScript.Editor.fsScript.Variables['ConnectID']:=id;
+        cScript.Editor.fsScript.Variables['ConnectName']:=dmdata.ConnectNameById(id);
+        cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
+        cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
         //LeaveCriticalSection(_cs);
-        cScript.fsScript.Execute;
-        temp:=cScript.fsScript.Variables['pck'];
+        cScript.Editor.fsScript.Execute;
+
+        temp:=cScript.Editor.fsScript.Variables['pck'];
         end;
     end;
   end;
-  newpacket.Size := length(temp) + 2;
-  Move(temp[1], newpacket.data[0], newpacket.Size - 2);
   
+  if length(temp) > 0 then
+  begin
+    newpacket.Size := length(temp) + 2;
+    Move(temp[1], newpacket.data[0], newpacket.Size - 2);
+  end
+  else
+  begin
+    FillChar(newpacket.PacketAsCharArray[0], $ffff, #0)
+  end;
   
-{  SetLength(temp, TencDec(caller).Packet.Size-2);
-  Move(TencDec(caller).Packet.data[1], temp[1], TencDec(caller).Packet.Size-2);
-  a.a:=Word(FromServer);
-  a.b:=TlspConnection(TencDec(caller).ParentLSP).SocketNum;
-  SendMessage(L2PacketHackMain.Handle, WM_ExecuteScripts, Integer(@temp),a.ab);
-  TencDec(caller).Packet.Size := length(temp)+2;
-  Move(temp[1], TencDec(caller).Packet.Data, length(temp));
- {}
+
 end;
 
 procedure TfScript.ToolButton1Click(Sender: TObject);
 begin
-fLog.show;
+  fLog.show;
 end;
 
 procedure TfScript.ScriptsListVisualSelectItem(Sender: TObject;
@@ -846,7 +879,36 @@ end;
 procedure TfScript.ToolButton2Click(Sender: TObject);
 begin
  if SyntAnalyser.Customize then
-   SyntAnalyser.SaveToFile('settings\editor.lxl');
+   SyntAnalyser.SaveToFile(AppPath+'settings\editor.dat');
+end;
+
+procedure TfScript.btnShowWatchClick(Sender: TObject);
+begin
+if Assigned(currentScript) then
+  if btnShowWatch.Down then
+    begin
+      currentScript.Editor.Splitter1.Visible := true;
+      currentScript.Editor.WatchList.Visible := true;
+    end
+    else
+    begin
+      currentScript.Editor.WatchList.Visible := false;
+      currentScript.Editor.Splitter1.Visible := false;
+    end;
+
+
+end;
+
+procedure TfScript.btnShowClassesClick(Sender: TObject);
+begin
+  if currentScript = nil then exit;
+  fClassesDlg.show;
+end;
+
+procedure TfScript.ToolButton3Click(Sender: TObject);
+begin
+ if SyntKeyMapping1.Customize then
+ SaveComponentToFile(SyntKeyMapping1, AppPath+'settings\editorkeys.dat');
 end;
 
 end.

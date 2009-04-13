@@ -323,7 +323,7 @@ procedure TPluginStructClass.HideUserForm;
 begin
   inherited;
   UserForm.Hide;
-  L2PacketHackMain.nUserFormShow.Enabled := false;
+  fMain.nUserFormShow.Enabled := false;
 end;
 
 function TPluginStructClass.ReadC(const pck: string;
@@ -463,7 +463,7 @@ begin
   inherited;
   if not ActivateOnly then
     UserForm.show;
-  L2PacketHackMain.nUserFormShow.Enabled := true;
+  fMain.nUserFormShow.Enabled := true;
 end;
 
 function TPluginStructClass.StringToHex(str1, Separator: String): String;

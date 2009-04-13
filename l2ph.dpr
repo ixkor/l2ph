@@ -7,7 +7,7 @@ uses
   uExcepDialog in 'units\uExcepDialog.pas' {ExceptionDialog},
   Forms,
   windows,
-  uMain in 'units\uMain.pas' {L2PacketHackMain},
+  uMain in 'units\uMain.pas' {fMain},
   uAboutDialog in 'units\uAboutDialog.pas' {fAbout},
   uConvertForm in 'units\uConvertForm.pas' {fConvert},
   uData in 'units\uData.pas' {dmData: TDataModule},
@@ -30,7 +30,9 @@ uses
   uPluginData in 'units\uPluginData.pas',
   uScripts in 'units\uScripts.pas' {fScript},
   uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame},
-  uPacketView in 'units\uPacketView.pas' {fPacketView: TFrame};
+  uPacketView in 'units\uPacketView.pas' {fPacketView: TFrame},
+  uClassesDLG in 'units\uClassesDLG.pas' {fClassesDLG},
+  uMainReplacer in 'units\uMainReplacer.pas' {L2PacketHackMain};
 
 {$R *.res}
 Procedure Check2stInstance;
@@ -60,6 +62,7 @@ begin
   Application.Initialize;
   Application.Title := 'L2PacketHack';
   Application.CreateForm(TL2PacketHackMain, L2PacketHackMain);
+  Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TfAbout, fAbout);
   Application.CreateForm(TfConvert, fConvert);
   Application.CreateForm(TdmData, dmData);
@@ -71,10 +74,12 @@ begin
   Application.CreateForm(TfProcessRawLog, fProcessRawLog);
   Application.CreateForm(TfScript, fScript);
   Application.CreateForm(TfPlugins, fPlugins);
+  Application.CreateForm(TfClassesDLG, fClassesDLG);
+  Application.ShowMainForm := false;
   fSettings.init;
-  L2PacketHackMain.INIT;
+  fMain.INIT;
   fPlugins.init;
-  fScript.init;  
+  fScript.init;
   Application.Run;
 
 end.

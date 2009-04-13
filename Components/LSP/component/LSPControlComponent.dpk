@@ -30,6 +30,8 @@ requires
   rtl;
 
 contains
+  FastMM4 in '..\..\..\fastmm\FastMM4.pas',
+  FastMM4Messages in '..\..\..\fastmm\FastMM4Messages.pas',
   LSPControl in 'LSPControl.pas',
   LSPInstalation in 'LSPInstalation.pas',
   LSPStructures in '..\structures\LSPStructures.pas';

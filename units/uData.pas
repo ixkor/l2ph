@@ -12,6 +12,7 @@ uses
   Dialogs,
   Graphics, 
   LSPControl,
+  LSPStructures,
   ExtCtrls,
   windows,
   ComCtrls,
@@ -46,12 +47,14 @@ type
     mustbedestroyed: boolean;
     DisconnectAfterDestroy : boolean;
     noFreeAfterDisconnect: boolean;
+    procedure encryptAndSend(Packet: Tpacket; ToServer: Boolean);    
     procedure NewAction(action : byte; Caller: TObject);
     procedure NewPacket(var Packet:Tpacket;FromServer: boolean; Caller: TObject);
     constructor create(SocketN:integer);
     Procedure   INIT;
+    procedure disconnect;
     destructor  destroy; override;
-    Procedure AddToRawLog(dirrection : byte; var data; size:word);
+    Procedure AddToRawLog(dirrection : byte; data:tbuffer; size:word);
   end;
 
   TpacketLogWiev = class (TObject)
@@ -75,17 +78,17 @@ type
     fsMenusRTTI1: TfsMenusRTTI;
     fsIniRTTI1: TfsIniRTTI;
     lang: TsiLang;
-    procedure LSPControlConnect(SocketNum: Cardinal; ip: String;
-      port: Cardinal; exename: String; pid: Cardinal; hook: Boolean);
-    procedure LSPControlDisconnect(SocketNum: Cardinal);
     procedure LSPControlLspModuleState(state: Byte);
     procedure timerSearchProcessesTimer(Sender: TObject);
     procedure DataModuleCreate(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
-    procedure LSPControlRecv(SocketNum: Cardinal; var buffer: Tbuffer;
-      var len: Cardinal);
-    procedure LSPControlSend(SocketNum: Cardinal; var buffer: Tbuffer;
-      var len: Cardinal);
+    procedure LSPControlConnect(var Struct: TConnectStruct;
+      var hook: Boolean);
+    procedure LSPControlDisconnect(var Struct: TDisconnectStruct);
+    procedure LSPControlRecv(const inStruct: TSendRecvStruct;
+      var OutStruct: TSendRecvStruct);
+    procedure LSPControlSend(const inStruct: TSendRecvStruct;
+      var OutStruct: TSendRecvStruct);
   private
     CriticalSection  : TCriticalSection;
     { Private declarations }
@@ -93,7 +96,6 @@ type
     function FindLspConnectionBySockNum(SockNum:integer):TlspConnection;
     procedure destroyDeadLSPConnections;
     procedure destroyDeadLogWievs;
-    procedure encryptAndSend(CurrentLsp:TlspConnection; Packet: Tpacket; ToServer: Boolean);
 
     function CallMethod(Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
 
@@ -126,76 +128,18 @@ var
 implementation
 uses uscripts, uPluginData, uPlugins, umain, uSettingsDialog, uProcesses, advApiHook;
 
+var
+  searchfor : string;
+  searchresult : thandle;
 {$R *.dfm}
 
 { TdmData }
 
 
-procedure TdmData.LSPControlConnect(SocketNum: Cardinal; ip: String;
-  port: Cardinal; exename: String; pid: Cardinal; hook: Boolean);
-var
-  str : string;
-  i : integer;
-  newlspconnection : TlspConnection;
-begin
-
-  hook := (Pos(IntToStr(port)+';',sIgnorePorts+';')=0);
-  if hook then
-    str := rsLSPConnectionWillbeIntercepted
-  else
-    str := rsLSPConnectionWillbeIgnored;
-  if hook then
-    begin
-      newlspconnection := TlspConnection.create(SocketNum);
-      newlspconnection.INIT;      
-
-      //Уведомляем плагины
-      for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-      if Loaded  then
-      begin
-        if Assigned(OnConnect) then OnConnect(SocketNum, true);
-        if Assigned(OnConnect) then OnConnect(SocketNum, false);
-      end;
-    end;
-  AddToLog(Format(rsLSPConnectionDetected, [SocketNum, ip, port, str]));
-end;
-
-procedure TdmData.LSPControlDisconnect(SocketNum: Cardinal);
-var
-  connection : TlspConnection;
-  i : integer;
-  
-begin
-  CriticalSection.Enter;
-
-  //Уведомляем плагины
-  for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-  if Loaded  then
-  begin
-    if Assigned(OnDisconnect) then OnDisconnect(SocketNum, true);
-    if Assigned(OnDisconnect) then OnDisconnect(SocketNum, false);
-  end;
-
-
-  connection := FindLspConnectionBySockNum(SocketNum);
-  if assigned(connection) then
-    if not connection.noFreeAfterDisconnect then
-      begin
-        connection.SocketNum := 0;
-        connection.active := false;
-        connection.destroy;
-      end
-    else
-    begin
-      connection.Visual.ThisOneDisconnected;
-      connection.active := false;
-    end;
-  AddToLog(Format(rsLSPDisconnectDetected, [SocketNum]));
-  CriticalSection.Leave;
-end;
 
 procedure TdmData.LSPControlLspModuleState(state: Byte);
 begin
+if fSettings.InterfaceEnabled then
   case state of
   LSP_Install_success:      AddToLog(rsLSP_Install_success);//не вмешиваемся
   LSP_Already_installed:    AddToLog(rsLSP_Already_installed);
@@ -328,7 +272,7 @@ end;
 
 { TlspVisual }
 
-procedure TlspConnection.AddToRawLog(dirrection: byte; var data;
+procedure TlspConnection.AddToRawLog(dirrection: byte; data:tbuffer;
   size: word);
 var
   dtime: Double;
@@ -338,7 +282,7 @@ begin
   RawLog.WriteBuffer(size,2);
   dtime := now;
   RawLog.WriteBuffer(dtime,8);
-  RawLog.WriteBuffer(data,size);
+  RawLog.WriteBuffer(data[0],size);
 end;
 
 constructor TlspConnection.create;
@@ -363,6 +307,12 @@ destructor TlspConnection.destroy;
 var
   i : integer;
 begin
+  if DisconnectAfterDestroy then
+    if SocketNum <> 0 then
+      begin
+        dmData.LSPControl.CloseSocket(SocketNum);
+      end;
+
   i := 0;
   while i < LSPConnections.Count do
     begin
@@ -374,9 +324,7 @@ begin
         inc(i);
     end;
 
-  if DisconnectAfterDestroy then
-    if SocketNum <> 0 then
-      dmData.LSPControl.CloseSocket(SocketNum);
+
   if Assigned(visual) then
     begin
       Visual.deinit;
@@ -390,21 +338,59 @@ begin
   inherited;
 end;
 
+procedure TlspConnection.disconnect;
+begin
+dmData.LSPControl.CloseSocket(SocketNum);
+end;
+
+procedure TlspConnection.encryptAndSend(Packet: Tpacket; ToServer: Boolean);
+var
+  Dirrection : byte;
+  struct : TSendRecvStruct;
+begin
+  //кодируем
+  if ToServer then
+    Dirrection := PCK_GS_ToServer
+  else
+    Dirrection := PCK_GS_ToClient;
+
+  EncDec.EncodePacket(packet, Dirrection);
+
+  //Заполняем структуру
+  struct.SockNum := SocketNum;
+  FillChar(struct.CurrentBuff[0], $ffff, #0);
+
+  Move(Packet.PacketAsByteArray[0], struct.CurrentBuff[0], Packet.Size);
+  struct.CurrentSize := Packet.Size;
+
+
+  if ToServer then
+    dmData.LSPControl.SendToServer(struct)
+  else
+    dmData.LSPControl.SendToClient(struct);
+
+end;
+
+
 procedure TlspConnection.INIT;
 begin
   EncDec.onNewAction := NewAction;
   EncDec.onNewPacket := NewPacket;
   EncDec.init;
-  AssignedTabSheet := TTabSheet.Create(L2PacketHackMain.pcClientsConnection);
+  AssignedTabSheet := TTabSheet.Create(fMain.pcClientsConnection);
+  AssignedTabSheet.PageControl := fMain.pcClientsConnection;
+  fMain.pcClientsConnection.ActivePageIndex := AssignedTabSheet.PageIndex;
+  AssignedTabSheet.Show;
+
   Visual := TfVisual.Create(AssignedTabSheet);
   Visual.currenttunel := nil;
   Visual.CurrentTpacketLog := nil;
   Visual.Parent := AssignedTabSheet;
   Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
   noFreeAfterDisconnect := GlobalNoFreeAfterDisconnect;
-  AssignedTabSheet.PageControl := L2PacketHackMain.pcClientsConnection;
+  AssignedTabSheet.PageControl := fMain.pcClientsConnection;
   AssignedTabSheet.Caption := '[lsp]#'+inttostr(SocketNum);
-  if not L2PacketHackMain.pcClientsConnection.Visible then L2PacketHackMain.pcClientsConnection.Visible  := true;
+  if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
   Visual.currentLSP := self;
   Visual.init;
   active := true;
@@ -428,7 +414,7 @@ case action of
     end; //данные в name; обработчик - UpdateComboBox1 (требует видоизменения)
 
 end;
-  //SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
+
 end;
 
 procedure TlspConnection.NewPacket(var Packet:Tpacket;FromServer: boolean; Caller: TObject);
@@ -438,70 +424,10 @@ begin
   if assigned(visual) then
   begin
     Visual.AddPacketToAcum(Packet, FromServer, Caller);
-
-  //ух.. и длинная же строчка..
-    PostMessage(L2PacketHackMain.Handle, WM_ProcessPacket,integer(pointer(tfvisual(ttunel(TencDec(Caller).ParentTtunel).Visual))),integer(@packet));
+    visual.processpacketfromacum;
   end;
 end;
 
-
-procedure TdmData.LSPControlRecv(SocketNum: Cardinal; var buffer: Tbuffer;
-  var len: Cardinal);
-
-var
-  LspConnection : TlspConnection;
-  PcktLen : Word;
-  ResultBuff : Tbuffer;
-  ResultLen : cardinal;
-  tmppack:tpacket;
-begin
-
-  CriticalSection.Enter;
-  LspConnection := FindLspConnectionBySockNum(SocketNum);
-  if LspConnection = nil then exit;
-    LspConnection.AddToRawLog(PCK_GS_ToClient, buffer[0], len);
-
-
-  ResultLen := 0;
-  FillChar(ResultBuff,$ffff,#0);
-  //Запихиваем все поступившие данные во временный буффер (хранит необработанные данные)
-  Move(buffer,LspConnection.tempbufferRecv[LspConnection.TempBufferRecvLen], len);
-  inc(LspConnection.TempBufferRecvLen, len);
-
-  //получаем длинну пакета хранящегося в временном буфере
-  Move(LspConnection.TempBufferRecv[0], PcktLen, 2);
-  if PcktLen=29754 then PcktLen:=267;
-  //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем пакет
-  while (LspConnection.TempBufferRecvLen >= PcktLen) and (PcktLen >= 2) and (LspConnection.TempBufferRecvLen >= 2) do
-  begin
-    //Засовывем данные с временного буффера в структуру идущую на обработку 
-    Move(LspConnection.TempBufferRecv[0], tmppack.PacketAsCharArray[0], PcktLen);
-    //Сдвигаем буффер и Уменьшаем счетчик длинны временого буфера
-    move(LspConnection.TempBufferRecv[PcktLen], LspConnection.TempBufferRecv[0], LspConnection.TempBufferRecvLen);
-    dec(LspConnection.TempBufferRecvLen, PcktLen);
-    if PcktLen=29754 then PcktLen:=267;
-    //обрабатываем пакет
-    LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToClient);
-    LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToClient);
-
-
-    //Перемещаем обработаное во временный результирующий буффер
-    Move(tmppack.PacketAsCharArray[0],  ResultBuff[ResultLen], tmppack.Size);
-    //увеличиваем длиннну временного результирующего буффера
-    inc(ResultLen, tmppack.Size);
-
-    if LspConnection.TempBufferRecvLen > 2 then
-      //получаем длинну пакета хранящегося в временном буфере
-      Move(LspConnection.TempBufferRecv[0], PcktLen, 2)
-    else
-      PcktLen := 0;
-  end;
-
-  //в итоге у тас получается результирующий буффер
-  buffer := ResultBuff;
-  len := ResultLen;
-  CriticalSection.Leave;
-end;
 
 function TdmData.FindLspConnectionBySockNum(SockNum: integer): TlspConnection;
 var
@@ -519,62 +445,6 @@ while i < LSPConnections.Count do
   else
     Result := TlspConnection(LSPConnections.Items[i]);
 end;
-
-procedure TdmData.LSPControlSend(SocketNum: Cardinal; var buffer: Tbuffer;
-  var len: Cardinal);
-var
-  LspConnection : TlspConnection;
-  PcktLen : Word;
-  ResultBuff : Tbuffer;
-  ResultLen : cardinal;
-  tmppack:tpacket;
-begin
-  CriticalSection.Enter;
-  LspConnection := FindLspConnectionBySockNum(SocketNum);
-  if LspConnection = nil then exit;
-  LspConnection.AddToRawLog(PCK_GS_ToServer, buffer[0], len);
-
-  ResultLen := 0;
-  FillChar(ResultBuff,$ffff,#0);
-  //Запихиваем все поступившие данные во временный буффер (хранит необработанные данные)
-  Move(buffer,LspConnection.tempbufferSend[LspConnection.TempBufferSendLen], len);
-  inc(LspConnection.TempBufferSendLen, len);
-
-  //получаем длинну пакета хранящегося в временном буфере
-  Move(LspConnection.TempBufferSend[0], PcktLen, 2);
-
-  //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем  попакетно
-  while (LspConnection.TempBufferSendLen >= PcktLen) and (PcktLen >= 2) and (LspConnection.TempBufferSendLen >= 2) do
-  begin
-    //Засовывем данные с временного буффера в структуру идущую на обработку 
-    Move(LspConnection.TempBufferSend[0], tmppack.PacketAsCharArray[0], PcktLen);
-
-    //Сдвигаем и Уменьшаем счетчик длинны временого буфера
-    move(LspConnection.TempBufferSend[PcktLen], LspConnection.TempBufferSend[0], LspConnection.TempBufferSendLen);
-    dec(LspConnection.TempBufferSendLen, PcktLen);
-
-    //обрабатываем пакет
-    LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToServer);
-    LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToServer);
-
-    //Перемещаем обработаное во временный результирующий буффер
-    Move(tmppack.PacketAsCharArray[0], ResultBuff[ResultLen], tmppack.Size);
-    //увеличиваем длиннну временного результирующего буффера
-    inc(ResultLen, tmppack.Size);
-
-    if LspConnection.TempBufferSendLen > 2 then
-    //получаем длинну пакета хранящегося в временном буфере
-    Move(LspConnection.TempBufferSend[0], PcktLen, 2)
-    else
-      PcktLen := 0;
-  end;
-
-  //в итоге у тас получается результирующий буффер
-  buffer := ResultBuff;
-  len := ResultLen;
-  CriticalSection.Leave;
-end;
-
 
 procedure TdmData.destroyDeadLspConnections;
 var
@@ -594,39 +464,6 @@ begin
     inc(i);
   end;
 end;
-
-procedure TdmData.encryptAndSend;
-var
-  s : integer;
-  Dirrection : byte;
-begin
-  CriticalSection.Enter;
-  //кодируем
-  if ToServer then
-    Dirrection := PCK_GS_ToServer
-  else
-    Dirrection := PCK_GS_ToClient;
-  currentLSP.EncDec.EncodePacket(packet, Dirrection);
-
-  //Записываем в буффер совместимый с сендту
-  FillChar(dmData.LSPControl.tmpbuff, $ffff, #0);
-
-
-  Move(Packet.PacketAsByteArray[0], dmData.LSPControl.tmpbuff[0], Packet.Size);
-  
-  //получаем номер сокета
-  s := TlspConnection(currentLSP).SocketNum;
-
-
-  if ToServer then
-    dmData.LSPControl.SendToServer(s, dmData.LSPControl.tmpbuff, Packet.Size)
-  else
-    //exit;{ TODO : Временная мера, надеюсь }
-    dmData.LSPControl.SendToClient(s, dmData.LSPControl.tmpbuff, Packet.Size);
-  CriticalSection.Leave;
-end;
-
-
 
 
 procedure TdmData.RefreshPrecompile(var fsScript: TfsScript);
@@ -654,6 +491,20 @@ begin
   fsScript.AddVariable('ConnectName','String','');
 end;
 
+
+function EnumWinsProc(Wd: HWnd; Param: LongInt): Boolean; stdcall; 
+var
+    buff: array[0..127] of Char;
+Begin
+    GetWindowText(Wd, buff, sizeof(buff));
+    if lowercase(strpas(buff)) = lowercase(searchfor) then
+      begin
+        Result := false;
+        searchresult := wd;
+      end
+    else
+    result := true;
+end;
 
 
 function TdmData.CallMethod(Instance: TObject; ClassType: TClass;
@@ -688,8 +539,24 @@ begin
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
         if OnCallMethod(sMethodName, Params, Result) then Exit;
- 
-  // если плагины не обработать то обрабатываем сами  
+
+
+
+  // если плагины не обработать то обрабатываем сами
+  if sMethodName = 'CANUSEALTTAB' then begin
+    searchfor := VarAsType(Params[0],varString);
+    if searchfor <> '' then
+    begin
+      //FindWindow ищет по верхнему уровню. значит поступим воттак
+      searchresult := 0;
+      EnumWindows (@EnumWinsProc, 0);
+      if searchresult > 0 then
+      begin
+        SetWindowLong(searchresult, GWL_EXSTYLE,
+        GetWindowLong(searchresult, GWL_EXSTYLE) or WS_EX_APPWINDOW);
+      end
+    end;
+  end else
   if sMethodName = 'SENDTOCLIENT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
     ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
@@ -870,7 +737,7 @@ begin
             AddToLog (lang.GetTextOrDefault('IDS_112' (* 'Скрипт к которому вы обращаетесь (' *) )+Params[0]+lang.GetTextOrDefault('IDS_113' (* ') не включен!' *) ))
           else
             try//все в порядке
-            Result := SelectedScript.fsScript.CallFunction(Params[1], Params[2]);
+            Result := SelectedScript.Editor.fsScript.CallFunction(Params[1], Params[2]);
             except
             AddToLog (lang.GetTextOrDefault('IDS_114' (* 'При вызове ' *) )+Params[0]+lang.GetTextOrDefault('IDS_115' (* ' произошла ошибка в вызываемом методе! (' *) )+inttostr(GetLastError)+')')
             end;
@@ -958,13 +825,13 @@ begin
   if sMethodName = 'SHOWFORM' then
     begin
       UserForm.Show;
-      L2PacketHackMain.nUserFormShow.Enabled := true;
+      fMain.nUserFormShow.Enabled := true;
     end
     else
   if sMethodName = 'HIDEFORM' then
       begin
       UserForm.Hide;
-      L2PacketHackMain.nUserFormShow.Enabled := false;
+      fMain.nUserFormShow.Enabled := false;
     end
 end;
 
@@ -977,9 +844,11 @@ begin
   i := 0;
   while i < LSPConnections.Count do
   begin
-    if TlspConnection(LSPConnections.Items[i]).SocketNum = tid then
+    if (TlspConnection(LSPConnections.Items[i]).SocketNum = tid) then
       begin
-        dmData.encryptAndSend(TlspConnection(LSPConnections.Items[i]), Packet, toserver);
+        TlspConnection(LSPConnections.Items[i]).Visual.AddPacketToAcum(Packet, not ToServer, TlspConnection(LSPConnections.Items[i]).EncDec);
+        TlspConnection(LSPConnections.Items[i]).Visual.processpacketfromacum;
+        TlspConnection(LSPConnections.Items[i]).encryptAndSend(Packet, toserver);
         exit;
       end;
     inc(i);
@@ -988,8 +857,10 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if Ttunel(sockEngine.tunels.Items[i]).serversocket = tid then
+    if (Ttunel(sockEngine.tunels.Items[i]).serversocket = tid) then
       begin
+        Ttunel(sockEngine.tunels.Items[i]).Visual.AddPacketToAcum(Packet, not ToServer, TlspConnection(LSPConnections.Items[i]).EncDec);
+        Ttunel(sockEngine.tunels.Items[i]).Visual.processpacketfromacum;
         Ttunel(sockEngine.tunels.Items[i]).EncryptAndSend(Packet, toserver);
         exit;
       end;
@@ -1048,7 +919,8 @@ begin
   i := 0;
   while i < LSPConnections.Count do
   begin
-    if LowerCase(TlspConnection(LSPConnections.Items[i]).EncDec.CharName) = LowerCase(cname) then
+    if (LowerCase(TlspConnection(LSPConnections.Items[i]).EncDec.CharName) = LowerCase(cname)) and
+        (TlspConnection(LSPConnections.Items[i]).active) then
       begin
         Result := TlspConnection(LSPConnections.Items[i]).SocketNum;
         exit;
@@ -1059,7 +931,8 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if LowerCase(Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName) = LowerCase(cname) then
+    if (LowerCase(Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName) = LowerCase(cname)) and
+     (Ttunel(sockEngine.tunels.Items[i]).active) then
       begin
         result := Ttunel(sockEngine.tunels.Items[i]).serversocket;
         exit;
@@ -1161,7 +1034,6 @@ begin
     Editor.Gutter.Objects.Items[0].Line := y-1;
     p.X := x-1;
     p.Y := y-1;
-    { TODO : Проверить правильность установки каретки }
     if Editor.Visible then
     try
       Editor.SetFocus;
@@ -1171,6 +1043,7 @@ begin
     Editor.CurrentLine := y-1;
     Editor.ShowLine(y-1);
     Editor.SelectLine(y-1);
+    Editor.SelectWord;
     Editor.Invalidate;
     StatBat.SimpleText:=lang.GetTextOrDefault('IDS_149' (* 'Ошибка: ' *) )+fsScript.ErrorMsg + lang.GetTextOrDefault('IDS_150' (* ', позиция: ' *) )+fsScript.ErrorPos;
     Result:=False;
@@ -1323,14 +1196,15 @@ begin
   MyFuncs.Add('function ReadF(var index:integer;%s):double');
   MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
   MyFuncs.Add('function FreeLibrary(LibHandle:Integer):Boolean');
-  MyFuncs.Add('function StrToHex(str1:String):String;');
+  MyFuncs.Add('function StrToHex(str1:String):String');
   MyFuncs.Add('procedure CallPr(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant)');
   MyFuncs.Add('function CallFnc(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):string');
   MyFuncs.Add('procedure TestFunc(LibHandle:integer;FunctionName:String;Count:Integer)');
   MyFuncs.Add('procedure TestFunc1(LibHandle:integer;FunctionName:String;Count1:variant)');
   MyFuncs.Add('function CallFunction(LibHandle:integer;FunctionName:String;Count:Integer;Params:array of variant):variant');
   MyFuncs.Add('function CallSF(ScriptName:String;FunctionName:String;Params:array of variant):variant');
-  MyFuncs.Add('procedure sendMSG(msg:String;)');
+  MyFuncs.Add('procedure sendMSG(msg:String)');
+  MyFuncs.Add('procedure CanUseAltTab(FormCaption: string)');
 
 
   if assigned(Plugins) then
@@ -1450,19 +1324,212 @@ end;
 procedure TpacketLogWiev.INIT;
 begin
   sFileName := Filename;
-  AssignedTabSheet := TTabSheet.Create(L2PacketHackMain.pcClientsConnection);
+  AssignedTabSheet := TTabSheet.Create(fMain.pcClientsConnection);
+  AssignedTabSheet.PageControl := fMain.pcClientsConnection;
+  fMain.pcClientsConnection.ActivePageIndex := AssignedTabSheet.PageIndex;
+  AssignedTabSheet.Show;
   Visual := TfVisual.Create(AssignedTabSheet);
   Visual.currenttunel := nil;
   Visual.currentLSP := nil;
   Visual.Parent := AssignedTabSheet;
   Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
-  AssignedTabSheet.PageControl := L2PacketHackMain.pcClientsConnection;
   AssignedTabSheet.Caption := '[log]#'+ExtractFileName(Filename);
-  if not L2PacketHackMain.pcClientsConnection.Visible then L2PacketHackMain.pcClientsConnection.Visible  := true;
+  if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
   Visual.CurrentTpacketLog := self;
   Visual.init;
   visual.Panel7.Width := 30;//там у нас только одна кнопка..
+
   
 end;
+
+procedure TdmData.LSPControlConnect(var Struct: TConnectStruct;
+  var hook: Boolean);
+var
+  str : string;
+  i : integer;
+  newlspconnection : TlspConnection;
+begin
+
+  hook := (Pos(IntToStr(Struct.port)+';',sIgnorePorts+';')=0);
+  if hook then
+    str := rsLSPConnectionWillbeIntercepted
+  else
+    str := rsLSPConnectionWillbeIgnored;
+  if hook then
+    begin
+      newlspconnection := TlspConnection.create(Struct.SockNum);
+      newlspconnection.INIT;
+      Application.ProcessMessages;
+      //Уведомляем плагины
+      for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
+      if Loaded  then
+      begin
+        if Assigned(OnConnect) then OnConnect(Struct.SockNum, true);
+        if Assigned(OnConnect) then OnConnect(Struct.SockNum, false);
+      end;
+    end;
+  AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
+end;
+procedure TdmData.LSPControlDisconnect(var Struct: TDisconnectStruct);
+var
+  connection : TlspConnection;
+  i : integer;
+
+begin
+
+  //Уведомляем плагины
+  for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
+  if Loaded  then
+  begin
+    if Assigned(OnDisconnect) then OnDisconnect(Struct.SockNum, true);
+    if Assigned(OnDisconnect) then OnDisconnect(Struct.SockNum, false);
+  end;
+
+
+  connection := FindLspConnectionBySockNum(Struct.SockNum);
+  if assigned(connection) then
+    if not connection.noFreeAfterDisconnect then
+      begin
+        connection.SocketNum := 0;
+        connection.active := false;
+        connection.destroy;
+      end
+    else
+    begin
+      connection.Visual.ThisOneDisconnected;
+      connection.active := false;
+    end;
+  AddToLog(Format(rsLSPDisconnectDetected, [Struct.SockNum]));
+end;
+
+
+
+procedure TdmData.LSPControlRecv(const inStruct: TSendRecvStruct;
+  var OutStruct: TSendRecvStruct);
+var
+  LspConnection : TlspConnection;
+  PcktLen : Word;
+  //ResultBuff : Tbuffer;
+  //ResultLen : cardinal;
+  tmppack:tpacket;
+begin
+
+  CriticalSection.Enter;
+  LspConnection := FindLspConnectionBySockNum(inStruct.SockNum);
+  OutStruct.SockNum := inStruct.SockNum;
+  
+  if LspConnection = nil then
+    begin
+      OutStruct := inStruct;
+      exit;
+    end;
+  LspConnection.AddToRawLog(PCK_GS_ToClient, inStruct.CurrentBuff, inStruct.CurrentSize);
+
+
+//  ResultLen := 0;
+//  FillChar(ResultBuff,$ffff,#0);
+  //Запихиваем все поступившие данные во временный буффер (хранит необработанные данные)
+  Move(inStruct.CurrentBuff[0], LspConnection.tempbufferRecv[LspConnection.TempBufferRecvLen], inStruct.CurrentSize);
+  inc(LspConnection.TempBufferRecvLen, inStruct.CurrentSize);
+
+  //получаем длинну пакета хранящегося в временном буфере
+  Move(LspConnection.TempBufferRecv[0], PcktLen, 2);
+  if PcktLen=29754 then PcktLen:=267;
+  //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем пакет
+  while (LspConnection.TempBufferRecvLen >= PcktLen) and (PcktLen >= 2) and (LspConnection.TempBufferRecvLen >= 2) do
+  begin
+    //Засовывем данные с временного буффера в структуру идущую на обработку 
+    Move(LspConnection.TempBufferRecv[0], tmppack.PacketAsCharArray[0], PcktLen);
+    //Сдвигаем буффер и Уменьшаем счетчик длинны временого буфера
+    move(LspConnection.TempBufferRecv[PcktLen], LspConnection.TempBufferRecv[0], LspConnection.TempBufferRecvLen);
+    dec(LspConnection.TempBufferRecvLen, PcktLen);
+    if PcktLen=29754 then PcktLen:=267;
+    //обрабатываем пакет
+    LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToClient);
+    if tmppack.Size > 2 then
+    begin
+      LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToClient);
+      //Перемещаем обработаное во временный результирующий буффер
+      Move(tmppack.PacketAsCharArray[0],  outStruct.CurrentBuff[outStruct.CurrentSize], tmppack.Size);
+      inc(outStruct.CurrentSize, tmppack.Size);
+      outStruct.exists := true;
+      //Move(tmppack.PacketAsCharArray[0],  ResultBuff[ResultLen], tmppack.Size);
+      //увеличиваем длиннну временного результирующего буффера
+    end
+    else
+      beep(1000,20);
+
+    if LspConnection.TempBufferRecvLen > 2 then
+      //получаем длинну пакета хранящегося в временном буфере
+      Move(LspConnection.TempBufferRecv[0], PcktLen, 2)
+    else
+      PcktLen := 0;
+  end;
+
+  //в итоге у тас получается результирующий буффер
+{  Struct.CurrentBuff := ResultBuff;
+  Struct.CurrentSize := ResultLen;}
+  CriticalSection.Leave;
+end;
+
+procedure TdmData.LSPControlSend(const inStruct: TSendRecvStruct;
+  var OutStruct: TSendRecvStruct);
+var
+  LspConnection : TlspConnection;
+  PcktLen : Word;
+  tmppack:tpacket;
+begin
+
+  CriticalSection.Enter;
+  LspConnection := FindLspConnectionBySockNum(inStruct.SockNum);
+  OutStruct.SockNum := inStruct.SockNum;
+  if LspConnection = nil then
+    begin
+      OutStruct := inStruct;    
+      exit;
+    end;
+    
+  LspConnection.AddToRawLog(PCK_GS_ToServer, inStruct.CurrentBuff, inStruct.CurrentSize);
+
+  //Запихиваем все поступившие данные во временный буффер (хранит необработанные данные)
+  Move(inStruct.CurrentBuff[0],LspConnection.tempbufferSend[LspConnection.TempBufferSendLen], inStruct.CurrentSize);
+  inc(LspConnection.TempBufferSendLen, inStruct.CurrentSize);
+
+  //получаем длинну пакета хранящегося в временном буфере
+  Move(LspConnection.TempBufferSend[0], PcktLen, 2);
+
+  //пока у нас хватает данных в буффере чтобы получить пакет полностью - обрабатываем  попакетно
+  while (LspConnection.TempBufferSendLen >= PcktLen) and (PcktLen >= 2) and (LspConnection.TempBufferSendLen >= 2) do
+  begin
+    //Засовывем данные с временного буффера в структуру идущую на обработку 
+    Move(LspConnection.TempBufferSend[0], tmppack.PacketAsCharArray[0], PcktLen);
+
+    //Сдвигаем и Уменьшаем счетчик длинны временого буфера
+    move(LspConnection.TempBufferSend[PcktLen], LspConnection.TempBufferSend[0], LspConnection.TempBufferSendLen);
+    dec(LspConnection.TempBufferSendLen, PcktLen);
+
+    //обрабатываем пакет
+    LspConnection.EncDec.DecodePacket(tmppack, PCK_GS_ToServer);
+    if tmppack.Size > 2 then
+    begin
+      LspConnection.EncDec.EncodePacket(tmppack, PCK_GS_ToServer);
+      //Перемещаем обработаное во временный результирующий буффер
+
+      Move(tmppack.PacketAsCharArray[0], OutStruct.CurrentBuff[OutStruct.CurrentSize], tmppack.Size);
+      //увеличиваем длиннну временного результирующего буффера
+      inc(OutStruct.CurrentSize, tmppack.Size);
+      OutStruct.exists := true;
+    end;
+    
+    if LspConnection.TempBufferSendLen > 2 then
+    //получаем длинну пакета хранящегося в временном буфере
+    Move(LspConnection.TempBufferSend[0], PcktLen, 2)
+    else
+      PcktLen := 0;
+  end;
+
+  CriticalSection.Leave;
+end;
+
 
 end.

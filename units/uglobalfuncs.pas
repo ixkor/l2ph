@@ -68,6 +68,7 @@ uses
 
   function GetNamePacket(s:string):string; // вырезаем название пакета из строки
   var
+  AppPath:String;
   isGlobalDestroying : boolean;
   hXorLib:THandle; //хендл библиотеки невхор. устанавливается в SettingsDialog
   pInjectDll : Pointer; //поинер к инжект.длл устанавливается в SettingsDialog
@@ -112,13 +113,13 @@ uses
   Options, PacketsINI : TMemIniFile;
   
 implementation
-uses udata, usocketengine, ulogform;
+uses forms, udata, usocketengine, ulogform;
 
 procedure savepos(Control:TControl);
 var
 ini : Tinifile;
 begin
-  ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'settings\windows.ini');
+  ini := TIniFile.Create(AppPath+'settings\windows.ini');
   ini.WriteInteger(Control.ClassName,'top', Control.Top);
   ini.WriteInteger(Control.ClassName,'left', Control.Left);
   ini.WriteInteger(Control.ClassName,'width', Control.Width);
@@ -130,18 +131,41 @@ procedure loadpos(Control:TControl);
 var
 ini : Tinifile;
 begin
-if not FileExists(ExtractFilePath(ParamStr(0))+'settings\windows.ini') then exit;
-ini := TIniFile.Create(ExtractFilePath(ParamStr(0))+'settings\windows.ini');
+if not FileExists(AppPath+'settings\windows.ini') then exit;
+ini := TIniFile.Create(AppPath+'settings\windows.ini');
 if not ini.SectionExists(Control.ClassName) then
   begin
     ini.Destroy;
     exit;
   end;
+if
+  (ini.ReadInteger(Control.ClassName,'width', control.Width) -
+  ini.ReadInteger(Control.ClassName,'left', control.Left) >= screen.WorkAreaWidth)
+  and
+  (ini.ReadInteger(Control.ClassName,'height', control.height) -
+  ini.ReadInteger(Control.ClassName,'top', control.Top) >= Screen.WorkAreaHeight) then
+  begin
+    //форма была максимизирована..
+    //не загружаем
+    if TForm(Control).Visible then
+      begin
+        ShowWindow(TForm(Control).Handle, SW_MAXIMIZE);
+      end
+      else
+      begin
+        ShowWindow(TForm(Control).Handle, SW_MAXIMIZE);
+        ShowWindow(TForm(Control).Handle, SW_HIDE);
+      end;
 
-control.Top := ini.ReadInteger(Control.ClassName,'top', control.Top);
-control.Left := ini.ReadInteger(Control.ClassName,'left', control.Left);
-control.Width := ini.ReadInteger(Control.ClassName,'width', control.Width);
-control.height := ini.ReadInteger(Control.ClassName,'height', control.height);
+  end
+  else
+  begin
+    control.Top := ini.ReadInteger(Control.ClassName,'top', control.Top);
+    control.Left := ini.ReadInteger(Control.ClassName,'left', control.Left);
+    control.Width := ini.ReadInteger(Control.ClassName,'width', control.Width);
+    control.height := ini.ReadInteger(Control.ClassName,'height', control.height);
+  end;
+
 ini.Destroy;
 end;
 
@@ -151,12 +175,12 @@ var
   Mask: string;
 begin
 
-  Mask := ExtractFilePath(ParamStr(0))+'\*.temp';
+  Mask := AppPath+'\*.temp';
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
       if (SearchRec.Attr and faDirectory) <> faDirectory then
-      DeleteFile(pchar(ExtractFilePath(ParamStr(0))+'\'+SearchRec.Name));
+      DeleteFile(pchar(AppPath+'\'+SearchRec.Name));
     until FindNext(SearchRec)<>0;
     SysUtils.FindClose(SearchRec);
   end;
@@ -184,15 +208,15 @@ end;
 Procedure Reload;
 begin
   //считываем systemmsg.ini
-  SysMsgIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\sysmsgid.ini');
+  SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgid.ini');
   //считываем itemname.ini
-  ItemsList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\itemsid.ini');
+  ItemsList.LoadFromFile(AppPath+'settings\itemsid.ini');
   //считываем npcname.ini
-  NpcIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\npcsid.ini');
+  NpcIdList.LoadFromFile(AppPath+'settings\npcsid.ini');
   //считываем ClassId.ini
-  ClassIdList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\classid.ini');
+  ClassIdList.LoadFromFile(AppPath+'settings\classid.ini');
   //считываем skillname.ini
-  SkillList.LoadFromFile(ExtractFilePath(ParamStr(0))+'settings\skillsid.ini');
+  SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
 end;
 
 function TimeStepByteStr:string;
@@ -335,7 +359,9 @@ end;
 procedure AddToLog (msg: String);
 begin
   if isDestroying then exit;
-  SendMessage(fLog.Handle,WM_AddLog,integer(msg),0);
+  if assigned(fLog) then
+    if fLog.IsExists then
+      SendMessage(fLog.Handle,WM_AddLog,integer(msg),0);
 end;
 
 Function LoadLibraryInject(const name: string):boolean;
@@ -349,7 +375,7 @@ begin
     AddToLog(format(rsUnLoadDllSuccessfully,[name]));
   end;
   
-  tmp:=PChar(ExtractFilePath(paramstr(0))+name);
+  tmp:=PChar(name);
   if fileExists (tmp) then begin
     sFile := OpenFile(tmp,ee,OF_READ);
     Result := true;
@@ -374,7 +400,7 @@ begin
       FreeLibrary(hXorLib);
       AddToLog(format(rsUnLoadDllSuccessfully,[name]));
     end;
-  hXorLib := LoadLibrary(PChar(ExtractFilePath(paramstr(0))+name));
+  hXorLib := LoadLibrary(PChar(name));
   if hXorLib > 0 then
   begin
     AddToLog(format(rsLoadDllSuccessfully,[name]));

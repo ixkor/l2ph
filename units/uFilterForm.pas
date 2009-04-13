@@ -24,8 +24,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure UpdateBtnClick(Sender: TObject);
-  private
-    { Private declarations }
+  protected
+    procedure CreateParams (var Params : TCreateParams); override;
   public
   procedure refreshexisting;
   procedure LoadPktIni(s:string);
@@ -107,7 +107,7 @@ begin
   PacketsFromC.Clear;
 
   //считываем packets.ini
-  PacketsNames.LoadFromFile(ExtractFilePath(Application.ExeName)+'settings\'+s);
+  PacketsNames.LoadFromFile(AppPath+'settings\'+s);
   for i:=0 to PacketsNames.Count-1 do begin
     temp:=copy(PacketsNames[i],1,2); //взять первые два символа
     if temp='//' then continue; //комментарии
@@ -137,7 +137,7 @@ begin
   //считываем packets.ini
   //полный вариант для разбора пакетов
   if PacketsINI <> nil then PacketsINI.Free;
-  PacketsINI := TMemIniFile.Create(ExtractFilePath(Application.ExeName)+s);
+  PacketsINI := TMemIniFile.Create(AppPath+'settings\'+s);
 
   finally
     ListView1.Items.EndUpdate;
@@ -246,6 +246,14 @@ try
   end;
 except
 end;
+end;
+
+procedure TfPacketFilter.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  with Params do
+    ExStyle := ExStyle OR WS_EX_APPWINDOW or WS_EX_CONTROLPARENT;
+
 end;
 
 end.

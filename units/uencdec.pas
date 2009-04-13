@@ -125,7 +125,7 @@ begin
           if Packet.Size > 2 then //не отправл€ем скриптам пакеты длинной 2 байта (физически)
             onNewPacket(Packet, true, self);
 
-        if Packet.Size = 0 then
+        if Packet.Size <= 2 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
         else
           //выт€гиваем им€ соединени€ и прочее

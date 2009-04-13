@@ -58,7 +58,7 @@ begin
   while Plugins.Count > 0 do
     TPlugin(Plugins.Items[0]).Destroy;
 
-  L2PacketHackMain.nPlugins.Clear;
+  fMain.nPlugins.Clear;
   
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
@@ -70,8 +70,8 @@ begin
         newplugin.FileName := ExtractFilePath(ParamStr(0))+'plugins\'+SearchRec.Name;
         s:=Copy(SearchRec.Name,1,Length(SearchRec.Name)-4);
         clbPluginsList.Items.Add(s);
-        mi := TMenuItem.Create(L2PacketHackMain.nPlugins);
-        L2PacketHackMain.nPlugins.Add(mi);
+        mi := TMenuItem.Create(fMain.nPlugins);
+        fMain.nPlugins.Add(mi);
         mi.AutoCheck:=True;
         mi.Checked:=False;
         mi.Caption:=s;
@@ -133,7 +133,7 @@ begin
   else
     TPlugin(Plugins.Items[i]).FreePlugin;
 
-  L2PacketHackMain.nPlugins.Items[i].Checked := clbPluginsList.Checked[i];
+  fMain.nPlugins.Items[i].Checked := clbPluginsList.Checked[i];
 
   if Sender = nil then exit;
   //релоадим доступные нам функции

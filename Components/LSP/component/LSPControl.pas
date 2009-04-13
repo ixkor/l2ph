@@ -24,9 +24,9 @@ resourcestring
   rsLSP_Install_error_badspipath = 'Неверно указан путь к LSP модулю, необходим абсолютный путь,'#13#10'             либо наличие библиотеки LSP модуля в SYSTEM32';
 
 type
-  tOnSendOrRecv = procedure (SocketNum : cardinal; var buffer : Tbuffer; var len : cardinal) of object;
-  tOnConnect = procedure (SocketNum : cardinal; ip:string; port:cardinal; exename:string; pid:cardinal; hook:boolean) of object;
-  tOnDisconnect = procedure (SocketNum : cardinal) of object;
+  tOnSendOrRecv = procedure (const inStruct : TSendRecvStruct; var OutStruct: TSendRecvStruct) of object;
+  tOnConnect = procedure (var Struct : TConnectStruct; var hook:boolean) of object;
+  tOnDisconnect = procedure (var Struct : TDisconnectStruct) of object;
   tLspModuleState = procedure (state : byte) of object;
 
   TLSPModuleControl = class(TComponent)
@@ -38,7 +38,7 @@ type
     fLookFor:string;
     fonLspModuleState : tLspModuleState;
     fWasStarted : boolean; //true - Было стартовано успешно, можно освобождать.
-    ShareClient : array[0..255] of TshareClient;
+    ShareClient : array[0..255] of TConnectStruct;
     ClientCount : integer;
     ShareMain : TshareMain;
 
@@ -47,21 +47,19 @@ type
     ReciverWndClass:TWndClassEx; //окошко, через которое основное приложение нас будет уведомлять о новых данных... точнее класс окна.
     MutexHandle : THandle;
 
-    Function setbuffer(SocketNum : cardinal; buffer : Tbuffer; len : word):integer;
-    function FindIndexBySocketNum(SocketNum : cardinal):integer;
+    function FindIndexBySocketNum(SocketNum : integer):integer;
     Function CreateReciverWnd: Thandle;
-    Procedure addclient(SocketNum : cardinal);
-    Procedure deleteclient(SocketNum: cardinal);
-    Procedure clientsend(SocketNum : cardinal);
-    Procedure clientrecv(SocketNum : cardinal);
+    Procedure addclient(Wparam:integer);
+    Procedure deleteclient(Wparam:integer);
+    Procedure clientsend(Wparam:integer);
+    Procedure clientrecv(Wparam:integer);
     procedure setlookfor(newLookFor:string);
     function isLspinstalled:boolean;
 
   public
-    TmpBuff: Tbuffer;
-    Function SendToServer(SocketNum : cardinal; buffer : Tbuffer; len : word):boolean;
-    Function SendToClient(SocketNum : cardinal; buffer : Tbuffer; len : word):boolean;
-    Procedure CloseSocket(SocketNum : cardinal);
+    Function SendToServer(Struct : TSendRecvStruct):boolean;
+    Function SendToClient(Struct : TSendRecvStruct):boolean;
+    Procedure CloseSocket(SockNum:integer);
     Procedure setlspstate(state: boolean);
 
   published
@@ -79,7 +77,7 @@ type
     destructor destroy; override;
   end;
 
-  Tbuffer = array [0..$FFFF] of Byte;
+
 var
   this_component : TLSPModuleControl;
   cs : RTL_CRITICAL_SECTION;
@@ -99,6 +97,7 @@ end;
 
 // Процедура обработки сообщений
 function WindowProc (wnd: HWND; msg: integer; wparam: WPARAM; lparam: LPARAM):LRESULT;STDCALL;
+
 begin
 
   result := 0;
@@ -114,7 +113,8 @@ begin
       this_component.clientsend(wparam);
     Action_client_recv:
       this_component.clientrecv(wparam);
-  end;
+    end;
+
   end;
   else
     Result := DefWindowProc(wnd,msg,wparam,lparam);
@@ -218,33 +218,38 @@ end;
 
 procedure TLSPModuleControl.addclient;
 var
-  hook:boolean;
+  Membuf : PTMemoryBuffer;
+  MemHandle:thandle;
 begin
-  //Идентификатор
-  ShareClient[ClientCount].SocketNum := SocketNum;
+  memHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
+       PAGE_READWRITE, 0, SizeOf(TMemoryBuffer), pchar(Apendix + inttostr(wparam))); { TODO : ТУТ МОЖЕТ БЫТЬ РАНДОМНОЕ НАЗВАНИЕ }
+  Membuf := MapViewOfFile(memHandle, FILE_MAP_ALL_ACCESS,
+       0, 0, SizeOf(TMemoryBuffer));
+  CloseHandle(memHandle);
 
-  //подключаем мапфайл для клиента (должен быть создан в длл)
-  ShareClient[ClientCount].MapHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
-        PAGE_READWRITE, 0, SizeOf(TShareMapClient), pchar(Apendix + inttostr(SocketNum)));
-  ShareClient[ClientCount].MapData := MapViewOfFile(ShareClient[ClientCount].MapHandle, FILE_MAP_ALL_ACCESS,
-        0, 0, SizeOf(TShareMapClient));
-  hook := true;
+
+  Membuf^.ConnectStruct.HookIt := true;
   if assigned(onConnect) then
-    onConnect(SocketNum, ShareClient[ClientCount].MapData^.ip, ShareClient[ClientCount].MapData^.port,ShareClient[ClientCount].MapData^.application,ShareClient[ClientCount].MapData^.pid,hook);
+    onConnect(Membuf^.ConnectStruct, Membuf^.ConnectStruct.HookIt);
   //надо ловить этот конект ?
-  if hook then
+  if Membuf^.ConnectStruct.HookIt then
   begin
-    //если да - создаем мьютекс и увеличиваем кол--во юзверей на 1.
-    ShareClient[ClientCount].MapData.hookithandle := CreateMutex(nil, false, pchar(Mutexname+inttostr(SocketNum)));
-
-    //увеличиваем кол-во юзверей на 1.
+    //если да - заполняем и увеличиваем кол--во юзверей на 1.
+    //Идентификатор
+    ShareClient[ClientCount].HookIt := true; //непонятно зачем -) но пусть будет
+    ShareClient[ClientCount].ReciverHandle := Membuf^.ConnectStruct.ReciverHandle;
+    ShareClient[ClientCount].SockNum := Membuf^.ConnectStruct.SockNum;
+    ShareClient[ClientCount].ip := Membuf^.ConnectStruct.ip;
+    ShareClient[ClientCount].port := Membuf^.ConnectStruct.port;
+    ShareClient[ClientCount].application := Membuf^.ConnectStruct.application;
+    ShareClient[ClientCount].pid := Membuf^.ConnectStruct.pid;    //увеличиваем кол-во юзверей на 1.
+    ShareClient[ClientCount].MemBuf := Membuf;
+    ShareClient[ClientCount].MemBufHandle := MemHandle;
     Inc(ClientCount);
   end
   else //не надо ? затираем ссылку на мапфайл. хендл и сокетнум.
   begin
-    ShareClient[ClientCount].MapData := nil;
-    ShareClient[ClientCount].MapHandle := 0;
-    ShareClient[ClientCount].SocketNum := 0;
+    ShareClient[ClientCount].SockNum := 0;
   end;
 end;
 
@@ -254,18 +259,14 @@ var
 begin
   i := 0;
   //бежим пока не находим наш sockid; или не находим -)
-  while (i < ClientCount) and (ShareClient[i].SocketNum <> SocketNum) do
+  while (i < ClientCount) and (ShareClient[i].SockNum <> Wparam) do
     inc(i);
 
   if i = ClientCount then //не нашли -)... чертовщина какаято.. -)
     exit;
 
-  //освобождаем мьютекс
-  if ShareClient[i].MapData <> nil then
-    begin
-    ReleaseMutex(ShareClient[i].MapData.hookithandle);
-    CloseHandle(ShareClient[i].MapData.hookithandle)
-    end;
+  if assigned(onDisconnect) then
+    onDisconnect(ShareClient[i].MemBuf^.DisconnectStruct);
 
   //Ставим позицию чуть чуть дальше
   inc(i);
@@ -276,11 +277,8 @@ begin
       ShareClient[i-1] := ShareClient[i];
       inc(i);
     end;
-  ShareClient[ClientCount].MapData.hookithandle := CreateMutex(nil, false, pchar(Mutexname+inttostr(SocketNum)));
 
-  if assigned(onDisconnect) then
-    onDisconnect(SocketNum);
-        
+
   // -1 пользователь
   Dec(ClientCount);
 end;
@@ -289,57 +287,38 @@ function TLSPModuleControl.FindIndexBySocketNum;
 begin
   result := 0;
   //бежим пока не находим наш sockid; или не находим -)
-  while (result < ClientCount) and (ShareClient[result].SocketNum <> SocketNum) do
+  while (result < ClientCount) and (ShareClient[result].SockNum <> SocketNum) do
     inc(result);
 
   if Result = ClientCount then Result := -1;
 
 end;
 
-procedure TLSPModuleControl.clientrecv(SocketNum: cardinal);
+procedure TLSPModuleControl.clientrecv;
 var
   index : integer;
 begin
-  index := FindIndexBySocketNum(SocketNum);
-  if index = -1 then exit; //а это кто еще шлет!?..а? наафиг!!!
-
-  if Assigned(onRecv) then
-    onRecv(SocketNum, ShareClient[index].MapData^.buff, ShareClient[index].MapData^.buffersize);
-
-  //данные обработаны. у нас есть еще один нюанс.
-
-{    if (ShareClient[index].MapData^.toclientbuffer.buffsize > 0) then
-      try
-        //надо бы сместить данные в уже обработаном буфере на
-        offset := ShareClient[index].MapData^.toclientbuffer.buffsize;
-        //в текущем буфере размером
-        cursize := ShareClient[index].MapData^.buffersize;
-        //при этом буффер станет размером
-        inc(ShareClient[index].MapData^.buffersize, offset);
-        //а добавочный буфер станет длинной в ноль
-        ShareClient[index].MapData^.toclientbuffer.buffsize := 0;
-
-      //двигаем на офсет
-        move(ShareClient[index].MapData^.Buff[0],
-             ShareClient[index].MapData^.Buff[offset],
-             cursize);
-
-        //и в начало буфера добавятся данные
-        move(ShareClient[index].MapData^.toclientbuffer.Buff[0],
-             ShareClient[index].MapData^.Buff[0],
-             offset);
-      except
-      end     }
+  index := FindIndexBySocketNum(Wparam);
+  if Assigned(onRecv) and (index >= 0) then
+    onRecv(ShareClient[index].MemBuf^.RecvStruct, ShareClient[index].MemBuf^.RecvProcessed)
+  else
+    ShareClient[index].MemBuf^.RecvProcessed := ShareClient[index].MemBuf^.RecvStruct;
+  ShareClient[index].MemBuf^.RecvStruct.CurrentSize := 0;
+  fillchar(ShareClient[index].MemBuf^.RecvStruct.CurrentBuff[0], $ffff, #0);
 end;
 
-procedure TLSPModuleControl.clientsend(SocketNum: cardinal);
+procedure TLSPModuleControl.clientsend;
 var
   index : integer;
 begin
-  index := FindIndexBySocketNum(SocketNum);
-  if index = -1 then exit; //а это кто еще шлет!?.. наааааафиг пошел!!!
-  if Assigned(onSend) then
-    onSend(SocketNum, ShareClient[index].MapData^.buff, ShareClient[index].MapData^.buffersize);
+  index := FindIndexBySocketNum(wparam);
+  if Assigned(onSend) and (index >= 0) then
+    onSend(ShareClient[index].MemBuf^.SendStruct, ShareClient[index].MemBuf^.SendProcessed)
+  else
+    ShareClient[index].MemBuf^.SendProcessed := ShareClient[index].MemBuf^.SendStruct;
+
+  ShareClient[index].MemBuf^.SendStruct.CurrentSize := 0;
+  fillchar(ShareClient[index].MemBuf^.SendStruct.CurrentBuff[0], $ffff, #0);
 end;
 
 //Отправляем данные от имени клиента использующего указаный номер сокета
@@ -347,12 +326,12 @@ function TLSPModuleControl.SendToServer;
 var
   index : integer;
 begin
-  index := setbuffer(SocketNum, buffer, len);
+  index := FindIndexBySocketNum(Struct.SockNum);
   Result := (index >= 0);
   if not Result then
     exit;
-
-  SendMessage(ShareClient[index].MapData^.ReciverHandle, WM_action, SocketNum, Action_sendtoserver);
+  ShareClient[index].MemBuf^.SendRecv := Struct; 
+  SendMessage(ShareClient[index].ReciverHandle, WM_action, Struct.SockNum, Action_sendtoserver);
 end;
 
 //Отправляем данные клиенту использующему указаный номер сокета
@@ -360,30 +339,12 @@ function TLSPModuleControl.SendToClient;
 var
   index : integer;
 begin
-  index := FindIndexBySocketNum(SocketNum);
+  index := FindIndexBySocketNum(Struct.SockNum);
   Result := (index >= 0);
   if not Result then
     exit;
-
-  //Добавляем в акамулятор наши данные
-  Move(buffer, ShareClient[index].MapData^.toclientbuffer.Buff[ShareClient[index].MapData^.toclientbuffer.buffsize], len);
-  //и увеличиваем их длину
-  inc(ShareClient[index].MapData^.toclientbuffer.buffsize, len);
-end;
-
-//Записываем буффер в мапфайл закрепленный за определенным номером сокета
-function TLSPModuleControl.setbuffer;
-begin
-  result := FindIndexBySocketNum(SocketNum);
-  if Result = -1 then exit;
-
-  FillChar(ShareClient[result].MapData^.Buff, $ffff, #0);
-  CopyMemory(
-    @ShareClient[result].MapData^.Buff[0],
-    @buffer[0],
-    len);
-    
-  ShareClient[result].MapData^.buffersize := len;
+  ShareClient[index].MemBuf^.SendRecv := Struct;
+  SendMessage(ShareClient[index].ReciverHandle, WM_action, Struct.SockNum, Action_sendtoClient);
 end;
 
 procedure TLSPModuleControl.setlookfor(newLookFor: string);
@@ -395,7 +356,7 @@ end;
 
 function TLSPModuleControl.islspinstalled: boolean;
 begin
-result := isinstalled;
+  result := isinstalled;
 end;
 
 Procedure TLSPModuleControl.setlspstate(state: boolean);
@@ -412,13 +373,13 @@ if assigned(onLspModuleState) then
 
 end;
 
-procedure TLSPModuleControl.CloseSocket(SocketNum: cardinal);
+procedure TLSPModuleControl.CloseSocket;
 var
  index: integer;
 begin
-  index := FindIndexBySocketNum(SocketNum);
+  index := FindIndexBySocketNum(SockNum);
   if index = -1 then exit;
-  SendMessage(ShareClient[index].MapData^.ReciverHandle, WM_action, SocketNum, Action_closesocket);
+  SendMessage(ShareClient[index].ReciverHandle, WM_action, SockNum, Action_closesocket);
 end;
 
 end.

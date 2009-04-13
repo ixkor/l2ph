@@ -36,6 +36,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
+  procedure CreateParams(var Params : TCreateParams); override;
     { Private declarations }
   public
     { Public declarations }
@@ -165,6 +166,13 @@ procedure TfConvert.FormDestroy(Sender: TObject);
 begin
   savepos(self);
   
+end;
+
+procedure TfConvert.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
+
 end;
 
 end.

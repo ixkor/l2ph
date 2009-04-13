@@ -14,7 +14,7 @@ uses
   Dialogs, ImgList, JvExControls, JvEditorCommon, JvEditor, JvHLEditor,
   StdCtrls, ComCtrls, ToolWin, JvExStdCtrls, JvRichEdit, ExtCtrls, Menus,
   JvExExtCtrls, Mask, JvExMask, JvSpin, JvLabel,
-  fs_iinterpreter, fs_ipascal, siComp;
+  siComp;
 
 type
 
@@ -74,7 +74,6 @@ type
     ToolButton26: TToolButton;
     SendByTimer: TToolButton;
     JvSpinEdit2: TJvSpinEdit;
-    fsScript: TfsScript;
     Panel12: TPanel;
     Panel13: TPanel;
     ToolBar6: TToolBar;
@@ -138,7 +137,6 @@ type
   private
     { Private declarations }
     hScriptThread, idScriptThread: cardinal;
-    HexViewOffset: boolean;   //показывать смещение в Hex формате
     Edit:tfscripteditor;
   public
     PacketView: tfPacketView;  
@@ -178,17 +176,20 @@ uses uencdec, uMain, uSocketEngine, uFilterForm, uData, uScripts;
 procedure TfVisual.init;
 begin
   translate();
-  { TODO : Воттут }
-  //dmData.UpdateEditor(JvHLEditor2);
   Panel7.Width := 46;
   PacketView := TfPacketView.Create(self);
   PacketView.Parent := packetVievPanel;
+  ToolButton17.Down := GlobalSettings.HexViewOffset;
+  PacketView.HexViewOffset := GlobalSettings.HexViewOffset;
+  ToolButton5.Down := GlobalSettings.ShowLastPacket;
+  
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
 
   if Assigned(currentLSP) then
       btnSaveRaw.Visible := TlspConnection(currentLSP).isRawAllowed;
   edit := TfScriptEditor.Create(GroupBox8);
+  Edit.init;
   Edit.Parent := GroupBox8;
   edit.Source.Lines.SetText(
   'begin'#10#13+
@@ -223,15 +224,28 @@ begin
       //в этом екземпляре нет соединения!
     end;
   //
+  TabSheet1.Show;
 end;
 
 procedure TfVisual.deinit;
 begin
-  SavePacketLog;
-  Dump.Destroy;
+  if not isDestroying then
+    SavePacketLog;
+  if assigned(Dump) then
+    Dump.Destroy;
+  dump := nil;
+  if assigned(dumpacumulator) then
   dumpacumulator.Destroy;
-  edit.Destroy;
-  PacketView.Destroy;
+  dumpacumulator := nil;
+  if assigned(Edit) then
+    begin
+      Edit.deinit;
+      edit.Destroy;
+      dump := nil;
+    end;
+  if assigned(PacketView) then
+    PacketView.Destroy;
+  PacketView := nil;
 end;
 
 procedure TfVisual.Processpacket;
@@ -417,14 +431,13 @@ procedure TfVisual.tbtnToSendClick(Sender: TObject);
 begin
   if Memo4.Text <> '' then
     EachLinePacket.Down := true;
-    { TODO : Не забыть }
 
-  Memo4.Lines.Add(PacketView.currentpacket);//Copy(Memo3.Text,1,Pos(sLineBreak,Memo3.Text)-1));
+  Memo4.Lines.Add(PacketView.currentpacket);
 end;
 
 procedure TfVisual.ToolButton17Click(Sender: TObject);
 begin
-  HexViewOffset := ToolButton17.Down;
+  PacketView.HexViewOffset := ToolButton17.Down;
   PacketListRefresh;
 end;
 
@@ -664,14 +677,15 @@ var
   size : integer;
 begin
   PktStr := Memo4.Lines[Memo4.CaretPos.Y];
-  
+  if PktStr = '' then exit;
   size := length(HexToString(PktStr))+2;
+  if size = 2 then exit;
   if ToServer.Down then
     PktStr:='0400000000000000000000'+PktStr
     else
     PktStr:='0300000000000000000000'+PktStr;
-
-  PacketView.ParsePacket(ListView5.Selected.Caption, PktStr, size);
+  { TODO : не передаеться Name пакета }
+  PacketView.ParsePacket('', PktStr, size);
 
 end;
 
@@ -739,7 +753,7 @@ begin
         FillChar(Packet.PacketAsCharArray,$ffff,#0);
         Packet.Size := length(str) + 2;
         move(str[1],Packet.Data,Packet.Size - 2);
-        dmData.encryptAndSend(TlspConnection(currentLSP), Packet, ToServer.Down);
+        TlspConnection(currentLSP).encryptAndSend(Packet, ToServer.Down);
       end;
     end;
 end;
@@ -781,16 +795,16 @@ procedure TfVisual.btnExecuteClick(Sender: TObject);
   procedure RunScript(Visual:TfVisual);
   begin
     try
-      Visual.fsScript.Execute;
+      Visual.Edit.fsScript.Execute;
     finally
       Visual.btnTerminate.Enabled:=False;
       Visual.btnExecute.Enabled:=True;
     end;
   end;
 begin
-    dmData.RefreshPrecompile(fsScript);
-    fsScript.Lines.Assign(Edit.Source.Lines);
-    if dmData.Compile(fsScript,Edit.Editor,L2PacketHackMain.StatusBar1) then
+    dmData.RefreshPrecompile(Edit.fsScript);
+    Edit.fsScript.Lines.Assign(Edit.Source.Lines);
+    if dmData.Compile(Edit.fsScript,Edit.Editor,fMain.StatusBar1) then
     begin
       //Делаем зелененькие поля.
       Edit.Editor.LineStateDisplay.UnchangedColor := clLime;
@@ -800,14 +814,14 @@ begin
 
       if assigned(currenttunel) then
       begin
-        fsScript.Variables['ConnectID'] := Ttunel(currenttunel).serversocket;
-        fsScript.Variables['ConnectName'] := Ttunel(currenttunel).EncDec.CharName;
+        Edit.fsScript.Variables['ConnectID'] := Ttunel(currenttunel).serversocket;
+        Edit.fsScript.Variables['ConnectName'] := Ttunel(currenttunel).EncDec.CharName;
       end
       else
       if assigned(currentLSP) then
       begin
-        fsScript.Variables['ConnectID'] := TlspConnection(currenttunel).SocketNum;
-        fsScript.Variables['ConnectName'] := TlspConnection(currenttunel).EncDec.CharName;
+        Edit.fsScript.Variables['ConnectID'] := TlspConnection(currentLSP).SocketNum;
+        Edit.fsScript.Variables['ConnectName'] := TlspConnection(currentLSP).EncDec.CharName;
       end;
 
       btnExecute.Enabled:=False;
@@ -818,7 +832,7 @@ end;
 
 procedure TfVisual.btnTerminateClick(Sender: TObject);
 begin
-  fsScript.Terminate;
+  Edit.fsScript.Terminate;
   TerminateThread(hScriptThread,0);
   btnTerminate.Enabled:=False;
   btnExecute.Enabled:=True;
@@ -935,8 +949,8 @@ end;
 
 procedure TfVisual.Translate;
 begin
-  Lang.Language := L2PacketHackMain.lang.Language;
-  if assigned(PacketView) then PacketView.lang.Language := L2PacketHackMain.lang.Language;
+  Lang.Language := fMain.lang.Language;
+  if assigned(PacketView) then PacketView.lang.Language := fMain.lang.Language;
 end;
 
 procedure TfVisual.ReloadThisClick(Sender: TObject);

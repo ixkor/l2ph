@@ -12,7 +12,8 @@ const
   Action_client_recv = 2;
   Action_client_send = 3;
   Action_client_disconnect = 4;
-  Action_sendtoserver = 5;
+  Action_sendtoServer = 5;
+  Action_sendtoClient = 6;
   Action_closesocket = 7;
 
   //события
@@ -23,46 +24,69 @@ type
   //буффер.
   Tbuffer = array [0..$FFFF] of Byte;
 
+  PShareMapMain = ^TShareMapMain;
   //Основная шаред структура
   TShareMapMain = record
     ReciverHandle : Thandle;  //Сюда - хендл нашего приемника
     ProcessesForHook : string[100];  //сюда - те процессы в которых нужно перехватывать функции.
   end;
-  PShareMapMain = ^TShareMapMain;
 
-  //Шаред структура клиентов
-  TShareMapClient = record
-    ReciverHandle : Thandle; //куда будет слать основное приложение уведомления
-    ip : string[15];  //куда соединился сокет (только инфо. управления нет.)
-    port : Cardinal;  //на какой порт
+  TSendRecvStruct = packed record
+      exists:boolean;
+      SockNum : integer;
+      CurrentBuff: Tbuffer;
+      CurrentSize : cardinal;
+    end;
+
+  TDisconnectStruct = packed record
+      exists:boolean;
+      SockNum : integer;
+      lpErrno : integer;
+    end;
+
+
+  //общий участок памяти
+  PTmemoryBuffer = ^TMemoryBuffer;
+
+  TConnectStruct = packed record
+    Exists:boolean;
     application:string[255]; //что за приложение
     pid: Cardinal; //pid процесса
-    Buff: Tbuffer;    //буффер для обмена ланными с основным приложением
-    buffersize : cardinal; //размер этого буфера
-    toclientbuffer: //временный буфер. используется при sendtoclient
-    record
-      Buff: Tbuffer; // Содержимое буффера
-      buffsize: byte;
-    end;
-    ignorenextsend:boolean; //флаг, используется в WSPSend и при
-    hookithandle : thandle; //хендл мьютекса уведомляющего о том что данное соединение следует перехватывать.
+    SockNum : integer;
+    ip : string[15];  //куда соединился сокет (только инфо. управления нет.)
+    port : Cardinal;  //на какой порт
+    HookIt : boolean;
+    ReciverHandle : thandle;
+    /////////////////
+    MemBuf : PTmemoryBuffer;
+    MemBufHandle : THandle;
   end;
-  
-  PShareMapClient = ^TShareMapClient;
 
-  TshareClient =
-    record
-      SocketNum : cardinal;  //сокет
-      MapData  : PShareMapClient;  //указатель на шареддату
-      MapHandle: THandle;  //хендл шареддаты
+
+  TMemoryBuffer = packed record
+    ConnectStruct : TConnectStruct;
+    DisconnectStruct: TDisconnectStruct;
+    SendStruct, SendProcessed,
+    RecvStruct, RecvProcessed,
+    SendRecv : TSendRecvStruct;
+  end;
+
+
+  TClient = class(tobject)
+      canWork:boolean;
+      MemBuf : PTmemoryBuffer;
+      MemBufHandle : THandle;
+    /////////////////////////////
+      SockNum : Integer;  //сокет
+      ControlHandle : thandle;
+      InRecv, inSend : boolean;
     end;
 
-  TshareMain =
-    record
+  TshareMain = record
       MapData : PShareMapMain; //блаблабла
       MapHandle : THandle; //ляляля. -)
     end;
-    
+ 
 implementation
 
 end.

@@ -422,6 +422,7 @@ visual.TabSheet2.Hide;
 visual.TabSheet3.TabVisible := false;
 visual.TabSheet3.Hide;
 visual.TabSheet1.TabVisible := false;
+visual.PageControl1.ActivePageIndex := visual.TabSheet1.PageIndex;
 visual.ToolBar3.Hide;
 visual.btnSaveRaw.Hide;
 visual.tbtnToSend.Hide;
@@ -434,8 +435,7 @@ visual.Parent := TabSheet3;
 visual.Dump := TStringList.Create;
 visual.PacketView := TfPacketView.Create(self);
 visual.PacketView.Parent := visual.packetVievPanel;
-
-
+visual.Show;
 end;
 
 procedure TfProcessRawLog.FormDestroy(Sender: TObject);

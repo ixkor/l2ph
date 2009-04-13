@@ -115,7 +115,7 @@ AutoIncBuild=0
 MajorVer=3
 MinorVer=5
 Release=1
-Build=99
+Build=100
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=3.5.1.99
+FileVersion=3.5.1.100
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -134,9 +134,22 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=component\
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlOutputDirectorry]
+[HistoryLists\hlSearchPath]
 Count=1
-Item0=Build\
+Item0=component\
+[HistoryLists\hlUnitOutputDirectory]
+Count=1
+Item0=component\
+[HistoryLists\hlBPLOutput]
+Count=2
+Item0=.
+Item1=component\
+[HistoryLists\hlDCPOutput]
+Count=1
+Item0=component\

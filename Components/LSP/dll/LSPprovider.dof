@@ -123,6 +123,8 @@ Private=0
 DLL=0
 Locale=1049
 CodePage=1251
+[Version Info Keys]
+FileVersion=1.0.0.0
 [HistoryLists\hlDebugSourcePath]
 Count=1
 Item0=component\
@@ -135,9 +137,6 @@ Item0=component\
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=component\
-[HistoryLists\hlOutputDirectorry]
-Count=1
-Item0=..\..\..\build
 [HistoryLists\hlBPLOutput]
 Count=2
 Item0=.

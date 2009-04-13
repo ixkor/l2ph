@@ -13,7 +13,8 @@ uses
   classes,
   uVisualContainer,
   ComCtrls,
-  SyncObjs;
+  SyncObjs,
+  uMainReplacer;
 
 const
   WSA_VER=$202;
@@ -105,7 +106,7 @@ procedure TSocketEngine.DeInitSocket;
 begin
   if isGlobalDestroying then exit;
   // Если была ошибка - выводим ее
-  if (ExitCode <> 0) and (ExitCode <> 5) then
+  if (ExitCode <> 0) and (ExitCode <> 5) and (ExitCode <> 6) then
   begin
     if hsocket >= 0 then
       SendMSG(format(rsTsocketEngineSocketError, [hsocket, ExitCode, SysErrorMessage(ExitCode)]));
