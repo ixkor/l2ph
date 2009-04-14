@@ -232,8 +232,8 @@ try
   if assigned(sockEngine) then
   while i < sockEngine.tunels.Count do
   begin
-    if assigned(TlspConnection(sockEngine.tunels.Items[i]).Visual) then
-      TlspConnection(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
+    if assigned(Ttunel(sockEngine.tunels.Items[i]).Visual) then
+      Ttunel(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
     inc(i);
   end;
 

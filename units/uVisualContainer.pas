@@ -4,6 +4,7 @@ interface
 
 uses
   uGlobalFuncs,
+  math,
   uSharedStructs,
   StrUtils,
   uREsourceStrings,
@@ -163,7 +164,6 @@ type
     procedure IDontknowHowToNameThis;
     Procedure setNofreeBtns(down:boolean);
     Procedure ThisOneDisconnected;
-
   end;
 
 implementation
@@ -248,6 +248,9 @@ begin
   PacketView := nil;
 end;
 
+
+
+
 procedure TfVisual.Processpacket;
     Procedure AddToListView5(ItemImageIndex:byte; ItemCaption:String; ItemPacketNumber: LongWord; ItemId, ItemSubId : word; Visible : boolean);
     var
@@ -262,10 +265,10 @@ procedure TfVisual.Processpacket;
           SubItems.Add(IntToStr(ItemPacketNumber));
           //код пакета
 
-          if ItemId = 0 then
-            str := IntToHex(ItemSubId,4)
+          if ItemSubId = 0 then
+            str := IntToHex(ItemId,2)
           else
-            str := IntToHex(ItemId,2);
+            str := IntToHex(ItemSubId,4);
 
           SubItems.Add(str);
           if not Visible then MakeVisible(false);
@@ -291,10 +294,10 @@ procedure TfVisual.Processpacket;
 
       with CurrentList.Items.Add do
       begin
-        if ItemId = 0 then
-            str := IntToHex(ItemSubId,4)
+        if ItemSubId = 0 then
+            str := IntToHex(ItemId, 2)
           else
-            str := IntToHex(ItemId,2);
+            str := IntToHex(ItemSubId, 4);
 
         Caption :=str;
         Checked := ItemChecked;
@@ -306,6 +309,8 @@ var
   id: Byte;
   subid: word;
   i: integer;
+  pname : string;
+  isunknown : boolean;
 
 begin
   if PacketNumber < 0 then exit; //или -1 0_о
@@ -316,6 +321,11 @@ begin
   SubId := Word(id shl 8+Byte(newpacket.Data[1]));
 
 
+  isunknown := GetPacketName(id, subid, FromServer, pname);
+  if isunknown then AddToPacketFilterUnknown(FromServer, id, subid, True);
+  AddToListView5(math.ifthen(FromServer, 0, 1), Pname, PacketNumber, Id, subid, not ToolButton5.Down);
+
+  {
   //------------------------------------------------------------------------
   //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
   if FromServer then begin  //от сервера
@@ -404,7 +414,7 @@ begin
 
       end;
     end;
-  end;   
+  end; }  
 end;
 
 procedure TfVisual.ListView5Click(Sender: TObject);
