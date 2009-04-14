@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>(Копия статьи) "что нужно знать для написания скриптов"</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT 
+face=Arial>&nbsp;</FONT><FONT size=5><FONT face=Arial color=#003f7d><STRONG>Что 
+нужно знать для написания скриптов.</STRONG></FONT><FONT size=3> 
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<HR>
+</FONT></FONT></FONT></FONT></FONT>
+<P></P>
+<P><FONT size=2>Автор </FONT><A class=bigusername title="Ник в ответ" href="javascript:insertNick('xkor', '46');"><SPAN 
+style="FONT-WEIGHT: bold; COLOR: green"><FONT size=2>xkor</FONT></SPAN></A><FONT 
+size=2>. Оригинал </FONT><A href="http://coderx.ru/showthread.php?t=10"><FONT 
+size=2>здесь</FONT></A><FONT size=2>.<BR>Немного 
+видоизменена.</FONT><BR>_____________</P>
+<P>&nbsp;</P>
+<P>Прежде всего вам понадобится умение программирования на Object Pascal (или 
+Delphi, что примерно тоже самое) и для манипуляций с пакетами естественно 
+понадобится знать что они из себя представляют, о пакетах подробнее можно 
+почитать в соответствующем разделе.<BR><BR>В этой теме я лиш приведу описания 
+внутренних функций и переменных программы.<BR><BR>Описание FastScript: (это 
+скриптовой движек использованный в программе)<BR><A 
+href="http://forum.coderx.ru/uploads/fs.rtf" 
+target=_blank>http://forum.coderx.ru/uploads/fs.rtf</A><BR><BR><U><B>Доступные 
+переменные:</B></U><BR><B>pck </B>(string) - текущий обрабатываемый пакет (без 
+первых двух байт с размером)<BR><B>FromClient </B>(boolean) - пакет (<B>pck</B>) 
+пришел от клиента (всёравно что <B>not FromServer</B>)<BR><B>FromServer 
+</B>(boolean) - пакет (<B>pck</B>) пришел от сервера (всёравно что <B>not 
+FromClient</B>)<BR><B>buf </B>(string) - буфер, используемый некоторыми 
+функциями<BR><B>ConnectName </B>(string) - имя чара от или к которому идёт пакет 
+(<B>v. 3.1.3+</B>)<BR><B>ConnectID </B>(integer) - номер соединения для которого 
+выполняется скрипт<BR><BR><U><B>Доступные функции:</B></U><BR><B>ShowForm </B>и 
+<B>HideForm </B>- для отображения/скрытия&nbsp;формы (<B>UserForm</B>), 
+управлять которой можно из скрипта<BR>Для рисования на ней контролов надо 
+указывать <B>UserForm</B> в качестве родителя<BR><B>SendToClient </B>- 
+отправляет клиенту содержимое переменной <B>buf</B><BR><B>SendToServer </B>- 
+отправляет серверу содержимое переменной 
+<B>buf</B><BR><B>SendToClientEx(CharName: string) </B>- отправляет клиенту с 
+именем CharName содержимое переменной <B>buf</B> (<B>v. 
+3.1.3+</B>)<BR><B>SendToServerEx(CharName: string) </B>- отправляет серверу с 
+именем CharName содержимое переменной <B>buf</B> (<B>v. 3.1.3+</B>)<BR>(к пакету 
+buf автоматически добавляются 2 байта 
+длины)<BR><STRONG>CanUseAltTab(FormCaption: string) </STRONG>- Добавляет форму 
+созданую в скрипте в список форм видимых по alt+tab. в качестве параметра - 
+заголовок формы. (<B>v. 
+3.5.1+</B>)<BR><STRONG>NoCloseServerAfterClientDisconnect</STRONG> - запрещает 
+закрытие соединения при дисконекте клиента (<B>v. 
+3.5.1+</B>)<BR><STRONG>NoCloseClientAfterServerDisconnect</STRONG> - запрещает 
+закрытие соединения при дисконекте сервера (<B>v. 
+3.5.1+</B>)<BR><STRONG>CloseServerAfterClientDisconnect</STRONG> - разрешает 
+закрытие соединения при дисконекте клиента (<B>v. 
+3.5.1+</B>)<BR><STRONG>CloseClientAfterServerDisconnect</STRONG> - разрешает 
+закрытие соединения при дисконекте сервера (<B>v. 3.5.1+</B>)<BR>(по умолчанию 
+закрытия разрешены)<BR><B>Disconnect </B>- закрывает соединение (<B>v. 
+3.5.1+</B>)<BR><BR><B>ConnectNameByID</B>(id:integer):string - возвращает имя 
+соединения по его ID (<B>v. 
+3.2.0+</B>)<BR><B>ConnectIDByName</B>(name:string):integer - возвращает ID 
+соединения по его имени (<B>v. 3.2.0+</B>)<BR><B>SetName</B>(Name:string) - 
+устанавливает имя соединения (<B>v. 3.2.0+</B>)<BR><BR><B>ReadC</B>(var 
+index:integer):byte - читает из переменной <B>pck </B>байт<BR><B>ReadH</B>(var 
+index:integer):word - читает из переменной <B>pck </B>число (2 байта) (<B>v. 
+3.1.8+</B>)<BR><B>ReadD</B>(var index:integer):integer - читает из переменной 
+<B>pck </B>число (4 байта)<BR><B>ReadF</B>(var index:integer):double - читает из 
+переменной <B>pck </B>число c плавающей запятой(8 байт) (<B>v. 
+3.1.8+</B>)<BR><B>ReadS</B>(var index:integer):string - читает из переменной 
+<B>pck </B>строку (в пакете строка unicode нультерминированная, а результирующая 
+строка обычная паскалевская)<BR>Index - начальная позиция чтения, которая 
+модифицируется функцией (сдвигается на число считанных 
+байт)<BR><BR><B>HStr</B>(h:string):string - преобразует строку в 
+HEX-последовательность<BR>К примеру, HStr('AA 00 BB 00 CC 00') вернёт цепочку 
+байт #$AA#$00#$BB#$00#$CC#$00. Можно передавать строку как с пробелами, так и 
+без них; регистр символов не имеет значения.<BR><BR><B>WriteC</B>(v:byte; 
+ind:integer=0) - пишет в переменную <B>buf </B>один 
+байт<BR><B>WriteH</B>(v:word; ind:integer=0) - пишет в переменную <B>buf 
+</B>число (2 байта) (<B>v. 3.1.8+</B>)<BR><B>WriteD</B>(v:integer; 
+ind:integer=0) - пишет в переменную <B>buf </B>число (4 
+байта)<BR><B>WriteF</B>(v:double; ind:integer=0) - пишет в переменную <B>buf 
+</B>число c плавающей запятой(8 байт) (<B>v. 
+3.1.8+</B>)<BR><B>WriteS</B>(v:string) - пишет в переменную <B>buf </B>строку 
+(автоматический перевод в unicode)<BR>В первых четырёх процедурах присутствует 
+необязательный параметр ind. Если параметр не указан, то переменная buf 
+дополняется байтом/числом, иначе модифицируется часть буфера.<BR></P>
+<P><STRONG>sendMSG</STRONG>(msg:String) - пишет msg в лог 
+ПХ.<BR><B>LoadLibrary</B>(LibName:String):Integer - подгружает к программе 
+библиотеку LibName и возвращает указатель на неё (<B>v. 
+3.1.8+</B>)<BR><B>FreeLibrary</B>(LibHandle:Integer):Boolean - выгружает из 
+памяти программы библиотеку (<B>v. 
+3.1.8+</B>)<BR><STRONG>CallFnc</STRONG>(LibHandle:integer;FunctionName:String;Count:Integ 
+er;Params:array of variant):String- вызывает функцию FunctionName из зарание 
+подгруженной библиотеки с указателем LibHandle и параметрами перечисленными в 
+Params (<STRONG>v. 
+3.5.1+</STRONG>)<BR><STRONG>CallPr</STRONG>(LibHandle:integer;FunctionName:String;Count:Integ 
+er;Params:array of variant);- вызывает процедуру FunctionName из зарание 
+подгруженной библиотеки с указателем LibHandle и параметрами перечисленными в 
+Params (<B>v. 
+3.5.1+</B>)<BR><STRONG>CallSF</STRONG>(ScriptName:String;FunctionName:String;Params:array 
+of variant):variant - вызывет функцию FunctionName&nbsp;из скрипта ScriptName 
+(<B>v. 3.5.1+</B>)</P>
+<P><STRONG><EM>Пример:<BR></EM></STRONG>buf=HStr('AA BB CC DD EE');<BR>Если 
+вызвать функцию WriteD(10,1), то получим buf=[0A 00 00 00 EE].<BR>А если просто 
+WriteD(10), то [AA BB CC DD EE 0A 00 00 00].<BR><BR>Например скрипт:</P>
+<DIV style="MARGIN: 5px 20px 20px">
+<DIV class=smallfont style="MARGIN-BOTTOM: 2px">Код:</DIV><PRE class=alt2 dir=ltr style="BORDER-RIGHT: 1px inset; PADDING-RIGHT: 6px; BORDER-TOP: 1px inset; PADDING-LEFT: 6px; PADDING-BOTTOM: 6px; MARGIN: 0px; OVERFLOW: auto; BORDER-LEFT: 1px inset; WIDTH: 640px; PADDING-TOP: 6px; BORDER-BOTTOM: 1px inset; HEIGHT: 146px; TEXT-ALIGN: left">begin
+  if FromClient and (ConnectName='SokolA') 
+  and (pck=HStr('1b 04 00 00 00')) then begin
+    buf:=HStr('45 00 00 00 00 00 00 00 00 00');
+    SendToServerEx('SokolB');
+    pck:='';
+  end;
+end.</PRE></DIV>
+<P>При получении от клиента играющего за чара с ником SokolA пакета 1b 04 00 00 
+00 (социальное действие "Victory") непропустит этот пакет и отправит пакет 45 00 
+00 00 00 00 00 00 00 00 (команда сесть) от имени клиента играющего за чара с 
+ником SokolB, тоесть играете вы в два окна, в одном SokolA, в другом SokolB, 
+нажимаете в первом Victory, и SokolB садится.<BR><BR><B>Пример вызова функций из 
+системных библиотек:</B></P>
+<DIV style="MARGIN: 5px 20px 20px">
+<DIV class=smallfont style="MARGIN-BOTTOM: 2px">Код:</DIV><PRE class=alt2 dir=ltr style="BORDER-RIGHT: 1px inset; PADDING-RIGHT: 6px; BORDER-TOP: 1px inset; PADDING-LEFT: 6px; PADDING-BOTTOM: 6px; MARGIN: 0px; OVERFLOW: auto; BORDER-LEFT: 1px inset; WIDTH: 640px; PADDING-TOP: 6px; BORDER-BOTTOM: 1px inset; HEIGHT: 242px; TEXT-ALIGN: left">var
+  lib,Lib1:Integer;
+  Res:variant;
+  ar:array of variant;
+begin
+  lib := loadLibrary('User32.dll');
+  lib1 := loadLibrary('GDI32.dll');
+  Res := CallFunction(lib,'MessageBoxW',4,[nil,'Text1','text2',0]);
+  Res := CallFunction(lib,'GetDC',1,[0]);
+  CallFunction(lib1,'LineTo',3,[Res,100,100]);
+  CallFunction(lib,'ReleaseDC',2,[0,Res]);
+  FreeLibrary(lib);
+  FreeLibrary(lib1);
+end.</PRE></DIV>
+<P><B><I>Скрипты:</I></B><BR>Процедура <B>Init </B>вызывается когда вы 
+устанавливаете рядом со скриптом галочку. либо вызываете TestInit.<BR>Процедура 
+<B>Free </B>вызывается когда вы убираете рядом со скриптом галочку. либо 
+вызываете TestFree.<BR>Основное тело скрипта (между <B>begin </B>и <B>end</B>) 
+вызывается каждый раз при получении пакета от сервера или клиента если скрипт 
+отмечен галочкой.<BR></P></BODY>
+</html>

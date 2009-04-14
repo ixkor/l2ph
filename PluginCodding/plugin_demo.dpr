@@ -3,13 +3,13 @@ library plugin_demo;
 {$define RELEASE} // для совместимости с релизом пакетхака, при дебуге можно закоментировать
 
 uses
+  FastMM4 in '..\fastmm\FastMM4.pas',
+  FastMM4Messages in '..\fastmm\FastMM4Messages.pas',
   SysUtils,
   Windows,
   dialogs,
   Classes,
-  usharedstructs in '..\units\usharedstructs.pas',
-  FastMM4 in '..\fastmm\FastMM4.pas',
-  FastMM4Messages in '..\fastmm\FastMM4Messages.pas';
+  usharedstructs in '..\units\usharedstructs.pas';
 
 var                                {version} {revision}
   min_ver_a: array[0..3] of Byte = ( 3,5,1,      98   );

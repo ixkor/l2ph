@@ -1,0 +1,429 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Содержимое uSharedStructs.pas</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">
+<P><FONT face=Arial><FONT size=2><FONT color=#000000>&nbsp;&nbsp;</FONT><FONT 
+face=Arial color=#000000>&nbsp;</FONT></FONT><FONT size=5><FONT 
+color=#003f7d><FONT face=Arial>Содержимое uSharedStructs.pas</FONT> 
+</FONT></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT face=Arial color=#000000 size=2></FONT>
+<P><FONT color=#000000 size=2></FONT><FONT face=Arial>
+<P><FONT color=#000000 size=2></FONT>
+<P><FONT color=#000000 size=2></FONT>
+<P><FONT color=#000000 size=2></FONT>
+<P><FONT color=#000000 size=2></FONT></P><FONT color=#000000 size=2>
+<HR>
+</FONT>
+<P><FONT color=#000000 size=2>Для версии 3.5.1.100</FONT></P>
+<P></FONT></FONT></SPAN><FONT size=2><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">unit</SPAN> 
+usharedstructs;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">interface</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN> Classes;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN><BR>&nbsp; 
+PCK_GS_ToServer = <SPAN style="COLOR: rgb(0,0,240)">4</SPAN>;</FONT></P><FONT 
+size=2>&nbsp; PCK_GS_ToClient = <SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>;<BR>&nbsp; PCK_LS_ToServer = <SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>;<BR>&nbsp; PCK_LS_ToClient = <SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">type</SPAN><BR><BR>&nbsp; 
+TEncDecSettings =<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">record</SPAN><BR>&nbsp; &nbsp; 
+isChangeXor,<BR>&nbsp; &nbsp; isNoDecrypt,<BR>&nbsp; &nbsp; 
+isNoProcessToClient,<BR>&nbsp; &nbsp; isNoProcessToServer,<BR>&nbsp; &nbsp; 
+isKamael,<BR>&nbsp; &nbsp; isGraciaOff,<BR>&nbsp; &nbsp; isSaveLog,<BR>&nbsp; 
+&nbsp; ShowLastPacket,<BR>&nbsp; &nbsp; HexViewOffset : <SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{Используется 
+плагинами}</SPAN><BR><BR>&nbsp; PCodingClass =^TCodingClass;<BR>&nbsp; 
+TCodingClass = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">class</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">public</SPAN><BR>&nbsp; &nbsp; 
+GKeyS,GKeyR:array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Byte</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> InitKey<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> XorKey; Interlude: 
+<SPAN style="COLOR: rgb(0,0,0)">Boolean</SPAN> = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">False</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> DecryptGP<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> Data; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> Size: <SPAN 
+style="COLOR: rgb(0,0,0)">Word</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> EncryptGP<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> Data; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> Size: <SPAN 
+style="COLOR: rgb(0,0,0)">Word</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR>&nbsp; 
+PCorrectorData = ^TCorrectorData;<BR>&nbsp; TCorrectorData = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">packed</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">record</SPAN><BR>&nbsp; &nbsp; 
+_seed : <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// random generator seed for 
+mixing id tables</SPAN><BR>&nbsp; &nbsp; _<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>_byte_table : <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR>&nbsp; &nbsp; _<SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>_byte_table : <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR>&nbsp; &nbsp; _<SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>_byte_table_size: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; &nbsp; _id_mix : <SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN>;<BR>&nbsp; &nbsp; temp_seed : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; &nbsp; protocol: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; <BR><BR>&nbsp; 
+TCharArray = array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..$FFFF] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">AnsiChar</SPAN>;<BR>&nbsp; <BR>&nbsp; PPacket = 
+^TPacket;&nbsp; <BR>&nbsp; TPacket = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">packed</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">record</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Integer</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Size: <SPAN 
+style="COLOR: rgb(0,0,0)">Word</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; Data: 
+array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..$FFFD] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Byte</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>PacketAsByteArray: array[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>..$FFFF] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Byte</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>PacketAsCharArray: TCharArray<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pckSize: <SPAN 
+style="COLOR: rgb(0,0,0)">Word</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; pckId: 
+<SPAN style="COLOR: rgb(0,0,0)">Byte</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+pckData: array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..$FFFC] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Byte</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR>&nbsp; 
+TNewPacket = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> 
+Packet:tpacket;FromServer : <SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>; 
+Caller: <SPAN style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">object</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Caller это TencDec к примеру 
+-&gt; TencDec(caller).name вызывает акшин только TencDec </SPAN><BR>&nbsp; 
+TNewAction = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>action : <SPAN 
+style="COLOR: rgb(0,0,0)">byte</SPAN>; Caller: <SPAN 
+style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">object</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Caller зависит от 
+action</SPAN><BR>&nbsp; TStringArray = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR><BR>&nbsp; <BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{экземпляр этого класса (точнее 
+его потомок) передается в плагины.}</SPAN>&nbsp; <BR>&nbsp; TOnTimer = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> param: <SPAN 
+style="COLOR: rgb(0,0,0)">Cardinal</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; stdcall;<BR>&nbsp; tConnectInfo = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">packed</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">record</SPAN><BR>&nbsp; &nbsp; 
+ConnectID:<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; &nbsp; 
+ConnectName:string[<SPAN style="COLOR: rgb(0,0,240)">200</SPAN>];<BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; 
+PPluginStruct = ^TPluginStruct;<BR>&nbsp; TPluginStruct = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">class</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">private</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">public</SPAN><BR>&nbsp; 
+&nbsp; userFormHandle: THandle;<BR>&nbsp; &nbsp; ConnectInfo : 
+tConnectInfo;<BR>&nbsp; &nbsp; UserFuncs : <SPAN 
+style="COLOR: rgb(0,0,0)">tstringlist</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadC<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">byte</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">word</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadF<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">double</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ReadCEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">byte</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadHEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">word</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadDEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ReadFEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">double</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ReadSEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+WriteC<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">byte</SPAN>;&nbsp; &nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">word</SPAN>;&nbsp; &nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteF<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">double</SPAN>;&nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;&nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteCEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">byte</SPAN>;&nbsp; &nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteHEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">word</SPAN>;&nbsp; &nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteDEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteFEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">double</SPAN>;&nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteSEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> v:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;&nbsp; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+Virtual; Abstract;<BR><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+CreateAndRunTimerThread<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> interval, usrParam: 
+<SPAN style="COLOR: rgb(0,0,0)">Cardinal</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> OnTimerProc: 
+TOnTimer<SPAN style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">Pointer</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+ChangeTimerThread<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> timer: <SPAN 
+style="COLOR: rgb(0,0,0)">Pointer</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> interval: <SPAN 
+style="COLOR: rgb(0,0,0)">Cardinal</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> usrParam: 
+<SPAN style="COLOR: rgb(0,0,0)">Cardinal</SPAN> = $ffffffff;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> OnTimerProc: 
+TOnTimer = <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">nil</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+DestroyTimerThread<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> timer: <SPAN 
+style="COLOR: rgb(0,0,0)">Pointer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> StringToHex<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>str1,Separator:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+HexToString<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>Hex:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+DataPckToStrPck<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+SendPacketData<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> tid: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> ToServer: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+SendPacketStr<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> tid: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> ToServer: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> SendPacket<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Size: <SPAN 
+style="COLOR: rgb(0,0,0)">Word</SPAN>; pck: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; tid: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; ToServer: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+getConnectionName<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>id : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+getConnectioidByName<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>name : <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Function</SPAN> 
+GoFirstConnection:<SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>; Virtual; 
+Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Function</SPAN> 
+GoNextConnection:<SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>; Virtual; 
+Abstract; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+ShowUserForm<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>ActivateOnly:<SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> 
+HideUserForm;&nbsp; Virtual; Abstract;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">implementation</SPAN><BR><BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</FONT></BODY>
+</html>
