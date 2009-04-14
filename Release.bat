@@ -15,11 +15,13 @@ md Plugins
 md Scripts
 md settings
 copy ..\build\settings\*.* settings\*.*
+copy ..\build\plugins\*.dll plugins\*.dll
+
 del settings\windows.ini
 del settings\options.ini
 del settings\*.dat
 del newxor.dll
 
-"C:\Program Files\WinRAR\rar.exe" a -df -m5 -r -y ..\l2phx.3.5.1.xx.rar .\*.*
+"C:\Program Files\WinRAR\rar.exe" a -df -m5 -r -y ..\l2phx.3.5.xx.yyy.rar .\*.*
 cd ..
 rd TEMP
