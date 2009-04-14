@@ -614,9 +614,7 @@ if currentScript.isRunning then
     try
       currentScript.Editor.fsScript.CallFunction('Free',0);
     except
-      currentScript.isRunning := true; //я не представляю что должно произойти что бы мы сюда попали
-      currentScript.ListItem.Checked := true; //но на всякий пожарный код пусть будет
-      currentScript.updatecontrols;
+      StatusBar.SimpleText := 'Error in free method. check script!.'
     end;
   end;
   end;
