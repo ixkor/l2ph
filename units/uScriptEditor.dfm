@@ -1,21 +1,21 @@
 object fScriptEditor: TfScriptEditor
   Left = 0
   Top = 0
-  Width = 615
-  Height = 450
+  Width = 443
+  Height = 270
   Align = alClient
   TabOrder = 0
   object Splitter1: TSplitter
-    Left = 217
+    Left = 233
     Top = 0
-    Height = 450
+    Height = 270
     Visible = False
   end
   object Editor: TSyntaxMemo
-    Left = 220
+    Left = 236
     Top = 0
-    Width = 395
-    Height = 450
+    Width = 207
+    Height = 270
     Lines.Strings = (
       '1'
       '2'
@@ -213,45 +213,65 @@ object fScriptEditor: TfScriptEditor
     OnChange = EditorChange
     OnKeyUp = EditorKeyUp
   end
-  object WatchList: TListView
+  object PnlWatchList: TPanel
     Left = 0
     Top = 0
-    Width = 217
-    Height = 450
+    Width = 233
+    Height = 270
     Align = alLeft
-    BevelInner = bvNone
-    BevelOuter = bvNone
-    Columns = <
-      item
-        Caption = 'Name'
-        Width = 91
-      end
-      item
-        Caption = 'Type'
-        Width = 40
-      end
-      item
-        AutoSize = True
-        Caption = 'Value'
-      end>
-    ColumnClick = False
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    FullDrag = True
-    GridLines = True
-    HideSelection = False
-    MultiSelect = True
-    ReadOnly = True
-    RowSelect = True
-    ParentFont = False
-    ParentShowHint = False
-    ShowHint = True
+    Caption = 'PnlWatchList'
     TabOrder = 1
-    ViewStyle = vsReport
     Visible = False
+    object CurLineLabel: TLabel
+      Left = 1
+      Top = 256
+      Width = 231
+      Height = 13
+      Align = alBottom
+    end
+    object WatchList: TListView
+      Left = 1
+      Top = 1
+      Width = 231
+      Height = 255
+      Align = alClient
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      Columns = <
+        item
+          Caption = 'Name'
+          Width = 70
+        end
+        item
+          Caption = 'Type'
+          Width = 40
+        end
+        item
+          Caption = 'SetLine'
+          Width = 48
+        end
+        item
+          AutoSize = True
+          Caption = 'Value'
+        end>
+      ColumnClick = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      FullDrag = True
+      GridLines = True
+      HideSelection = False
+      MultiSelect = True
+      ReadOnly = True
+      RowSelect = True
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+      ViewStyle = vsReport
+    end
   end
   object Source: TSyntTextSource
     Lines.Strings = (
