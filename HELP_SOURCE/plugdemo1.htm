@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>plugin_demo.dpr; работа с пакетами</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY>
+<P><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT 
+face=Arial>&nbsp;</FONT><FONT size=5><FONT face=Arial 
+color=#003f7d><STRONG>plugin_demo.dpr; работа с пакетами.</STRONG></FONT><FONT 
+size=3><FONT color=#003f7d> </FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<P>
+<HR>
+</FONT></FONT></FONT></FONT></FONT>
+<P></P>
+<P><STRONG>Для версии 3.5.1.100</STRONG></P>
+<P><FONT size=2>library plugin_demo;<BR><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{$define RELEASE}</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// для совместимости с релизом 
+пакетхака, при дебуге можно закоментировать</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN><BR>&nbsp; FastMM4 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4.pas'</SPAN>,<BR>&nbsp; 
+FastMM4Messages <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> 
+<SPAN 
+style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4Messages.pas'</SPAN>,<BR>&nbsp; 
+SysUtils,<BR>&nbsp; Windows,<BR>&nbsp; dialogs,<BR>&nbsp; Classes,<BR>&nbsp; 
+usharedstructs <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> 
+<SPAN 
+style="COLOR: rgb(0,0,240)">'..\units\usharedstructs.pas'</SPAN>;<BR></FONT></P>
+<P><BR><FONT size=2><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{version}</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{revision}</SPAN><BR>&nbsp; 
+min_ver_a: array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Byte</SPAN> = <SPAN style="COLOR: rgb(0,0,0)">(</SPAN> 
+<SPAN style="COLOR: rgb(0,0,240)">3</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>,&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">98</SPAN>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; min_ver: <SPAN 
+style="COLOR: rgb(0,0,0)">Integer</SPAN> absolute min_ver_a; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// минимальная поддерживаемая 
+версия программы</SPAN><BR>&nbsp; ps: TPluginStruct;<BR>&nbsp; ppck: 
+PPacket;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN><BR>&nbsp; 
+pause=<SPAN style="COLOR: rgb(0,0,240)">15000</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; ColvoHP, 
+CharObjID, ItemObjHP: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; 
+CurHP, MaxHP, lastHP, cntHP:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; TimerHP: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>;<BR>&nbsp; StatusHP: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+GetPluginInfo<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> ver: <SPAN 
+style="COLOR: rgb(0,0,0)">Integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">PChar</SPAN>; stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ver&lt;min_ver <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+Result:=<SPAN style="COLOR: rgb(0,0,240)">'Демонстрационный Plugin к программе 
+l2phx'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">'Для версий 3.5.1.98+'</SPAN>+sLineBreak+<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'У вас 
+старая версия программы! Плагин не сможет корректно с ней 
+работать!'</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+Result:=<SPAN style="COLOR: rgb(0,0,240)">'Демонстрационный Plugin к программе 
+l2phx'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">'Для версий 3.5.1.98+'</SPAN>+sLineBreak+<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">'Автовыпивалка НР бутылок'</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Say<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>msg:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; buf: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">with</SPAN> ps <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+buf:=HexToString<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'4A 00 00 00 00'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,<SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,<SPAN 
+style="COLOR: rgb(0,0,240)">'AutoHP'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,msg<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; SendPacketStr<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,cntHP,<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">False</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> SetStruct<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> struct: 
+PPluginStruct<SPAN style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>; stdcall;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; ps := 
+TPluginStruct<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>struct^<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+StatsUpdate;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp;i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ppck^,<SPAN 
+style="COLOR: rgb(0,0,240)">7</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> ppck^.<SPAN 
+style="COLOR: rgb(0,0,0)">data</SPAN>[i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">8</SPAN>] 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; 
+&nbsp;$<SPAN style="COLOR: rgb(0,0,240)">09</SPAN>: CurHP:=ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ppck^,i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp;$0A: MaxHP:=ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ppck^,i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;say<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'CurHP/MaxHP 
+= '</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>curhp<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">'/'</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>maxhp<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CurHP&lt;=MaxHP-<SPAN 
+style="COLOR: rgb(0,0,240)">50</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> TimerHP:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> TimerHP:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> OnLoad; 
+stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+statusHP:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+CharObjID:=<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+ItemObjHP:=<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; TimerHP:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+lastHP:=<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; cntHP := <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">with</SPAN> ps <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> GoFirstConnection 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">repeat</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; cntHP := ConnectInfo.<SPAN 
+style="COLOR: rgb(0,0,0)">ConnectID</SPAN>;<BR>&nbsp; &nbsp; &nbsp; Say<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Для выбора 
+нужного соединения наберите в чате слово set и отправьте'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">until</SPAN> 
+GoNextConnection;<BR>&nbsp; &nbsp; &nbsp; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> OnPacket<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> cnt: <SPAN 
+style="COLOR: rgb(0,0,0)">Cardinal</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> fromServer: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> pck: Tpacket<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; buf: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> pck.<SPAN 
+style="COLOR: rgb(0,0,0)">size</SPAN>&lt;<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; ppck:=@pck;<BR><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">not</SPAN> FromServer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck.<SPAN 
+style="COLOR: rgb(0,0,0)">pckId</SPAN>=$<SPAN 
+style="COLOR: rgb(0,0,240)">38</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>cntHP=-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadSEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck,<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">'set'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+pck.<SPAN style="COLOR: rgb(0,0,0)">size</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// не пропускаем 
+пакет</SPAN><BR>&nbsp; &nbsp; cntHP:=cnt;<BR>&nbsp; &nbsp; Say<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Выбрано это 
+соединение.'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+Say<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Для начала работы скрипта бросаем, подбираем или 
+выпиваем Heal Potion!'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> FromServer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>cnt = cntHP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//InventoryUpdate</SPAN><BR>&nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck.<SPAN 
+style="COLOR: rgb(0,0,0)">pckId</SPAN>=$<SPAN 
+style="COLOR: rgb(0,0,240)">27</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck,<SPAN 
+style="COLOR: rgb(0,0,240)">13</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">1060</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">or</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck,<SPAN 
+style="COLOR: rgb(0,0,240)">13</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">1061</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Healing Potion, Lesser Healing 
+Potion</SPAN><BR>&nbsp; &nbsp; &nbsp; ItemObjHP:=ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck,<SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; ColvoHP:=ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck,<SPAN 
+style="COLOR: rgb(0,0,240)">17</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//количество 
+хилок</SPAN><BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> statusHP <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp; &nbsp; Say<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Автоматическое использование Нeal Рotion готово к 
+работе!'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; 
+Say<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Хилок='</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,0)">IntToStr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ColvoHP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; statusHP:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; 
+&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//UserInfo</SPAN><BR>&nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck.<SPAN 
+style="COLOR: rgb(0,0,0)">pckId</SPAN>=$<SPAN 
+style="COLOR: rgb(0,0,240)">04</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; CharObjID:=ps.<SPAN style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ppck^,<SPAN 
+style="COLOR: rgb(0,0,240)">19</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+MaxHP:=ps.<SPAN style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ppck^,<SPAN 
+style="COLOR: rgb(0,0,240)">83</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp;<BR>&nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; 
+&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//StatusUpdate</SPAN><BR>&nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck.<SPAN 
+style="COLOR: rgb(0,0,0)">pckId</SPAN>=$0E<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ps.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadDEx</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck,<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>=CharObjID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck.<SPAN 
+style="COLOR: rgb(0,0,0)">data</SPAN>[<SPAN 
+style="COLOR: rgb(0,0,240)">4</SPAN>]=$<SPAN 
+style="COLOR: rgb(0,0,240)">04</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; StatsUpdate;<BR><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TimerHP <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>GetTickCount-lastHP &gt; pause<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; lastHP:=GetTickCount;<BR>&nbsp; &nbsp; &nbsp; buf:=#$<SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN>;<BR>&nbsp; &nbsp; &nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">WriteD</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,ItemObjHP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">WriteD</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">SendPacketStr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>buf,cnt,<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ColvoHP&lt;<SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; Say<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Кончаются хилки! Закупите Heal Potion!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ColvoHP=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; Say<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Хилок='</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ColvoHP-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; Say<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Кончились 
+хилки! Закупите Heal Potion!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+TimerHP:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">False</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>exports<BR>&nbsp; 
+GetPluginInfo,<BR>&nbsp; OnPacket,<BR>&nbsp; OnLoad,<BR>&nbsp; 
+SetStruct;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</FONT></P></BODY>
+</html>

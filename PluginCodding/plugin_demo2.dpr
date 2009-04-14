@@ -7,8 +7,8 @@ uses
   FastMM4Messages in '..\fastmm\FastMM4Messages.pas',
   windows,
 
-// модуль с описаниями основных типов
-// используемых в плагине и программе
+  // модуль с описаниями основных типов
+  // используемых в плагине и программе
   usharedstructs in '..\units\usharedstructs.pas';
 
 

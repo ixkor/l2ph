@@ -3,9 +3,9 @@ library plugin_demo3;
 {$define RELEASE} // для совместимости с релизом пакетхака, при дебуге можно закоментировать
 
 uses
-  windows,
   FastMM4 in '..\fastmm\FastMM4.pas',
   FastMM4Messages in '..\fastmm\FastMM4Messages.pas',
+  windows,  
   usharedstructs in '..\units\usharedstructs.pas',
   plugin_demo3_form in 'plugin_demo3_form.pas' {MyForm};
 

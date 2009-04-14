@@ -859,7 +859,7 @@ begin
   begin
     if (Ttunel(sockEngine.tunels.Items[i]).serversocket = tid) then
       begin
-        Ttunel(sockEngine.tunels.Items[i]).Visual.AddPacketToAcum(Packet, not ToServer, TlspConnection(LSPConnections.Items[i]).EncDec);
+        Ttunel(sockEngine.tunels.Items[i]).Visual.AddPacketToAcum(Packet, not ToServer, Ttunel(sockEngine.tunels.Items[i]).EncDec);
         Ttunel(sockEngine.tunels.Items[i]).Visual.processpacketfromacum;
         Ttunel(sockEngine.tunels.Items[i]).EncryptAndSend(Packet, toserver);
         exit;

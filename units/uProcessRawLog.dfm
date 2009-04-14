@@ -28,7 +28,7 @@ object fProcessRawLog: TfProcessRawLog
     object btnOpenRaw: TToolButton
       Left = 0
       Top = 2
-      Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1083#1086#1075' '#1082#1072#1082'..'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' Raw '#1083#1086#1075
       ImageIndex = 0
       ParentShowHint = False
       ShowHint = True
@@ -207,7 +207,7 @@ object fProcessRawLog: TfProcessRawLog
         Left = 0
         Top = 0
         Width = 731
-        Height = 592
+        Height = 612
         AdvancedTypography = False
         Align = alClient
         AutoAdvancedTypography = False
