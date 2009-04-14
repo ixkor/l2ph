@@ -20,6 +20,7 @@ type
     ScriptName: string;                            
     isRunning, Compilled, Modified: Boolean;
     cs: RTL_CRITICAL_SECTION;
+    procedure markerrorline;
     constructor create;
     Procedure Load(Filename:string;isnew:boolean=false;fullfilename:string=''); //инициализация, вызывать после креейта
     destructor destroy; override;
@@ -273,6 +274,7 @@ end;
 
 procedure TScript.CompileThisScript;
 begin
+  Editor.Editor.Gutter.Objects.Items[0].Line := -1;
   Compilled := dmData.Compile(Editor.fsScript, Editor.Editor, fscript.StatusBar);
   fscript.StatusBar.SimpleText := ScriptName +': '+ fscript.StatusBar.SimpleText;
   Editor.BreakNext := false;
@@ -344,7 +346,10 @@ begin
   if isRunning then
     begin
       ListItem.Checked := false;
-      Editor.fsScript.CallFunction('Free',0);
+      try
+        Editor.fsScript.CallFunction('Free',0);
+      except
+      end;
     end;
   except
   //ну и ? -)
@@ -450,7 +455,7 @@ begin
   currentScript.Editor.BringToFront;
   currentScript.updatecontrols;
   currentScript.Editor.SetFocus;
-  btnShowWatch.Down := currentScript.Editor.WatchList.Visible;
+  btnShowWatch.Down := currentScript.Editor.PnlWatchList.Visible;
 
 end;
 
@@ -614,7 +619,8 @@ if currentScript.isRunning then
     try
       currentScript.Editor.fsScript.CallFunction('Free',0);
     except
-      StatusBar.SimpleText := 'Error in free method. check script!.'
+      StatusBar.SimpleText := currentScript.ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
+      currentScript.markerrorline;
     end;
   end;
   end;
@@ -634,13 +640,14 @@ if not currentScript.Compilled then currentScript.CompileThisScript;
 if currentScript.Compilled then
   begin
     currentScript.isRunning := true;
-    currentScript.updatecontrols;
     try
       currentScript.Editor.fsScript.CallFunction('Init',0);
     except
       currentScript.isRunning := false;
-      currentScript.updatecontrols;
+      StatusBar.SimpleText := currentScript.ScriptName+': Error in init method. '+SysErrorMessage(GetLastError);
+      currentScript.markerrorline;
     end;
+    currentScript.updatecontrols;
   end;
 end;
 
@@ -651,6 +658,22 @@ begin
   Modified := false;
   Tab.ImageIndex := 0;
   Compilled := false;
+end;
+
+procedure TScript.markerrorline;
+begin
+  if Editor.Editor.Visible then
+  try
+    Editor.Editor.SetFocus;
+  except
+  //....
+  end;
+  Editor.Editor.CurrentLine := Editor.CurrentLine;
+  Editor.Editor.ShowLine(Editor.Editor.CurrentLine-1);
+  Editor.Editor.SelectLine(Editor.Editor.CurrentLine-1);
+  Editor.Editor.Gutter.Objects.Items[0].Line := Editor.CurrentLine-1;
+  Editor.Editor.SelectWord;
+  Editor.Editor.Invalidate;
 end;
 
 procedure TScript.Save(Filename: string);
@@ -734,15 +757,29 @@ if UseScript and not Compilled then CompileThisScript;
 if not Compilled and UseScript then
     result := false
 else
-if not UseScript and compilled then
-  fScript.StatusBar.SimpleText := ScriptName+fScript.lang.GetTextOrDefault('nouse' (* ': Не будет использоваться' *) );
+
+
+if isRunning <> Result then
+if result then
+  try
+  Editor.fsScript.CallFunction('Init',0);
+  except
+    fScript.StatusBar.SimpleText := ScriptName+': Error in init method. '+SysErrorMessage(GetLastError);
+    markerrorline;
+    result := false;
+  end
+else
+  try
+  Editor.fsScript.CallFunction('Free',0);
+  if not UseScript and compilled then
+    fScript.StatusBar.SimpleText := ScriptName+fScript.lang.GetTextOrDefault('nouse' (* ': Не будет использоваться' *) );
+  except
+    fScript.StatusBar.SimpleText := ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
+    markerrorline;
+  end;
 
 isRunning := Result;
 
-if result then
-  Editor.fsScript.CallFunction('Init',0)
-else
-  Editor.fsScript.CallFunction('Free',0);
 if currentScript = Self then
   updatecontrols;
 end;
@@ -800,9 +837,13 @@ begin
         cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
         cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
         //LeaveCriticalSection(_cs);
+        try
         cScript.Editor.fsScript.Execute;
-
         temp:=cScript.Editor.fsScript.Variables['pck'];
+        except
+          fMain.StatusBar1.SimpleText := cScript.ScriptName+': '+SysErrorMessage(GetLastError)+'; on line '+inttostr(cScript.Editor.Editor.CurrentLine);
+          StatusBar.SimpleText := fMain.StatusBar1.SimpleText;
+        end;
         end;
     end;
   end;
@@ -886,11 +927,11 @@ if Assigned(currentScript) then
   if btnShowWatch.Down then
     begin
       currentScript.Editor.Splitter1.Visible := true;
-      currentScript.Editor.WatchList.Visible := true;
+      currentScript.Editor.PnlWatchList.Visible := true;
     end
     else
     begin
-      currentScript.Editor.WatchList.Visible := false;
+      currentScript.Editor.PnlWatchList.Visible := false;
       currentScript.Editor.Splitter1.Visible := false;
     end;
 

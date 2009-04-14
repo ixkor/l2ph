@@ -17,9 +17,10 @@ type
   OldValue: Variant;
   Item:TListItem;
   list_: TList;
+  LastModifiedLine: Integer;
   procedure updateitem;
   procedure updateValue;
-  Constructor Create(PutTo:TList;List:tlistview;name:string;VarTyp: TfsVarType);
+  Constructor Create(PutTo:TList;List:tlistview;name:string;VarTyp: TfsVarType; line : integer);
   Destructor Destroy; override;
   end;
 
@@ -42,7 +43,9 @@ type
     actClearAllBreakpoints: TAction;
     EditPaste1: TEditPaste;
     Splitter1: TSplitter;
+    PnlWatchList: TPanel;
     WatchList: TListView;
+    CurLineLabel: TLabel;
     procedure EditorChange(Sender: TObject);
     procedure EditorKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -67,7 +70,7 @@ type
     Nomove, BreakNext:boolean;
     procedure init;
     procedure deinit;
-    procedure SetVar(  VarName: String; VarTyp: TfsVarType; OldValue: Variant);
+    procedure SetVar(  VarName: String; VarTyp: TfsVarType; OldValue: Variant; Line : integer);
   end;
 
 
@@ -182,15 +185,15 @@ end;
 function TfScriptEditor.fsScriptGetVarValue(VarName: String;
   VarTyp: TfsVarType; OldValue: Variant): Variant;
 begin
-  SetVar(VarName, VarTyp, OldValue);
+  SetVar(VarName, VarTyp, OldValue, currentline);
 end;
 
 procedure TfScriptEditor.fsScriptRunLine(Sender: TfsScript; const UnitName,
   SourcePos: String);
-{var
-str:string;}
+var
+str:string;
 begin
-{str := copy(SourcePos, 1, pos(':',SourcePos)-1);
+str := copy(SourcePos, 1, pos(':',SourcePos)-1);
 if str <> '' then
   begin
     CurrentLine := StrToInt(str);
@@ -198,8 +201,8 @@ if str <> '' then
       begin
         Nomove := true;
       end;
-
-    if nomove then
+    CurLineLabel.Caption := format('Last processed line %d',[CurrentLine]);
+{    if nomove then
       Editor.Invalidate;
     if Assigned(assignedTScript) then
     while (nomove) and (TScript(assignedTScript).Compilled) do
@@ -207,7 +210,8 @@ if str <> '' then
         Application.ProcessMessages;
         sleep(1);
       end;
-  end;}
+      }
+  end;
 end;
 
 procedure TfScriptEditor.EditorTGutterObjects3CheckLine(Sender: TObject;
@@ -240,6 +244,8 @@ begin
   item.Caption := name;
   Item.SubItems.Add('');
   Item.SubItems.Add('');
+  Item.SubItems.Add('');
+  LastModifiedLine := Line;
 end;
 
 destructor tDebugItem.Destroy;
@@ -259,8 +265,7 @@ begin
   inherited;
 end;
 
-procedure TfScriptEditor.SetVar(VarName: String; VarTyp: TfsVarType;
-  OldValue: Variant);
+procedure TfScriptEditor.SetVar;
 var
 i:integer;
 NewItem : tDebugItem;
@@ -271,20 +276,21 @@ begin
     if tDebugItem(DebugList.Items[i]).VarName = VarName then
       begin
         tDebugItem(DebugList.Items[i]).VarTyp := VarTyp;
+        tDebugItem(DebugList.Items[i]).LastModifiedLine := line;
         tDebugItem(DebugList.Items[i]).OldValue := OldValue;
+
         tDebugItem(DebugList.Items[i]).updateValue;
         exit;
       end; 
     inc(i);
   end;
 
-  NewItem := tDebugItem.Create(DebugList, WatchList, VarName, VarTyp);
+  NewItem := tDebugItem.Create(DebugList, WatchList, VarName, VarTyp, line);
   NewItem.VarName := VarName;
   NewItem.VarTyp := VarTyp;
   NewItem.OldValue := OldValue;
   NewItem.updateitem;
   NewItem.updateValue;
-
 end;
 
 procedure tDebugItem.updateitem;
@@ -346,34 +352,39 @@ end;
 procedure TfScriptEditor.EditorTGutterObjects2CheckLine(Sender: TObject;
   Line: Integer; var Show: Boolean);
 begin
-  show := line = CurrentLine;
+//  show := line = CurrentLine;
 end;
 
 procedure tDebugItem.updateValue;
 begin
+if LastModifiedLine >= 0 then
+  Item.SubItems.Strings[1] := inttostr(LastModifiedLine)
+else
+  Item.SubItems.Strings[1] := '';
+
 case VarTyp of
 fvtInt :
   begin
-    Item.SubItems.Strings[1] := inttostr(VarAsType(OldValue, varInteger));
+    Item.SubItems.Strings[2] := inttostr(VarAsType(OldValue, varInteger));
   end;
 fvtBool :
   begin
     if VarAsType(OldValue, varBoolean) then
-      Item.SubItems.Strings[1] := 'True'
+      Item.SubItems.Strings[2] := 'True'
     else
-      Item.SubItems.Strings[1] := 'False'
+      Item.SubItems.Strings[2] := 'False'
   end;
 fvtFloat :
   begin
-    Item.SubItems.Strings[1] := VarAsType(OldValue,varString);
+    Item.SubItems.Strings[2] := VarAsType(OldValue,varString);
   end;
 fvtChar :
   begin
-    Item.SubItems.Strings[1] := VarAsType(OldValue, varString);
+    Item.SubItems.Strings[2] := VarAsType(OldValue, varString);
   end;
 fvtString :
   begin
-    Item.SubItems.Strings[1] := VarAsType(OldValue, varString);
+    Item.SubItems.Strings[2] := VarAsType(OldValue, varString);
   end;
 end;
 end;
