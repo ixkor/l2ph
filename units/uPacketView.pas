@@ -444,12 +444,14 @@ begin
 
     id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
     SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
+
     currentpacket := StringToHex(copy(PktStr, 12, length(PktStr)-11),' ');
 
     rvHEX.Clear;
     rvDescryption.Clear;
     
-    Label1.Caption:='¬ыделенный пакет: тип - 0x'+IntToHex(id,2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
+    if PacketName = '' then
+      GetPacketName(id, subid, (PktStr[1]=#04), PacketName);
 
     //считываем строку из packets.ini дл€ парсинга
     if PktStr[1]=#04 then
@@ -473,7 +475,9 @@ begin
         StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknow:h(subID)')
       else
         StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
-        
+
+    Label1.Caption:='¬ыделенный пакет: тип - 0x'+IntToHex(id,2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
+
     //начинаем разбирать пакет по заданному в packets.ini формату
     //смещение в ini
     PosInIni:=Pos(':',StrIni);

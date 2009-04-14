@@ -65,7 +65,8 @@ uses
   procedure GetProcessList(var sl: TStrings); //получаем список процессов используется в dmData.timerSearchProcesses
 
   procedure Reload;
-
+  
+  Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string):boolean;
   function GetNamePacket(s:string):string; // вырезаем название пакета из строки
   var
   AppPath:String;
@@ -113,7 +114,7 @@ uses
   Options, PacketsINI : TMemIniFile;
   
 implementation
-uses forms, udata, usocketengine, ulogform;
+uses uFilterForm, forms, udata, usocketengine, ulogform;
 
 procedure savepos(Control:TControl);
 var
@@ -515,4 +516,120 @@ begin
   FreeMem(lpData);
  end;
 end;
+
+
+Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string):boolean;
+var
+  i: integer;
+begin
+  //------------------------------------------------------------------------
+  //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
+  if FromServer then
+  begin  //от сервера
+    if id=$FE then
+    begin
+      Id := 0;
+      //находим индекс пакета
+      i := PacketsFromS.IndexOfName(IntToHex(subid,4));
+      if i=-1 then
+      begin
+        //неизвестный пакет от сервера
+        pname := 'Unknown';
+        result := false;
+      end
+      else
+      begin
+        pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+        result := true;
+      end;
+    end
+    else
+    begin
+      subid := 0;
+      i:=PacketsFromS.IndexOfName(IntToHex(id,2));
+      if i=-1 then
+      begin
+        pname := 'Unknown';
+        result := false;
+      end else
+      begin
+        pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+        result := true;
+      end;
+    end;
+  end;
+
+  
+  if not FromServer then
+  begin  //от клиента
+    if GlobalProtocolVersion<828 then
+    begin //фиксим пакет 39 в Камаель-Грация
+      if (id in [$39,$D0]) then
+      begin //для C4, C5, T0
+        id := 0;
+        i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
+        if i=-1 then
+        begin
+          //неизвестный пакет от сервера
+          pname := 'Unknown';
+          result := false;
+        end
+        else
+        begin
+          pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          result := true;
+        end;
+      end else
+      begin
+        i:=PacketsFromC.IndexOfName(IntToHex(id,2));
+        subid := 0;
+        if i=-1 then
+        begin
+          //неизвестный пакет от сервера
+          pname := 'Unknown';
+          result := false;
+        end
+        else
+        begin
+          pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          result := true;
+        end;
+      end;
+    end else
+    begin
+      if (id=$D0) then
+      begin //для T1 и выше
+        i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
+        id := 0;
+        if i=-1 then
+        begin
+          //неизвестный пакет от сервера
+          pname := 'Unknown';
+          result := false;
+        end
+        else
+        begin
+          pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          result := true;
+        end;
+      end else
+      begin
+        i:=PacketsFromC.IndexOfName(IntToHex(id,2));
+        subid := 0;
+        if i=-1 then
+        begin
+          //неизвестный пакет от сервера
+          pname := 'Unknown';
+          result := false;
+        end
+        else
+        begin
+          pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          result := true;
+        end;
+      end;
+    end;
+  end;   
+end;
+
 end.
