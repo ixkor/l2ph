@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Plugin_demo4; Добавление своих функций(Расширенный пример)</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY>
+<P><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT 
+face=Arial>&nbsp;</FONT><FONT size=5><FONT face=Arial 
+color=#003f7d><STRONG>plugin_demo.dpr; добавление своих функций (расширеная 
+версия).</STRONG></FONT><FONT size=3> 
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<P>
+<HR>
+
+<P><STRONG><FONT size=2>Для версии 3.5.2.102</FONT></STRONG></P>
+<P><STRONG><FONT size=2>________________</FONT></STRONG></P>
+<P><FONT size=2>library plugin_demo4;<BR><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{$define RELEASE}</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// для совместимости с релизом 
+пакетхака, при дебуге можно закоментировать</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN><BR>&nbsp; FastMM4 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4.pas'</SPAN>,<BR>&nbsp; 
+FastMM4Messages <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> 
+<SPAN 
+style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4Messages.pas'</SPAN>,<BR>&nbsp; 
+windows,<BR>&nbsp; variants,<BR>&nbsp; classes,&nbsp; &nbsp;<BR>&nbsp; 
+usharedstructs <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> 
+<SPAN 
+style="COLOR: rgb(0,0,240)">'..\units\usharedstructs.pas'</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{version}</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{revision}</SPAN><BR>&nbsp; 
+min_ver_a: array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">Byte</SPAN> = <SPAN style="COLOR: rgb(0,0,0)">(</SPAN> 
+<SPAN style="COLOR: rgb(0,0,240)">3</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>,&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">100</SPAN>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; min_ver: <SPAN 
+style="COLOR: rgb(0,0,0)">Integer</SPAN> absolute min_ver_a; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// минимальная поддерживаемая 
+версия программы</SPAN><BR>&nbsp; ps: TPluginStruct;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+GetPluginInfo<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> ver: <SPAN 
+style="COLOR: rgb(0,0,0)">Integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">PChar</SPAN>; stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ver&lt;min_ver <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+Result:=<SPAN style="COLOR: rgb(0,0,240)">'Демонстрационный Plugin к программе 
+l2phx'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">'Для версий 3.5.1.100+'</SPAN>+sLineBreak+<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'У вас 
+старая версия программы! Плагин не сможет корректно с ней 
+работать!'</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+Result:=<SPAN style="COLOR: rgb(0,0,240)">'Демонстрационный Plugin к программе 
+l2phx'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">'Для версий 3.5.1.100+'</SPAN>+sLineBreak+<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'"Как 
+добавить свою функцию и ее обработчик" часть вторая. © 
+alexteam'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sLineBreak+<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'Плагин - 
+хранилище глобальных переменных, обьектов, все что можно впихнуть в тип variant 
+(тобиш все). общих для всех скриптов'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,240)">'Функции говорят сами за 
+себя:'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">'function 
+isGlobalVarExists(name:string):boolean'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'procedure 
+SetGlobalVar(name:string; variable:Variant)'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'procedure 
+DeleteGlobalVar(name:string)'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'Function 
+GetGlobalVar(name:string):Variant'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'procedure 
+DeleteAllGlobalVars'</SPAN>+sLineBreak;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> SetStruct<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> struct: 
+PPluginStruct<SPAN style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>; stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; ps := 
+TPluginStruct<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>struct^<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Код 
+плагина.</SPAN><BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">type</SPAN><BR>&nbsp; TVariable = 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">class</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; name : <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR>&nbsp; variable : <SPAN 
+style="COLOR: rgb(0,0,0)">variant</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Constructor</SPAN> 
+create;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Destructor</SPAN> destroy; 
+override;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; VarList : 
+<SPAN style="COLOR: rgb(0,0,0)">Tlist</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">constructor</SPAN> 
+TVariable.<SPAN style="COLOR: rgb(0,0,0)">create</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Добавляем себя в глобальный 
+список</SPAN><BR>&nbsp; VarList.<SPAN style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">destructor</SPAN> TVariable.<SPAN 
+style="COLOR: rgb(0,0,0)">destroy</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Удаляем себя из глобального 
+списка</SPAN><BR>&nbsp; i := <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">while</SPAN> i &lt; VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Count</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TVariable<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Items</SPAN>[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> = self <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; VarList.<SPAN style="COLOR: rgb(0,0,0)">Delete</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">inherited</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> OnLoad; 
+stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; VarList := 
+<SPAN style="COLOR: rgb(0,0,0)">TList</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+DeleteAllGlobalVars;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">while</SPAN> VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Count</SPAN> &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; 
+TVariable<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Items</SPAN>[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">destroy</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> OnFree; 
+stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+DeleteAllGlobalVars;<BR>&nbsp; VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Destroy</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Function</SPAN> GetTVariable<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>name:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:TVariable;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; result := 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">nil</SPAN>;<BR><BR>&nbsp; i 
+:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">while</SPAN> i &lt; VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Count</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TVariable<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Items</SPAN>[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>.<SPAN style="COLOR: rgb(0,0,0)">name</SPAN> = 
+name <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; Result := TVariable<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Items</SPAN>[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> 
+SetOrCreateVar<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>Name:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; variable: <SPAN 
+style="COLOR: rgb(0,0,0)">variant</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; MyVar : 
+TVariable;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; myvar := 
+GetTVariable<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>name<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">not</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">assigned</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyVar<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; MyVar := TVariable.<SPAN 
+style="COLOR: rgb(0,0,0)">create</SPAN>;<BR>&nbsp; &nbsp; &nbsp; MyVar.<SPAN 
+style="COLOR: rgb(0,0,0)">name</SPAN> := Name;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; 
+MyVar.<SPAN style="COLOR: rgb(0,0,0)">variable</SPAN> := variable;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> deletevar<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>name:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; i := <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">while</SPAN> i &lt; VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Count</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TVariable<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Items</SPAN>[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>.<SPAN style="COLOR: rgb(0,0,0)">name</SPAN> = 
+name <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; TVariable<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>VarList.<SPAN 
+style="COLOR: rgb(0,0,0)">Items</SPAN>[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">destroy</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> OnCallMethod<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> MethodName: <SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// имя функции в верхнем 
+регистре</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> Params, <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// параметры 
+функции</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; FuncResult: <SPAN style="COLOR: rgb(0,0,0)">Variant</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// результат 
+функции</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>; stdcall; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если вернёт True то 
+дальнейшая</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// обработка функции 
+прекратиться</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; variable : 
+TVariable;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">False</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MethodName=<SPAN 
+style="COLOR: rgb(0,0,240)">'ISGLOBALVAREXISTS'</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+FuncResult := <SPAN style="COLOR: rgb(0,0,0)">assigned</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>GetTVariable<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>VarAsType<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Params[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>], varString<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <BR>&nbsp; &nbsp; Result := 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;&nbsp; &nbsp; 
+&nbsp;<BR>&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR><BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MethodName=<SPAN 
+style="COLOR: rgb(0,0,240)">'SETGLOBALVAR'</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+SetOrCreateVar<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><BR>&nbsp; &nbsp; &nbsp; 
+VarAsType<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>Params[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>], varString<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>,<BR>&nbsp; &nbsp; &nbsp; Params[<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><BR>&nbsp; &nbsp; Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;<BR>&nbsp; &nbsp; 
+FuncResult := Null;&nbsp; &nbsp; <BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MethodName=<SPAN 
+style="COLOR: rgb(0,0,240)">'DELETEGLOBALVAR'</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+deletevar<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>VarAsType<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Params[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>], varString<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><BR>&nbsp; &nbsp; Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;<BR>&nbsp; &nbsp; 
+FuncResult := Null;&nbsp; &nbsp; <BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MethodName=<SPAN 
+style="COLOR: rgb(0,0,240)">'GETGLOBALVAR'</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+variable := GetTVariable<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>VarAsType<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Params[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>], varString<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">assigned</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>variable<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; FuncResult := variable.<SPAN 
+style="COLOR: rgb(0,0,0)">variable</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; FuncResult := Null;<BR><BR>&nbsp; &nbsp; Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// запрещаем дальнейшую 
+обработку функции в программе</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MethodName=<SPAN 
+style="COLOR: rgb(0,0,240)">'DELETEALLGLOBALVARS'</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+DeleteAllGlobalVars;<BR><BR>&nbsp; &nbsp; Result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;<BR>&nbsp; &nbsp; 
+FuncResult := Null;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> 
+OnRefreshPrecompile; stdcall;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">UserFuncs</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'function 
+isGlobalVarExists(name:string):boolean'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">UserFuncs</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'procedure 
+SetGlobalVar(name:string; variable:Variant)'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">UserFuncs</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'procedure 
+DeleteGlobalVar(name:string)'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">UserFuncs</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Function 
+GetGlobalVar(name:string):Variant'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; ps.<SPAN 
+style="COLOR: rgb(0,0,0)">UserFuncs</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'procedure 
+DeleteAllGlobalVars'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// экспортируем используемые 
+программой функции</SPAN><BR>exports<BR>&nbsp; GetPluginInfo,<BR>&nbsp; 
+SetStruct,<BR>&nbsp; OnLoad,<BR>&nbsp; OnRefreshPrecompile,<BR>&nbsp; 
+OnCallMethod,<BR>&nbsp; OnFree;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</FONT></FONT></FONT></FONT></FONT></FONT></P></BODY>
+</html>

@@ -308,10 +308,9 @@ procedure TfVisual.Processpacket;
 var
   id: Byte;
   subid: word;
-  i: integer;
   pname : string;
   isunknown : boolean;
-
+  IsShow : boolean;
 begin
   if PacketNumber < 0 then exit; //или -1 0_о
   if PacketNumber >= Dump.Count then exit; //или индекс оф боундс -)
@@ -321,8 +320,9 @@ begin
   SubId := Word(id shl 8+Byte(newpacket.Data[1]));
 
 
-  isunknown := GetPacketName(id, subid, FromServer, pname);
+  isunknown := GetPacketName(id, subid, FromServer, pname, IsShow);
   if isunknown then AddToPacketFilterUnknown(FromServer, id, subid, True);
+  if IsShow then
   AddToListView5(math.ifthen(FromServer, 0, 1), Pname, PacketNumber, Id, subid, not ToolButton5.Down);
 
   {
