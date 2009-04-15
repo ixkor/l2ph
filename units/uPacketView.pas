@@ -432,6 +432,7 @@ var
   typ, name,func, tmp_param, param1, param2: string;
   value, tmp_value: string;
   oldpos:integer;
+  isshow:boolean;
 begin
     //строка пакета, sid номер пакета, cid номер соединения
     PktStr := HexToString(packet);
@@ -451,7 +452,7 @@ begin
     rvDescryption.Clear;
     
     if PacketName = '' then
-      GetPacketName(id, subid, (PktStr[1]=#04), PacketName);
+      GetPacketName(id, subid, (PktStr[1]=#04), PacketName, isshow);
 
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then
@@ -578,11 +579,8 @@ begin
                 addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
               if value = 'range error' then break;
-              if uppercase(Func)='GET' then
-                if not get(param1, id, value) then
-                  exit
-                else
-                  addToDescr(offset, typ, name, value); //печатаем
+              if uppercase(Func)='GET' then  get(param1, id, value);
+              addToDescr(offset, typ, name, value); //печатаем
             end;
             
             if value = 'range error' then break;

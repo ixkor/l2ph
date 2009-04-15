@@ -66,7 +66,7 @@ uses
 
   procedure Reload;
   
-  Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string):boolean;
+  Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string; var isshow:boolean):boolean;
   function GetNamePacket(s:string):string; // вырезаем название пакета из строки
   var
   AppPath:String;
@@ -518,10 +518,11 @@ begin
 end;
 
 
-Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string):boolean;
+Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string; var isshow:boolean):boolean;
 var
   i: integer;
 begin
+isshow := true;
   //------------------------------------------------------------------------
   //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
   if FromServer then
@@ -540,6 +541,7 @@ begin
       else
       begin
         pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;        
         result := true;
       end;
     end
@@ -554,6 +556,7 @@ begin
       end else
       begin
         pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;        
         result := true;
       end;
     end;
@@ -577,6 +580,7 @@ begin
         else
         begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
       end else
@@ -592,6 +596,7 @@ begin
         else
         begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
       end;
@@ -610,6 +615,7 @@ begin
         else
         begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
       end else
@@ -625,6 +631,7 @@ begin
         else
         begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+          isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
       end;

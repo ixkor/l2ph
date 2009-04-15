@@ -26,14 +26,14 @@ color=#003f7d><FONT face=Arial>—одержимое uSharedStructs.pas</FONT>
 <P><FONT color=#000000 size=2></FONT></P><FONT color=#000000 size=2>
 <HR>
 </FONT>
-<P><FONT color=#000000 size=2>ƒл€ версии 3.5.1.100</FONT></P>
+<P><FONT color=#000000 size=2>ƒл€ версии 3.5.2.102</FONT></P>
 <P></FONT></FONT></SPAN><FONT size=2><SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">unit</SPAN> 
 usharedstructs;<BR><BR><SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">interface</SPAN><BR><SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN> Classes;<BR><BR><SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN><BR>&nbsp; 
-PCK_GS_ToServer = <SPAN style="COLOR: rgb(0,0,240)">4</SPAN>;</FONT></P><FONT 
+PCK_GS_ToServer = <SPAN style="COLOR: rgb(0,0,240)">4</SPAN>;<BR></FONT><FONT 
 size=2>&nbsp; PCK_GS_ToClient = <SPAN 
 style="COLOR: rgb(0,0,240)">3</SPAN>;<BR>&nbsp; PCK_LS_ToServer = <SPAN 
 style="COLOR: rgb(0,0,240)">2</SPAN>;<BR>&nbsp; PCK_LS_ToClient = <SPAN 
@@ -151,10 +151,8 @@ style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Caller зависит от
 action</SPAN><BR>&nbsp; TStringArray = <SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> <SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>;<BR><BR>&nbsp; <BR>&nbsp; <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{экземпл€р этого класса (точнее 
-его потомок) передаетс€ в плагины.}</SPAN>&nbsp; <BR>&nbsp; TOnTimer = <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;<BR><BR>&nbsp;&nbsp;<BR>&nbsp; TOnTimer 
+= <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> param: <SPAN 
 style="COLOR: rgb(0,0,0)">Cardinal</SPAN><SPAN 
@@ -163,8 +161,11 @@ style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">packed</SPAN> <SPAN
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">record</SPAN><BR>&nbsp; &nbsp; 
 ConnectID:<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; &nbsp; 
 ConnectName:string[<SPAN style="COLOR: rgb(0,0,240)">200</SPAN>];<BR>&nbsp; 
-<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; 
-PPluginStruct = ^TPluginStruct;<BR>&nbsp; TPluginStruct = <SPAN 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR></FONT><FONT 
+size=2><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{экземпл€р этого класса (точнее 
+его потомок) передаетс€ в плагины.}</SPAN>&nbsp;&nbsp;<BR>&nbsp; PPluginStruct = 
+^TPluginStruct;<BR>&nbsp; TPluginStruct = <SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">class</SPAN> <SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
@@ -425,5 +426,5 @@ style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; Virtual; Abstract;<BR>&nbsp; &nbsp;
 HideUserForm;&nbsp; Virtual; Abstract;<BR>&nbsp; <SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
 style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">implementation</SPAN><BR><BR><BR><BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</FONT></BODY>
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</FONT></P></BODY>
 </html>
