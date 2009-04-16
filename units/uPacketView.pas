@@ -595,7 +595,7 @@ begin
        значит его просто выводим, а остальное
        в цикле до параметр 2*)
       if uppercase(Func)='LOOP' then begin
-        //распечатываем
+        //распечатываем                                                                              
         addToDescr(offset, typ, name, value+hexvalue);
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
 
