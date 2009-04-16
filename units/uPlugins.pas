@@ -139,7 +139,8 @@ begin
   //релоадим доступные нам функции
   dmData.DO_reloadFuncs;
   //обновляем автокомплиты
-  
+  Options.WriteBool('plugins',clbPluginsList.Items.Strings[i], clbPluginsList.Checked[i]);
+
   i := 0;
   while i < ScriptList.Count do
   begin
@@ -147,7 +148,6 @@ begin
     inc(i);
   end;
 
-  Options.WriteBool('plugins',clbPluginsList.Items.Strings[i], clbPluginsList.Checked[i]);
 end;
 
 procedure TfPlugins.clbPluginsListClick(Sender: TObject);
