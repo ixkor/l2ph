@@ -207,7 +207,7 @@ begin
             case fSettings.HookMethod.ItemIndex of
               0:
               begin
-                if InjectDll(cc, PChar(ExtractFilePath(ParamStr(0))+fSettings.isInject.Text)) then
+                if InjectDll(cc, PChar(fSettings.isInject.Text)) then
                 begin
                   Processes.Values[tmp.Names[k]]:='ok';
                   AddToLog (format(rsClientPatched0, [tmp.ValueFromIndex[k], tmp.Names[k]]));
@@ -223,7 +223,7 @@ begin
               end;
               2:
               begin
-                if InjectDllAlt(cc, PChar(ExtractFilePath(ParamStr(0))+fSettings.isInject.Text)) then
+                if InjectDllAlt(cc, PChar(fSettings.isInject.Text)) then
                 begin
                   Processes.Values[tmp.Names[k]]:='ok';
                   AddToLog (format(rsClientPatched2, [tmp.ValueFromIndex[k], tmp.Names[k]]));
@@ -534,6 +534,7 @@ var
   SelectedScript:tscript;
   //support DLL
 begin
+result := null;
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do

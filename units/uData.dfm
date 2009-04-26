@@ -2,8 +2,6 @@ object dmData: TdmData
   OldCreateOrder = False
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Left = 321
-  Top = 326
   Height = 269
   Width = 496
   object LSPControl: TLSPModuleControl
