@@ -135,6 +135,7 @@ type
     procedure ReloadThisClick(Sender: TObject);
     procedure TabSheet1Show(Sender: TObject);
     procedure TabSheet3Show(Sender: TObject);
+    procedure OpenBtnClick(Sender: TObject);
   private
     { Private declarations }
     hScriptThread, idScriptThread: cardinal;
@@ -309,112 +310,24 @@ var
   id: Byte;
   subid: word;
   pname : string;
-  isunknown : boolean;
+  isknown : boolean;
   IsShow : boolean;
 begin
   if PacketNumber < 0 then exit; //или -1 0_о
   if PacketNumber >= Dump.Count then exit; //или индекс оф боундс -)
   if newpacket.Size = 0 then exit; // если пустой пакет выходим
-  
+  if (FromServer and not ToolButton4.Down)
+    or (not FromServer and not ToolButton3.Down) then exit;
+
   id := newpacket.Data[0];
   SubId := Word(id shl 8+Byte(newpacket.Data[1]));
-
-
-  isunknown := GetPacketName(id, subid, FromServer, pname, IsShow);
-  if isunknown then AddToPacketFilterUnknown(FromServer, id, subid, True);
-  if IsShow then
-  AddToListView5(math.ifthen(FromServer, 0, 1), Pname, PacketNumber, Id, subid, not ToolButton5.Down);
-
-  {
-  //------------------------------------------------------------------------
-  //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
-  if FromServer then begin  //от сервера
-    if id=$FE then begin
-      //находим индекс пакета
-      i := PacketsFromS.IndexOfName(IntToHex(subid,4));
-      if i=-1 then
-      begin
-        //неизвестный пакет от сервера
-          AddToListView5(0, 'Unknown', PacketNumber, 0, subid, not ToolButton5.Down);
-          //добавл€ем в список пакетов так как его там нет
-          AddToPacketFilterUnknown(FromServer, 0, subid, True);
-      end
-      else
-        if ToolButton4.Down and (fPacketFilter.ListView1.Items.Item[i].Checked) then
-            AddToListView5(0, fPacketFilter.ListView1.Items.Item[i].SubItems[0], PacketNumber, 0, subid, not ToolButton5.Down);
-    end
-    else
-    begin
-      i:=PacketsFromS.IndexOfName(IntToHex(id,2));
-      if i=-1 then
-      begin
-        //неизвестный пакет от сервера
-        AddToListView5(0, 'Unknown', PacketNumber, id, 0, not ToolButton5.Down);
-        ////добавл€ем в список пакетов так как его там нет
-        AddToPacketFilterUnknown(FromServer, id, 0, True);
-      end else
-        if ToolButton4.Down and (fPacketFilter.ListView1.Items.Item[i].Checked) then
-          AddToListView5(0, fPacketFilter.ListView1.Items.Item[i].SubItems[0], PacketNumber, id, 0, not ToolButton5.Down);
-    end;
-  end;
   
-  if not FromServer then
-  begin  //от клиента
-    if GlobalProtocolVersion<828 then begin //фиксим пакет 39 в  амаель-√раци€
-      if (id in [$39,$D0]) then begin //дл€ C4, C5, T0
-        i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
-        if i=-1 then
-        begin
-          //неизвестный пакет от клиента
-          AddToListView5(1, 'Unknown', PacketNumber, 0, subid, not ToolButton5.Down);
-          //добавл€ем в список пакетов так как его там нет
-          AddToPacketFilterUnknown(FromServer, 0, subid, True);
-        end else
-          if ToolButton3.Down and (fPacketFilter.ListView2.Items.Item[i].Checked) then
-            AddToListView5(1, fPacketFilter.ListView2.Items.Item[i].SubItems[0], PacketNumber, 0, subid, not ToolButton5.Down);
-      end else
-      begin
-        i:=PacketsFromC.IndexOfName(IntToHex(id,2));
-        if i=-1 then
-        begin
-          //неизвестный пакет от клиента
-          AddToListView5(1, 'Unknown', PacketNumber, id, 0, not ToolButton5.Down);
-          //добавл€ем в список пакетов так как его там нет
-          AddToPacketFilterUnknown(FromServer, id, 0, True);
-        end else
-          if ToolButton3.Down and (fPacketFilter.ListView2.Items.Item[i].Checked) then
-            AddToListView5(1, fPacketFilter.ListView2.Items.Item[i].SubItems[0], PacketNumber, 0, subid, not ToolButton5.Down);
-      end;
-    end else
-    begin
-      if (id=$D0) then
-      begin //дл€ T1 и выше
-        i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
-        if i=-1 then
-        begin
-          //неизвестный пакет от клиента
-          AddToListView5(1, 'Unknown', PacketNumber, 0, subid, not ToolButton5.Down);
-          //добавл€ем в список пакетов так как его там нет
-          AddToPacketFilterUnknown(FromServer, 0, subid, True);
-        end else
-          if ToolButton3.Down and (fPacketFilter.ListView2.Items.Item[i].Checked) then
-            AddToListView5(1, fPacketFilter.ListView2.Items.Item[i].SubItems[0], PacketNumber, 0, subid, not ToolButton5.Down);
-      end else
-      begin
-        i:=PacketsFromC.IndexOfName(IntToHex(id,2));
-        if i=-1 then
-        begin
-          //неизвестный пакет от клиента
-          AddToListView5(1, 'Unknown', PacketNumber, id, 0, not ToolButton5.Down);
-          //добавл€ем в список пакетов так как его там нет
-          AddToPacketFilterUnknown(FromServer, id, 0, True);
-        end else
-          if ToolButton3.Down and (fPacketFilter.ListView2.Items.Item[i].Checked) then
-            AddToListView5(1, fPacketFilter.ListView2.Items.Item[i].SubItems[0], PacketNumber, id, 0, not ToolButton5.Down);
 
-      end;
-    end;
-  end; }  
+  isknown := GetPacketName(id, subid, FromServer, pname, IsShow);
+  if not isknown then
+    AddToPacketFilterUnknown(FromServer, id, subid, True);
+  if IsShow then
+    AddToListView5(math.ifthen(FromServer, 0, 1), Pname, PacketNumber, Id, subid, not ToolButton5.Down);
 end;
 
 procedure TfVisual.ListView5Click(Sender: TObject);
@@ -709,6 +622,12 @@ procedure TfVisual.Memo4MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
 IDontknowHowToNameThis;
+end;
+
+procedure TfVisual.OpenBtnClick(Sender: TObject);
+begin
+  if DlgOpenPacket.Execute then Memo4.Lines.LoadFromFile(DlgOpenPacket.FileName);
+
 end;
 
 procedure TfVisual.SaveBntClick(Sender: TObject);
