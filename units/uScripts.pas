@@ -23,7 +23,7 @@ type
     procedure markerrorline;
     constructor create;
     Procedure Load(Filename:string;isnew:boolean=false;fullfilename:string=''); //инициализация, вызывать после креейта
-    destructor destroy; override;
+    destructor Destroy; override;
     Procedure Save(Filename:string='');
     Procedure LoadOriginal;
     Function delete():boolean;

@@ -525,7 +525,7 @@ begin
 isshow := true;
   //------------------------------------------------------------------------
   //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
-  if FromServer then
+if FromServer then
   begin  //от сервера
     if id=$FE then
     begin
@@ -548,22 +548,21 @@ isshow := true;
     else
     begin
       subid := 0;
-      i:=PacketsFromS.IndexOfName(IntToHex(id,2));
+      i := PacketsFromS.IndexOfName(IntToHex(id,2));
       if i=-1 then
       begin
         pname := 'Unknown';
         result := false;
-      end else
+      end
+      else
       begin
         pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
         isshow := fPacketFilter.ListView1.Items.Item[i].Checked;        
         result := true;
       end;
-    end;
-  end;
-
-  
-  if not FromServer then
+    end;  
+  end
+else
   begin  //от клиента
     if GlobalProtocolVersion<828 then
     begin //фиксим пакет 39 в Камаель-Грация

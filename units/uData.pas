@@ -53,7 +53,7 @@ type
     constructor create(SocketN:integer);
     Procedure   INIT;
     procedure disconnect;
-    destructor  destroy; override;
+    destructor  Destroy; override;
     Procedure AddToRawLog(dirrection : byte; data:tbuffer; size:word);
   end;
 
@@ -65,7 +65,7 @@ type
   public
     constructor create;
     Procedure   INIT(Filename:string);
-    destructor  destroy; override;
+    destructor  Destroy; override;
   end;
   
   TdmData = class(TDataModule)
@@ -534,7 +534,7 @@ var
   SelectedScript:tscript;
   //support DLL
 begin
-result := null;
+  result := null;
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
