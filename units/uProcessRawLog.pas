@@ -152,6 +152,7 @@ if dlgOpenRawLog.Execute then
   filename := dlgOpenRawLog.FileName;
   parserawlog(FileName)
   end;
+ChDir(AppPath);
 end;
 
 Function TfProcessRawLog.AnotherLoadLibraryXor(const name: string): boolean;
@@ -204,20 +205,31 @@ begin
    EncDec.ParentTtunel := nil;
    EncDec.ParentLSP := nil;
    EncDec.Settings := GlobalSettings;
-   //םו גûחûגאול
-//EncDec.init;
-   {}
+
    if btnUseLib.Down then
-     AnotherLoadLibraryXor(dlgOpenDll.FileName);
+     AnotherLoadLibraryXor(dlgOpenDll.FileName)
+   else
+     begin
+      if anotherXorLib <> 0 then
+            FreeLibrary(anotherXorLib);
+      AnotherCreateXorIn := nil;
+      AnotherCreateXorOut := nil;
+     end;
 
     //xorS, xorC - init
       if Assigned(AnotherCreateXorIn) then
-        AnotherCreateXorIn(@EncDec.xorS)
+        begin
+        AnotherCreateXorIn(@EncDec.xorS);
+        encdec.innerXor := true;
+        end
       else
         EncDec.xorS := L2Xor.Create;
 
-      if Assigned(CreateXorOut) then
-        AnotherCreateXorOut(@EncDec.xorC)
+      if Assigned(AnotherCreateXorOut) then
+      begin
+        AnotherCreateXorOut(@EncDec.xorC);
+        encdec.innerXor := true;
+      end
       else
         EncDec.xorC := L2Xor.Create;
  end;
@@ -375,6 +387,7 @@ if btnUseLib.Down then
     btnUseLib.Down := false
     else
     btnUseLib.Down := FileExists(dlgOpenDll.FileName);
+ChDir(AppPath);    
 end;
 
 procedure TfProcessRawLog.btnDecryptClick(Sender: TObject);

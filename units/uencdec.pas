@@ -62,13 +62,14 @@ type
     InitXOR : boolean;
 
     Settings : TEncDecSettings;
+    innerXor:boolean;
 
     procedure DecodePacket(var Packet:Tpacket;Dirrection: byte); //Старый PacketProcesor
     Procedure EncodePacket(var Packet:Tpacket;Dirrection: byte); //старый сендпакет
 
     constructor create;
     Procedure INIT; //инициализация, вызывать после креейта
-    destructor destroy; override;
+    destructor Destroy; override;
 
     published
     //Разнообразные реакции
@@ -86,6 +87,7 @@ uses Math, uData, uSocketEngine,   uglobalfuncs;
 constructor TencDec.create;
 begin
   MaxLinesInPktLog := 10000;
+  innerXor := false;
   pckCount := 0;
   SetInitXORAfterEncode := false;
   isInterlude := false;
@@ -163,7 +165,7 @@ end;
 destructor TencDec.destroy;
 begin
   try
-  if @CreateXorIn = nil then
+  if not innerxor then
   begin
     xorS.Destroy;
     xorC.Destroy;
@@ -302,12 +304,18 @@ begin
 
   //xorS, xorC - init
     if Assigned(CreateXorIn) then
-      CreateXorIn(@xorS)
+      begin
+      CreateXorIn(@xorS);
+      innerXor := true;
+      end
     else
       xorS := L2Xor.Create;
 
     if Assigned(CreateXorOut) then
-      CreateXorOut(@xorC)
+    begin
+      CreateXorOut(@xorC);
+      innerXor := true;      
+    end
     else
       xorC := L2Xor.Create;
 end;

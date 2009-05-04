@@ -57,7 +57,6 @@ type
     RusLang: TMenuItem;
     EngLang: TMenuItem;
     l2ph1: TMenuItem;
-    JvCaptionButton1: TJvCaptionButton;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);

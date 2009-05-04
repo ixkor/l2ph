@@ -1,9 +1,9 @@
 object fScript: TfScript
   Left = 339
   Top = 235
-  Width = 729
-  Height = 513
   Caption = #1057#1082#1088#1080#1087#1090#1099'/'#1057#1082#1088#1080#1087#1090#1080#1085#1075
+  ClientHeight = 479
+  ClientWidth = 721
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

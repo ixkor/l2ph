@@ -133,8 +133,8 @@ begin
   ChkIntercept.Checked:=Options.ReadBool('General','Enable',True);
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
-  HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',1);
-  JvSpinEdit2.Value := Options.ReadInteger('General','LocalPort',56574);
+  HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',0);
+  JvSpinEdit2.Value := Options.ReadInteger('General','LocalPort',7788);
   LocalPort := htons(round(JvSpinEdit2.Value));
   ChkAllowExit.Checked := Options.ReadBool('General','FastExit',False);
   ChkShowLogWinOnStart.Checked := Options.ReadBool('General','AutoShowLog',False);

@@ -54,7 +54,7 @@ type
  Published
   constructor create(SockEngine : TObject);
   Procedure   RUN;
-  destructor  destroy; override;
+  destructor Destroy; override;
  end;
 
  TSocketEngine = class (TObject)
@@ -90,7 +90,7 @@ type
    procedure destroyDeadTunels;
    constructor create; //создание и предустановка
    Procedure StartServer; //запуск, вызывать после креейта и установки всех проперти
-   destructor destroy; override; //по цепочке разрушит все имеющиеся экземпляры Ttunel
+   destructor Destroy; override; //по цепочке разрушит все имеющиеся экземпляры Ttunel
  end;
 
 Procedure ClientBody(thisTunel:Ttunel);
@@ -212,8 +212,8 @@ begin
       begin
         if AccumulatorLen >= 2 then
           begin //В акумуляторе данных на 2+ байтикоф
-            ThisTunel.CriticalSection.enter;
             try
+            thisTunel.CriticalSection.enter;
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             //Хватит ли в акамуляторе данных для пакета ?
@@ -247,7 +247,7 @@ begin
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
             finally
-              ThisTunel.CriticalSection.leave;
+            thisTunel.CriticalSection.Leave;
             end;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
@@ -341,8 +341,8 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
       begin
         if AccumulatorLen >= 2 then
           begin //В акумуляторе данных на 2+ байтикоф
-            ThisTunel.CriticalSection.enter;
             try
+            thisTunel.CriticalSection.enter;
             //читаем длину
             curPacket.PacketAsCharArray := StackAccumulator;
             if curPacket.Size=29754 then curPacket.Size:=267;
@@ -376,7 +376,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
               finally
-                ThisTunel.CriticalSection.leave;
+              thisTunel.CriticalSection.Leave;
               end;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
