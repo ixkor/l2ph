@@ -213,7 +213,7 @@ var
   IPb:array[0..3] of Byte absolute NewReddirectIP;
 begin
 c_s.Enter;
-  msg.ResultHi := LocalPort;
+  msg.ResultHi := htons(sockEngine.ServerPort);
   NewReddirectIP := msg.WParam;
   sockEngine.RedirrectIP := NewReddirectIP;
   sockEngine.RedirrectPort := msg.LParamLo;

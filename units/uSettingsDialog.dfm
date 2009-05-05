@@ -447,12 +447,12 @@ object fSettings: TfSettings
       end
       object JvSpinEdit2: TJvSpinEdit
         Left = 14
-        Top = 348
+        Top = 345
         Width = 115
         Height = 21
         Hint = #1055#1086#1088#1090
         Decimal = 0
-        MaxValue = 65534.000000000000000000
+        MaxValue = 60000.000000000000000000
         MinValue = 1024.000000000000000000
         ValueType = vtFloat
         Value = 1024.000000000000000000
@@ -493,10 +493,6 @@ object fSettings: TfSettings
     object TabSheet1: TTabSheet
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ChkAllowExit: TCheckBox
         Left = 10
         Top = 121

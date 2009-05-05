@@ -145,7 +145,6 @@ type
     dump, dumpacumulator : TStringList;
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     currenttunel, currentLSP, CurrentTpacketLog : Tobject;
-    CharName : string;
     procedure ProcessPacket(newpacket: tpacket; FromServer: boolean; Caller: TObject; PacketNumber:integer);
     Procedure processpacketfromacum();
     procedure AddPacketToAcum(newpacket: tpacket; FromServer: boolean; Caller: TObject);
@@ -381,7 +380,9 @@ end;
 {$warnings off}
 procedure TfVisual.SavePacketLog;
 var
-SaveThis: TStringList;
+  SaveThis: TStringList;
+  charname:string;
+  i:integer;
 begin
   if not assigned(dump) then exit;
 
@@ -398,12 +399,28 @@ begin
 
   if ToolButton7.Down then
   begin
-    if CharName <> '' then
-      if SaveThis.Count > 0 then
-        SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+CharName+' '+AddDateTime+'.txt');
+    if assigned(currenttunel) then
+    charname := '';
+    if assigned(currenttunel) then
+      charname := Ttunel(currenttunel).EncDec.CharName +' ';
+
+    if assigned(currentLSP) then
+      charname := TlspConnection(currentLSP).EncDec.CharName +' ';
+       
+    i := 1;
+    while i <= Length(charname) do
+      begin
+        if pos(lowercase(charname[i]), 'qwertyuiopasdfghjklzxcvbnm1234567890.') > 0 then
+          inc(i)
+        else
+          delete(charname,i,1);
+      end;
+   
+    SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].txt');
     SaveThis.Free;
   end;
 end;
+
 {$warnings on}
 procedure TfVisual.CloseConnectionClick(Sender: TObject);
 begin
@@ -604,10 +621,10 @@ begin
   size := length(HexToString(PktStr))+2;
   if size = 2 then exit;
   if ToServer.Down then
-    PktStr:='0400000000000000000000'+PktStr
+    PktStr:='0300000000000000000000'+PktStr
     else
-    PktStr:='0300000000000000000000'+PktStr;
-  { TODO : не передаеться Name пакета }
+    PktStr:='0400000000000000000000'+PktStr;
+
   PacketView.ParsePacket('', PktStr, size);
 
 end;

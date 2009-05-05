@@ -130,12 +130,13 @@ var
 begin
 with CurrentEngine do
 begin
+
     if not InitSocket(ServerListenSock, ServerPort, '0.0.0.0') then
     begin
-      sendMSG(format(rsFailedLocalServer,[ntohs(ServerPort)]));
+      sendMSG(format(rsFailedLocalServer,[ServerPort]));
       exit;
     end;
-    sendMSG(format(rsStartLocalServer,[ntohs(ServerPort)]));
+    sendMSG(format(rsStartLocalServer,[ServerPort]));
 
     while WaitClient(ServerListenSock, NewSocket) do
     begin
