@@ -191,18 +191,17 @@ end;
 procedure TfScript.Button9Click(Sender: TObject);
 var
   poz : integer;
-  temp1, temp2 : TScript;
+  temp1 : TScript;
+  vasused:boolean;  
 begin
   if ScriptsListVisual.ItemIndex>0 then
   begin
     poz := ScriptsListVisual.ItemIndex;
     temp1 := FindScriptByName(ScriptsListVisual.Items.Item[poz].Caption);
-    temp2 := FindScriptByName(ScriptsListVisual.Items.Item[poz-1].Caption);
+    vasused := temp1.ListItem.Checked;
     temp1.ListItem.Destroy;
-    temp2.ListItem.Destroy;
-    temp2.ListItem := ScriptsListVisual.Items.Insert(poz-1);
-    temp2.ListItem.Caption := temp2.ScriptName;
     temp1.ListItem := ScriptsListVisual.Items.Insert(poz-1);
+    temp1.ListItem.Checked := vasused;
     temp1.ListItem.Caption := temp1.ScriptName;
     ScriptsListVisual.ItemIndex := poz -1;
   end;
@@ -211,20 +210,19 @@ end;
 procedure TfScript.Button10Click(Sender: TObject);
 var
   poz : integer;
-  temp1, temp2 : TScript;
+  temp1: TScript;
+  vasused:boolean;
 begin
-  if ScriptsListVisual.ItemIndex>0 then
+  if ScriptsListVisual.ItemIndex<ScriptsListVisual.Items.Count-1 then
   begin
     poz := ScriptsListVisual.ItemIndex;
     temp1 := FindScriptByName(ScriptsListVisual.Items.Item[poz].Caption);
-    temp2 := FindScriptByName(ScriptsListVisual.Items.Item[poz-1].Caption);
+    vasused := temp1.ListItem.Checked;
     temp1.ListItem.Destroy;
-    temp2.ListItem.Destroy;
-    temp1.ListItem := ScriptsListVisual.Items.Insert(poz-1);
+    temp1.ListItem := ScriptsListVisual.Items.Insert(poz+1);
+    temp1.ListItem.Checked := vasused;
     temp1.ListItem.Caption := temp1.ScriptName;
-    temp2.ListItem := ScriptsListVisual.Items.Insert(poz-1);
-    temp2.ListItem.Caption := temp2.ScriptName;
-    ScriptsListVisual.ItemIndex := poz -1;
+    ScriptsListVisual.ItemIndex := poz +1;
   end;
 end;
 
@@ -717,6 +715,12 @@ begin
             else
               begin
                 listItem := ScriptsListVisual.Items[iItem];
+                if listItem.Caption = '' then
+                  begin
+                    OriginalListViewWindowProc(Message);
+                    exit;
+                  end;
+                
                 CheckedScrypt := FindScriptByName(listItem.Caption);
                 if assigned(CheckedScrypt) then
                 if CheckedScrypt.isRunning and listItem.Checked then

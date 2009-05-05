@@ -130,7 +130,7 @@ begin
 
   AddToLog(lang.GetTextOrDefault('IDS_9' (* 'Стартует L2ph v' *) ) + ver);
   sockEngine := TSocketEngine.create;
-  sockEngine.ServerPort := htons(LocalPort);
+  sockEngine.ServerPort := LocalPort;
   sockEngine.StartServer;
   sockEngine.isSocks5 := false;//Можно менять в процессе работы, на текущие нити влять не будет
 end;

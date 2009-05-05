@@ -135,7 +135,7 @@ begin
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
   HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',0);
   JvSpinEdit2.Value := Options.ReadInteger('General','LocalPort',7788);
-  LocalPort := htons(round(JvSpinEdit2.Value));
+  LocalPort := round(JvSpinEdit2.Value);
   ChkAllowExit.Checked := Options.ReadBool('General','FastExit',False);
   ChkShowLogWinOnStart.Checked := Options.ReadBool('General','AutoShowLog',False);
   rgProtocolVersion.ItemIndex :=  Min(Options.ReadInteger('Snifer','ProtocolVersion', 0), rgProtocolVersion.Items.Count);
