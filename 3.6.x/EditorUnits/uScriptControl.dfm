@@ -105,8 +105,6 @@ object fScriptControl: TfScriptControl
     Color = clWhite
     ParentColor = False
     TabOrder = 0
-    ExplicitWidth = 241
-    ExplicitHeight = 322
   end
   object ToolBar1: TToolBar
     AlignWithMargins = True
@@ -120,7 +118,6 @@ object fScriptControl: TfScriptControl
     Margins.Bottom = 1
     Images = fEditorMain.ImageList1
     TabOrder = 1
-    ExplicitWidth = 239
     object ToolButton1: TToolButton
       Left = 0
       Top = 0
@@ -206,7 +203,8 @@ object fScriptControl: TfScriptControl
       'TableName'
       'DatabaseName'
       'IndexName'
-      'MasterFields')
+      'MasterFields'
+      'CharSet')
     Left = 72
     Top = 99
     TranslationData = {
@@ -232,8 +230,6 @@ object fScriptControl: TfScriptControl
       EBFC20F1EAF0E8EFF2E020282A2E706173297C2A2E7061737CC2F1E520F4E0E9
       EBFB20282A2E2A297C2A2E2A0153637269707420756E697420282A2E70617329
       7C2A2E70707C416C6C2066696C657320282A2E2A297C2A2E2A010D0A7374436F
-      6C6C656374696F6E730D0A737443686172536574730D0A546653637269707443
-      6F6E74726F6C0144454641554C545F434841525345540144454641554C545F43
-      484152534554010D0A}
+      6C6C656374696F6E730D0A737443686172536574730D0A}
   end
 end

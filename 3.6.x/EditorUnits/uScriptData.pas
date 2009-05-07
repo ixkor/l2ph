@@ -50,14 +50,14 @@ var
 
 procedure ShowForm;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   UserForm.Show;
   fMain.nUserFormShow.Enabled := true;
 end;
 
 procedure HideForm;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   UserForm.Hide;
   fMain.nUserFormShow.Enabled := false;
 end;
@@ -330,43 +330,43 @@ end;
 
 procedure Disconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.DoDisconnect(CurrentSD.ConnectID);
 end;
 
 procedure NoCloseFrameAfterDisconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.setNoFreeOnConnectionLost(CurrentSD.ConnectID, true);
 end;
 
 procedure CloseFrameAfterDisconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.setNoFreeOnConnectionLost(CurrentSD.ConnectID, false);
 end;
 
 procedure NoCloseClientAfterServerDisconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.setNoDisconnectOnDisconnect(CurrentSD.ConnectID, true, true);
 end;
 
 procedure CloseClientAfterServerDisconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.setNoDisconnectOnDisconnect(CurrentSD.ConnectID, false, false);
 end;
 
 procedure NoCloseServerAfterClientDisconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.setNoDisconnectOnDisconnect(CurrentSD.ConnectID, true, false);
 end;
 
 procedure CloseServerAfterClientDisconnect;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   dmdata.setNoDisconnectOnDisconnect(CurrentSD.ConnectID, false, true);
 end;
 
@@ -375,7 +375,7 @@ procedure SendToClient;
 var
   packet : TPacket;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   packet.Size := Length(CurrentSD.Buf)+2;
   Move(CurrentSD.Buf[1], packet.Data[0], Length(CurrentSD.Buf));
   dmData.SendPacket(packet, ConnectID, False);
@@ -385,7 +385,7 @@ procedure SendToServer;
 var
   packet : TPacket;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   packet.Size := Length(CurrentSD.Buf)+2;
   Move(CurrentSD.Buf[1], packet.Data[0], Length(CurrentSD.Buf));
   dmData.SendPacket(packet, ConnectID, True);
@@ -395,7 +395,7 @@ procedure SendToClientEx(CharName:string);
 var
   packet : TPacket;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   packet.Size := Length(CurrentSD.Buf)+2;
   Move(CurrentSD.Buf[1], packet.Data[0], Length(CurrentSD.Buf));
   dmData.SendPacketToName(packet, CharName, False);
@@ -405,7 +405,7 @@ procedure SendToServerEx(CharName:string);
 var
   packet : TPacket;
 begin
-  if not TScriptProject(CurrentSD.scripter).CanUse then exit;
+  if not TScriptProject(CurrentSD.scripter).CanUse and not not TScriptProject(CurrentSD.scripter).Prepare then exit;
   packet.Size := Length(CurrentSD.Buf)+2;
   Move(CurrentSD.Buf[1], packet.Data[0], Length(CurrentSD.Buf));
   dmData.SendPacketToName(packet, CharName, True);

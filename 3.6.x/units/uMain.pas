@@ -49,14 +49,12 @@ type
     nExit: TMenuItem;
     JvTrayIcon1: TJvTrayIcon;
     nShowHide: TMenuItem;
-    N14: TMenuItem;
-    nLanguage: TMenuItem;
     lang: TsiLang;
-    RusLang: TMenuItem;
-    EngLang: TMenuItem;
     l2ph1: TMenuItem;
     siLangDispatcher: TsiLangDispatcher;
     N1: TMenuItem;
+    N3: TMenuItem;
+    Language1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);
@@ -75,14 +73,13 @@ type
     procedure nScriptsShowClick(Sender: TObject);
     procedure nShowHideClick(Sender: TObject);
     procedure nExitClick(Sender: TObject);
-    procedure RusLangClick(Sender: TObject);
-    procedure EngLangClick(Sender: TObject);
     procedure Action9Execute(Sender: TObject);
     procedure l2ph1Click(Sender: TObject);
     procedure langChangeLanguage(Sender: TObject);
     procedure UpdateStrings;
     procedure pcClientsConnectionChange(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure Language1Click(Sender: TObject);
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
@@ -102,7 +99,7 @@ uses
   uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
   uAboutDialog, uData, uUserForm, uProcessRawLog, Math,
-  uMainReplacer, uScriptControl, uEditorMain;
+  uMainReplacer, uScriptControl, uEditorMain, uLangSelectDialog;
  
 
 {$R *.dfm}
@@ -120,7 +117,7 @@ begin
 
   ver := uGlobalFuncs.getversion;
   Splash.Caption := 'L2PacketHack v'+ ver;
-  Caption := 'L2PacketHack v' + ver + ' by CoderX.ru Team';
+  Caption := format(Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team'), [ver]);
   fAbout.AboutMemo.Lines.Add('L2PacketHack v' + ver);
   fAbout.AboutMemo.Lines.Add('');
   fAbout.AboutMemo.Lines.Add(lang.GetTextOrDefault('IDS_6'));
@@ -135,7 +132,7 @@ begin
   sockEngine.ServerPort := LocalPort;
   sockEngine.StartServer;
   sockEngine.isSocks5 := false;//Можно менять в процессе работы, на текущие нити влять не будет
-  ChDir(AppPath+'settings\');  
+  ChDir(AppPath+'settings\');
 end;
 
 
@@ -321,20 +318,6 @@ begin
 close;
 end;
 
-procedure TfMain.RusLangClick(Sender: TObject);
-begin
-EngLang.Checked := False;
-RusLang.Checked := true;
-siLangDispatcher.Language := 'Default';
-end;
-
-procedure TfMain.EngLangClick(Sender: TObject);
-begin
-EngLang.Checked := true;
-RusLang.Checked := false;
-siLangDispatcher.Language := 'English';
-end;
-
 procedure TfMain.Action9Execute(Sender: TObject);
 begin
   if Visible then BringToFront; 
@@ -351,6 +334,12 @@ end;
 procedure TfMain.langChangeLanguage(Sender: TObject);
 begin
   UpdateStrings;
+end;
+
+procedure TfMain.Language1Click(Sender: TObject);
+begin
+ fLangSelectDialog.Show
+
 end;
 
 procedure TfMain.N1Click(Sender: TObject);
