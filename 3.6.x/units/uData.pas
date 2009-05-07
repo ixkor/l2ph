@@ -469,7 +469,7 @@ begin
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnPacket) then
       begin
-        OnPacket(id, FromServer, newpacket);
+        OnPacket(id, FromServer, dmData.ConnectNameById(id), newpacket);
         //если плагин обнулил размер пакета
         if newpacket.Size < 3 then exit; //раньше тут был бряк, но ведь пустой пакет скриптам не нужен. поэтому екзит.
       end;

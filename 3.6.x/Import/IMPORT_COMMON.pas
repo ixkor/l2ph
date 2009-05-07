@@ -10,7 +10,8 @@ uses
   IMPORT_Forms,
   IMPORT_Menus,
   IMPORT_Dialogs,
-  IMPORT_ExtCtrls;
+  IMPORT_ExtCtrls,
+  IMPORT_TypInfo;
 
 implementation
 
@@ -25,4 +26,5 @@ begin
   Register_Menus;
   Register_Dialogs;
   Register_ExtCtrls;
+  Register_TypInfo;
 end.

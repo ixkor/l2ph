@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Работа с DLL из скриптов</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY><FONT face=Arial size=2>
+<P><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT size=5><FONT 
+face=Arial color=#003f7d><STRONG>Работа с DLL из скриптов</STRONG></FONT><FONT 
+size=3>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<P>
+<P>
+<HR>
+</FONT></FONT></FONT></FONT></FONT></P>
+<P></P>
+<P>как вы заметили, пропали функции ответственные за вызов функций из длл 
+модулей.<BR>они больше не нужны, т.к. работа с длл поддерживается 
+paxCompiller'ом<BR>Пример взятый с оффсайта paxCompiler:</P></FONT><FONT 
+face=Arial size=2></FONT><PRE><FONT color=blue><B>type</B></FONT>
+  PMyPoint = ^TMyPoint;
+  TMyPoint = <FONT color=blue><B>record</B></FONT>
+    x, y, z: Integer;
+  <FONT color=blue><B>end</B></FONT>;
+
+// int __msfastcall cube(int num); 
+<FONT color=blue><B>function</B></FONT> cub(X: Integer): Integer; <FONT color=blue><B>msfastcall</B></FONT>; 
+<FONT color=blue><B>external</B></FONT> <FONT color=red>'CppDll.dll'</FONT> name <FONT color=red>'cube'</FONT>;
+
+// double __msfastcall arr(double a[], int i, int j, float f);
+<FONT color=blue><B>function</B></FONT> arr(A: Pointer; X, Y: Integer; S: Single): Double; <FONT color=blue><B>msfastcall</B></FONT>; 
+<FONT color=blue><B>external</B></FONT> <FONT color=red>'CppDll.dll'</FONT>;
+
+// Point  __msfastcall ret_struct(int x, int y, int z);
+<FONT color=blue><B>function</B></FONT> ret_struct(X, Y, Z: Integer): TMyPoint; <FONT color=blue><B>msfastcall</B></FONT>;
+<FONT color=blue><B>external</B></FONT> <FONT color=red>'CppDll.dll'</FONT>;
+
+// MyPoint __msfastcall pass_struct(const MyPoint &amp; q);
+<FONT color=blue><B>function</B></FONT> pass_struct(P: PMyPoint): TMyPoint; <FONT color=blue><B>msfastcall</B></FONT>;
+<FONT color=blue><B>external</B></FONT> <FONT color=red>'CppDll.dll'</FONT>;
+
+// char __msfastcall ret_char(char * s)
+<FONT color=blue><B>function</B></FONT> ret_char(s: PChar): Char; <FONT color=blue><B>msfastcall</B></FONT>;
+<FONT color=blue><B>external</B></FONT> <FONT color=red>'CppDll.dll'</FONT>;
+
+<FONT color=blue><B>var</B></FONT>
+  p: TMyPoint;
+  a: <FONT color=blue><B>array</B></FONT>[0..5] <FONT color=blue><B>of</B></FONT> double;
+<FONT color=blue><B>begin</B></FONT>
+  a[0] := 5.3;
+  a[1] := 10.1;
+
+  writeln(cub(2));
+  writeln(arr(@a, 2, 3, 6.8));
+
+  p := ret_struct(2, 3, 5);
+  writeln(p.x, <FONT color=red>' '</FONT>, p.y, <FONT color=red>' '</FONT>, p.z);
+
+  p := pass_struct(@p);
+  writeln(p.x, <FONT color=red>' '</FONT>, p.y, <FONT color=red>' '</FONT>, p.z);
+
+  writeln(ret_char(<FONT color=red>'abc'</FONT>));
+<FONT color=blue><B>end</B></FONT>.
+</PRE></BODY>
+</html>

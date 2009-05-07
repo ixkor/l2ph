@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Перечень поддерживаемых функций/процедур, переменные</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY>
+<P><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT size=5><FONT 
+face=Arial color=#003f7d><STRONG>Перечень поддерживаемых функций/процедур, 
+переменные.</STRONG></FONT><FONT size=3><FONT color=#003f7d> </FONT></P>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<P>
+<HR>
+
+<P></P>
+<P>Поддерживает практически все те же функции что и 3.5. <BR>функции работы с 
+длл были убраны из соображений "это умеет делать сам 
+paxComlpiler".</FONT></FONT></FONT></FONT></FONT></P>
+<P><FONT face=Arial size=2>var Pck:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; - хранит содержимое пакета (обработка в 
+OnPacket)<BR>var Buf:<SPAN style="COLOR: rgb(0,0,0)">string</SPAN>; - Хранит 
+содержимое буфера которое отсылаеться с помошью SedToХХХХХХ<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Function</SPAN> HStr<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Hex: <SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>: 
+<SPAN style="COLOR: rgb(0,0,0)">String</SPAN>; - Переводит Hex в String<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> StrToHex<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>str1:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN>; - Переводит String&nbsp;в Hex<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>v:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+- Пишет&nbsp;строку в buf<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteC<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>v:<SPAN style="COLOR: rgb(0,0,0)">byte</SPAN>; 
+ind:<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; - 
+Пишет&nbsp;байт в buf<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>v:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; - 
+Пишет&nbsp;4 байта&nbsp;в buf<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>v:<SPAN style="COLOR: rgb(0,0,0)">word</SPAN>; 
+ind:<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; - 
+Пишет&nbsp;2 байта&nbsp;в buf<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> WriteF<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>v:<SPAN 
+style="COLOR: rgb(0,0,0)">double</SPAN>; ind:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; - 
+Пишет&nbsp;8 байт&nbsp;в buf<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>/<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; - читает строку из буфера по указаному 
+смещению<BR><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ReadC<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>/<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">byte</SPAN>; 
+- читает байт из буфера по указаному смещению<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>/<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; - читает 4 байт из буфера по указаному 
+смещению<BR><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ReadH<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>/<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">word</SPAN>; 
+- читает 2 байта из буфера по указаному смещению<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ReadF<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>/<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> index:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">double</SPAN>; - читает 8 байт из буфера по указаному 
+смещению<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> SendToClient; - 
+Отправляет буфер на клиент по текущему ConnectID <BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> SendToServer; - 
+Отправляет буфер на&nbsp;сервер по текущему ConnectID <BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+SendToServerEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>CharName:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+- Отправляет буфер на&nbsp;сервер ориентируясь на имя соединения<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+SendToClientEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>CharName:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+- Отправляет буфер на&nbsp;клиент ориентируясь на имя соединения<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Delay<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>msec: <SPAN 
+style="COLOR: rgb(0,0,0)">Cardinal</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; - Задержка <BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> LogMSG<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>msg:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+- Добавляет строку в лог PH<BR>Userform:Tform; - Пользовательская форма<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> HideForm; - 
+отображает пользовательскую форму и разблокирует элекмент меню отвечающий за ее 
+отображения<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> ShowForm; - 
+обратное предыдущему.<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ConnectName : 
+<SPAN style="COLOR: rgb(0,0,0)">string</SPAN>; - содержит имя 
+соединения<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> FromServer : 
+<SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>; - направление пакета от сервера 
+?<BR><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+FromClient : <SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>; - направление 
+пакета от клиента ?<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ConnectID : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; - индефикатор текущего 
+соединения<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> SetName<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Name:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+- назначает имя текущему соединению.<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ConnectNameByID<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>id:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; - получает имя соединения по его 
+индефикатору<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+ConnectIDByName<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>name:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; - получает индефикатор соединения по 
+его имени<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Disconnect; 
+-разрывает текущее соединение<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+NoCloseFrameAfterDisconnect; - не закрывать фрейм соединения после 
+дисконнекта<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+CloseFrameAfterDisconnect; - закрываетб фрейм соединения после 
+дисконнекта<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+NoCloseClientAfterServerDisconnect; - не отсоединять клиент после дисконнекта от 
+вызваного сервером<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+CloseClientAfterServerDisconnect; - отсоединять клиент после дисконнекта от 
+вызваного сервером<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+NoCloseServerAfterClientDisconnect; - не уничтожать соединение с сервером после 
+после дисконнекта вызваного клиентом<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+CloseServerAfterClientDisconnect; - уничтожать соединение с сервером после после 
+дисконнекта вызваного клиентом<BR>Print [array <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> variables]; - пишет 
+указанную переменную/строку в print's log (пример: print 'blablabla'; / print 
+i;)</FONT></P></BODY>
+</html>

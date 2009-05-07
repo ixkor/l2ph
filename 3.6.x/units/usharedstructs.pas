@@ -77,7 +77,6 @@ type
     public
     userFormHandle: THandle;
     ConnectInfo : tConnectInfo;
-    UserFuncs : tstringlist;
     function ReadC(const pck: string; const index:integer):byte; Virtual; Abstract;
     function ReadH(const pck: string; const index:integer):word; Virtual; Abstract;
     function ReadD(const pck: string; const index:integer):integer; Virtual; Abstract;

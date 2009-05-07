@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Пример описания формы с таймером</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY><FONT face=Arial size=2>
+<P><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT size=5><FONT 
+face=Arial color=#003f7d><STRONG>Пример описания формы с 
+таймером.</STRONG></FONT><FONT size=3><FONT color=#003f7d> </FONT></P>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<P>
+<P>
+<P>
+<HR>
+
+<P></P>
+<P></FONT></FONT></FONT></FONT></FONT></FONT><FONT color=#ff0000>Обратите 
+внимание на передаваемые в ctreate параметры!!! и на все что отмечено 
+красным.<BR></FONT><FONT color=#000000>Скрипт меняющий титул по таймеру, ака 
+бегущая строка.</FONT></P>
+<P><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Unit</SPAN> <FONT 
+color=#ff0000>TitulMain</FONT>; //название юнита должно совпадать с именем его в 
+проекте.</P>
+<P><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">interface</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN> forms, classes, 
+extctrls, sysutils, stdctrls;</P>
+<P><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN><BR>&nbsp; Full_Title 
+= <SPAN style="COLOR: rgb(0,0,240)">'&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; ЙА креведко, Бугага'</SPAN>;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//титул полностью - строка любой 
+длины</SPAN><BR>&nbsp; Char_Name = <SPAN 
+style="COLOR: rgb(0,0,240)">'someone'</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//имя перса 
+</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">type</SPAN><BR>&nbsp; <FONT 
+color=#ff0000>TMain = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">class</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>tform</FONT><SPAN 
+style="COLOR: rgb(0,0,0)"><FONT color=#ff0000>)</FONT> //класс родителем 
+которого являеться форма - описывает создание 
+формы.</SPAN><BR>&nbsp;&nbsp;&nbsp; Timer : TTimer;&nbsp; <FONT 
+color=#ff0000>//обьекты распологающиеся на форме.<BR></FONT>&nbsp;&nbsp;&nbsp; 
+Button : TButton;<BR>&nbsp; &nbsp; Edit: TEdit;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <BR>&nbsp; &nbsp; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> ButtonClick<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Sender: <SPAN 
+style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; <FONT color=#ff0000>// и их 
+события!!!</FONT><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> TimerTimer<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Sender: <SPAN 
+style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">private</SPAN><BR>&nbsp; &nbsp; 
+Pos_i : <SPAN style="COLOR: rgb(0,0,0)">Integer</SPAN>;&nbsp; <FONT 
+color=#ff0000>//В секции приват обьявляються переменные&nbsp;доступ к 
+которым</FONT><BR>&nbsp;&nbsp;&nbsp; Start : <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>;&nbsp; <FONT color=#ff0000>//есть из 
+методов описаных в самом классе но недоступные 
+извне<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//это 
+место можно переместить в Public а секцию удалить.<BR></FONT>&nbsp; &nbsp; 
+<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">public</SPAN><BR>&nbsp;&nbsp;&nbsp; 
+<FONT color=#ff0000><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Constructor</SPAN> create<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Aowner:Tcomponent<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;</FONT> <FONT color=#ff0000>override</FONT>; 
+<FONT color=#ff0000>//конструктор формы. в нем описываеться 
+создание&nbsp;обьектов распологающихся на форме.</FONT><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<BR><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; 
+main : TMain; <FONT color=#ff0000>//Экземпляр нашего класса<BR></FONT>&nbsp; 
+<BR>&nbsp; <BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> Init;&nbsp; 
+<FONT color=#ff0000>//функции вызываемые из пх. должны бытть обьявлены тут. т.е. 
+в Interface секции<BR></FONT><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Free; <FONT 
+color=#ff0000>//реализация функций в implementation</FONT><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> 
+OnPacket;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">implementation</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> <FONT 
+color=#ff0000>TMain</FONT>.<SPAN 
+style="COLOR: rgb(0,0,0)">ButtonClick</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Sender: <SPAN 
+style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; <FONT color=#ff0000>//описание обработчика 
+для кнопки. </FONT><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>Start := <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Not</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Start<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>Timer.<SPAN 
+style="COLOR: rgb(0,0,0)">Enabled</SPAN> := Start;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">If</SPAN> Start<BR>&nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+Button.<SPAN style="COLOR: rgb(0,0,0)">Caption</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">'Стоп'</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> Button.<SPAN 
+style="COLOR: rgb(0,0,0)">Caption</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">'Старт'</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//процедура смена 
+титула</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> ChangeTitle<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CharName,Title:<SPAN 
+style="COLOR: rgb(0,0,0)">String</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN> buf:=#$<SPAN 
+style="COLOR: rgb(0,0,240)">55</SPAN>;<BR>&nbsp; &nbsp; &nbsp; WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CharName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Title<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; SendToServerex<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CharName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> <FONT 
+color=#ff0000>TMain</FONT>.<SPAN 
+style="COLOR: rgb(0,0,0)">TimerTimer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Sender: <SPAN 
+style="COLOR: rgb(0,0,0)">TObject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; <FONT color=#ff0000>//обработчик 
+таймера</FONT><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> i:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; &nbsp; Title:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Титул текущий</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN> Title:=<SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">16</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//читаем 16 символов = макс 
+длина титула</SPAN><BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i+Pos_i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">mod</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">Length</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Full_Title<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//если читаем нулевой символ 
+строки Full_Title </SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> Title:=Title+<SPAN 
+style="COLOR: rgb(0,0,240)">' '</SPAN>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//вставляем пробел&nbsp; 
+&nbsp;</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> 
+Title:=Title+Full_Title[<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>i+Pos_i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">mod</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">Length</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Full_Title<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>];<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//если нет - то вставляем 
+символ</SPAN><BR><BR>&nbsp; &nbsp; &nbsp; Pos_i:=<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Pos_i+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">mod</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">Length</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Full_Title<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//меняем позицию +1 и если 
+дошли до конца строки - идем читать сначала</SPAN><BR><BR>&nbsp; &nbsp; &nbsp; 
+Edit.<SPAN style="COLOR: rgb(0,0,0)">Text</SPAN>:=Title;<BR>&nbsp; &nbsp; &nbsp; 
+ChangeTitle<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>Char_Name,Title<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)"><FONT 
+color=#ff0000>Constructor</FONT></SPAN> <FONT color=#ff0000>TMain</FONT>.<SPAN 
+style="COLOR: rgb(0,0,0)">create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Aowner:Tcomponent<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; <FONT color=#ff0000>//конструктор 
+формы</FONT><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">inherited</SPAN>; <FONT 
+color=#ff0000>//эта cтрочка вызывает Create из родителя. т.е. из 
+tForm</FONT><BR>&nbsp; Pos_i := <SPAN style="COLOR: rgb(0,0,240)">1</SPAN>; 
+<FONT color=#ff0000>//Назначение переменных&nbsp;из секции 
+private</FONT><BR>&nbsp; Start := <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">False</SPAN>;<BR>&nbsp; 
+<BR>&nbsp; Caption := <SPAN style="COLOR: rgb(0,0,240)">'Анимированный Титул v 
+1.0'</SPAN>; <FONT color=#ff0000>//назначение&nbsp;мени создаваемому окну, и 
+прочих параметров</FONT><BR>&nbsp; BorderStyle := bsSizeable;<BR>&nbsp; Position 
+:= poDesigned;<BR>&nbsp; Left :=<SPAN 
+style="COLOR: rgb(0,0,240)">725</SPAN>;<BR>&nbsp; Top :=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; Width :=<SPAN 
+style="COLOR: rgb(0,0,240)">300</SPAN>;<BR>&nbsp; Height :=<SPAN 
+style="COLOR: rgb(0,0,240)">150</SPAN>;<BR><FONT color=#ff0000></FONT></P>
+<P><FONT color=#ff0000></FONT>&nbsp;</P>
+<P><FONT color=#ff0000>&nbsp; //Создаем обьекты, обращаем внимание на то что 
+обьектам присваевается родитель self<BR>&nbsp; //self = этот&nbsp;создаваемый 
+екземпляр формы.<BR>&nbsp; //при назначении родителя, потомки "погибают" вместе 
+с ним.</FONT></P><FONT color=#ff0000></FONT>
+<P><BR>&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//пример 
+титула будет выводиться сюда</SPAN><BR>&nbsp; Edit := TEdit.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><FONT color=#ff0000>self</FONT><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Edit.<SPAN 
+style="COLOR: rgb(0,0,0)">Parent</SPAN> := self;<BR>&nbsp; Edit.<SPAN 
+style="COLOR: rgb(0,0,0)">Left</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">100</SPAN>;<BR>&nbsp; Edit.<SPAN 
+style="COLOR: rgb(0,0,0)">Top</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN>;<BR>&nbsp; Edit.<SPAN 
+style="COLOR: rgb(0,0,0)">Width</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">102</SPAN>;<BR><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//таймер</SPAN><BR>&nbsp; Timer 
+:= TTimer.<SPAN style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><FONT color=#ff0000>self</FONT><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Timer.<SPAN 
+style="COLOR: rgb(0,0,0)">Interval</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">200</SPAN>;<BR>&nbsp; Timer.<SPAN 
+style="COLOR: rgb(0,0,0)">Enabled</SPAN> := <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">False</SPAN>;<BR>&nbsp; 
+Timer.<SPAN style="COLOR: rgb(0,0,0)">onTimer</SPAN> := <FONT 
+color=#ff0000>TimerTimer</FONT>;<BR><BR>&nbsp; Button := TButton.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><FONT color=#ff0000>self</FONT><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Button.<SPAN 
+style="COLOR: rgb(0,0,0)">Parent</SPAN> := self;<BR>&nbsp; Button.<SPAN 
+style="COLOR: rgb(0,0,0)">Caption</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">'Старт'</SPAN>;<BR>&nbsp; Button.<SPAN 
+style="COLOR: rgb(0,0,0)">Left</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN>;<BR>&nbsp; Button.<SPAN 
+style="COLOR: rgb(0,0,0)">Top</SPAN> := <SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN>;<BR>&nbsp; Button.<SPAN 
+style="COLOR: rgb(0,0,0)">onClick</SPAN> := <FONT 
+color=#ff0000>ButtonClick</FONT>;&nbsp; <BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Init;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Begin<BR></SPAN><STRONG><FONT 
+color=#ff0000>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+//напоминаю что main:tmain а не main:tform!!!</FONT></STRONG><BR><FONT 
+color=#ff0000>Main := tmain.<SPAN style="COLOR: rgb(0,0,0)"><FONT 
+color=#ff0000>create</FONT></SPAN><SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)"><FONT 
+color=#ff0000>nil</FONT></SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+//создание екземпляра tmain. единственное место где не назначаеться 
+родитель.<BR>main.<SPAN 
+style="COLOR: rgb(0,0,0)">show</SPAN>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+//отображение екземпляра tmain&nbsp;</FONT><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">End</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Free;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Begin</SPAN><BR>Main.<SPAN 
+style="COLOR: rgb(0,0,0)">Destroy</SPAN>;&nbsp; <FONT 
+color=#ff0000>//уничтожение екземпляра Tmain ВМЕСТЕ с привязаными к нему child 
+объектами</FONT><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">End</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+OnPacket;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Begin</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">End</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</P></BODY>
+</html>
