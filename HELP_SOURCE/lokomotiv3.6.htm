@@ -1,0 +1,2797 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Локомотив портированный в 3.6</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+
+</head>
+
+<BODY>
+<P><FONT face=Arial size=2><FONT face=Arial size=2>&nbsp;&nbsp;<FONT 
+size=2><FONT size=5><FONT face=Arial color=#003f7d><STRONG>Локомотив 
+портированный в 3.6, более расширенный пример.&nbsp;<BR>&nbsp;Но без 
+коментариев.</STRONG></FONT></FONT></FONT></FONT></FONT><FONT face=Arial 
+size=2><FONT face=Arial size=2><FONT size=2><FONT size=5><FONT size=3></P>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial></FONT>
+<P><FONT face=Arial>
+<P>
+<P>
+<P>
+<P>
+<P>
+<P>
+<HR>
+
+<P></P>
+<P></FONT></FONT></FONT></FONT></FONT></P></FONT>
+<P>Оригинал скрипта находится тут: <A 
+href="http://coderx.ru/showthread.php?t=334">http://coderx.ru/showthread.php?t=334</A></P>
+<P><FONT color=#ff0000>затраченое на портирование время около 15 
+минут.</FONT></P>
+<P>&nbsp;</P>
+<P><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Unit</SPAN> 
+BotikMain;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">interface</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN> forms, classes, 
+extctrls, sysutils, stdctrls;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">type</SPAN><BR>&nbsp; TMyform 
+=<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">class</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Tform<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>&nbsp; &nbsp; &nbsp;<BR>&nbsp; &nbsp; log, 
+MobsDBscreen, ItemsDBScreen: TMemo;<BR>&nbsp; &nbsp; textX, textY, textZ, 
+textMyID, textMyHP, textMyMaxHP: TEdit;<BR>&nbsp; &nbsp; textMyMP, textMyMaxMP: 
+TEdit;<BR>&nbsp; &nbsp; textCenterX, textCenterY, textCenterZ, textRadius : 
+TEdit;<BR>&nbsp; &nbsp; textTargetID, textMobX, textMobY, textMobZ : 
+TEdit;<BR>&nbsp; &nbsp; textAttackCycle, textMobsKilled: TEdit;<BR>&nbsp; &nbsp; 
+panel: TPanel;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">private</SPAN><BR>&nbsp; &nbsp; 
+frmParamIndex: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; 
+&nbsp;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">protected</SPAN><BR>&nbsp; &nbsp; 
+<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">public</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+OnTimerCombat<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>sender:<SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> OnTimerForm<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>sender:<SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+OnTimerPickUp<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>sender:<SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> CreateLabel 
+<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> CreateTextBox 
+<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+:TEdit;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">constructor</SPAN> create<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Sender:Tcomponent<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; override;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <BR>&nbsp; 
+<BR><SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//################### Сеция 
+настройки бота 
+############################################</SPAN><BR>&nbsp;NickName = <SPAN 
+style="COLOR: rgb(0,0,240)">'alexteam'</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Твой ник в 
+игре</SPAN><BR>&nbsp;Interlude = <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// C4 - false, C6 - 
+true;</SPAN><BR>&nbsp;HPMedium = <SPAN 
+style="COLOR: rgb(0,0,240)">70</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Уровень жизни, при котором 
+начинаем глотать банки</SPAN><BR>&nbsp;HPBottleID = <SPAN 
+style="COLOR: rgb(0,0,240)">1061</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; ItemID 1060=Lesser 
+Healing Potion;&nbsp; &nbsp; 1061=Healing Potion;&nbsp; &nbsp;1539=Greater 
+Healing Potion;</SPAN><BR>&nbsp;Vertical = <SPAN 
+style="COLOR: rgb(0,0,240)">300</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Вертикальный радиус 
+кача</SPAN><BR>&nbsp;InvRazmer = <SPAN 
+style="COLOR: rgb(0,0,240)">99</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Размер инвентаря -1 (т.е. 
+если инвентарь 80, то пишем сюда 79)</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//############# Секция 
+расширенной настройки для опытных ботоводеров :) 
+###################################</SPAN><BR>&nbsp;TimerCombat_Interval = <SPAN 
+style="COLOR: rgb(0,0,240)">1000</SPAN>;&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// частота срабатывания таймера 
+атаки в милисекундах, чем меньше это число, тем быстрее бот будет 
+думать.</SPAN><BR>&nbsp;TimerPickUp_Interval = <SPAN 
+style="COLOR: rgb(0,0,240)">500</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// частота срабатывания таймера 
+сбора дропа, чем меньше это число, тем быстрее бот будет 
+думать.</SPAN><BR>&nbsp;TimerForm_Interval = <SPAN 
+style="COLOR: rgb(0,0,240)">2500</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// частота срабатывания таймера 
+обновления формы, чем меньше это число, тем быстрее будут обновляться данные в 
+форме.</SPAN><BR>&nbsp;DrinkDelay = <SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+минимальное время задержки повторного питься бутылки (10 - 20 
+сек)</SPAN><BR>&nbsp;Attack_Time = <SPAN 
+style="COLOR: rgb(0,0,240)">60</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Время на убивание моба в секундах.</SPAN><BR>&nbsp;PickUp_Time = <SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Врямя на поднятие дропа в секундах.</SPAN><BR>&nbsp;OblastVidimosti = <SPAN 
+style="COLOR: rgb(0,0,240)">1000</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Приращение к 
+радиусу кача, для мобов которые стоят прямо на границе радиуса (изменять от 100 
+до 1000)</SPAN><BR>&nbsp;maximumItems = <SPAN 
+style="COLOR: rgb(0,0,240)">100</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Размер 
+базы мобов и дропа</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//########################################################################################</SPAN><BR>&nbsp;NpcTypeID_List_Razmer 
+= <SPAN style="COLOR: rgb(0,0,240)">10</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Размер списка мобов (не 
+трогать!)</SPAN><BR>&nbsp;OX = <SPAN style="COLOR: rgb(0,0,240)">1</SPAN>; OY = 
+<SPAN style="COLOR: rgb(0,0,240)">2</SPAN>; OZ= <SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; Служебные 
+константы</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp;InitMode, 
+PickUpMode : <SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>;<BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//-------------------------------------- 
+БД&nbsp; 
+--------------------------------------------------</SPAN><BR>&nbsp;MobsID&nbsp; 
+&nbsp;: <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;MobsDist : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Расстояние от 
+центра кача</SPAN><BR>&nbsp;MobsXYZ&nbsp; : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Координаты</SPAN><BR>&nbsp;MobsAgression : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN>;&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Моб атакует меня или стоит в 
+сторонке...</SPAN><BR>&nbsp;MobsLastIndex: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// индекс 
+последнего элемента базы</SPAN><BR><BR>&nbsp;NpcTypeID_List : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">NpcTypeID_List_Razmer</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Список мобов&nbsp; (коды 
+мобов)</SPAN><BR>&nbsp;NpcTypeID_List_Count : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Текущий размер 
+списка</SPAN><BR>&nbsp;NpcTypeID_CurrentMob : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><BR>&nbsp;Items_ObjectID : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// БД дропа с 
+мобов</SPAN><BR>&nbsp;Items_ItemID : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;Items_XYZ : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">array</SPAN> [<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">maximumItems</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;ItemsLastIndex: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><BR>&nbsp;Inventory: array[<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,0)">InvRazmer</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// инвентарь (itemType1, 
+ObjectID, ItemID, count, itemType2, CustType1, isEquipped, BodyPart, 
+EnchantLevel, CustType2)</SPAN><BR>&nbsp;HPBottleObjID, HPBottleCount : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// ObjID и количество 
+HP-бутылей</SPAN><BR><BR>&nbsp;TargetID, LastKilledMobObjID : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Текущая цель, последний 
+убитый моб</SPAN><BR><BR>&nbsp;MobsKilled : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;счетчик убитых мобов</SPAN><BR><BR>&nbsp;Povtor: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;CenterX, CenterY, CenterZ : 
+<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Центр 
+кача</SPAN><BR>&nbsp;Radius: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Радиус кача</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//--------------------------------------------------------</SPAN><BR>&nbsp;MyX, 
+MyY, MyZ : <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Мои 
+статы</SPAN><BR>&nbsp;MyID, MyHP, MyMaxHP: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;MyMP, MyMaxMP: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;HPlevelProcent : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// уровень жизни в 
+прочентах</SPAN><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//--------------------------------------------------------</SPAN><BR>&nbsp;frm: 
+TMyForm;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+переменные описания формы</SPAN><BR>&nbsp;<BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//----------------------------------------------------------</SPAN><BR>&nbsp;TimerForm, 
+TimerCombat, TimerPickUp : TTimer;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+таймеры</SPAN><BR>&nbsp;time1: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;Calculated_AttackTime, 
+Calculated_PickUpTime : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;AttackCycle: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Цикл атаки</SPAN><BR><BR><SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//##############################################################################################</SPAN><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> Init;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Free;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Procedure</SPAN> 
+OnPacket;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">implementation</SPAN><BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+InitPickUpMode<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>mode: <SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> mode <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+&nbsp;PickUpMode:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; 
+&nbsp;TimerCombat.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+&nbsp;TimerPickUp.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+&nbsp;PickUpMode:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+&nbsp;TimerCombat.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; 
+&nbsp;TimerPickUp.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+PhisicalAttack;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// команда 
+атаки</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+buf:=#$<SPAN style="COLOR: rgb(0,0,240)">04</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//action</SPAN><BR>&nbsp; 
+WriteD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>TargetID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyX<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyY<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyZ<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteC<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; SendToServerEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> TestPovtor <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>id: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция проверяет наличие 
+заданного моба в БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+result:=<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> MobsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MobsID[i] = id <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Ищем нужный ID в нашей 
+БД</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+result:=i;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// И возвращаем его индекс по 
+БД</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">break</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> DelDBItem <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// процедура удалаяет моба из 
+БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; n: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+MobsID[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MobsDist[i]:= 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MobsXYZ[i, OX]:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MobsXYZ[i, OY]:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MobsXYZ[i, OZ]:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MobsAgression[i]:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> i &lt; MobsLastIndex 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> n:= i+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> MobsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если надо, 
+производим циклический сдвиг данных в массивах</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+MobsID[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>]:= MobsID[n];<BR>&nbsp; 
+&nbsp; MobsDist[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>]:= 
+MobsDist[n];<BR>&nbsp; &nbsp; MobsXYZ[n-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>, OX]:= MobsXYZ[n, OX];<BR>&nbsp; &nbsp; 
+MobsXYZ[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>, OY]:= MobsXYZ[n, 
+OY];<BR>&nbsp; &nbsp; MobsXYZ[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>, 
+OZ]:= MobsXYZ[n, OZ];<BR>&nbsp; &nbsp; MobsAgression[n-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>]:= MobsAgression[n];<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">dec</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsLastIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+уменьшаем размер БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<BR>&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> AgroTest : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция проверяет, атакует ли 
+меня кто-нибудь или нет</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+result:=<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> MobsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MobsAgression[i] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// ищем первого попавшегося 
+моба, который нас атакует</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+result:= i;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// возвращаем его индекс по 
+БД</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">break</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> StopGame;&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// остановка 
+кача</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+TimerCombat.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+TimerPickUp.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+TargetID:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+ClearDB;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> GetMinDistID : 
+<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция поиска ближайшего 
+моба в БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i, dist : 
+<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+dist:=<SPAN style="COLOR: rgb(0,0,240)">10000</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// задаем заранее нереальную 
+дистанцию</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> MobsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsID[i] &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsDist[i] &lt; dist<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// фишка в том, что в базе 
+хранятся расстояния не до меня, а до центра кача</SPAN><BR>&nbsp; &nbsp; dist:= 
+MobsDist[i];&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// но в катах то расстояния 
+небольшие</SPAN><BR>&nbsp; &nbsp; result:= i;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если нашли хоть одного моба 
+или несколько возращаем его индекс ближайшего к центру кача</SPAN><BR>&nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> dist = <SPAN 
+style="COLOR: rgb(0,0,240)">10000</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> result:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// иначе возвращаем 0 (ничего не 
+найдено)</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> TMyform.<SPAN 
+style="COLOR: rgb(0,0,0)">OnTimerCombat</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>sender:<SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; Agro, 
+MinDistID: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MobsLastIndex = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если нет мобов в базе, 
+то</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ItemsLastIndex 
+&gt; <SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> InitPickUpMode<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// надо дроп 
+подбирать</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// выходим от 
+сюда</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TargetID &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+если в прицеле есть моб, то</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+валим вражину</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>AttackCycle <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">mod</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+PhisicalAttack;<BR>&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>AttackCycle<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> AttackCycle &gt; 
+Calculated_AttackTime <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если валим моба больше 
+минуты, значит это баг...</SPAN><BR>&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; Povtor:= TestPovtor<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>TargetID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> DelDBItem<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Povtor<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; TargetID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; Agro:= 
+AgroTest;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если есть мобы в базе и нет 
+текущей цели, то</SPAN><BR>&nbsp; MinDistID:= GetMinDistID;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// запускаем алгоритм выбора 
+цели</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Agro &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если нас кто-то 
+атакует, то его и выбираем</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+TargetID:= MobsID[Agro];<BR>&nbsp; &nbsp; PhisicalAttack;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// берем вражину в 
+таргет</SPAN><BR>&nbsp; &nbsp; AttackCycle:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ItemsLastIndex &gt; 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если чего-то валяется на 
+земле, то</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+InitPickUpMode<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// надо дроп 
+подбирать</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MobsDist[MinDistID] 
+&lt;= Radius <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// иначе ищем 
+ближайшего&nbsp; 
+&nbsp;#################################################</SPAN><BR>&nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+TargetID:= MobsID[MinDistID];<BR>&nbsp; &nbsp; PhisicalAttack;&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// берем вражину в 
+таргет</SPAN><BR>&nbsp; &nbsp; AttackCycle:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> TMyform.<SPAN 
+style="COLOR: rgb(0,0,0)">OnTimerForm</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>sender:<SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+textMyID.<SPAN style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// обновляем данные в 
+окне</SPAN><BR>&nbsp; textX.<SPAN style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyX<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textY.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyY<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textZ.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyZ<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyHP.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyHP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyMaxHP.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyMaxHP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyMP.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyMP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyMaxMP.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyMaxMP<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textCenterX.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterX<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textCenterY.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterY<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textCenterZ.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterZ<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textRadius.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Radius<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textTargetID.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>TargetID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textAttackCycle.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>AttackCycle<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMobsKilled.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:= <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsKilled<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Clear</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> MobsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN>&nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// выводим БД 
+мобов</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TargetID = 
+MobsID[i] <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; 
+MobsDBscreen.<SPAN style="COLOR: rgb(0,0,0)">lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">add</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'-&gt; 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">' МобID: 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsID[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">' дистанция 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsDist[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MobsAgression[i] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">add</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'&lt;- 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">' МобID: 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsID[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">' дистанция 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsDist[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">add</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'-- 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">' МобID: 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsID[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">' дистанция 
+'</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsDist[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+ItemsDBscreen.<SPAN style="COLOR: rgb(0,0,0)">lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Clear</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// выводим БД 
+дропа</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> ItemsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">add</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'индекс в 
+БД: '</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">'&nbsp; 
+&nbsp;объект ID: '</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Items_ObjectID[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">'&nbsp; 
+&nbsp;ID вещи: '</SPAN>+<SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Items_ItemID[i]<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> CheckItems <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>id: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция проверяет наличие 
+заданной вещи в БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; result:= 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> ItemsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Items_ObjectID[i] = id 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+result:=i;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// И возвращаем его индекс по 
+БД</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">break</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; 
+<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> DelDroppedItem 
+<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// процедура удалаяет вещь из 
+БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; n: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+Items_ObjectID[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+Items_ItemID[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+Items_XYZ[i, OX]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+Items_XYZ[i, OY]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+Items_XYZ[i, OZ]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> i &lt; ItemsLastIndex 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> n:= i+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> ItemsLastIndex <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+Items_ObjectID[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>]:= 
+Items_ObjectID[n];<BR>&nbsp; &nbsp; Items_ItemID[n-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>] :=&nbsp; Items_ItemID[n];<BR>&nbsp; &nbsp; 
+Items_XYZ[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>, OX]:=&nbsp; Items_XYZ[n, 
+OX];<BR>&nbsp; &nbsp; Items_XYZ[n-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>, 
+OY]:=&nbsp; Items_XYZ[n, OY];<BR>&nbsp; &nbsp; Items_XYZ[n-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>, OZ]:=&nbsp; Items_XYZ[n, OZ];<BR>&nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">dec</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ItemsLastIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> TMyform.<SPAN 
+style="COLOR: rgb(0,0,0)">OnTimerPickUp</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>sender:<SPAN 
+style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; povtor: 
+<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>AgroTest &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>TargetID = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+InitPickUpMode<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ItemsLastIndex &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>TargetID = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+TargetID:= Items_ObjectID[ItemsLastIndex];<BR>&nbsp; &nbsp; AttackCycle:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; PhisicalAttack;<BR>&nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ItemsLastIndex &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>TargetID &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">inc</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>AttackCycle<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>AttackCycle <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">mod</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+PhisicalAttack;<BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> AttackCycle &gt; 
+Calculated_PickUpTime <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; Povtor:= CheckItems<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>TargetID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> DelDroppedItem<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Povtor<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; TargetID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ItemsLastIndex = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+InitPickUpMode<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<BR>&nbsp; 
+&nbsp; &nbsp;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> ClearDB;&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Очистка 
+БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Надо все занулять, иначе там хрень всякая вылезает или старые 
+данные</SPAN><BR>&nbsp; i, n: <SPAN 
+style="COLOR: rgb(0,0,0)">word</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+MobsLastIndex:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Очищаем 
+переменные</SPAN><BR>&nbsp; ItemsLastIndex:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; TargetID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; LastKilledMobObjID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MobsKilled:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; Povtor:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; CenterX:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; CenterY:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; CenterZ:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; Radius:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; AttackCycle:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> NpcTypeID_List_Razmer 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> 
+NpcTypeID_List[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+NpcTypeID_List_Count:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+NpcTypeID_CurrentMob:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> maximumItems <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Очищаем 
+базу</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+MobsID[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+MobsDist[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+MobsXYZ[i, OX]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+MobsXYZ[i, OY]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+MobsXYZ[i, OZ]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+MobsAgression[i]:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; &nbsp; 
+Items_ObjectID[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+Items_ItemID[i]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+Items_XYZ[i, OX]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+Items_XYZ[i, OY]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+Items_XYZ[i, OZ]:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> InvRazmer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> n:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> Inventory[i, n]:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> tmyform.<SPAN 
+style="COLOR: rgb(0,0,0)">CreateLabel</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,0)">text</SPAN>: 
+<SPAN style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// процедура 
+автоматизирует создание текстовых меток в форме</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; l: 
+TLabel;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; l:= 
+TLabel.<SPAN style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>panel<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; l.<SPAN 
+style="COLOR: rgb(0,0,0)">caption</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>;<BR>&nbsp; l.<SPAN 
+style="COLOR: rgb(0,0,0)">parent</SPAN>:=panel;<BR>&nbsp; l.<SPAN 
+style="COLOR: rgb(0,0,0)">left</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN>;<BR>&nbsp; l.<SPAN 
+style="COLOR: rgb(0,0,0)">top</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,0)">round</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">20</SPAN>*frmParamIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>frmParamIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> tmyform.<SPAN 
+style="COLOR: rgb(0,0,0)">CreateTextBox</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+:TEdit;&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция автоматизирует 
+создание текстовых полей для вывода данных в форме</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; e: 
+TEdit;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; e:= 
+TEdit.<SPAN style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>panel<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; e.<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,0)">text</SPAN>;<BR>&nbsp; e.<SPAN 
+style="COLOR: rgb(0,0,0)">parent</SPAN>:=panel;<BR>&nbsp; e.<SPAN 
+style="COLOR: rgb(0,0,0)">left</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">60</SPAN>;<BR>&nbsp; e.<SPAN 
+style="COLOR: rgb(0,0,0)">top</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">20</SPAN>*frmParamIndex;<BR>&nbsp; result:= 
+e;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">constructor</SPAN> tmyform.<SPAN 
+style="COLOR: rgb(0,0,0)">create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>sender:Tcomponent<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>; <BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; print 
+<SPAN style="COLOR: rgb(0,0,240)">'Создаем форму....'</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">inherited</SPAN>;<BR>&nbsp; 
+Caption:= <SPAN style="COLOR: rgb(0,0,240)">'BOT by Alexus ver: 0.3.1 
+beta'</SPAN>;<BR>&nbsp; BorderStyle := bsSizeable;<BR>&nbsp; Position := 
+poScreenCenter;<BR>&nbsp; Width:=<SPAN 
+style="COLOR: rgb(0,0,240)">650</SPAN>;<BR>&nbsp; Height:=<SPAN 
+style="COLOR: rgb(0,0,240)">700</SPAN>;<BR>&nbsp; MobsDBscreen:=TMemo.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">parent</SPAN>:=self;<BR>&nbsp; MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadOnly</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; 
+MobsDBscreen.<SPAN style="COLOR: rgb(0,0,0)">ScrollBars</SPAN> := ssVertical; 
+<BR>&nbsp; MobsDBscreen.<SPAN style="COLOR: rgb(0,0,0)">Top</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>;<BR>&nbsp; MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">Width</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">460</SPAN>;<BR>&nbsp; MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">Height</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">285</SPAN>;<BR>&nbsp; MobsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Мобы'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; ItemsDBscreen:=TMemo.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">parent</SPAN>:=self;<BR>&nbsp; ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadOnly</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; 
+ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">ScrollBars</SPAN>:=ssVertical;<BR>&nbsp; 
+ItemsDBscreen.<SPAN style="COLOR: rgb(0,0,0)">Top</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">286</SPAN>;<BR>&nbsp; ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">Width</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">460</SPAN>;<BR>&nbsp; ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">Height</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">285</SPAN>;<BR>&nbsp; ItemsDBscreen.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Дроп'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; panel:=TPanel.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; panel.<SPAN 
+style="COLOR: rgb(0,0,0)">parent</SPAN>:=self;<BR>&nbsp; panel.<SPAN 
+style="COLOR: rgb(0,0,0)">align</SPAN>:=alRight;<BR>&nbsp; log:=TMemo.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>panel<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">parent</SPAN>:=self;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">align</SPAN>:=alBottom;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">ReadOnly</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">ScrollBars</SPAN>:=ssVertical;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">Width</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">570</SPAN>;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">Height</SPAN>:=<SPAN 
+style="COLOR: rgb(0,0,240)">100</SPAN>;<BR>&nbsp; log.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'...'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyID:= CreateTextBox<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textMyID'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой ID 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textX:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textX'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой X 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textY:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textY'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой Y 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textZ:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textZ'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой Z 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyHP:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textMyHP'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой HP 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyMaxHP:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textMyMaxHP'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой MaxHP 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyMP:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textMyMP'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой MP 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textMyMaxMP:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textMyMaxMP'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Мой MaxMP 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>frmParamIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textCenterX:= CreateTextBox<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textCenterX'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Ц. кач 
+Х:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textCenterY:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textCenterY'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Ц. кач 
+Y:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textCenterZ:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'textCenterZ'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Ц. кач 
+Z:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textRadius:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Radius'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Radius 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>frmParamIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textTargetID:= CreateTextBox<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'TargetID'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Цель ID 
+:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; textAttackCycle:= 
+CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'AttackCycle'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Цикл 
+атаки:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; 
+textMobsKilled:= CreateTextBox<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'MobsKilled'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; CreateLabel<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Убито 
+моб:'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; <BR>&nbsp; 
+<BR>&nbsp; TimerCombat:=TTimer.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// создаем 
+таймеры</SPAN><BR>&nbsp; TimerCombat.<SPAN 
+style="COLOR: rgb(0,0,0)">OnTimer</SPAN>:= OnTimerCombat;<BR>&nbsp; 
+TimerCombat.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+TimerCombat.<SPAN style="COLOR: rgb(0,0,0)">interval</SPAN>:= 
+TimerCombat_Interval;<BR>&nbsp; TimerForm:=TTimer.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; TimerForm.<SPAN 
+style="COLOR: rgb(0,0,0)">OnTimer</SPAN>:=OnTimerForm;<BR>&nbsp; TimerForm.<SPAN 
+style="COLOR: rgb(0,0,0)">enabled</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; 
+TimerForm.<SPAN style="COLOR: rgb(0,0,0)">interval</SPAN>:= 
+TimerForm_Interval;<BR>&nbsp; TimerPickUp:=TTimer.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>self<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; TimerPickUp.<SPAN 
+style="COLOR: rgb(0,0,0)">OnTimer</SPAN>:=OnTimerPickUp;<BR>&nbsp; 
+TimerPickUp.<SPAN style="COLOR: rgb(0,0,0)">enabled</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+TimerPickUp.<SPAN style="COLOR: rgb(0,0,0)">interval</SPAN>:= 
+TimerPickUp_Interval;<BR>&nbsp; print <SPAN style="COLOR: rgb(0,0,240)">'Форма 
+создана.'</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+Init;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+ClearDB;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR>&nbsp; MyID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// обнуляем ВСЕ 
+данные</SPAN><BR>&nbsp; MyX:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyY:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyZ:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyHP:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyMaxHP:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyMP:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; MyMaxMP:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; time1:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>;<BR>&nbsp; Calculated_AttackTime:= <SPAN 
+style="COLOR: rgb(0,0,0)">round</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">1000</SPAN> 
+/ TimerCombat_Interval * Attack_Time<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Calculated_PickUpTime:= <SPAN 
+style="COLOR: rgb(0,0,0)">round</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">1000</SPAN> 
+/ TimerPickUp_Interval * PickUp_Time<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; HPlevelProcent:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; HPBottleObjID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; HPBottleCount:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; InitMode:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;&nbsp; &nbsp; 
+&nbsp;<BR>&nbsp; <BR>&nbsp; frm:= TMyForm.<SPAN 
+style="COLOR: rgb(0,0,0)">Create</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">nil</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; frm.<SPAN 
+style="COLOR: rgb(0,0,0)">Show</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// выводим 
+форму на экран</SPAN><BR>&nbsp; <BR>&nbsp; <BR>&nbsp; buf:= #$0F;&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// принудительно вызываем пакеты 
+инвентаря и userinfo</SPAN><BR>&nbsp; SendToServerEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> Free;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Begin</SPAN><BR>&nbsp; frm.<SPAN 
+style="COLOR: rgb(0,0,0)">Destroy</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">End</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> rastoyanie<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcX, NpcY, NpcZ : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// вычисление растояния между 2 
+точками</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; dx,dy,dz, 
+summa : <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">try</SPAN><BR>&nbsp; &nbsp;dx:= 
+NpcX-CenterX;<BR>&nbsp; &nbsp;dy:= NpcY-CenterY;<BR>&nbsp; &nbsp;dz:= 
+NpcZ-CenterZ;<BR>&nbsp; &nbsp;summa:= dx*dx+dy*dy;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// мне кажется, что так будет 
+быстрее считаться</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> summa = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> result:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> result:= <SPAN 
+style="COLOR: rgb(0,0,0)">Round</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">sqrt</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>summa<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// обход возможной ошибки, если 
+моб стоит прямо в центре кача</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">abs</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>dz<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+&gt; vertical <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+result := result + <SPAN style="COLOR: rgb(0,0,240)">5000</SPAN>;&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// добавляем коррекцию по 
+вертикали</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">except</SPAN><BR>&nbsp; 
+&nbsp;frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Ошибка 
+вычисления расстояния'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; 
+&nbsp;result:= <SPAN style="COLOR: rgb(0,0,240)">5000</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> UpdateDB <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; id, x,y,z : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; agression : <SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Процедура обновляет данные в 
+БД по мобу</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; dist: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MOBSXYZ[i, OX] = x<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MOBSXYZ[i, OY] = y<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsAgression[i] = agression<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// проверяем, а надо ли чего 
+нить менят</SPAN><BR>&nbsp; dist:= rastoyanie <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>x,y,z<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> dist &gt; <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Radius + OblastVidimosti<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> DelDBItem<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+перепроверяем расстояние до моба, если он вышел за границу кача, то удаляем 
+его</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> agression <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> frm.<SPAN 
+style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'На нас 
+напала какая-то вражина.'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; MobsDist[i]:= dist;&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// записываем 
+данные</SPAN><BR>&nbsp; &nbsp; MobsXYZ[i, OX]:= x;<BR>&nbsp; &nbsp; MobsXYZ[i, 
+OY]:= y;<BR>&nbsp; &nbsp; MobsXYZ[i, OZ]:= z;<BR>&nbsp; &nbsp; 
+MobsAgression[i]:= agression;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; 
+<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> UserInfo;&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// обновление донных о 
+себе</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i:<SPAN 
+style="COLOR: rgb(0,0,0)">word</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> InitMode <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> MyID:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">18</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MyX:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MyY:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MyZ:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; i:=<SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN>;<BR>&nbsp; ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> interlude <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> i:=i+<SPAN 
+style="COLOR: rgb(0,0,240)">48</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> i:=i+<SPAN 
+style="COLOR: rgb(0,0,240)">44</SPAN>;<BR>&nbsp; MyMaxHP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MyHP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MyMaxMP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// чисто 
+информативно</SPAN><BR>&nbsp; MyMP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+StatusUpdate;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// обновление данных о 
+себе</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> 
+pck[i*<SPAN style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">09</SPAN>: MyHP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; #$0A: MyMaxHP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; #$0B: MyMP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; #$0C: MyMaxMP:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MyMaxHP &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> HPlevelProcent:= 
+<SPAN style="COLOR: rgb(0,0,0)">Round</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyMaxHP/<SPAN 
+style="COLOR: rgb(0,0,240)">100</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>*HPMedium<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; <BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+UseItemObjID<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>ItemObjID:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Использовать предмет с 
+заданным ItemID</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+buf:=#$<SPAN style="COLOR: rgb(0,0,240)">14</SPAN>;<BR>&nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ItemObjID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; SendToServerEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+DrinkBottle;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// пьем бутылки и следим за их 
+количеством</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> HPBottleCount &gt; 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+UseItemObjID<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>HPBottleObjID<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">dec</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>HPBottleCount<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; 
+&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>msg:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// отправка системных 
+сообщений клиенту</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+buf:=#$4A;<BR>&nbsp; WriteD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; WriteS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>msg<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; SendToClientEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> AddtoDB <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>id, x,y,z : <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; agression : <SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Процедура добавляет в БД 
+нового моба</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; dist: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; dist:= 
+rastoyanie <SPAN style="COLOR: rgb(0,0,0)">(</SPAN>x,y,z<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+вычиляем расстояние от центра кача до моба</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> dist &gt; <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Radius + OblastVidimosti<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+если моб слишко далеко то ничего не делаем</SPAN><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsLastIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// увеличиваем размер 
+БД</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> agression <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> frm.<SPAN 
+style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'На нас 
+напала какая-то вражина.'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; MobsID[MobsLastIndex]:= id;&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Записываем моба</SPAN><BR>&nbsp; MobsDist[MobsLastIndex]:= dist;<BR>&nbsp; 
+MobsXYZ[MobsLastIndex, OX]:= x;<BR>&nbsp; MobsXYZ[MobsLastIndex, OY]:= 
+y;<BR>&nbsp; MobsXYZ[MobsLastIndex, OZ]:= z;<BR>&nbsp; 
+MobsAgression[MobsLastIndex]:= agression;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> AddDroppedItem 
+<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>ObjID, ItemID, X, Y, Z: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Процедура добавляет дропнутую 
+вещь в БД</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ItemsLastIndex<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ItemsLastIndex &gt; 
+maximumItems <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+<SPAN style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; 
+Items_ObjectID[ItemsLastIndex]:= ObjID;<BR>&nbsp; Items_ItemID[ItemsLastIndex]:= 
+ItemID;<BR>&nbsp; Items_XYZ[ItemsLastIndex, OX]:= X;<BR>&nbsp; 
+Items_XYZ[ItemsLastIndex, OY]:= Y;<BR>&nbsp; Items_XYZ[ItemsLastIndex, OZ]:= 
+Z;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> Wait<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> tick: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;Timewait: <SPAN 
+style="COLOR: rgb(0,0,0)">Integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">Boolean</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// сквозная проверка без 
+остановки скрипта (c)dmitry501, modifed by Sh00rGo</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; t: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; 
+result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; t:=<SPAN 
+style="COLOR: rgb(0,0,0)">Round</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">Time</SPAN>*<SPAN 
+style="COLOR: rgb(0,0,240)">86400</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> t&gt;<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>tick+Timewait<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> tick&gt;<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> result:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; &nbsp; 
+tick:=t;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> InMobsList <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+: <SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция 
+проверяет наличие заданного моба в списке на атаку</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; result:= 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> NpcTypeID_List_Count 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> NpcTypeID_List[i] = 
+NpcTypeID <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+result:= <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;&nbsp; 
+&nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// проверяем 
+по списку</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+UserCommandsCombatMode;&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// комманды пользователя для 
+боевого режима</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// команды 
+говорят сами за себя)</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'pause'</SPAN> : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; TimerCombat.<SPAN 
+style="COLOR: rgb(0,0,0)">enabled</SPAN>:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">not</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>TimerCombat.<SPAN 
+style="COLOR: rgb(0,0,0)">enabled</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; pck:=<SPAN style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> TimerCombat.<SPAN 
+style="COLOR: rgb(0,0,0)">enabled</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Искуственный интелект запущен!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Искуственный интелект запущен!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Искуственный интелект приостановлен.'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Искуственный интелект приостановлен.'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'stop'</SPAN>&nbsp; : <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pck:=<SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Искуственный интелект остановлен.'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Искуственный интелект остановлен.'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; StopGame;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp;<BR>&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+InventoryCreate;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i,k, offset 
+: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> interlude <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> offset:= <SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> offset:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> InvRazmer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i&lt;ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">4</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; Inventory[i,<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// itemType1</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// ObjectId</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">12</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// ItemID</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">16</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// count</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">4</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">20</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+itemType2</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+CustType1</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">24</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+isEquipped</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">7</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">26</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+BodyPart</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+EnchantLevel</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>i*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">28</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">32</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+CustType2</SPAN><BR>&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> k:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> Inventory[i,k]:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// забиваем 
+нулями</SPAN><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> GetInv<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>obj,up,down:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// up и down не 
+проверяются</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 0-itemType1, 1-ObjectId, 
+2-ItemID, 3-count, 4-itemType2, 5-CustType1, 6-isEquipped, 7-BodyPart, 
+8-EnchantLevel, 9-CustType2</SPAN><BR>&nbsp; &nbsp; i: <SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> InvRazmer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Inventory[i,up]=obj<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+Result:=Inventory[i,down];<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+Result:=-<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+InventoryUpdate;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN><BR>&nbsp; i,j,k, 
+offset: <SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> interlude <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> offset:= <SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> offset:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> j:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>-<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN><BR>&nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> pck[j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN style="COLOR: rgb(0,0,240)">4</SPAN>] 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp; 
+&nbsp;#$<SPAN style="COLOR: rgb(0,0,240)">01</SPAN>: k:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// add item, запишет на пустую 
+ячейку</SPAN><BR>&nbsp; &nbsp; &nbsp;#$<SPAN 
+style="COLOR: rgb(0,0,240)">02</SPAN>: k:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// mod 
+item</SPAN><BR>&nbsp; &nbsp; &nbsp;#$<SPAN 
+style="COLOR: rgb(0,0,240)">03</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// remove item, обнулит ячейки 
+удаленного предмета</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+k:=ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> InvRazmer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>]=k<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> k:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> Inventory[i,k]:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">for</SPAN> i:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">to</SPAN> InvRazmer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">do</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>]=k<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; Inventory[i,<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// itemType1</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// ObjectId</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">12</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// ItemID</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">16</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// count</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">4</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">20</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+itemType2</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">5</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+CustType1</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">24</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+isEquipped</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">7</SPAN>]:=ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">26</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+BodyPart</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">8</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+EnchantLevel</SPAN><BR>&nbsp; &nbsp; &nbsp; Inventory[i,<SPAN 
+style="COLOR: rgb(0,0,240)">9</SPAN>]:=ReadH<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>j*<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">30</SPAN>+offset<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>+<SPAN 
+style="COLOR: rgb(0,0,240)">32</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+CustType2</SPAN><BR>&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,0)">break</SPAN>;<BR>&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;&nbsp; &nbsp; 
+&nbsp;<BR>&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> ValidateData : 
+<SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// функция проверки 
+правильности задания всех параметров для начала кача</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyX &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyY &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyZ &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyID &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyHP &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyMaxHP &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+верификация всех данных, чтобы потом в боевом режиме</SPAN><BR>&nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>MyMP &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyMaxMP &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{(MyCP &lt;&gt; 0) and (MyMaxCP 
+&lt;&gt; 0) and }</SPAN>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// не перепроверять все данные 
+по 100 раз</SPAN><BR>&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterX &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterY &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterZ &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Radius &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_List_Count &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp;SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Все начальные параметры заданы и 
+проверены!'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp;frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Все 
+начальные параметры заданы и проверены!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp;result:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN><BR>&nbsp; 
+&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp;SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Ошибка задания начальных параметров!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp;frm.<SPAN 
+style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Ошибка 
+задания начальных параметров!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp;result:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<BR>&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+UserCommandsInitMode;&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// комманды пользователя для 
+режима настройки бота</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// если комманда 
+обработана удачно, то в чат сообщение не попадет, а будет выдано системное 
+сообщение прямо в клиент</SPAN><BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'pos'</SPAN> :&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MyX &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// центр кача</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CenterX:= MyX;<BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CenterY:= MyY;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;CenterZ:= MyZ;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Центр кача задан успешно!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Центр кача 
+задан успешно!'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pck:=<SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'dist'</SPAN> :&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>CenterX &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyX &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// радиус кача</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Radius:= rastoyanie <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyX,MyY,MyZ<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Радиус кача задан успешно'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'R= '</SPAN>+ <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Radius<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Радиус кача 
+задан успешно, R = '</SPAN>+ <SPAN 
+style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Radius<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;pck:=<SPAN style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'reset'</SPAN>:&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// сброс 
+параметров</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+ClearDB;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'БД очищена, 
+введите заново все параметры'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'БД 
+очищена!'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pck:=<SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'1'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'2'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'3'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'4'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'5'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'6'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'7'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'8'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'9'</SPAN>, <SPAN 
+style="COLOR: rgb(0,0,240)">'10'</SPAN> :&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// задаем 
+мобов</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_List_Count+<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+&lt;&gt; <SPAN style="COLOR: rgb(0,0,0)">strtoint</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Добавлять 
+мобов можно тока по очереди 1, 2, 3...'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;pck:=<SPAN style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;NpcTypeID_CurrentMob:= <SPAN 
+style="COLOR: rgb(0,0,0)">strtoint</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;SendMsg_to_Cl<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">'Добавляем моба № '</SPAN>+ ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;pck:=<SPAN style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">'start'</SPAN>:&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// собственно запуск 
+бота</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ValidateData <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> InitMode <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'ЗАПУСКАЕМ 
+ИСУСТВЕННЫЙ ИНТЕЛЛЕКТ!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'ЗАПУСКАЕМ 
+ИСУСТВЕННЫЙ ИНТЕЛЛЕКТ!'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;TargetID:=<SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;InitMode:= <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;TimerCombat.<SPAN 
+style="COLOR: rgb(0,0,0)">enabled</SPAN>:=<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN>;&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// запускаем 
+таймер</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Еще не все 
+параметры заданы. Проверьте параметры...'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; frm.<SPAN style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Еще не все 
+параметры заданы. Проверьте параметры...'</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pck:=<SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">procedure</SPAN> 
+OnPacket;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">Begin</SPAN><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> pck = <SPAN 
+style="COLOR: rgb(0,0,240)">''</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">exit</SPAN>;<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ConnectName = NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> FromServer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">not</SPAN> InitMode<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// разбор пакетов от сервера в 
+Боевом режиме</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> pck[<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">01</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;MoveToLocation:h(ObjectID)d(CurX)d(CurY)d(CurZ)d(DestX)d(DestY)d(DestZ)</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;povtor:= TestPovtor<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor &gt; 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;updateDB<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Povtor, ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">04</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+NickName <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; 
+&nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;UserInfo:d(X)d(Y)d(Z)d(Heading)h(ObjectID)s(Name)d(Race)d(Sex)d(ClassID)d(Level)d(Exp)d(STR)d(DEX)d(CON)d(INT)d(WIT)d(MEN)d(MaxHP)d(CurrentHP)d(MaxMP)d(CurrentMP)d(SP)d(CurrentLoad)d(MaxLoad)d(Unknown)d(Under)d(REar)d(LEar)d(Neck)d(RFinger)d(LFinger)d(Head)d(RHand)d(LHand)d(Gloves)d(Chest)d(Legs)d(Feet)d(Back)d(LRHand)d(Hair)i(Under)i(REar)i(LEar)i(Neck)i(RFinger)i(LFinger)i(Head)i(RHand)i(LHand)i(Gloves)i(Chest)i(Legs)i(Feet)i(Back)i(LRHand)i(Hair)d(PAtk)d(PAtkSpd)d(PDef)d(EvasionRate)d(Accuracy)d(CritikalHit)d(MAtk)d(MAtkSpd)d(PAtkSpd)d(MDef)d(PvpFlag)d(Karma)d(RunSpeed)d(WalkSpeed)d(SwimRunSpeed)d(SwimWalkSpeed)d(FlRunSpeed)d(FlWalkSpeed)d(FlyRunSpeed)d(FlyWalkSpeed)f(MovementSpeedMultiplier)f(AttackSpeedMultiplier)f(CollisionRadius)f(CollisionHeight)d(HairStyle)d(HairColor)d(Face)d(AccessLevel)s(Title)d(ClanId)d(ClanCrestId)d(AllyId)d(AllyCrestId)d(IsClanLeader)b(MountType)b(PrivateStoreType)b(DwarvenCraft)d(PkKills)d(PvpKills)b(Cubics)b(Cubics)b(FindPartyMembers)d(AbnormalEffect)b()d(ClanPrivileges)d()d()d()d()d()d()d()b(RecomLeft)b()b(RecomHave)b()</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; UserInfo;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MyHP = 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Проверка не убили ли 
+нас...</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Нас 
+убили...'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; frm.<SPAN 
+style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Нас 
+убили...'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; StopGame;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">05</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; &nbsp;05= 
+Attack:d(AttackerID)d(TargetID)d(Damage)b(Flags)d(X)d(Y)d(Z)h(Hits)</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+MyID <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Povtor:= TestPovtor<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; &nbsp;48= 
+MagicSkillUse</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> AddtoDB <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">19</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">23</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> UpdateDB<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Povtor, ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">15</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">19</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">23</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">true</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">06</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;Die:d(ChaID)</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;povtor:= 
+TestPovtor<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor &gt; 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MobsID[povtor] = 
+TargetID <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;LastKilledMobObjID:=TargetID;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MobsKilled<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// подводим 
+статистику</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;TargetID:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;DelDBItem<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>povtor<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$0C: <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> 
+LastKilledMobObjID = ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;DropItem:h(PlayerID)h(ObjectID)i(ItemID)d(X)d(Y)d(Z)d(Stackable)d(Count)</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; AddDroppedItem<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">18</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; #$0D: <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> 
+TargetID = ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;GetItem:d(PlayerID)h(ObjectID)d(X)d(Y)d(Z)</SPAN><BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; TargetID:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; #$0E: <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> 
+MyID=ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;StatusUpdate:h(ObjectID)d(Attributes)</SPAN><BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; StatusUpdate;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyHP &gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>MyHP &lt; HPlevelProcent<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Wait<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>time1,DrinkDelay<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> DrinkBottle;&nbsp; 
+&nbsp; &nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// пьем 
+бутылки</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MyHP &gt; 
+HPlevelProcent <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+time1:=<SPAN style="COLOR: rgb(0,0,240)">1</SPAN>;<BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> MyHP = <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+Проверка не убили ли нас...</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Нас 
+убили...'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; frm.<SPAN 
+style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Нас 
+убили...'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; StopGame;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">12</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;DeleteObject:h(ObjectID)</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> 
+LastKilledMobObjID = ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+LastKilledMobObjID:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Povtor:= CheckItems<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor 
+&lt;&gt; <SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> DelDroppedItem<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Povtor<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">16</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;NpcInfo:h(ObjectID)d(NpcTypeID)d(IsAttackable)d(X)d(Y)d(Z)d(Heading)d(Unknown)d(MAtkSpd)d(PAtkSpd)d(RunSpd)d(WalkSpd)d(SwimRunSpd)d(SwimWalkSpd)d(FlRunSpd)d(FlWalkSpd)d(FlyRunSpd)d(FlyWalkSpd)f(ProperMultiplier)f(PAtkSpd)f(CollisionRadius)f(CollisionHeight)d(RHand)d(Unknown)d(LHand)b(Unknown)b(IsRunning)b(IsInCombat)b(IsALikeDead)b(IsSummoned)s(Name)s(Title)</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> InMobsList<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>=<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>pck[<SPAN 
+style="COLOR: rgb(0,0,240)">121</SPAN>]=#$<SPAN 
+style="COLOR: rgb(0,0,240)">00</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Povtor:= TestPovtor<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> Povtor = 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> AddtoDB <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">18</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN> UpdateDB<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>Povtor, ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">14</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">18</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>, 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">false</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ConnectName = NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> FromClient <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">not</SPAN> InitMode<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// разбор пакетов от клиента в 
+боевом режиме</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> pck[<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp;#$<SPAN 
+style="COLOR: rgb(0,0,240)">38</SPAN>: UserCommandsCombatMode;&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+Say2:s(Text)d(Type)s(Target)</SPAN><BR>&nbsp; &nbsp;#$<SPAN 
+style="COLOR: rgb(0,0,240)">48</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+ValidatePosition:d(X)d(Y)d(Z)d(Heading)d(Data)</SPAN><BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;MyX:= ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;MyY:= ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;MyZ:= ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ConnectName = NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> FromServer <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> InitMode <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// разбор пакетов от сервера в 
+режиме настройки бота</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> pck[<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">04</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ReadS<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">22</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+NickName <SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+UserInfo; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;UserInfo:d(X)d(Y)d(Z)d(Heading)h(ObjectID)s(Name)d(Race)d(Sex)d(ClassID)d(Level)d(Exp)d(STR)d(DEX)d(CON)d(INT)d(WIT)d(MEN)d(MaxHP)d(CurrentHP)d(MaxMP)d(CurrentMP)d(SP)d(CurrentLoad)d(MaxLoad)d(Unknown)d(Under)d(REar)d(LEar)d(Neck)d(RFinger)d(LFinger)d(Head)d(RHand)d(LHand)d(Gloves)d(Chest)d(Legs)d(Feet)d(Back)d(LRHand)d(Hair)i(Under)i(REar)i(LEar)i(Neck)i(RFinger)i(LFinger)i(Head)i(RHand)i(LHand)i(Gloves)i(Chest)i(Legs)i(Feet)i(Back)i(LRHand)i(Hair)d(PAtk)d(PAtkSpd)d(PDef)d(EvasionRate)d(Accuracy)d(CritikalHit)d(MAtk)d(MAtkSpd)d(PAtkSpd)d(MDef)d(PvpFlag)d(Karma)d(RunSpeed)d(WalkSpeed)d(SwimRunSpeed)d(SwimWalkSpeed)d(FlRunSpeed)d(FlWalkSpeed)d(FlyRunSpeed)d(FlyWalkSpeed)f(MovementSpeedMultiplier)f(AttackSpeedMultiplier)f(CollisionRadius)f(CollisionHeight)d(HairStyle)d(HairColor)d(Face)d(AccessLevel)s(Title)d(ClanId)d(ClanCrestId)d(AllyId)d(AllyCrestId)d(IsClanLeader)b(MountType)b(PrivateStoreType)b(DwarvenCraft)d(PkKills)d(PvpKills)b(Cubics)b(Cubics)b(FindPartyMembers)d(AbnormalEffect)b()d(ClanPrivileges)d()d()d()d()d()d()d()b(RecomLeft)b()b(RecomHave)b()</SPAN><BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">06</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+TargetID<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_CurrentMob &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+&nbsp;Die:d(ChaID)</SPAN><BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_List[NpcTypeID_CurrentMob] &lt;&gt; 
+<SPAN style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SendMsg_to_Cl<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Моб 
+№'</SPAN> + <SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_CurrentMob<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> + <SPAN style="COLOR: rgb(0,0,240)">' 
+добавлен в базу'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;frm.<SPAN 
+style="COLOR: rgb(0,0,0)">log</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Lines</SPAN>.<SPAN 
+style="COLOR: rgb(0,0,0)">Add</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN style="COLOR: rgb(0,0,240)">'Моб 
+№'</SPAN> + <SPAN style="COLOR: rgb(0,0,0)">inttostr</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_CurrentMob<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> + <SPAN style="COLOR: rgb(0,0,240)">' 
+добавлен в базу'</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,0)">inc</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_List_Count<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;NpcTypeID_CurrentMob:= <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;TargetID:= <SPAN style="COLOR: rgb(0,0,240)">0</SPAN>;<BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">16</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> = 
+TargetID<SPAN style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>NpcTypeID_CurrentMob &lt;&gt; <SPAN 
+style="COLOR: rgb(0,0,240)">0</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN> 
+<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN> 
+NpcTypeID_List[NpcTypeID_CurrentMob]:= ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//NpcInfo:h(ObjectID)d(NpcTypeID)d(IsAttackable)d(X)d(Y)d(Z)d(Heading)d(Unknown)d(MAtkSpd)d(PAtkSpd)d(RunSpd)d(WalkSpd)d(SwimRunSpd)d(SwimWalkSpd)d(FlRunSpd)d(FlWalkSpd)d(FlyRunSpd)d(FlyWalkSpd)f(ProperMultiplier)f(PAtkSpd)f(CollisionRadius)f(CollisionHeight)d(RHand)d(Unknown)d(LHand)b(Unknown)b(IsRunning)b(IsInCombat)b(IsALikeDead)b(IsSummoned)s(Name)s(Title)</SPAN><BR>&nbsp; 
+&nbsp; #$1B: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;InventoryCreate;&nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Инвентарь</SPAN><BR>&nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;HPBottleObjID:= getinv<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>HPBottleID, <SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;HPBottleCount:= getinv<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>HPBottleID, 
+<SPAN style="COLOR: rgb(0,0,240)">2</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">27</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp;InventoryUpdate;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp;HPBottleCount:= getinv<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>HPBottleID, <SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN>,<SPAN 
+style="COLOR: rgb(0,0,240)">3</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp;<BR>&nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> <SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN>ConnectName = NickName<SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN> <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> FromClient <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">and</SPAN> InitMode <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN>&nbsp; &nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// разбор пакетов от 
+клиента в режиме настройки бота</SPAN><BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">case</SPAN> pck[<SPAN 
+style="COLOR: rgb(0,0,240)">1</SPAN>] <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN><BR>&nbsp; &nbsp; 
+#$<SPAN style="COLOR: rgb(0,0,240)">04</SPAN>: TargetID:= ReadD<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+Action:h(ObjectID)d(OriginX)d(OriginY)d(OriginZ)b(ActionID)</SPAN><BR>&nbsp; 
+&nbsp; #$<SPAN style="COLOR: rgb(0,0,240)">38</SPAN>: 
+UserCommandsInitMode;&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+Say2:s(Text)d(Type)s(Target)</SPAN><BR>&nbsp; &nbsp; #$<SPAN 
+style="COLOR: rgb(0,0,240)">48</SPAN>: <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//&nbsp; 
+ValidatePosition:d(X)d(Y)d(Z)d(Heading)d(Data)</SPAN><BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp;MyX:= ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">2</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;MyY:= ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">6</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp;MyZ:= ReadD<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,240)">10</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; &nbsp; &nbsp; <BR>&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; <SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; &nbsp;<SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR>&nbsp; 
+&nbsp;<BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">End</SPAN>;<BR><BR><SPAN 
+style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</P></BODY>
+</html>
