@@ -44,7 +44,8 @@ uses
   uScriptProjectVisual in 'EditorUnits\uScriptProjectVisual.pas' {ScriptProjectVisual: TFrame},
   uScriptUnitVisual in 'EditorUnits\uScriptUnitVisual.pas' {ScriptUnitVisual: TFrame},
   uScriptVariables in 'EditorUnits\uScriptVariables.pas' {fScriptVariables},
-  uScriptWatchList in 'EditorUnits\uScriptWatchList.pas' {fScriptWatchList};
+  uScriptWatchList in 'EditorUnits\uScriptWatchList.pas' {fScriptWatchList},
+  uLangSelectDialog in 'units\uLangSelectDialog.pas' {fLangSelectDialog};
 
 {$R *.res}
 Procedure Check2stInstance;
@@ -85,6 +86,7 @@ begin
   Application.CreateForm(TfSettings, fSettings);
   Application.CreateForm(TfProcessRawLog, fProcessRawLog);
   Application.CreateForm(TfPlugins, fPlugins);
+  Application.CreateForm(TfLangSelectDialog, fLangSelectDialog);
   //Editor
   Application.CreateForm(TfEditorMain, fEditorMain);
   Application.CreateForm(TUserForm, UserForm);

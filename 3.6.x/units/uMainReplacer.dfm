@@ -11,7 +11,6 @@ object fMainReplacer: TfMainReplacer
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Visible = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96

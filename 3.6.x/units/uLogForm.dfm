@@ -30,8 +30,6 @@ object fLog: TfLog
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 0
-    ExplicitWidth = 660
-    ExplicitHeight = 147
   end
   object Panel1: TPanel
     Left = 0
@@ -43,8 +41,6 @@ object fLog: TfLog
     Ctl3D = False
     ParentCtl3D = False
     TabOrder = 1
-    ExplicitTop = 147
-    ExplicitWidth = 660
     object Help: TLabel
       Left = 8
       Top = 8
@@ -61,7 +57,6 @@ object fLog: TfLog
       Ctl3D = True
       ParentCtl3D = False
       TabOrder = 0
-      ExplicitLeft = 485
       object Button1: TButton
         Left = 22
         Top = 2
@@ -87,7 +82,8 @@ object fLog: TfLog
       'Action8.Caption'
       'Action9.Caption'
       'Action10.Caption'
-      'TL2PacketHackMain.Caption')
+      'TL2PacketHackMain.Caption'
+      'TfLog.CharSet')
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
@@ -150,7 +146,6 @@ object fLog: TfLog
       3270682076010D0A4944535F340120D1EEF5F0E0EDFFE5EC20EBEEE32E2E2E01
       536176696E67206C6F672E2E2E010D0A73744F74686572537472696E67730D0A
       73744C6F63616C65730D0A7374436F6C6C656374696F6E730D0A737443686172
-      536574730D0A54664C6F670144454641554C545F434841525345540144454641
-      554C545F43484152534554010D0A}
+      536574730D0A}
   end
 end

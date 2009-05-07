@@ -4,7 +4,7 @@ object fPacketFilter: TfPacketFilter
   BorderStyle = bsSizeToolWin
   Caption = #1060#1080#1083#1100#1090#1088' '#1087#1072#1082#1077#1090#1086#1074
   ClientHeight = 346
-  ClientWidth = 257
+  ClientWidth = 316
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,21 +20,19 @@ object fPacketFilter: TfPacketFilter
   object PageControl2: TPageControl
     Left = 0
     Top = 0
-    Width = 257
+    Width = 316
     Height = 295
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 318
-    ExplicitHeight = 379
+    ExplicitWidth = 257
     object TabSheet1: TTabSheet
       Caption = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072
-      ExplicitWidth = 310
-      ExplicitHeight = 351
+      ExplicitWidth = 249
       object ListView1: TListView
         Left = 0
         Top = 0
-        Width = 249
+        Width = 308
         Height = 267
         Align = alClient
         Checkboxes = True
@@ -58,17 +56,17 @@ object fPacketFilter: TfPacketFilter
         ParentFont = False
         TabOrder = 0
         ViewStyle = vsReport
-        ExplicitWidth = 310
-        ExplicitHeight = 351
+        ExplicitWidth = 249
       end
     end
     object TabSheet7: TTabSheet
       Caption = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072
       ImageIndex = 1
+      ExplicitWidth = 249
       object ListView2: TListView
         Left = 0
         Top = 0
-        Width = 249
+        Width = 308
         Height = 267
         Align = alClient
         Checkboxes = True
@@ -93,19 +91,19 @@ object fPacketFilter: TfPacketFilter
         ShowWorkAreas = True
         TabOrder = 0
         ViewStyle = vsReport
+        ExplicitWidth = 249
       end
     end
   end
   object Panel17: TPanel
     Left = 0
     Top = 295
-    Width = 257
+    Width = 316
     Height = 51
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 379
-    ExplicitWidth = 318
+    ExplicitWidth = 257
     object Button1: TButton
       Left = 8
       Top = 27
@@ -148,7 +146,8 @@ object fPacketFilter: TfPacketFilter
       'Action8.Caption'
       'Action9.Caption'
       'Action10.Caption'
-      'TL2PacketHackMain.Caption')
+      'TL2PacketHackMain.Caption'
+      'TfPacketFilter.CharSet')
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
@@ -181,7 +180,8 @@ object fPacketFilter: TfPacketFilter
       'TableName'
       'DatabaseName'
       'IndexName'
-      'MasterFields')
+      'MasterFields'
+      'CharSet')
     Left = 141
     Top = 12
     TranslationData = {
@@ -208,23 +208,12 @@ object fPacketFilter: TfPacketFilter
       6C0126416C6C010D0A4E6F20546F20416C6C014E266F20746F20416C6C014E26
       6F20746F20416C6C010D0A59657320546F20416C6C0159657320746F2026416C
       6C0159657320746F2026416C6C010D0A48656C70012648656C70012648656C70
-      010D0A7374537472696E67730D0A4944535F313801C2FB20F3E2E5F0E5EDFB20
-      F7F2EE20F5EEF2E8F2E520E2FBE9F2E820E8E720EFF0EEE3F0E0ECECFB3F0141
-      726520796F752073757265203F010D0A4944535F313901C2F1E520F1EEE5E4E8
-      EDE5EDE8FF20EFF0E5F0E2F3F2F1FF2101416C6C20636F6E6E656374696F6E73
-      2077696C6C20626520636C6F73656421010D0A4944535F3601CFEEE4E4E5F0E6
-      E0F2FC20EFF0EEE5EAF23A01537570706F727420746869732070726F6A656374
-      3A010D0A4944535F3901D1F2E0F0F2F3E5F2204C327068207601537461727475
-      70206F66204C3270682076010D0A73744F74686572537472696E67730D0A7374
+      010D0A7374537472696E67730D0A73744F74686572537472696E67730D0A7374
       4C6F63616C65730D0A7374436F6C6C656374696F6E730D0A4C69737456696577
       312E436F6C756D6E735B305D2E43617074696F6E01494401010D0A4C69737456
       696577312E436F6C756D6E735B315D2E43617074696F6E014E616D6501010D0A
       4C69737456696577322E436F6C756D6E735B305D2E43617074696F6E01494401
       010D0A4C69737456696577322E436F6C756D6E735B315D2E43617074696F6E01
-      4E616D6501010D0A737443686172536574730D0A54665061636B657446696C74
-      65720144454641554C545F434841525345540144454641554C545F4348415253
-      4554010D0A4C69737456696577310144454641554C545F434841525345540144
-      454641554C545F43484152534554010D0A4C6973745669657732014445464155
-      4C545F434841525345540144454641554C545F43484152534554010D0A}
+      4E616D6501010D0A737443686172536574730D0A}
   end
 end

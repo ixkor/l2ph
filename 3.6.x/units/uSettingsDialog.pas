@@ -96,7 +96,7 @@ var
 
 implementation
 
-uses uData, uLogForm, uFilterForm, uMain;
+uses uData, uLogForm, uFilterForm, uMain, uLangSelectDialog;
 
 {$R *.dfm}
 
@@ -104,11 +104,11 @@ procedure TfSettings.readsettings;
 begin
 
   InterfaceEnabled := true;
-  if Options.ReadString('General', 'language', 'Rus') = 'Rus' then
-    fMain.RusLang.Checked := true
-  else
-    fMain.EngLang.Checked := true;
-  fMain.lang.Language := Options.ReadString('General', 'language', 'Default');    
+  { TODO : я«ык. тут }
+
+  fLangSelectDialog.siLangCombo1.ItemIndex := Options.ReadInteger('General', 'language', 0);
+  fMain.siLangDispatcher.Language := fLangSelectDialog.siLangCombo1.Items.Strings[fLangSelectDialog.siLangCombo1.ItemIndex];
+
   InterfaceEnabled := false;
   //максимальное количество строк в логе
   MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',300);

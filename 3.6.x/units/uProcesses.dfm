@@ -25,12 +25,8 @@ object fProcesses: TfProcesses
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 271
-    ExplicitHeight = 614
     object TabSheet1: TTabSheet
       Caption = #1057#1087#1080#1089#1086#1082' '#1087#1088#1086#1094#1077#1089#1089#1086#1074
-      ExplicitWidth = 263
-      ExplicitHeight = 586
       object FoundProcesses: TListBox
         Left = 0
         Top = 0
@@ -41,14 +37,11 @@ object fProcesses: TfProcesses
         ItemHeight = 13
         Sorted = True
         TabOrder = 0
-        ExplicitWidth = 263
-        ExplicitHeight = 586
       end
     end
     object TabSheet2: TTabSheet
       Caption = #1053#1072#1081#1076#1077#1085#1099#1077' '#1082#1083#1080#1077#1085#1090#1099' / '#1041#1086#1090#1099
       ImageIndex = 1
-      ExplicitHeight = 323
       object FoundClients: TListBox
         Left = 0
         Top = 0
@@ -58,7 +51,6 @@ object fProcesses: TfProcesses
         Align = alClient
         ItemHeight = 13
         TabOrder = 0
-        ExplicitHeight = 323
       end
     end
   end
@@ -109,7 +101,8 @@ object fProcesses: TfProcesses
       'TableName'
       'DatabaseName'
       'IndexName'
-      'MasterFields')
+      'MasterFields'
+      'CharSet')
     Left = 29
     Top = 84
     TranslationData = {
@@ -146,7 +139,6 @@ object fProcesses: TfProcesses
       3A010D0A4944535F3901D1F2E0F0F2F3E5F2204C327068207601537461727475
       70206F66204C3270682076010D0A73744F74686572537472696E67730D0A7374
       4C6F63616C65730D0A7374436F6C6C656374696F6E730D0A7374436861725365
-      74730D0A546650726F6365737365730144454641554C545F4348415253455401
-      44454641554C545F43484152534554010D0A}
+      74730D0A}
   end
 end

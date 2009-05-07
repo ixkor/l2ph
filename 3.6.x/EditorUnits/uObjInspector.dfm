@@ -5,6 +5,9 @@ object fObjInspector: TfObjInspector
   ClientHeight = 345
   ClientWidth = 288
   Color = clBtnFace
+  DockSite = True
+  DragKind = dkDock
+  DragMode = dmAutomatic
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -175,7 +178,6 @@ object fObjInspector: TfObjInspector
       'TSTRINGLIST')
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    LangDispatcher = fEditorMain.siLangDispatcher1
     LangDelim = 1
     LangNames.Strings = (
       'Default'
@@ -202,7 +204,8 @@ object fObjInspector: TfObjInspector
       'TableName'
       'DatabaseName'
       'IndexName'
-      'MasterFields')
+      'MasterFields'
+      'CharSet')
     Left = 39
     Top = 24
     TranslationData = {
@@ -213,9 +216,6 @@ object fObjInspector: TfObjInspector
       010D0A4A76496E73706563746F7231015461686F6D61015461686F6D61010D0A
       73744D756C74694C696E65730D0A7374537472696E67730D0A73744F74686572
       537472696E67730D0A7374436F6C6C656374696F6E730D0A7374436861725365
-      74730D0A54664F626A496E73706563746F720144454641554C545F4348415253
-      45540144454641554C545F43484152534554010D0A4A76496E73706563746F72
-      310144454641554C545F434841525345540144454641554C545F434841525345
-      54010D0A}
+      74730D0A}
   end
 end

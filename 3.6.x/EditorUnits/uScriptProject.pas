@@ -57,6 +57,7 @@ type
     ProjItem : TfScriptControlItem;
     CurrentAction : integer;
     CanUse:boolean;
+    Prepare :boolean;
     WasCompilled : boolean;
     WasInited : boolean;
     modified:boolean;
@@ -222,9 +223,19 @@ if not WasCompilled or (not wasinited and (ActionCode = ActionFree)) then
     Result := false;
     exit;
   end;
-
+Prepare := true;
 CurrentAction := ActionCode;
+try
 result := Run(RunParam);
+if PC.DebugMode then
+  while pcd.IsPaused do
+    begin
+    Application.ProcessMessages;
+    sleep(1);
+    end;  
+finally
+Prepare := false;
+end;
 case ActionCode of
   ActionInit :
     begin
@@ -246,8 +257,6 @@ case ActionCode of
 end;
   fEditorMain.mmCallInit.Enabled := Visual.tbInit.Enabled;
   fEditorMain.mmCallFree.Enabled := Visual.tbFree.Enabled;
-
-
 end;
 
 function TScriptProject.CanInspectVariable(VariableName: string): boolean;

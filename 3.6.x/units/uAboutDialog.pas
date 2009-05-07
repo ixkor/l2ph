@@ -3,8 +3,8 @@ unit uAboutDialog;
 interface
 
 uses
-  Shellapi, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, siComp;
+  Shellapi, windows, Controls, Forms,
+  StdCtrls, ExtCtrls, siComp, Graphics, Classes;
 
 type
   TfAbout = class(TForm)
