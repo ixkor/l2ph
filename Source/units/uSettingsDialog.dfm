@@ -493,6 +493,10 @@ object fSettings: TfSettings
     object TabSheet1: TTabSheet
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ChkAllowExit: TCheckBox
         Left = 10
         Top = 121

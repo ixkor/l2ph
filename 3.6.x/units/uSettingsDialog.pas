@@ -132,6 +132,7 @@ begin
   ChkLSPIntercept.Checked:=Options.ReadBool('General','EnableLSP',False);
   ChkIntercept.Checked:=Options.ReadBool('General','Enable',True);
   chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
+
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
   HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',0);
   
@@ -228,7 +229,8 @@ with GlobalSettings do
   sLSP := isLSP.Text;
   AllowExit := ChkAllowExit.Checked;
   dmData.timerSearchProcesses.Interval := round(JvSpinEdit1.Value*1000);
-
+  if assigned(sockEngine) then
+    sockEngine.isSocks5 := chkSocks5.Checked;
 end;
 
 procedure TfSettings.WriteSettings;

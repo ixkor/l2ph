@@ -230,6 +230,9 @@ with GlobalSettings do
   AllowExit := ChkAllowExit.Checked;
   dmData.timerSearchProcesses.Interval := round(JvSpinEdit1.Value*1000);
 
+  if assigned(sockEngine) then
+    sockEngine.isSocks5 := chkSocks5.Checked;
+
 end;
 
 procedure TfSettings.WriteSettings;

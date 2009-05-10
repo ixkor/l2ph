@@ -948,9 +948,6 @@ begin
   CanUse := false;
   if not destroying then
     ProjItem.scriptactive.Checked := false;
-  Pc.Reset;
-  if pcd.Valid then
-    PCd.Reset;
   while ObjList.Count > 0  do
     try
       tempObj := TsObjects(objlist.Items[0]).sObject;
@@ -959,6 +956,9 @@ begin
       TsObjects(objlist.Items[0]).Destroy;
     except
     end;
+  Pc.Reset;
+  if pcd.Valid then
+    PCd.Reset;
   Visual.tbInit.Enabled := true;
   Visual.tbFree.Enabled := false;
   Visual.tbTerminate.Enabled := false;
@@ -1430,7 +1430,10 @@ begin
   OldClassName := lowercase(sObject.ClassName);
   //Если это форма
   if sObject.InheritsFrom(TForm) then
+    begin
       sForm := TsForms.Create(TForm(AssignedObject));
+
+    end;
   //Если это таймер
   if sObject.InheritsFrom(Ttimer) then
       stimer := TsTimers.Create(TTimer(AssignedObject));
