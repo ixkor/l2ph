@@ -132,7 +132,7 @@ begin
   sockEngine := TSocketEngine.create;
   sockEngine.ServerPort := LocalPort;
   sockEngine.StartServer;
-  sockEngine.isSocks5 := false;//Можно менять в процессе работы, на текущие нити влять не будет
+  sockEngine.isSocks5 := fSettings.chkSocks5.Checked;
 end;
 
 
