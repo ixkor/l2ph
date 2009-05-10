@@ -1,38 +1,48 @@
 object fPacketView: TfPacketView
   Left = 0
   Top = 0
-  Width = 443
-  Height = 270
+  Width = 451
+  Height = 304
   Align = alClient
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
+  TabStop = True
   object Splitter1: TSplitter
     Left = 0
     Top = 185
-    Width = 443
+    Width = 451
     Height = 3
     Cursor = crVSplit
     Align = alTop
+    ExplicitWidth = 443
   end
   object Label1: TLabel
     Left = 0
     Top = 0
-    Width = 443
+    Width = 451
     Height = 13
     Align = alTop
     Caption = #1055#1072#1082#1077#1090':'
+    ExplicitWidth = 34
   end
   object Label2: TLabel
     Left = 0
     Top = 188
-    Width = 443
+    Width = 451
     Height = 13
     Align = alTop
     Caption = #1044#1077#1090#1072#1083#1100#1085#1072#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072':'
+    ExplicitWidth = 132
   end
   object rvHEX: TRichView
     Left = 0
     Top = 13
-    Width = 443
+    Width = 451
     Height = 172
     Align = alTop
     TabOrder = 0
@@ -52,8 +62,8 @@ object fPacketView: TfPacketView
   object rvDescryption: TRichView
     Left = 0
     Top = 201
-    Width = 443
-    Height = 69
+    Width = 451
+    Height = 103
     Align = alClient
     TabOrder = 1
     OnMouseMove = rvDescryptionMouseMove
@@ -428,6 +438,7 @@ object fPacketView: TfPacketView
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

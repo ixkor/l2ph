@@ -46,6 +46,7 @@ var
   fConvert: TfConvert;
 
 implementation
+uses umain;
 
 {$R *.dfm}
 

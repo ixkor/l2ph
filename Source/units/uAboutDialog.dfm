@@ -455,15 +455,15 @@ object fAbout: TfAbout
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    LangDispatcher = fMain.siLangDispatcher
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'
       'Action3')
     LangNames.Strings = (
-      'Default'
-      'English')
-    Language = 'Default'
+      'Rus'
+      'Eng')
+    Language = 'Rus'
     ExcludedProperties.Strings = (
       'Category'
       'SecondaryShortCuts'

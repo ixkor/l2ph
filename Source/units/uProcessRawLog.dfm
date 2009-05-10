@@ -142,10 +142,6 @@ object fProcessRawLog: TfProcessRawLog
     object TabSheet1: TTabSheet
       Caption = #1058#1077#1082#1091#1097#1077#1077' '#1089#1086#1089#1090#1086#1103#1085#1080#1077
       OnResize = TabSheet1Resize
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object memo1: TJvRichEdit
         Left = 0
         Top = 0
@@ -185,10 +181,11 @@ object fProcessRawLog: TfProcessRawLog
         object Label3: TLabel
           Left = 1
           Top = 1
-          Width = 194
+          Width = 452
           Height = 13
           Align = alTop
           Caption = #1063#1080#1090#1072#1077#1090#1089#1103' '#1080' '#1092#1086#1088#1084#1072#1090#1080#1088#1091#1077#1090#1089#1103' RAW '#1083#1086#1075'..'
+          ExplicitWidth = 194
         end
         object ProgressBar1: TProgressBar
           Left = 1
@@ -203,18 +200,10 @@ object fProcessRawLog: TfProcessRawLog
     object TabSheet3: TTabSheet
       Caption = #1056#1072#1079#1073#1086#1088
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Caption = #1051#1086#1075' '#1087#1088#1086#1074#1077#1088#1082#1080
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object JvRichEdit1: TJvRichEdit
         Left = 0
         Top = 0
@@ -677,7 +666,7 @@ object fProcessRawLog: TfProcessRawLog
       'JvRichEdit1.Hint')
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    LangDispatcher = fMain.siLangDispatcher
+    LangDispatcher = fMain.lang
     LangDelim = 1
     LangNames.Strings = (
       'Rus'

@@ -1,10 +1,10 @@
 object fPacketFilter: TfPacketFilter
   Left = 391
   Top = 263
-  Width = 326
-  Height = 456
   BorderStyle = bsSizeToolWin
   Caption = #1060#1080#1083#1100#1090#1088' '#1087#1072#1082#1077#1090#1086#1074
+  ClientHeight = 430
+  ClientWidth = 318
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,6 @@ object fPacketFilter: TfPacketFilter
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -22,7 +21,7 @@ object fPacketFilter: TfPacketFilter
     Left = 0
     Top = 0
     Width = 318
-    Height = 371
+    Height = 379
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
@@ -32,7 +31,7 @@ object fPacketFilter: TfPacketFilter
         Left = 0
         Top = 0
         Width = 310
-        Height = 343
+        Height = 351
         Align = alClient
         Checkboxes = True
         Columns = <
@@ -64,7 +63,7 @@ object fPacketFilter: TfPacketFilter
         Left = 0
         Top = 0
         Width = 310
-        Height = 343
+        Height = 351
         Align = alClient
         Checkboxes = True
         Columns = <
@@ -93,7 +92,7 @@ object fPacketFilter: TfPacketFilter
   end
   object Panel17: TPanel
     Left = 0
-    Top = 371
+    Top = 379
     Width = 318
     Height = 51
     Align = alBottom
@@ -145,6 +144,7 @@ object fPacketFilter: TfPacketFilter
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

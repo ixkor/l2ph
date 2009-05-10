@@ -53,10 +53,11 @@ type
     nShowHide: TMenuItem;
     N14: TMenuItem;
     nLanguage: TMenuItem;
-    lang: TsiLang;
+    lang1: TsiLang;
     RusLang: TMenuItem;
     EngLang: TMenuItem;
     l2ph1: TMenuItem;
+    lang: TsiLangDispatcher;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);
@@ -79,7 +80,7 @@ type
     procedure EngLangClick(Sender: TObject);
     procedure Action9Execute(Sender: TObject);
     procedure l2ph1Click(Sender: TObject);
-    procedure langChangeLanguage(Sender: TObject);
+    procedure lang1ChangeLanguage(Sender: TObject);
     procedure UpdateStrings;
     procedure pcClientsConnectionChange(Sender: TObject);
   protected
@@ -125,14 +126,14 @@ begin
   Caption := format(Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team'), [ver]);
   fAbout.AboutMemo.Lines.Add('L2PacketHack v' + ver);
   fAbout.AboutMemo.Lines.Add('');
-  fAbout.AboutMemo.Lines.Add(lang.GetTextOrDefault('IDS_6'));
+  fAbout.AboutMemo.Lines.Add(lang1.GetTextOrDefault('IDS_6'));
   fAbout.AboutMemo.Lines.Add('xkor,');
   fAbout.AboutMemo.Lines.Add('NLObP,');
   fAbout.AboutMemo.Lines.Add('Wanick,');
   fAbout.AboutMemo.Lines.Add('QaK,');
   fAbout.AboutMemo.Lines.Add('alexteam.');
 
-  AddToLog(lang.GetTextOrDefault('IDS_9' (* 'Стартует L2ph v' *) ) + ver);
+  AddToLog(lang1.GetTextOrDefault('IDS_9' (* 'Стартует L2ph v' *) ) + ver);
   sockEngine := TSocketEngine.create;
   sockEngine.ServerPort := LocalPort;
   sockEngine.StartServer;
@@ -279,8 +280,8 @@ procedure TfMain.FormCloseQuery(Sender: TObject;
 begin
   if AllowExit then Application.Terminate;
   if MessageDlg(pchar(
-                lang.GetTextOrDefault('IDS_18' (* 'Вы уверены что хотите выйти из программы?' *) ) + #10#13+
-                lang.GetTextOrDefault('IDS_19' (* 'Все соединения прервутся!' *) )),
+                lang1.GetTextOrDefault('IDS_18' (* 'Вы уверены что хотите выйти из программы?' *) ) + #10#13+
+                lang1.GetTextOrDefault('IDS_19' (* 'Все соединения прервутся!' *) )),
                 mtConfirmation,[mbYes, mbNo],0)=mrYes then Application.Terminate;
   CanClose:=False;
 end;
@@ -363,91 +364,57 @@ procedure TfMain.ProcessPacket(var msg: TMessage);
 begin
 end;
 
-procedure TfMain.langChangeLanguage(Sender: TObject);
-var
-  i : integer;
+procedure TfMain.lang1ChangeLanguage(Sender: TObject);
 begin
-  if not assigned(fSettings) then exit;
-  if not fSettings.InterfaceEnabled then exit;
-  fSettings.lang.Language := lang.Language;
-
-  //переводим все фреймы (изврат?)
-  fProcessRawLog.visual.Translate;
-  if Assigned(LSPConnections) then
-  for i := 0 to LSPConnections.Count -1 do
-    TlspConnection(LSPConnections.Items[i]).Visual.Translate;
-
-  if Assigned(sockEngine) then
-  for i := 0 to sockEngine.tunels.Count -1 do
-    Ttunel(sockEngine.tunels.Items[i]).Visual.Translate;
-    
-  if Assigned(PacketLogWievs) then
-  for i := 0 to PacketLogWievs.Count -1 do
-    TpacketLogWiev(PacketLogWievs.Items[i]).Visual.Translate;
-  //
-  fProcessRawLog.lang.Language := lang.Language;
-  if assigned(Options) then
-    begin
-      Options.WriteString('General','language',lang.Language);
-      Options.UpdateFile;
-    end;
-  fProcesses.lang.Language := lang.Language;
-  fScript.lang.Language := lang.Language;
-  fPlugins.lang.Language := lang.Language;       
-  fLog.lang.Language := lang.Language;
-  fPacketFilter.lang.Language := lang.Language;
-  fConvert.lang.Language := lang.Language;
-  fAbout.lang.Language := lang.Language;
-  dmData.lang.Language := lang.Language;
 
   UpdateStrings;
 end;
 
 procedure TfMain.UpdateStrings;
 begin
-  RsThreadCallStack := lang.GetTextOrDefault('strRsThreadCallStack');
-  RsMainThreadCallStack := lang.GetTextOrDefault('strRsMainThreadCallStack');
-  RsMissingVersionInfo := lang.GetTextOrDefault('strRsMissingVersionInfo');
-  RsThread := lang.GetTextOrDefault('strRsThread');
-  RsActiveControl := lang.GetTextOrDefault('strRsActiveControl');
-  RsScreenRes := lang.GetTextOrDefault('strRsScreenRes');
-  RsMemory := lang.GetTextOrDefault('strRsMemory');
-  RsProcessor := lang.GetTextOrDefault('strRsProcessor');
-  RsOSVersion := lang.GetTextOrDefault('strRsOSVersion');
-  RsModulesList := lang.GetTextOrDefault('strRsModulesList');
-  RsStackList := lang.GetTextOrDefault('strRsStackList');
-  RsExceptionAddr := lang.GetTextOrDefault('strRsExceptionAddr');
-  RsExceptionMessage := lang.GetTextOrDefault('strRsExceptionMessage');
-  RsExceptionClass := lang.GetTextOrDefault('strRsExceptionClass');
-  RsAppError := lang.GetTextOrDefault('strRsAppError');
-  rsLSPDisconnectDetected := lang.GetTextOrDefault('strrsLSPDisconnectDetected');
-  rsLSPConnectionWillbeIgnored := lang.GetTextOrDefault('strrsLSPConnectionWillbeIgnored');
-  rsLSPConnectionWillbeIntercepted := lang.GetTextOrDefault('strrsLSPConnectionWillbeIntercepted');
-  rsLSPConnectionDetected := lang.GetTextOrDefault('strrsLSPConnectionDetected');
-  rsFailedLocalServer := lang.GetTextOrDefault('strrsFailedLocalServer');
-  rsStartLocalServer := lang.GetTextOrDefault('strrsStartLocalServer');
-  rsLoadDllSuccessfully := lang.GetTextOrDefault('strrsLoadDllSuccessfully');
-  rsLoadDllUnSuccessful := lang.GetTextOrDefault('strrsLoadDllUnSuccessful');
-  rsUnLoadDllSuccessfully := lang.GetTextOrDefault('strrsUnLoadDllSuccessfully');
-  rsClientPatched2 := lang.GetTextOrDefault('strrsClientPatched2');
-  rsClientPatched1 := lang.GetTextOrDefault('strrsClientPatched1');
-  rsClientPatched0 := lang.GetTextOrDefault('strrsClientPatched0');
-  rsConnectionName := lang.GetTextOrDefault('strrsConnectionName');
-  rsSavingPacketLog := lang.GetTextOrDefault('strrsSavingPacketLog');
-  rsTsocketEngineSocketError := lang.GetTextOrDefault('strrsTsocketEngineSocketError');
-  rsTsocketEngineError := lang.GetTextOrDefault('strrsTsocketEngineError');
-  rsSocketEngineNewConnection := lang.GetTextOrDefault('strrsSocketEngineNewConnection');
-  rsTunelClientDisconnect := lang.GetTextOrDefault('strrsTunelClientDisconnect');
-  rsTunelServerDisconnect := lang.GetTextOrDefault('strrsTunelServerDisconnect');
-  rsInjectConnectInterceptedIgnoder := lang.GetTextOrDefault('strrsInjectConnectInterceptedIgnoder');
-  rsInjectConnectInterceptOff := lang.GetTextOrDefault('strrsInjectConnectInterceptOff');
-  rsInjectConnectIntercepted := lang.GetTextOrDefault('strrsInjectConnectIntercepted');
-  rsTunelTimeout := lang.GetTextOrDefault('strrsTunelTimeout');
-  rsTunelConnected := lang.GetTextOrDefault('strrsTunelConnected');
-  rsTunelConnecting := lang.GetTextOrDefault('strrsTunelConnecting');
-  rsTunelDestroy := lang.GetTextOrDefault('strrsTunelDestroy');
-  rsTunelRUN := lang.GetTextOrDefault('strrsTunelRUN');
-  rsTunelCreated := lang.GetTextOrDefault('strrsTunelCreated');
+  RsThreadCallStack := lang1.GetTextOrDefault('strRsThreadCallStack');
+  RsMainThreadCallStack := lang1.GetTextOrDefault('strRsMainThreadCallStack');
+  RsMissingVersionInfo := lang1.GetTextOrDefault('strRsMissingVersionInfo');
+  RsThread := lang1.GetTextOrDefault('strRsThread');
+  RsActiveControl := lang1.GetTextOrDefault('strRsActiveControl');
+  RsScreenRes := lang1.GetTextOrDefault('strRsScreenRes');
+  RsMemory := lang1.GetTextOrDefault('strRsMemory');
+  RsProcessor := lang1.GetTextOrDefault('strRsProcessor');
+  RsOSVersion := lang1.GetTextOrDefault('strRsOSVersion');
+  RsModulesList := lang1.GetTextOrDefault('strRsModulesList');
+  RsStackList := lang1.GetTextOrDefault('strRsStackList');
+  RsExceptionAddr := lang1.GetTextOrDefault('strRsExceptionAddr');
+  RsExceptionMessage := lang1.GetTextOrDefault('strRsExceptionMessage');
+  RsExceptionClass := lang1.GetTextOrDefault('strRsExceptionClass');
+  RsAppError := lang1.GetTextOrDefault('strRsAppError');
+  rsLSPDisconnectDetected := lang1.GetTextOrDefault('strrsLSPDisconnectDetected');
+  rsLSPConnectionWillbeIgnored := lang1.GetTextOrDefault('strrsLSPConnectionWillbeIgnored');
+  rsLSPConnectionWillbeIntercepted := lang1.GetTextOrDefault('strrsLSPConnectionWillbeIntercepted');
+  rsLSPConnectionDetected := lang1.GetTextOrDefault('strrsLSPConnectionDetected');
+  rsFailedLocalServer := lang1.GetTextOrDefault('strrsFailedLocalServer');
+  rsStartLocalServer := lang1.GetTextOrDefault('strrsStartLocalServer');
+  rsLoadDllSuccessfully := lang1.GetTextOrDefault('strrsLoadDllSuccessfully');
+  rsLoadDllUnSuccessful := lang1.GetTextOrDefault('strrsLoadDllUnSuccessful');
+  rsUnLoadDllSuccessfully := lang1.GetTextOrDefault('strrsUnLoadDllSuccessfully');
+  rsClientPatched2 := lang1.GetTextOrDefault('strrsClientPatched2');
+  rsClientPatched1 := lang1.GetTextOrDefault('strrsClientPatched1');
+  rsClientPatched0 := lang1.GetTextOrDefault('strrsClientPatched0');
+  rsConnectionName := lang1.GetTextOrDefault('strrsConnectionName');
+  rsSavingPacketLog := lang1.GetTextOrDefault('strrsSavingPacketLog');
+  rsTsocketEngineSocketError := lang1.GetTextOrDefault('strrsTsocketEngineSocketError');
+  rsTsocketEngineError := lang1.GetTextOrDefault('strrsTsocketEngineError');
+  rsSocketEngineNewConnection := lang1.GetTextOrDefault('strrsSocketEngineNewConnection');
+  rsTunelClientDisconnect := lang1.GetTextOrDefault('strrsTunelClientDisconnect');
+  rsTunelServerDisconnect := lang1.GetTextOrDefault('strrsTunelServerDisconnect');
+  rsInjectConnectInterceptedIgnoder := lang1.GetTextOrDefault('strrsInjectConnectInterceptedIgnoder');
+  rsInjectConnectInterceptOff := lang1.GetTextOrDefault('strrsInjectConnectInterceptOff');
+  rsInjectConnectIntercepted := lang1.GetTextOrDefault('strrsInjectConnectIntercepted');
+  rsTunelTimeout := lang1.GetTextOrDefault('strrsTunelTimeout');
+  rsTunelConnected := lang1.GetTextOrDefault('strrsTunelConnected');
+  rsTunelConnecting := lang1.GetTextOrDefault('strrsTunelConnecting');
+  rsTunelDestroy := lang1.GetTextOrDefault('strrsTunelDestroy');
+  rsTunelRUN := lang1.GetTextOrDefault('strrsTunelRUN');
+  rsTunelCreated := lang1.GetTextOrDefault('strrsTunelCreated');
 end;
 
 procedure TfMain.pcClientsConnectionChange(Sender: TObject);

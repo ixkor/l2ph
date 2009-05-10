@@ -27,7 +27,7 @@ var
   fProcesses: TfProcesses;
 
 implementation
-uses uglobalfuncs;
+uses umain, uglobalfuncs;
 
 {$R *.dfm}
 
