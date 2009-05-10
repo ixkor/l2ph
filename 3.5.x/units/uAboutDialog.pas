@@ -3,16 +3,18 @@ unit uAboutDialog;
 interface
 
 uses
-  Shellapi, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, siComp;
+  Shellapi, windows, Controls, Forms,
+  StdCtrls, ExtCtrls, siComp, Graphics, Classes;
 
 type
   TfAbout = class(TForm)
-    Memo1: TMemo;
     Image1: TImage;
-    Label1: TLabel;
     lang: TsiLang;
-    procedure Label1Click(Sender: TObject);
+    Label2: TLabel;
+    Label3: TLabel;
+    AboutMemo: TMemo;
+    procedure Label2Click(Sender: TObject);
+    procedure Label3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -23,12 +25,18 @@ var
   fAbout: TfAbout;
 
 implementation
+uses umain;
 
 {$R *.dfm}
 
-procedure TfAbout.Label1Click(Sender: TObject);
+procedure TfAbout.Label2Click(Sender: TObject);
 begin
-  ShellExecute(handle, 'open', 'http://coderx.ru', nil, nil, SW_SHOW);
+  ShellExecute(handle, 'open', 'http://allcheats.ru/forum.php', nil, nil, SW_SHOW);
+end;
+
+procedure TfAbout.Label3Click(Sender: TObject);
+begin
+  ShellExecute(handle, 'open', 'http://l2phx.pp.ru/', nil, nil, SW_SHOW);
 end;
 
 end.
