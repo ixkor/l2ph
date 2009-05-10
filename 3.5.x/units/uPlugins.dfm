@@ -1,10 +1,10 @@
 object fPlugins: TfPlugins
   Left = 243
   Top = 253
-  Width = 660
-  Height = 442
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = #1055#1083#1072#1075#1080#1085#1099
+  ClientHeight = 408
+  ClientWidth = 652
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,7 +12,6 @@ object fPlugins: TfPlugins
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -135,6 +134,7 @@ object fPlugins: TfPlugins
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

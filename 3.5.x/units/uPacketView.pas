@@ -50,6 +50,7 @@ type
   end;
 
 implementation
+uses umain;
 
 {$R *.dfm}
 

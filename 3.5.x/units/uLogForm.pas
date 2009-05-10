@@ -31,7 +31,7 @@ var
   fLog: TfLog;
 
 implementation
-
+uses umain;
 {$R *.dfm}
 
 procedure TfLog.FormDestroy(Sender: TObject);

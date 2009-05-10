@@ -66,7 +66,7 @@ var
   fProcessRawLog: TfProcessRawLog;
 
 implementation
-uses upacketview, uresourcestrings, uGlobalFuncs, uencdec;
+uses umain, upacketview, uresourcestrings, uGlobalFuncs, uencdec;
 var
   encdec : TencDec;
   anotherXorLib : thandle;

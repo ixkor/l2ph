@@ -1,10 +1,10 @@
 object fProcesses: TfProcesses
   Left = 125
   Top = 117
-  Width = 279
-  Height = 640
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1086#1094#1077#1089#1089#1099
+  ClientHeight = 614
+  ClientWidth = 271
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,6 @@ object fProcesses: TfProcesses
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -22,7 +21,7 @@ object fProcesses: TfProcesses
     Left = 0
     Top = 0
     Width = 271
-    Height = 606
+    Height = 614
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
@@ -32,7 +31,7 @@ object fProcesses: TfProcesses
         Left = 0
         Top = 0
         Width = 263
-        Height = 578
+        Height = 586
         Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1087#1080#1089#1086#1082' '#1088#1072#1073#1086#1090#1072#1102#1097#1080#1093' '#1087#1088#1086#1075#1088#1072#1084#1084
         Align = alClient
         ItemHeight = 13
@@ -47,7 +46,7 @@ object fProcesses: TfProcesses
         Left = 0
         Top = 0
         Width = 263
-        Height = 578
+        Height = 586
         Hint = #1057#1087#1080#1089#1086#1082' '#1087#1088#1080#1083#1086#1078#1077#1085#1080#1081' '#1091' '#1082#1086#1090#1086#1088#1099#1093' '#1073#1091#1076#1077#1090' '#1087#1077#1088#1077#1093#1074#1072#1095#1077#1085' '#1082#1086#1085#1085#1077#1082#1090
         Align = alClient
         ItemHeight = 13
@@ -73,6 +72,7 @@ object fProcesses: TfProcesses
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

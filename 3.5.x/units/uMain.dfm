@@ -1,7 +1,7 @@
 object fMain: TfMain
   Left = 180
   Top = 171
-  ClientHeight = 536
+  ClientHeight = 556
   ClientWidth = 776
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object fMain: TfMain
     Left = 0
     Top = 0
     Width = 776
-    Height = 517
+    Height = 537
     Align = alClient
     Alignment = taCenter
     AutoSize = False
@@ -40,25 +40,28 @@ object fMain: TfMain
     HotTrackFont.Height = -19
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
+    ExplicitHeight = 517
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 517
+    Top = 537
     Width = 776
     Height = 19
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 517
   end
   object pcClientsConnection: TJvPageControl
     Left = 0
     Top = 0
     Width = 776
-    Height = 517
+    Height = 537
     Align = alClient
     TabOrder = 1
     Visible = False
     OnChange = pcClientsConnectionChange
     ClientBorderWidth = 1
+    ExplicitHeight = 517
   end
   object XPManifest1: TXPManifest
     Left = 142
@@ -2807,7 +2810,7 @@ object fMain: TfMain
     Left = 104
     Top = 47
   end
-  object lang: TsiLang
+  object lang1: TsiLang
     Version = '6.1.0.1'
     IsInheritedOwner = True
     StringsTypes.Strings = (
@@ -2818,7 +2821,8 @@ object fMain: TfMain
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    OnChangeLanguage = langChangeLanguage
+    LangDispatcher = lang
+    OnChangeLanguage = lang1ChangeLanguage
     LangDelim = 1
     LangNames.Strings = (
       'Rus'
@@ -3034,5 +3038,15 @@ object fMain: TfMain
       45540144454641554C545F43484152534554010D0A5374617475734261723101
       44454641554C545F434841525345540144454641554C545F4348415253455401
       0D0A}
+  end
+  object lang: TsiLangDispatcher
+    ActiveLanguage = 1
+    NumOfLanguages = 2
+    LangNames.Strings = (
+      'Rus'
+      'Eng')
+    Language = 'Rus'
+    Left = 63
+    Top = 15
   end
 end

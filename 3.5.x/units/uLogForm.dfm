@@ -1,10 +1,10 @@
 object fLog: TfLog
   Left = 2
   Top = 3
-  Width = 668
-  Height = 204
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1093#1072#1082#1072
+  ClientHeight = 170
+  ClientWidth = 660
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -86,6 +86,7 @@ object fLog: TfLog
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

@@ -1,11 +1,11 @@
 object fConvert: TfConvert
   Left = 192
   Top = 114
-  Width = 729
-  Height = 219
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103
+  ClientHeight = 193
+  ClientWidth = 721
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,7 +14,6 @@ object fConvert: TfConvert
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -23,21 +22,22 @@ object fConvert: TfConvert
     Left = 0
     Top = 0
     Width = 721
-    Height = 185
+    Height = 193
     Align = alClient
     Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103':'
     TabOrder = 0
     object Splitter5: TSplitter
       Left = 356
       Top = 15
-      Height = 149
+      Height = 157
       ResizeStyle = rsUpdate
+      ExplicitHeight = 149
     end
     object Panel5: TPanel
       Left = 359
       Top = 15
       Width = 360
-      Height = 149
+      Height = 157
       Align = alClient
       BevelOuter = bvNone
       Caption = 'Panel5'
@@ -46,7 +46,7 @@ object fConvert: TfConvert
         Left = 23
         Top = 21
         Width = 337
-        Height = 128
+        Height = 136
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -62,7 +62,7 @@ object fConvert: TfConvert
         Left = 0
         Top = 21
         Width = 23
-        Height = 128
+        Height = 136
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 1
@@ -118,7 +118,7 @@ object fConvert: TfConvert
       Left = 2
       Top = 15
       Width = 354
-      Height = 149
+      Height = 157
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 1
@@ -126,7 +126,7 @@ object fConvert: TfConvert
         Left = 0
         Top = 21
         Width = 354
-        Height = 128
+        Height = 136
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -192,7 +192,7 @@ object fConvert: TfConvert
     end
     object StatusBar1: TStatusBar
       Left = 2
-      Top = 164
+      Top = 172
       Width = 717
       Height = 19
       Panels = <>
@@ -217,6 +217,7 @@ object fConvert: TfConvert
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
+    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'
