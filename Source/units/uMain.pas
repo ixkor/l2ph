@@ -121,12 +121,16 @@ begin
   ShowWindow(application.Handle,sw_hide);
 
   ver := uGlobalFuncs.getversion;
-  Splash.Caption := 'L2PacketHack v'+ ver +#10#13#10#13+'[No Connections]';
-  Caption := 'L2PacketHack v' + ver + ' by CoderX.ru Team';
-  fAbout.Memo1.Lines.Insert(0, lang.GetTextOrDefault('IDS_6' (* 'Поддержать проект:' *) ));
-  fAbout.Memo1.Lines.Insert(0,'');
-  fAbout.Memo1.Lines.Insert(0, ' by CoderX.ru Team');
-  fAbout.Memo1.Lines.Insert(0,'L2PacketHack v' + ver);
+  Splash.Caption := 'L2PacketHack v'+ ver;
+  Caption := format(Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team'), [ver]);
+  fAbout.AboutMemo.Lines.Add('L2PacketHack v' + ver);
+  fAbout.AboutMemo.Lines.Add('');
+  fAbout.AboutMemo.Lines.Add(lang.GetTextOrDefault('IDS_6'));
+  fAbout.AboutMemo.Lines.Add('xkor,');
+  fAbout.AboutMemo.Lines.Add('NLObP,');
+  fAbout.AboutMemo.Lines.Add('Wanick,');
+  fAbout.AboutMemo.Lines.Add('QaK,');
+  fAbout.AboutMemo.Lines.Add('alexteam.');
 
   AddToLog(lang.GetTextOrDefault('IDS_9' (* 'Стартует L2ph v' *) ) + ver);
   sockEngine := TSocketEngine.create;
