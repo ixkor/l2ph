@@ -348,6 +348,12 @@ var
   Dirrection : byte;
   struct : TSendRecvStruct;
 begin
+  if assigned(Visual) then
+  begin
+    Visual.AddPacketToAcum(Packet, not ToServer, EncDec);
+    Visual.processpacketfromacum;
+  end;
+
   //кодируем
   if ToServer then
     Dirrection := PCK_GS_ToServer
