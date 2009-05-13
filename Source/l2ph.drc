@@ -8,15 +8,15 @@
   resources were bound to the produced executable.
 */
 
-#define OleConst_SInvalidLinkSource 64912
-#define OleConst_SCannotBreakLink 64913
-#define OleConst_SPropDlgCaption 64914
-#define LSPControl_rsLSP_Install_success 64915
-#define LSPControl_rsLSP_Already_installed 64916
-#define LSPControl_rsLSP_Uninstall_success 64917
-#define LSPControl_rsLSP_Install_error 64918
-#define LSPControl_rsLSP_UnInstall_error 64919
-#define LSPControl_rsLSP_Install_error_badspipath 64920
+#define LSPControl_rsLSP_Already_installed 64912
+#define LSPControl_rsLSP_Uninstall_success 64913
+#define LSPControl_rsLSP_Install_error 64914
+#define LSPControl_rsLSP_UnInstall_error 64915
+#define LSPControl_rsLSP_Install_error_badspipath 64916
+#define OleConst_SLinkProperties 64917
+#define OleConst_SInvalidLinkSource 64918
+#define OleConst_SCannotBreakLink 64919
+#define OleConst_SPropDlgCaption 64920
 #define ComStrs_sFailSetCalDateTime 64928
 #define ComStrs_sFailSetCalMaxSelRange 64929
 #define ComStrs_sFailSetCalMinMaxRange 64930
@@ -32,7 +32,7 @@
 #define DBConsts_SInvalidSqlTimeStamp 64940
 #define ecStrUtils_SecListIndexError 64941
 #define ecSyntAnal_SecDefaultTokenTypeNames 64942
-#define OleConst_SLinkProperties 64943
+#define LSPControl_rsLSP_Install_success 64943
 #define ComStrs_sTabFailRetrieve 64944
 #define ComStrs_sTabFailGetObject 64945
 #define ComStrs_sTabFailSet 64946
@@ -627,15 +627,15 @@
 #define SysConst_SInvalidInput 65535
 STRINGTABLE
 BEGIN
-	OleConst_SInvalidLinkSource,	"Cannot link to an invalid source."
-	OleConst_SCannotBreakLink,	"Break link operation is not supported."
-	OleConst_SPropDlgCaption,	"%s Properties"
-	LSPControl_rsLSP_Install_success,	"LSP успешно зарегистрирован."
 	LSPControl_rsLSP_Already_installed,	"LSP модуль зарегистрирован в системе"
 	LSPControl_rsLSP_Uninstall_success,	"–егистраци€ LSP модул€ успешно сн€та"
 	LSPControl_rsLSP_Install_error,	"ќшибка при регистрации LSP модул€. (нет прав доступа к веткам реестра?)"
 	LSPControl_rsLSP_UnInstall_error,	"ќшибка при сн€ти€ регистрации LSP модул€. (нет прав доступа к веткам реестра?)"
 	LSPControl_rsLSP_Install_error_badspipath,	"Ќеверно указан путь к LSP модулю, необходим абсолютный путь,\r\n             либо наличие библиотеки LSP модул€ в SYSTEM32"
+	OleConst_SLinkProperties,	"Link Properties"
+	OleConst_SInvalidLinkSource,	"Cannot link to an invalid source."
+	OleConst_SCannotBreakLink,	"Break link operation is not supported."
+	OleConst_SPropDlgCaption,	"%s Properties"
 	ComStrs_sFailSetCalDateTime,	"Failed to set calendar date or time"
 	ComStrs_sFailSetCalMaxSelRange,	"Failed to set maximum selection range"
 	ComStrs_sFailSetCalMinMaxRange,	"Failed to set calendar min/max range"
@@ -651,7 +651,7 @@ BEGIN
 	DBConsts_SInvalidSqlTimeStamp,	"Invalid SQL date/time values"
 	ecStrUtils_SecListIndexError,	"Index %d is out of range"
 	ecSyntAnal_SecDefaultTokenTypeNames,	"Unknown\r\nComment\r\nIdentifier\r\nSymbol\r\nString\r\nInteger const\r\nFloat const\r\nHex const\r\nChar const\r\nPreprocessor"
-	OleConst_SLinkProperties,	"Link Properties"
+	LSPControl_rsLSP_Install_success,	"LSP успешно зарегистрирован."
 	ComStrs_sTabFailRetrieve,	"Failed to retrieve tab at index %d"
 	ComStrs_sTabFailGetObject,	"Failed to get object at index %d"
 	ComStrs_sTabFailSet,	"Failed to set tab \"%s\" at index %d"

@@ -687,22 +687,17 @@ var
 begin
     if Length(str)>=1 then
     begin
+      FillChar(Packet.PacketAsCharArray,$ffff,#0);
+      Packet.Size := length(str) + 2;
+      move(str[1],Packet.Data,Packet.Size - 2);
+
       if Assigned(currenttunel) then
-      begin
-        FillChar(Packet.PacketAsCharArray,$ffff,#0);
-        Packet.Size := length(str) + 2;
-        move(str[1],Packet.Data,Packet.Size - 2);
         Ttunel(currenttunel).EncryptAndSend(Packet,ToServer.Down);
-      end;
       if Assigned(currentLSP) then
-      begin
-        FillChar(Packet.PacketAsCharArray,$ffff,#0);
-        Packet.Size := length(str) + 2;
-        move(str[1],Packet.Data,Packet.Size - 2);
         TlspConnection(currentLSP).encryptAndSend(Packet, ToServer.Down);
-      end;
     end;
 end;
+
 
 procedure TfVisual.ToolButton30Click(Sender: TObject);
 begin

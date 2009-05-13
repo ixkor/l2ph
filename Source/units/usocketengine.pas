@@ -754,8 +754,14 @@ procedure Ttunel.EncryptAndSend(Packet: Tpacket; ToServer: Boolean);
 var
   sSendTo : TSocket;
 begin
-
 if isGlobalDestroying then exit;
+if assigned(Visual) then
+  begin
+    Visual.AddPacketToAcum(Packet, not ToServer, EncDec);
+    Visual.processpacketfromacum;
+  end;
+
+
 if ToServer then
   begin
     EncDec.EncodePacket(Packet, PCK_GS_ToServer);

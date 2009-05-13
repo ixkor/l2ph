@@ -33,6 +33,10 @@ object fVisual: TfVisual
     object TabSheet1: TTabSheet
       Caption = #1055#1088#1086#1089#1084#1086#1090#1088
       OnShow = TabSheet1Show
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox12: TGroupBox
         Left = 0
         Top = 29
@@ -332,6 +336,10 @@ object fVisual: TfVisual
       Caption = #1055#1086#1089#1099#1083#1082#1072
       ImageIndex = 1
       OnShow = TabSheet1Show
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel8: TPanel
         Left = 0
         Top = 0
@@ -551,6 +559,10 @@ object fVisual: TfVisual
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 2
       OnShow = TabSheet3Show
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox8: TGroupBox
         Left = 0
         Top = 29
@@ -663,11 +675,10 @@ object fVisual: TfVisual
     object Label3: TLabel
       Left = 1
       Top = 1
-      Width = 454
+      Width = 179
       Height = 13
       Align = alTop
       Caption = #1055#1077#1088#1077#1089#1090#1088#1072#1080#1074#1072#1077#1090#1089#1103' '#1089#1087#1080#1089#1086#1082' '#1087#1072#1082#1077#1090#1086#1074'..'
-      ExplicitWidth = 179
     end
     object ProgressBar1: TProgressBar
       Left = 1
