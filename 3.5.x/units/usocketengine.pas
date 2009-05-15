@@ -736,6 +736,7 @@ begin
   tmp.Id := TencDec(Caller).Ident;
   SendMessage(L2PacketHackMain.Handle, WM_NewPacket, integer(@tmp), 0);
   Packet := tmp.packet;
+  tmp.destroy;   
 end;
 
 procedure Ttunel.RUN;
