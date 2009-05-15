@@ -247,12 +247,7 @@ begin
   ScriptList := TList.Create;
   OriginalListViewWindowProc := ScriptsListVisual.WindowProc;
   ScriptsListVisual.WindowProc := ListViewWindowProcEx;
-//  Instruction.Caption := RsScryptingInstructions;
-//  	RsScryptingInstructions: string = '';
-  (* 'Двойной клик по скрипту в списке скриптов '+#10#13+
-  'открывает его для редактирования'+#10#13#10#13+
-  'Скрипт не будет выполнятся для текущих соединений до тех пор - '+#10#13+
-  'пока он не будет успешно скомпилирован и отмечен галочкой в списке скриптов'+#10#13; *)
+
   JvTabBar1TabSelected(nil,nil);
 end;
 
@@ -465,7 +460,7 @@ i := 0;
 Result := nil;
 while i < ScriptList.Count do
   begin
-    if TScript(ScriptList.Items[i]).ScriptName = name then
+    if lowercase(TScript(ScriptList.Items[i]).ScriptName) = lowercase(name) then
       begin
         Result := TScript(ScriptList.Items[i]);
         Exit;
@@ -955,5 +950,3 @@ begin
 end;
 
 end.
-
-
