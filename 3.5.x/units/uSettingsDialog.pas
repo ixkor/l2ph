@@ -322,6 +322,10 @@ end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
 begin
+  //убираем LSP при выходе из программы
+  if ChkLSPIntercept.Checked then
+    dmData.LSPControl.setlspstate(not ChkLSPIntercept.Checked);
+
   savepos(self);
   //Сохранимся напоследок
   //координаты и размер окна
@@ -333,12 +337,16 @@ end;
 
 procedure TfSettings.ChkLSPInterceptClick(Sender: TObject);
 begin
-  isLSP.Enabled := not ChkLSPIntercept.Checked;
-  BtnLsp.Enabled := not ChkLSPIntercept.Checked;
   if ChkLSPIntercept.Checked then
   begin
+    isLSP.Enabled := false;
+    BtnLsp.Enabled := false;
     ChkSocks5.Checked := false;
     ChkIntercept.Checked := false;
+  end else
+  begin
+    isLSP.Enabled := true;
+    BtnLsp.Enabled := true;
   end;
   dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
 end;
@@ -350,12 +358,11 @@ begin
       isNewxor.Enabled := false;
       btnNewXor.Enabled := false;
       if not loadLibraryXOR(isNewxor.Text) then
-        begin
-          isNewxor.Enabled := true;
-          btnNewXor.Enabled := true;
-          iNewxor.Checked := false;
-        end;
-
+      begin
+        isNewxor.Enabled := true;
+        btnNewXor.Enabled := true;
+        iNewxor.Checked := false;
+      end;
     end
     else
     begin
@@ -381,7 +388,7 @@ procedure TfSettings.Button2Click(Sender: TObject);
 begin
   readsettings;
   GenerateSettingsFromInterface;
-  Hide;  
+  Hide;
 end;
 
 procedure TfSettings.iInjectClick(Sender: TObject);
@@ -401,8 +408,8 @@ begin
     isInject.Enabled := true;
     BtnInject.Enabled := true;
   end;
-  isInject.Enabled := not iInject.Checked;
-  BtnInject.Enabled := not iInject.Enabled;
+//  isInject.Enabled := not iInject.Checked;
+//  BtnInject.Enabled := not iInject.Enabled;
   HookMethod.Enabled := iInject.Checked;
   ChkIntercept.Enabled := iInject.Checked;
   JvSpinEdit1.Enabled := iInject.Checked;
@@ -461,14 +468,12 @@ procedure TfSettings.BtnLspClick(Sender: TObject);
 begin
 if dlgOpenDll.Execute then
   isLSP.Text := dlgOpenDll.FileName;
-
 end;
 
 procedure TfSettings.btnNewXorClick(Sender: TObject);
 begin
 if dlgOpenDll.Execute then
   isNewxor.Text := dlgOpenDll.FileName;
-
 end;
 
 end.
