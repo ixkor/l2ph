@@ -390,24 +390,20 @@ begin
 end;
 
 procedure TfSettings.iInjectClick(Sender: TObject);
-begin
-  if iInject.Checked then
-  begin
-    isInject.Enabled := false;
-    BtnInject.Enabled := false;
-    if not LoadLibraryInject (isInject.Text) then iInject.Checked := false;
-  end
-  else
+begin      
+  if not iInject.Checked then
   begin
     ChkIntercept.Checked := false;
     FreeMem(pInjectDll);
     pInjectDll := nil;
     AddToLog(format(rsUnLoadDllSuccessfully,[isInject.Text]));
-    isInject.Enabled := true;
-    BtnInject.Enabled := true;
-  end;
+  end
+  else
+  if not LoadLibraryInject (isInject.Text) then
+      iInject.Checked := false;
+
   isInject.Enabled := not iInject.Checked;
-  BtnInject.Enabled := not iInject.Enabled;
+  BtnInject.Enabled := not iInject.Checked;
   HookMethod.Enabled := iInject.Checked;
   ChkIntercept.Enabled := iInject.Checked;
   JvSpinEdit1.Enabled := iInject.Checked;
