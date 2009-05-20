@@ -55,6 +55,7 @@ type
     N1: TMenuItem;
     N3: TMenuItem;
     Language1: TMenuItem;
+    N4: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);
@@ -80,6 +81,7 @@ type
     procedure pcClientsConnectionChange(Sender: TObject);
     procedure N1Click(Sender: TObject);
     procedure Language1Click(Sender: TObject);
+    procedure N4Click(Sender: TObject);
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
@@ -99,7 +101,7 @@ uses
   uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
   uAboutDialog, uData, uUserForm, uProcessRawLog, Math,
-  uMainReplacer, uScriptControl, uEditorMain, uLangSelectDialog;
+  uMainReplacer, uScriptControl, uEditorMain, uLangSelectDialog, uPacketViewer;
  
 
 {$R *.dfm}
@@ -350,6 +352,14 @@ begin
   else
     fScriptControl.Show;
     
+end;
+
+procedure TfMain.N4Click(Sender: TObject);
+begin
+  if GetForegroundWindow = fPacketViewer.Handle then
+    fPacketViewer.Hide
+  else
+    fPacketViewer.Show;
 end;
 
 procedure TfMain.UpdateStrings;

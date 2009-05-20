@@ -14,7 +14,7 @@ uses
   uData in 'units\uData.pas' {dmData: TDataModule},
   uencdec in 'units\uencdec.pas',
   uFilterForm in 'units\uFilterForm.pas' {fPacketFilter},
-  uGlobalFuncs in 'units\uglobalfuncs.pas',
+  uglobalfuncs in 'units\uglobalfuncs.pas',
   uLogForm in 'units\uLogForm.pas' {fLog},
   uProcesses in 'units\uProcesses.pas' {fProcesses},
   uResourceStrings in 'units\uResourceStrings.pas',
@@ -33,7 +33,8 @@ uses
   uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame},
   uPacketView in 'units\uPacketView.pas' {fPacketView: TFrame},
   uClassesDLG in 'units\uClassesDLG.pas' {fClassesDLG},
-  uMainReplacer in 'units\uMainReplacer.pas' {L2PacketHackMain};
+  uMainReplacer in 'units\uMainReplacer.pas' {L2PacketHackMain},
+  uPacketViewer in 'units\uPacketViewer.pas' {fPacketViewer};
 
 {$R *.res}
 Procedure Check2stInstance;
@@ -76,6 +77,7 @@ begin
   Application.CreateForm(TfScript, fScript);
   Application.CreateForm(TfPlugins, fPlugins);
   Application.CreateForm(TfClassesDLG, fClassesDLG);
+  Application.CreateForm(TfPacketViewer, fPacketViewer);
   Application.ShowMainForm := false;
   fSettings.init;
   fMain.INIT;

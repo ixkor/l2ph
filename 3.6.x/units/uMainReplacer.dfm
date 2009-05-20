@@ -63,5 +63,10 @@ object fMainReplacer: TfMainReplacer
       ShortCut = 16466
       OnExecute = Action1Execute
     end
+    object Action5: TAction
+      Caption = 'Action5'
+      ShortCut = 16465
+      OnExecute = Action5Execute
+    end
   end
 end

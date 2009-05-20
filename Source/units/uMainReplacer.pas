@@ -22,6 +22,7 @@ type
     Action8: TAction;
     Action9: TAction;
     Action10: TAction;
+    Action1: TAction;
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Action2Execute(Sender: TObject);
@@ -32,6 +33,7 @@ type
     procedure Action8Execute(Sender: TObject);
     procedure Action9Execute(Sender: TObject);
     procedure Action10Execute(Sender: TObject);
+    procedure Action1Execute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -50,7 +52,8 @@ implementation
 uses
   SyncObjs, uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
-  uAboutDialog, uData, uUserForm, uProcessRawLog, uScripts, Math, uMain;
+  uAboutDialog, uData, uUserForm, uProcessRawLog, uScripts, Math, uMain,
+  uPacketViewer;
 
 {$R *.dfm}
 
@@ -245,6 +248,15 @@ begin
   AppPath := ExtractFilePath(Application.ExeName);
   c_s := TCriticalSection.Create;
   left := -1000;
+end;
+
+procedure TL2PacketHackMain.Action1Execute(Sender: TObject);
+begin
+  if GetForegroundWindow = fPacketViewer.Handle then
+    fPacketViewer.Hide
+  else
+    fPacketViewer.Show;
+
 end;
 
 procedure TL2PacketHackMain.Action2Execute(Sender: TObject);

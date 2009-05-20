@@ -29,6 +29,7 @@ type
     Action9: TAction;
     Action10: TAction;
     Action1: TAction;
+    Action5: TAction;
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Action2Execute(Sender: TObject);
@@ -40,6 +41,7 @@ type
     procedure Action9Execute(Sender: TObject);
     procedure Action10Execute(Sender: TObject);
     procedure Action1Execute(Sender: TObject);
+    procedure Action5Execute(Sender: TObject);
   private
     MapData : PShareMain;
     MapHandle : THandle; 
@@ -61,7 +63,7 @@ uses
   SyncObjs, uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
   uAboutDialog, uData, uUserForm, uProcessRawLog, Math, uMain, uEditorMain,
-  uScriptControl;
+  uScriptControl, uPacketViewer;
 
 {$R *.dfm}
 
@@ -305,6 +307,14 @@ begin
     fEditorMain.Hide
   else
     fEditorMain.Show;
+end;
+
+procedure TfMainReplacer.Action5Execute(Sender: TObject);
+begin
+  if GetForegroundWindow = fPacketViewer.Handle then
+    fPacketViewer.Hide
+  else
+    fPacketViewer.Show; 
 end;
 
 procedure TfMainReplacer.Action6Execute(Sender: TObject);

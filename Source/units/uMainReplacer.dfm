@@ -59,5 +59,10 @@ object L2PacketHackMain: TL2PacketHackMain
       ShortCut = 16455
       OnExecute = Action10Execute
     end
+    object Action1: TAction
+      Caption = 'Action1'
+      ShortCut = 16465
+      OnExecute = Action1Execute
+    end
   end
 end
