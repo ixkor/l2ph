@@ -1,8 +1,6 @@
 library LSPprovider;
 
 uses
-  FastMM4 in '..\..\..\fastmm\FastMM4.pas',
-  FastMM4Messages in '..\..\..\fastmm\FastMM4Messages.pas',
   JwaWS2spi,
   JwaWinType,
   JwaWinSock2,
