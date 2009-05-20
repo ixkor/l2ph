@@ -58,6 +58,7 @@ type
     EngLang: TMenuItem;
     l2ph1: TMenuItem;
     lang: TsiLangDispatcher;
+    N1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);
@@ -83,6 +84,7 @@ type
     procedure lang1ChangeLanguage(Sender: TObject);
     procedure UpdateStrings;
     procedure pcClientsConnectionChange(Sender: TObject);
+    procedure N1Click(Sender: TObject);
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
@@ -105,7 +107,7 @@ implementation
 uses uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
   uAboutDialog, uData, uUserForm, uProcessRawLog, uScripts, Math,
-  uMainReplacer;
+  uMainReplacer, uPacketViewer;
  
 
 {$R *.dfm}
@@ -368,6 +370,14 @@ procedure TfMain.lang1ChangeLanguage(Sender: TObject);
 begin
 
   UpdateStrings;
+end;
+
+procedure TfMain.N1Click(Sender: TObject);
+begin
+  if GetForegroundWindow = fPacketViewer.Handle then
+    fPacketViewer.Hide
+  else
+    fPacketViewer.Show;
 end;
 
 procedure TfMain.UpdateStrings;

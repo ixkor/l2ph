@@ -49,7 +49,6 @@ object fMain: TfMain
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 577
   end
   object pcClientsConnection: TJvPageControl
     Left = 0
@@ -61,7 +60,6 @@ object fMain: TfMain
     Visible = False
     OnChange = pcClientsConnectionChange
     ClientBorderWidth = 1
-    ExplicitHeight = 577
   end
   object XPManifest1: TXPManifest
     Left = 142
@@ -147,6 +145,11 @@ object fMain: TfMain
       object nProcessesShow: TMenuItem
         Caption = #1055#1088#1086#1094#1077#1089#1089#1099
         OnClick = nProcessesShowClick
+      end
+      object N4: TMenuItem
+        Caption = #1057#1086#1089#1090#1072#1074#1083#1077#1085#1080#1077'/'#1087#1088#1086#1089#1084#1086#1090#1088' '#1087#1072#1082#1077#1090#1072
+        ShortCut = 16465
+        OnClick = N4Click
       end
     end
     object nHelp: TMenuItem
