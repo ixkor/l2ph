@@ -60,6 +60,7 @@ type
     BtnLsp: TSpeedButton;
     dlgOpenDll: TOpenDialog;
     isNewXor: TLabeledEdit;
+    ChkLSPDeinstallonclose: TCheckBox;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -148,7 +149,7 @@ begin
   ChkHexViewOffset.Checked := Options.ReadBool('General','HexViewOffset', True);
   chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
-
+  ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
@@ -266,6 +267,8 @@ begin
   Options.WriteBool('General','HexViewOffset',ChkHexViewOffset.Checked);
   Options.WriteBool('General','AutoSaveLog',chkAutoSavePlog.Checked);
   Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
+  Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
+
   Options.UpdateFile;
 end;
 
@@ -320,9 +323,13 @@ end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
 begin
-  savepos(self);
-  //Сохранимся напоследок
   //координаты и размер окна
+  savepos(self);
+  //убираем LSP при выходе из программы
+  if ChkLSPDeinstallonclose.Checked then
+    dmData.LSPControl.setlspstate(false);
+
+  //Сохранимся напоследок
   Options.UpdateFile;
   Options.Destroy;
   if hXorLib <> 0 then FreeLibrary(hXorLib);
@@ -348,12 +355,11 @@ begin
       isNewxor.Enabled := false;
       btnNewXor.Enabled := false;
       if not loadLibraryXOR(isNewxor.Text) then
-        begin
-          isNewxor.Enabled := true;
-          btnNewXor.Enabled := true;
-          iNewxor.Checked := false;
-        end;
-
+      begin
+        isNewxor.Enabled := true;
+        btnNewXor.Enabled := true;
+        iNewxor.Checked := false;
+      end;
     end
     else
     begin
@@ -367,6 +373,7 @@ begin
   if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
 end;
+
 
 procedure TfSettings.Button1Click(Sender: TObject);
 begin

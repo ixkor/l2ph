@@ -60,6 +60,7 @@ type
     BtnLsp: TSpeedButton;
     dlgOpenDll: TOpenDialog;
     isNewXor: TLabeledEdit;
+    ChkLSPDeinstallonclose: TCheckBox;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -146,6 +147,7 @@ begin
   ChkHexViewOffset.Checked := Options.ReadBool('General','HexViewOffset', True);
   chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
+  ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
 
 
   dmData.LSPControl.LookFor := isClientsList.Text;
@@ -268,6 +270,7 @@ begin
   Options.WriteBool('General','HexViewOffset',ChkHexViewOffset.Checked);
   Options.WriteBool('General','AutoSaveLog',chkAutoSavePlog.Checked);
   Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
+  Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
   Options.UpdateFile;
 end;
 
@@ -322,13 +325,13 @@ end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
 begin
-  //убираем LSP при выходе из программы
-  if ChkLSPIntercept.Checked then
-    dmData.LSPControl.setlspstate(not ChkLSPIntercept.Checked);
-
-  savepos(self);
-  //Сохранимся напоследок
   //координаты и размер окна
+  savepos(self);
+  //убираем LSP при выходе из программы
+  if ChkLSPDeinstallonclose.Checked then
+    dmData.LSPControl.setlspstate(false);
+
+  //Сохранимся напоследок
   Options.UpdateFile;
   Options.Destroy;
   if hXorLib <> 0 then FreeLibrary(hXorLib);
@@ -408,8 +411,6 @@ begin
     isInject.Enabled := true;
     BtnInject.Enabled := true;
   end;
-//  isInject.Enabled := not iInject.Checked;
-//  BtnInject.Enabled := not iInject.Enabled;
   HookMethod.Enabled := iInject.Checked;
   ChkIntercept.Enabled := iInject.Checked;
   JvSpinEdit1.Enabled := iInject.Checked;
