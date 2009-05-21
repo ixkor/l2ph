@@ -453,7 +453,7 @@ begin
     rvDescryption.Clear;
     
     if PacketName = '' then
-      GetPacketName(id, subid, (PktStr[1]=#04), PacketName, isshow);
+      GetPacketName(id, subid, (PktStr[1]=#03), PacketName, isshow);
 
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then
