@@ -613,9 +613,9 @@ begin
   size := length(HexToString(PktStr))+2;
   if size = 2 then exit;
   if ToServer.Down then
-    PktStr:='0300000000000000000000'+PktStr
+    PktStr:='0400000000000000000000'+PktStr
     else
-    PktStr:='0400000000000000000000'+PktStr;
+    PktStr:='0300000000000000000000'+PktStr;
   
   PacketView.ParsePacket('', PktStr, size);
 
