@@ -5,7 +5,7 @@ interface
 uses
   Windows, uPacketView, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, ToolWin, ImgList, ExtCtrls, RVScroll, RichView, RVEdit,
-  RVStyle, siComp;
+  RVStyle, siComp, StdCtrls, JvExStdCtrls, JvRichEdit;
 
 type
   TfPacketViewer = class(TForm)
@@ -16,17 +16,15 @@ type
     ToolBar2: TToolBar;
     ToServer: TToolButton;
     ToClient: TToolButton;
-    RVStyle1: TRVStyle;
-    RichViewEdit1: TRichViewEdit;
+    Memo4: TJvRichEdit;
     siLang1: TsiLang;
-    procedure RichViewEdit1KeyPress(Sender: TObject; var Key: Char);
     procedure ToClientClick(Sender: TObject);
     procedure ToServerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure RichViewEdit1Change(Sender: TObject);
+    procedure Memo4Change(Sender: TObject);
   protected
-    procedure CreateParams (var Params : TCreateParams); override;    
+    procedure CreateParams (var Params : TCreateParams); override;
   private
     var
     PacketView : TfPacketView;
@@ -50,6 +48,7 @@ begin
     ExStyle := ExStyle OR WS_EX_APPWINDOW or WS_EX_CONTROLPARENT;
 end;
 
+
 procedure TfPacketViewer.FormCreate(Sender: TObject);
 begin
 loadpos(self);
@@ -63,44 +62,51 @@ savepos(self);
 PacketView.Destroy;
 end;
 
-procedure TfPacketViewer.RichViewEdit1Change(Sender: TObject);
+procedure TfPacketViewer.Memo4Change(Sender: TObject);
 var
+  i,k:Integer;
+  temp: string;
+  p: TPoint;
+  b: Boolean;
   PktStr : string;
   size : integer;
 begin
 
-  PktStr := RichViewEdit1.GetCurrentItemText;
+  p:=Memo4.CaretPos;
+  b:=False;
+  for k := 0 to Memo4.Lines.Count-1 do begin
+    temp:=Memo4.Lines[k];
+    for i := 1 to Length(temp) do
+      if not(temp[i] in ['0'..'9','a'..'f','A'..'F',' ']) then begin
+        temp[i]:=' ';
+        b:=True;
+      end;
+    if b then Memo4.Lines[k]:=temp;
+  end;
+  Memo4.CaretPos:=p;
+  PktStr := Memo4.Text;
   if PktStr = '' then exit;
   size := length(HexToString(PktStr))+2;
   if size = 2 then exit;
   if ToServer.Down then
-    PktStr:='0300000000000000000000'+PktStr
+    PktStr:='0400000000000000000000'+PktStr
     else
-    PktStr:='0400000000000000000000'+PktStr;
-
-  PacketView.ParsePacket('', PktStr, size);
-end;
-
-procedure TfPacketViewer.RichViewEdit1KeyPress(Sender: TObject; var Key: Char);
-begin
-if pos(LowerCase(key),'1234567890abcdef')>0 then
-  key := UpCase(key)
-else
-  key := #0;
+    PktStr:='0300000000000000000000'+PktStr;
+  PacketView.ParsePacket('', PktStr, size);  
 end;
 
 procedure TfPacketViewer.ToClientClick(Sender: TObject);
 begin
 ToClient.Down := true;
 ToServer.Down := false;
-RichViewEdit1Change(nil);
+Memo4Change(nil);
 end;
 
 procedure TfPacketViewer.ToServerClick(Sender: TObject);
 begin
 ToServer.Down := true;
 ToClient.Down := false;
-RichViewEdit1Change(nil);
+Memo4Change(nil);
 end;
 
 end.
