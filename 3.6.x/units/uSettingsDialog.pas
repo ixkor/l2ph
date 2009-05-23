@@ -425,13 +425,17 @@ end;
 
 procedure TfSettings.init;
 begin
-  if not FileExists(AppPath+'settings\Options.ini') then
-    MessageBox(0, pchar(lang.GetTextOrDefault('IDS_129' (* 'Файл настроек отстутсвует' *) )), '!!!!!!', MB_OK);
   //считываем Options.ini в память
   Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
   readsettings;
   GenerateSettingsFromInterface;
   if ChkShowLogWinOnStart.Checked then fLog.show;
+  if not FileExists(AppPath+'settings\Options.ini') then
+    begin
+      fLangSelectDialog.ShowModal;
+      Show;
+    end;
+  
 end;
 
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);

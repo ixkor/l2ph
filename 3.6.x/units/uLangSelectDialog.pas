@@ -8,11 +8,10 @@ uses
 
 type
   TfLangSelectDialog = class(TForm)
-    siLang1: TsiLang;
     siLangCombo1: TsiLangCombo;
-    Label2: TLabel;
     Button1: TButton;
     Button2: TButton;
+    Label2: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
