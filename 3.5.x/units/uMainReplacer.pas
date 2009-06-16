@@ -12,7 +12,12 @@ uses
   Dialogs, ActnList;
 
 type
-  TL2PacketHackMain = class(TForm)
+  pShareMain = ^TShareMain;
+  TShareMain = record
+    ReciverHandle : Thandle;  //Сюда - хендл нашего приемника
+  end;
+
+  TfMainReplacer = class(TForm)
     ActionList1: TActionList;
     Action2: TAction;
     Action3: TAction;
@@ -35,6 +40,8 @@ type
     procedure Action10Execute(Sender: TObject);
     procedure Action1Execute(Sender: TObject);
   private
+    MapData : PShareMain;
+    MapHandle : THandle; 
     { Private declarations }
   public
     procedure NewPacket(var msg: TMessage); Message WM_NewPacket;
@@ -46,7 +53,7 @@ type
   end;
 
 var
-  L2PacketHackMain: TL2PacketHackMain;
+  fMainReplacer: TfMainReplacer;
 
 implementation
 uses
@@ -61,7 +68,7 @@ uses
 var
   c_s : TCriticalSection;
 
-procedure TL2PacketHackMain.NewAction(var msg: TMessage);
+procedure TfMainReplacer.NewAction(var msg: TMessage);
 var
   Tunel : Ttunel;
   EncDec : TencDec;
@@ -181,7 +188,7 @@ finally
 end;
 end;
 
-procedure TL2PacketHackMain.NewPacket(var msg: TMessage);
+procedure TfMainReplacer.NewPacket(var msg: TMessage);
 var
   temp : SendMessageParam;
 begin
@@ -202,7 +209,7 @@ finally
 end;
 end;
 
-procedure TL2PacketHackMain.ProcessPacket(var msg: TMessage);
+procedure TfMainReplacer.ProcessPacket(var msg: TMessage);
 var
 visual:tfvisual;
 begin
@@ -210,7 +217,7 @@ begin
   visual.processpacketfromacum;
 end;
 
-procedure TL2PacketHackMain.ReadMsg(var msg: TMessage);
+procedure TfMainReplacer.ReadMsg(var msg: TMessage);
 var
   NewReddirectIP: Integer;
   IPb:array[0..3] of Byte absolute NewReddirectIP;
@@ -238,19 +245,27 @@ c_s.Enter;
   end;
 c_s.Leave;
 end;
-procedure TL2PacketHackMain.FormDestroy(Sender: TObject);
+procedure TfMainReplacer.FormDestroy(Sender: TObject);
 begin
 c_s.Destroy;
 end;
 
-procedure TL2PacketHackMain.FormCreate(Sender: TObject);
+procedure TfMainReplacer.FormCreate(Sender: TObject);
 begin
   AppPath := ExtractFilePath(Application.ExeName);
   c_s := TCriticalSection.Create;
   left := -1000;
+  //Создаем мапфайл.
+  MapHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
+        PAGE_READWRITE, 0, SizeOf(TShareMain), 'l2packethacktorinject');
+  if MapHandle = 0 then
+    MapHandle := OpenFileMapping(PAGE_READWRITE, false, 'l2packethacktorinject');
+  MapData := MapViewOfFile(MapHandle, FILE_MAP_ALL_ACCESS,
+        0, 0, SizeOf(TShareMain));
+  MapData^.ReciverHandle := self.Handle;  
 end;
 
-procedure TL2PacketHackMain.Action1Execute(Sender: TObject);
+procedure TfMainReplacer.Action1Execute(Sender: TObject);
 begin
   if GetForegroundWindow = fPacketViewer.Handle then
     fPacketViewer.Hide
@@ -259,7 +274,7 @@ begin
 
 end;
 
-procedure TL2PacketHackMain.Action2Execute(Sender: TObject);
+procedure TfMainReplacer.Action2Execute(Sender: TObject);
 begin
   if GetForegroundWindow = fProcessRawLog.Handle then
     fProcessRawLog.Hide
@@ -267,7 +282,7 @@ begin
     fProcessRawLog.Show;
 end;
 
-procedure TL2PacketHackMain.Action3Execute(Sender: TObject);
+procedure TfMainReplacer.Action3Execute(Sender: TObject);
 begin
   if GetForegroundWindow = fSettings.Handle then
     fSettings.Hide
@@ -275,7 +290,7 @@ begin
     fSettings.Show;
 end;
 
-procedure TL2PacketHackMain.Action4Execute(Sender: TObject);
+procedure TfMainReplacer.Action4Execute(Sender: TObject);
 begin
   if GetForegroundWindow = fScript.Handle then
     fScript.Hide
@@ -284,7 +299,7 @@ begin
 
 end;
 
-procedure TL2PacketHackMain.Action6Execute(Sender: TObject);
+procedure TfMainReplacer.Action6Execute(Sender: TObject);
 begin
   if GetForegroundWindow = fPacketFilter.Handle then
     fPacketFilter.Hide
@@ -292,7 +307,7 @@ begin
     fPacketFilter.Show;
 end;
 
-procedure TL2PacketHackMain.Action7Execute(Sender: TObject);
+procedure TfMainReplacer.Action7Execute(Sender: TObject);
 begin
   if GetForegroundWindow = fPlugins.Handle then
     fPlugins.Hide
@@ -300,7 +315,7 @@ begin
     fPlugins.Show;
 end;
 
-procedure TL2PacketHackMain.Action8Execute(Sender: TObject);
+procedure TfMainReplacer.Action8Execute(Sender: TObject);
 begin
 if (GetForegroundWindow = UserForm.Handle) or not fMain.nUserFormShow.Enabled then
   UserForm.Hide
@@ -308,12 +323,12 @@ else
   UserForm.show;
 end;
 
-procedure TL2PacketHackMain.Action9Execute(Sender: TObject);
+procedure TfMainReplacer.Action9Execute(Sender: TObject);
 begin
   if fMain.Visible then fMain.BringToFront; 
 end;
 
-procedure TL2PacketHackMain.Action10Execute(Sender: TObject);
+procedure TfMainReplacer.Action10Execute(Sender: TObject);
 begin
 if GetForegroundWindow = fLog.Handle then
   fLog.Hide

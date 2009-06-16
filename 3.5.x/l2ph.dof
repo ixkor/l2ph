@@ -114,8 +114,8 @@ IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=3
 MinorVer=5
-Release=4
-Build=105
+Release=12
+Build=120
 Debug=0
 PreRelease=0
 Special=0
@@ -124,9 +124,9 @@ DLL=0
 Locale=1049
 CodePage=1251
 [Version Info Keys]
-CompanyName=
+CompanyName=CoderX.ru Team
 FileDescription=
-FileVersion=3.5.4.105
+FileVersion=3.5.12.120
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -146,6 +146,9 @@ Item0=component\
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=component\
+[HistoryLists\hlOutputDirectorry]
+Count=1
+Item0=Build\
 [HistoryLists\hlBPLOutput]
 Count=2
 Item0=.

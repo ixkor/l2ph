@@ -4,15 +4,6 @@ object dmData: TdmData
   OnDestroy = DataModuleDestroy
   Height = 269
   Width = 496
-  object LSPControl: TLSPModuleControl
-    onLspModuleState = LSPControlLspModuleState
-    onConnect = LSPControlConnect
-    onDisconnect = LSPControlDisconnect
-    onRecv = LSPControlRecv
-    onSend = LSPControlSend
-    Left = 40
-    Top = 16
-  end
   object timerSearchProcesses: TTimer
     Interval = 5000
     OnTimer = timerSearchProcessesTimer
@@ -37,15 +28,14 @@ object dmData: TdmData
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    LangDispatcher = fMain.siLangDispatcher
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'
       'Action3')
     LangNames.Strings = (
-      'Default'
+      'Default(Rus)'
       'English')
-    Language = 'Default'
+    Language = 'Default(Rus)'
     ExcludedProperties.Strings = (
       'Category'
       'SecondaryShortCuts'
@@ -90,5 +80,14 @@ object dmData: TdmData
       6C70012648656C70010D0A7374537472696E67730D0A73744F74686572537472
       696E67730D0A73744C6F63616C65730D0A7374436F6C6C656374696F6E730D0A
       737443686172536574730D0A}
+  end
+  object LSPControl: TLSPModuleControl
+    onLspModuleState = LSPControlLspModuleState
+    onConnect = LSPControlConnect
+    onDisconnect = LSPControlDisconnect
+    onRecv = LSPControlRecv
+    onSend = LSPControlSend
+    Left = 64
+    Top = 32
   end
 end

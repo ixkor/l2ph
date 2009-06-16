@@ -1,9 +1,9 @@
 object fEditorMain: TfEditorMain
   Left = 0
   Top = 0
+  Width = 627
+  Height = 473
   Caption = #1056#1077#1076#1072#1082#1090#1086#1088' '#1089#1082#1088#1080#1087#1090#1086#1074
-  ClientHeight = 415
-  ClientWidth = 611
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,34 +18,29 @@ object fEditorMain: TfEditorMain
   PixelsPerInch = 96
   TextHeight = 14
   object ToolBar: TToolBar
-    AlignWithMargins = True
-    Left = 2
-    Top = 2
-    Width = 607
-    Height = 23
-    Margins.Left = 2
-    Margins.Top = 2
-    Margins.Right = 2
-    Margins.Bottom = 0
+    Left = 0
+    Top = 0
+    Width = 611
+    Height = 27
     Images = ImageList1
     TabOrder = 0
     object tbUndo: TToolButton
       Left = 0
-      Top = 0
+      Top = 2
       Action = ecUndo1
       ParentShowHint = False
       ShowHint = True
     end
     object tbRedo: TToolButton
       Left = 23
-      Top = 0
+      Top = 2
       Action = ecCommandRedo
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton9: TToolButton
       Left = 46
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 4
@@ -55,35 +50,35 @@ object fEditorMain: TfEditorMain
     end
     object tbCopy: TToolButton
       Left = 54
-      Top = 0
+      Top = 2
       Action = ecCopy1
       ParentShowHint = False
       ShowHint = True
     end
     object tbCut: TToolButton
       Left = 77
-      Top = 0
+      Top = 2
       Action = ecCut1
       ParentShowHint = False
       ShowHint = True
     end
     object tbPaste: TToolButton
       Left = 100
-      Top = 0
+      Top = 2
       Action = ecPaste1
       ParentShowHint = False
       ShowHint = True
     end
     object tbDelete: TToolButton
       Left = 123
-      Top = 0
+      Top = 2
       Action = ecClear1
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton12: TToolButton
       Left = 146
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 34
@@ -93,14 +88,14 @@ object fEditorMain: TfEditorMain
     end
     object tbSyntEdit: TToolButton
       Left = 154
-      Top = 0
+      Top = 2
       Action = ecSyncEditMode1
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton16: TToolButton
       Left = 177
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 12
@@ -110,21 +105,21 @@ object fEditorMain: TfEditorMain
     end
     object tbSearch: TToolButton
       Left = 185
-      Top = 0
+      Top = 2
       Action = ecSearch1
       ParentShowHint = False
       ShowHint = True
     end
     object tbReplace: TToolButton
       Left = 208
-      Top = 0
+      Top = 2
       Action = ecReplace1
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton21: TToolButton
       Left = 231
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 34
@@ -134,21 +129,21 @@ object fEditorMain: TfEditorMain
     end
     object tbMoveLeft: TToolButton
       Left = 239
-      Top = 0
+      Top = 2
       Action = ecCommandAction1
       ParentShowHint = False
       ShowHint = True
     end
     object tbMoveRight: TToolButton
       Left = 262
-      Top = 0
+      Top = 2
       Action = ecCommandAction2
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton11: TToolButton
       Left = 285
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 79
@@ -158,28 +153,28 @@ object fEditorMain: TfEditorMain
     end
     object tbWordWrap: TToolButton
       Left = 293
-      Top = 0
+      Top = 2
       Action = ecToggleWordWrap1
       ParentShowHint = False
       ShowHint = True
     end
     object tbNonprinted: TToolButton
       Left = 316
-      Top = 0
+      Top = 2
       Action = ecToggleNonPrinted1
       ParentShowHint = False
       ShowHint = True
     end
     object tbToggleFolding: TToolButton
       Left = 339
-      Top = 0
+      Top = 2
       Action = ecToggleFolding1
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton31: TToolButton
       Left = 362
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 25
@@ -189,21 +184,21 @@ object fEditorMain: TfEditorMain
     end
     object tbSortAZ: TToolButton
       Left = 370
-      Top = 0
+      Top = 2
       Action = ecSortAscending1
       ParentShowHint = False
       ShowHint = True
     end
     object tbSortZA: TToolButton
       Left = 393
-      Top = 0
+      Top = 2
       Action = ecSortDescending1
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton67: TToolButton
       Left = 416
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 69
@@ -213,21 +208,21 @@ object fEditorMain: TfEditorMain
     end
     object tbMoveUp: TToolButton
       Left = 424
-      Top = 0
+      Top = 2
       Action = ecCommandAction4
       ParentShowHint = False
       ShowHint = True
     end
     object tbMoveDown: TToolButton
       Left = 447
-      Top = 0
+      Top = 2
       Action = ecCommandAction5
       ParentShowHint = False
       ShowHint = True
     end
     object ToolButton18: TToolButton
       Left = 470
-      Top = 0
+      Top = 2
       Width = 8
       Enabled = False
       ImageIndex = 33
@@ -237,28 +232,28 @@ object fEditorMain: TfEditorMain
     end
     object tbUserrangeFolding: TToolButton
       Left = 478
-      Top = 0
+      Top = 2
       Action = ecUserRangeCollapsable1
       ParentShowHint = False
       ShowHint = True
     end
     object tbuserrangeTop: TToolButton
       Left = 501
-      Top = 0
+      Top = 2
       Action = ecUserRangeTopLine1
       ParentShowHint = False
       ShowHint = True
     end
     object tbUserrangeBottom: TToolButton
       Left = 524
-      Top = 0
+      Top = 2
       Action = ecUserRangeBottomLine1
       ParentShowHint = False
       ShowHint = True
     end
     object tbUserrangeDelete: TToolButton
       Left = 547
-      Top = 0
+      Top = 2
       Action = ecUserRangeDelete1
       ParentShowHint = False
       ShowHint = True
@@ -6123,9 +6118,9 @@ object fEditorMain: TfEditorMain
       'SyntStyles1'
       'SyntAnalyser')
     LangNames.Strings = (
-      'Default'
+      'Default(Rus)'
       'English')
-    Language = 'Default'
+    Language = 'Default(Rus)'
     ExcludedProperties.Strings = (
       'Category'
       'SecondaryShortCuts'

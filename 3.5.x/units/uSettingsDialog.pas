@@ -61,6 +61,9 @@ type
     dlgOpenDll: TOpenDialog;
     isNewXor: TLabeledEdit;
     ChkLSPDeinstallonclose: TCheckBox;
+    Label3: TLabel;
+    isMainFormCaption: TEdit;
+    Bevel5: TBevel;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -78,6 +81,7 @@ type
     procedure BtnInjectClick(Sender: TObject);
     procedure BtnLspClick(Sender: TObject);
     procedure btnNewXorClick(Sender: TObject);
+    procedure isMainFormCaptionChange(Sender: TObject);
   protected
     procedure CreateParams(var Params : TCreateParams); override;
   private
@@ -97,26 +101,26 @@ var
 
 implementation
 
-uses uData, uLogForm, uFilterForm, uMain;
+uses uData, uLogForm, uFilterForm, uMain, uLangSelectDialog;
 
 {$R *.dfm}
 
 procedure TfSettings.readsettings;
 begin
-
   InterfaceEnabled := true;
-  if Options.ReadString('General', 'language', 'Rus') = 'Rus' then
-    fMain.RusLang.Checked := true
-  else
-    fMain.EngLang.Checked := true;
-  fMain.lang.Language := Options.ReadString('General', 'language', 'Rus');    
+  { TODO : я«ык. тут }
+
+  fLangSelectDialog.siLangCombo1.ItemIndex := Options.ReadInteger('General', 'language', 0);
+  fMain.lang.Language := fLangSelectDialog.siLangCombo1.Items.Strings[fLangSelectDialog.siLangCombo1.ItemIndex];
+  Application.ProcessMessages;
   InterfaceEnabled := false;
+
   //максимальное количество строк в логе
   MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',300);
   //максимальное количество строк в логе пакетов
   MaxLinesInPktLog:=Options.ReadInteger('General','MaxLinesInPktLog',3000);
 
-  isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe;l2helper.exe;');
+  isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe;l2helper.exe;l2.bin;');
   isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','5001;5002;5003;5004;2222;2106;80;2593;');
 
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
@@ -143,7 +147,8 @@ begin
   chkNoFree.Checked := Options.ReadBool('General','NoFreeAfterDisconnect',False);
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
   JvSpinEdit1.Value := Options.ReadFloat('General', 'interval', 5);
-
+  isMainFormCaption.Text := Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team');
+  
   ChkHexViewOffset.Checked := Options.ReadBool('General','HexViewOffset', True);
   chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
@@ -340,6 +345,12 @@ end;
 
 procedure TfSettings.ChkLSPInterceptClick(Sender: TObject);
 begin
+if (ExtractFilePath(isLSP.Text) = '') and ChkLSPIntercept.Checked then
+  begin
+    ChkLSPIntercept.Checked := false;
+    exit;
+  end;
+
   if ChkLSPIntercept.Checked then
   begin
     isLSP.Enabled := false;
@@ -404,8 +415,11 @@ begin
     AddToLog(format(rsUnLoadDllSuccessfully,[isInject.Text]));
   end
   else
+  if ExtractFilePath(isInject.Text) = '' then
+    iInject.Checked := false
+  else
   if not LoadLibraryInject (isInject.Text) then
-      iInject.Checked := false;
+    iInject.Checked := false;
 
   isInject.Enabled := not iInject.Checked;
   BtnInject.Enabled := not iInject.Checked;
@@ -430,10 +444,15 @@ end;
 
 procedure TfSettings.init;
 begin
-  if not FileExists(AppPath+'settings\Options.ini') then
-    MessageBox(0, pchar(lang.GetTextOrDefault('IDS_129' (* '‘айл настроек отстутсвует' *) )), '!!!!!!', MB_OK);
   //считываем Options.ini в пам€ть
   Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
+
+  if not FileExists(AppPath+'settings\Options.ini') then
+    begin
+      fLangSelectDialog.ShowModal;
+      Show;
+    end;
+
   readsettings;
   GenerateSettingsFromInterface;
   if ChkShowLogWinOnStart.Checked then fLog.show;
@@ -473,6 +492,11 @@ procedure TfSettings.btnNewXorClick(Sender: TObject);
 begin
 if dlgOpenDll.Execute then
   isNewxor.Text := dlgOpenDll.FileName;
+end;
+
+procedure TfSettings.isMainFormCaptionChange(Sender: TObject);
+begin
+fMain.Caption := format(isMainFormCaption.Text, [uGlobalFuncs.getversion]);
 end;
 
 end.

@@ -68,9 +68,9 @@ type
   end;
   
   TdmData = class(TDataModule)
-    LSPControl: TLSPModuleControl;
     timerSearchProcesses: TTimer;
     lang: TsiLang;
+    LSPControl: TLSPModuleControl;
     procedure LSPControlLspModuleState(state: Byte);
     procedure timerSearchProcessesTimer(Sender: TObject);
     procedure DataModuleCreate(Sender: TObject);

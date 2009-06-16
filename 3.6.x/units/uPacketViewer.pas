@@ -26,7 +26,6 @@ type
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
-    var
     PacketView : TfPacketView;
     { Private declarations }
   public

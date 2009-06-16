@@ -478,7 +478,7 @@ begin
       else
         StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
 
-    Label1.Caption:='Выделенный пакет: тип - 0x'+IntToHex(id,2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
+    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id,2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
 
     //начинаем разбирать пакет по заданному в packets.ini формату
     //смещение в ini
@@ -489,7 +489,7 @@ begin
     //Memo2.Lines.BeginUpdate;
     
     //Добавляем тип
-    rvDescryption.AddNL('Tип: ',0,0);
+    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ),0,0);
     rvDescryption.AddNLTag('0x'+IntToHex(id,2),11,-1,1);
     rvDescryption.AddNL(' (',0,-1);
     rvDescryption.AddNL(PacketName,1,-1);

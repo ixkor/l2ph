@@ -636,7 +636,7 @@ end;
 procedure TfVisual.OpenBtnClick(Sender: TObject);
 begin
 ChDir(AppPath+'logs\');
-  if DlgOpenPacket.Execute then Memo4.Lines.SaveToFile(DlgOpenPacket.FileName);
+  if DlgOpenPacket.Execute then Memo4.Lines.LoadFromFile(DlgOpenPacket.FileName);
 ChDir(AppPath+'settings\');
 end;
 

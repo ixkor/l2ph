@@ -427,15 +427,17 @@ procedure TfSettings.init;
 begin
   //считываем Options.ini в память
   Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
-  readsettings;
-  GenerateSettingsFromInterface;
-  if ChkShowLogWinOnStart.Checked then fLog.show;
+
   if not FileExists(AppPath+'settings\Options.ini') then
     begin
       fLangSelectDialog.ShowModal;
       Show;
     end;
-  
+
+  readsettings;
+  GenerateSettingsFromInterface;
+  if ChkShowLogWinOnStart.Checked then fLog.show;
+
 end;
 
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);

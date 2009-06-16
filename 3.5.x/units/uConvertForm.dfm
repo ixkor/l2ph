@@ -1,11 +1,11 @@
 object fConvert: TfConvert
   Left = 192
   Top = 114
+  Width = 737
+  Height = 231
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103
-  ClientHeight = 193
-  ClientWidth = 721
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -31,7 +31,6 @@ object fConvert: TfConvert
       Top = 15
       Height = 157
       ResizeStyle = rsUpdate
-      ExplicitHeight = 149
     end
     object Panel5: TPanel
       Left = 359

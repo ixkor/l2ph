@@ -51,14 +51,12 @@ type
     nExit: TMenuItem;
     JvTrayIcon1: TJvTrayIcon;
     nShowHide: TMenuItem;
-    N14: TMenuItem;
-    nLanguage: TMenuItem;
     lang1: TsiLang;
-    RusLang: TMenuItem;
-    EngLang: TMenuItem;
     l2ph1: TMenuItem;
     lang: TsiLangDispatcher;
     N1: TMenuItem;
+    N3: TMenuItem;
+    Language1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);
@@ -77,14 +75,13 @@ type
     procedure nScriptsShowClick(Sender: TObject);
     procedure nShowHideClick(Sender: TObject);
     procedure nExitClick(Sender: TObject);
-    procedure RusLangClick(Sender: TObject);
-    procedure EngLangClick(Sender: TObject);
     procedure Action9Execute(Sender: TObject);
     procedure l2ph1Click(Sender: TObject);
     procedure lang1ChangeLanguage(Sender: TObject);
     procedure UpdateStrings;
     procedure pcClientsConnectionChange(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure Language1Click(Sender: TObject);
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
@@ -107,7 +104,7 @@ implementation
 uses uPlugins, uPluginData, usocketengine, winsock, uEncDec, uVisualContainer,
   uSettingsDialog, uLogForm, uConvertForm, uFilterForm, uProcesses,
   uAboutDialog, uData, uUserForm, uProcessRawLog, uScripts, Math,
-  uMainReplacer, uPacketViewer;
+  uMainReplacer, uPacketViewer, uLangSelectDialog;
  
 
 {$R *.dfm}
@@ -120,12 +117,11 @@ var
 begin
   deltemps; //׃האכÿול *.temp פאיכû
   JvTrayIcon1.ShowApplication;
-  ShowWindow(L2PacketHackMain.Handle,sw_hide);
+  ShowWindow(fMainReplacer.Handle,sw_hide);
   ShowWindow(application.Handle,sw_hide);
 
   ver := uGlobalFuncs.getversion;
   Splash.Caption := 'L2PacketHack v'+ ver;
-  Caption := format(Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team'), [ver]);
   fAbout.AboutMemo.Lines.Add('L2PacketHack v' + ver);
   fAbout.AboutMemo.Lines.Add('');
   fAbout.AboutMemo.Lines.Add(lang1.GetTextOrDefault('IDS_6'));
@@ -268,6 +264,7 @@ procedure TfMain.nOpenPlogClick(Sender: TObject);
 var
   NewPacketLogWiev : TpacketLogWiev;
 begin
+  ChDir(AppPath+'logs\');
   if dlgOpenLog.Execute then
   if FileExists(dlgOpenLog.FileName) then
   begin
@@ -275,6 +272,7 @@ begin
     NewPacketLogWiev.INIT(dlgOpenLog.FileName);
     NewPacketLogWiev.AssignedTabSheet.Show;
   end;
+  ChDir(AppPath+'settings\');
 end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject;
@@ -327,7 +325,7 @@ begin
   else
     begin
     JvTrayIcon1.ShowApplication;
-    ShowWindow(L2PacketHackMain.Handle,sw_hide);
+    ShowWindow(fMainReplacer.Handle,sw_hide);
     ShowWindow(application.Handle,sw_hide);
     end;
 end;
@@ -335,18 +333,6 @@ end;
 procedure TfMain.nExitClick(Sender: TObject);
 begin
 close;
-end;
-
-procedure TfMain.RusLangClick(Sender: TObject);
-begin
-EngLang.Checked := False;
-lang.Language := 'Rus';
-end;
-
-procedure TfMain.EngLangClick(Sender: TObject);
-begin
-EngLang.Checked := true;
-lang.Language := 'Eng';
 end;
 
 procedure TfMain.Action9Execute(Sender: TObject);
@@ -436,6 +422,11 @@ if Assigned(pcClientsConnection.ActivePage) then
     TfVisual(pcClientsConnection.ActivePage.Components[0]).Repaint;
     TfVisual(pcClientsConnection.ActivePage.Components[0]).Invalidate;
   end;
+end;
+
+procedure TfMain.Language1Click(Sender: TObject);
+begin
+fLangSelectDialog.show;
 end;
 
 end.

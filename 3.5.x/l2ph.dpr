@@ -33,8 +33,9 @@ uses
   uScriptEditor in 'units\uScriptEditor.pas' {fScriptEditor: TFrame},
   uPacketView in 'units\uPacketView.pas' {fPacketView: TFrame},
   uClassesDLG in 'units\uClassesDLG.pas' {fClassesDLG},
-  uMainReplacer in 'units\uMainReplacer.pas' {L2PacketHackMain},
-  uPacketViewer in 'units\uPacketViewer.pas' {fPacketViewer};
+  uMainReplacer in 'units\uMainReplacer.pas' {fMainReplacer},
+  uPacketViewer in 'units\uPacketViewer.pas' {fPacketViewer},
+  uLangSelectDialog in 'units\uLangSelectDialog.pas' {fLangSelectDialog};
 
 {$R *.res}
 Procedure Check2stInstance;
@@ -63,7 +64,7 @@ begin
   isGlobalDestroying := false;
   Application.Initialize;
   Application.Title := 'L2PacketHack';
-  Application.CreateForm(TL2PacketHackMain, L2PacketHackMain);
+  Application.CreateForm(TfMainReplacer, fMainReplacer);
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TfAbout, fAbout);
   Application.CreateForm(TfConvert, fConvert);
@@ -78,6 +79,7 @@ begin
   Application.CreateForm(TfPlugins, fPlugins);
   Application.CreateForm(TfClassesDLG, fClassesDLG);
   Application.CreateForm(TfPacketViewer, fPacketViewer);
+  Application.CreateForm(TfLangSelectDialog, fLangSelectDialog);
   Application.ShowMainForm := false;
   fSettings.init;
   fMain.INIT;

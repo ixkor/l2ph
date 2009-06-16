@@ -122,7 +122,7 @@ var
   found : Tunit;
 begin
 if assigned(UnitList.Selected) then
-  if MessageDlg(format(rsDeleteUnitConfirm,[UnitList.Selected.Caption]),mtWarning,[mbYes,mbNo],0,mbNo) = mrYes then
+  if MessageDlg(format(rsDeleteUnitConfirm,[UnitList.Selected.Caption]),mtWarning,[mbYes,mbNo],0) = mrYes then
   begin
     found := tunit(TScriptProject(Project).FindUnit(UnitList.Selected.Caption));
   if Assigned(found) then

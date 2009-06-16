@@ -1,11 +1,11 @@
 object fConvert: TfConvert
   Left = 192
   Top = 114
+  Width = 650
+  Height = 271
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103
-  ClientHeight = 233
-  ClientWidth = 634
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -31,8 +31,6 @@ object fConvert: TfConvert
       Top = 15
       Height = 197
       ResizeStyle = rsUpdate
-      ExplicitLeft = 356
-      ExplicitHeight = 149
     end
     object Panel5: TPanel
       Left = 310
@@ -230,9 +228,9 @@ object fConvert: TfConvert
       'Action2'
       'Action3')
     LangNames.Strings = (
-      'Default'
+      'Default(Rus)'
       'English')
-    Language = 'Default'
+    Language = 'Default(Rus)'
     ExcludedProperties.Strings = (
       'Category'
       'SecondaryShortCuts'
