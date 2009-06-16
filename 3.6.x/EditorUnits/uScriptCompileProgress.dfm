@@ -1,6 +1,6 @@
 object fScriptCompileProgress: TfScriptCompileProgress
-  Left = 0
-  Top = 0
+  Left = 303
+  Top = 192
   BorderStyle = bsToolWindow
   Caption = #1050#1086#1084#1087#1080#1083#1080#1088#1086#1074#1072#1085#1080#1077'...'
   ClientHeight = 211
@@ -21,15 +21,10 @@ object fScriptCompileProgress: TfScriptCompileProgress
   PixelsPerInch = 96
   TextHeight = 13
   object Button1: TButton
-    AlignWithMargins = True
     Left = 15
     Top = 181
     Width = 332
     Height = 25
-    Margins.Left = 15
-    Margins.Right = 15
-    Margins.Bottom = 5
-    Align = alBottom
     Caption = 'OK'
     TabOrder = 0
     OnClick = Button1Click
@@ -55,8 +50,6 @@ object fScriptCompileProgress: TfScriptCompileProgress
         Width = 325
         Height = 16
         Align = alClient
-        ExplicitWidth = 3
-        ExplicitHeight = 13
       end
     end
     object PanelStatus: TPanel
@@ -73,8 +66,6 @@ object fScriptCompileProgress: TfScriptCompileProgress
         Width = 325
         Height = 16
         Align = alClient
-        ExplicitWidth = 3
-        ExplicitHeight = 13
       end
     end
     object PanelCurrLine: TPanel
@@ -92,7 +83,6 @@ object fScriptCompileProgress: TfScriptCompileProgress
         Height = 16
         Align = alLeft
         Caption = #1058#1077#1082#1091#1097#1072#1103' '#1083#1080#1085#1080#1103':'
-        ExplicitHeight = 13
       end
       object LabelCurrLineNumber: TLabel
         Left = 84
@@ -101,9 +91,6 @@ object fScriptCompileProgress: TfScriptCompileProgress
         Height = 16
         Align = alClient
         Alignment = taRightJustify
-        ExplicitLeft = 322
-        ExplicitWidth = 3
-        ExplicitHeight = 13
       end
     end
     object PanelError: TPanel
@@ -120,21 +107,14 @@ object fScriptCompileProgress: TfScriptCompileProgress
         Width = 325
         Height = 16
         Align = alClient
-        ExplicitWidth = 3
-        ExplicitHeight = 13
       end
     end
   end
   object autoclose: TCheckBox
-    AlignWithMargins = True
     Left = 15
     Top = 153
     Width = 332
     Height = 17
-    Margins.Left = 15
-    Margins.Top = 8
-    Margins.Right = 15
-    Align = alTop
     Caption = #1047#1072#1082#1088#1099#1074#1072#1090#1100' '#1101#1090#1086' '#1086#1082#1085#1086' '#1072#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1080
     TabOrder = 2
     OnClick = autocloseClick
@@ -151,9 +131,9 @@ object fScriptCompileProgress: TfScriptCompileProgress
     LangDispatcher = fMain.siLangDispatcher
     LangDelim = 1
     LangNames.Strings = (
-      'Default'
+      'Default(Rus)'
       'English')
-    Language = 'Default'
+    Language = 'Default(Rus)'
     CommonContainer = fEditorMain.siLang1
     ExcludedProperties.Strings = (
       'Category'

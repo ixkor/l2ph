@@ -1,8 +1,8 @@
 object ScriptProjectVisual: TScriptProjectVisual
   Left = 0
   Top = 0
-  Width = 451
-  Height = 378
+  Width = 579
+  Height = 480
   Align = alClient
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,36 +12,27 @@ object ScriptProjectVisual: TScriptProjectVisual
   ParentFont = False
   TabOrder = 0
   TabStop = True
-  ExplicitHeight = 304
   object Bevel1: TBevel
     Left = 0
-    Top = 22
-    Width = 451
+    Top = 27
+    Width = 579
     Height = 2
     Align = alTop
     Shape = bsTopLine
-    ExplicitLeft = -2
-    ExplicitTop = 0
   end
   object btm: TPanel
     Left = 0
-    Top = 251
-    Width = 451
+    Top = 353
+    Width = 579
     Height = 127
     Align = alBottom
     TabOrder = 0
     Visible = False
-    ExplicitTop = 177
     object LVariables: TListView
-      AlignWithMargins = True
       Left = 1
       Top = 1
-      Width = 449
-      Height = 123
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 2
+      Width = 577
+      Height = 125
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -66,15 +57,10 @@ object ScriptProjectVisual: TScriptProjectVisual
       ViewStyle = vsReport
     end
     object LPrints: TListBox
-      AlignWithMargins = True
       Left = 1
       Top = 1
-      Width = 449
-      Height = 123
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 2
+      Width = 577
+      Height = 125
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -85,15 +71,10 @@ object ScriptProjectVisual: TScriptProjectVisual
       TabOrder = 2
     end
     object LCallStack: TListView
-      AlignWithMargins = True
       Left = 1
       Top = 1
-      Width = 449
-      Height = 123
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 2
+      Width = 577
+      Height = 125
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -122,15 +103,10 @@ object ScriptProjectVisual: TScriptProjectVisual
       ViewStyle = vsReport
     end
     object LWatchList: TListView
-      AlignWithMargins = True
       Left = 1
       Top = 1
-      Width = 449
-      Height = 123
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 2
+      Width = 577
+      Height = 125
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -156,15 +132,10 @@ object ScriptProjectVisual: TScriptProjectVisual
       ViewStyle = vsReport
     end
     object LErrorsWatch: TListView
-      AlignWithMargins = True
       Left = 1
       Top = 1
-      Width = 449
-      Height = 123
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 0
-      Margins.Bottom = 2
+      Width = 577
+      Height = 125
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -192,17 +163,16 @@ object ScriptProjectVisual: TScriptProjectVisual
   end
   object EditorsContainer: TPanel
     Left = 0
-    Top = 24
-    Width = 451
-    Height = 227
+    Top = 29
+    Width = 579
+    Height = 324
     Align = alClient
     ParentColor = True
     TabOrder = 1
-    ExplicitHeight = 153
     object Tabbar: TJvTabBar
       Left = 1
       Top = 1
-      Width = 449
+      Width = 577
       AutoFreeClosed = False
       AllowTabMoving = True
       Images = ImageList
@@ -213,42 +183,37 @@ object ScriptProjectVisual: TScriptProjectVisual
     object ProjContainer: TPanel
       Left = 1
       Top = 24
-      Width = 449
-      Height = 202
+      Width = 577
+      Height = 299
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 128
       object ProjectPNL: TPanel
         Left = 0
         Top = 0
-        Width = 449
-        Height = 202
+        Width = 577
+        Height = 299
         Align = alClient
-        BevelEdges = []
         BevelOuter = bvNone
         Ctl3D = False
         ParentCtl3D = False
         TabOrder = 0
-        ExplicitHeight = 128
         object JvPageControl1: TJvPageControl
           Left = 0
           Top = 0
-          Width = 449
-          Height = 202
+          Width = 577
+          Height = 299
           ActivePage = TabSheet2
           Align = alClient
           TabOrder = 0
           ClientBorderWidth = 2
-          ExplicitHeight = 128
           object TabSheet2: TTabSheet
             Caption = #1070#1085#1080#1090#1099
-            ExplicitHeight = 104
             object UnitList: TListView
               Left = 0
               Top = 0
-              Width = 421
-              Height = 178
+              Width = 549
+              Height = 275
               Align = alClient
               BevelOuter = bvNone
               BevelKind = bkSoft
@@ -267,36 +232,24 @@ object ScriptProjectVisual: TScriptProjectVisual
               TabOrder = 0
               ViewStyle = vsReport
               OnDblClick = JvSpeedButton1Click
-              ExplicitHeight = 104
             end
             object Panel5: TPanel
-              Left = 421
+              Left = 549
               Top = 0
               Width = 24
-              Height = 178
-              Margins.Left = 2
-              Margins.Top = 0
-              Margins.Right = 2
-              Margins.Bottom = 0
+              Height = 275
               Align = alRight
-              BevelEdges = []
               BevelOuter = bvNone
               Ctl3D = False
               ParentColor = True
               ParentCtl3D = False
               TabOrder = 1
-              ExplicitHeight = 104
               object btnUnitRename: TJvSpeedButton
-                AlignWithMargins = True
-                Left = 1
-                Top = 57
-                Width = 22
+                Left = 0
+                Top = 46
+                Width = 24
                 Height = 22
                 Hint = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1102#1085#1080#1090
-                Margins.Left = 1
-                Margins.Top = 1
-                Margins.Right = 1
-                Margins.Bottom = 1
                 Align = alTop
                 Flat = True
                 Glyph.Data = {
@@ -340,20 +293,13 @@ object ScriptProjectVisual: TScriptProjectVisual
                 HotTrackFont.Name = 'Tahoma'
                 HotTrackFont.Style = []
                 OnClick = btnUnitRenameClick
-                ExplicitLeft = 2
-                ExplicitTop = 60
               end
               object btnUnitDelete: TJvSpeedButton
-                AlignWithMargins = True
-                Left = 1
-                Top = 81
-                Width = 22
+                Left = 0
+                Top = 68
+                Width = 24
                 Height = 22
                 Hint = #1059#1076#1072#1083#1080#1090#1100' '#1102#1085#1080#1090' '#1089' '#1087#1088#1086#1077#1082#1090#1072
-                Margins.Left = 1
-                Margins.Top = 1
-                Margins.Right = 1
-                Margins.Bottom = 1
                 Align = alTop
                 Flat = True
                 Glyph.Data = {
@@ -397,20 +343,13 @@ object ScriptProjectVisual: TScriptProjectVisual
                 HotTrackFont.Name = 'Tahoma'
                 HotTrackFont.Style = []
                 OnClick = btnUnitDeleteClick
-                ExplicitLeft = 2
-                ExplicitTop = 61
               end
               object btnNewUnit: TJvSpeedButton
-                AlignWithMargins = True
-                Left = 1
-                Top = 33
-                Width = 22
+                Left = 0
+                Top = 24
+                Width = 24
                 Height = 22
                 Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1102#1085#1080#1090
-                Margins.Left = 1
-                Margins.Top = 1
-                Margins.Right = 1
-                Margins.Bottom = 1
                 Align = alTop
                 DropDownMenu = newunitPopup
                 Flat = True
@@ -454,20 +393,13 @@ object ScriptProjectVisual: TScriptProjectVisual
                 HotTrackFont.Height = -11
                 HotTrackFont.Name = 'Tahoma'
                 HotTrackFont.Style = []
-                ExplicitLeft = 2
-                ExplicitTop = 1
               end
               object JvSpeedButton1: TJvSpeedButton
-                AlignWithMargins = True
-                Left = 1
-                Top = 1
-                Width = 22
+                Left = 0
+                Top = 0
+                Width = 24
                 Height = 22
                 Hint = #1054#1090#1082#1088#1099#1090#1100' '#1102#1085#1080#1090
-                Margins.Left = 1
-                Margins.Top = 1
-                Margins.Right = 1
-                Margins.Bottom = 1
                 Align = alTop
                 Flat = True
                 Glyph.Data = {
@@ -519,16 +451,12 @@ object ScriptProjectVisual: TScriptProjectVisual
                 HotTrackFont.Name = 'Tahoma'
                 HotTrackFont.Style = []
                 OnClick = JvSpeedButton1Click
-                ExplicitLeft = 4
               end
               object Panel7: TPanel
-                AlignWithMargins = True
                 Left = 0
-                Top = 27
+                Top = 22
                 Width = 24
                 Height = 2
-                Margins.Left = 0
-                Margins.Right = 0
                 Align = alTop
                 BevelOuter = bvLowered
                 TabOrder = 0
@@ -538,20 +466,13 @@ object ScriptProjectVisual: TScriptProjectVisual
           object TabSheet3: TTabSheet
             Caption = #1054#1087#1080#1089#1072#1085#1080#1077
             ImageIndex = 1
-            ExplicitHeight = 104
             object descryption: TMemo
-              AlignWithMargins = True
               Left = 0
               Top = 0
               Width = 443
               Height = 178
-              Margins.Left = 0
-              Margins.Top = 0
-              Margins.Right = 2
-              Margins.Bottom = 0
               Align = alClient
               TabOrder = 0
-              ExplicitHeight = 104
             end
           end
         end
@@ -561,17 +482,13 @@ object ScriptProjectVisual: TScriptProjectVisual
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 451
-    Height = 22
-    Margins.Left = 0
-    Margins.Top = 2
-    Margins.Right = 0
-    Margins.Bottom = 0
+    Width = 579
+    Height = 27
     Images = fEditorMain.ImageList1
     TabOrder = 2
     object tbSave: TToolButton
       Left = 0
-      Top = 0
+      Top = 2
       Hint = #1057#1086#1093#1088#1072#1085#1103#1077#1090' '#1090#1077#1082#1091#1097#1080#1081' '#1102#1085#1080#1090'/'#1055#1088#1086#1077#1082#1090
       ImageIndex = 42
       ParentShowHint = False
@@ -580,7 +497,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbSaveAll: TToolButton
       Left = 23
-      Top = 0
+      Top = 2
       Hint = #1057#1086#1093#1088#1072#1085#1103#1077#1090' '#1074#1089#1077' '#1102#1085#1080#1090#1099' '#1080' '#1087#1088#1086#1077#1082#1090
       ImageIndex = 43
       ParentShowHint = False
@@ -589,14 +506,14 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object ToolButton3: TToolButton
       Left = 46
-      Top = 0
+      Top = 2
       Width = 8
       ImageIndex = 2
       Style = tbsSeparator
     end
     object tbCompile: TToolButton
       Left = 54
-      Top = 0
+      Top = 2
       Hint = #1055#1088#1086#1074#1077#1088#1082#1072' '#1089#1080#1085#1090#1072#1082#1089#1080#1089#1072'/'#1050#1086#1084#1087#1080#1083#1080#1088#1086#1074#1072#1085#1080#1077
       ImageIndex = 44
       ParentShowHint = False
@@ -605,7 +522,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbInit: TToolButton
       Left = 77
-      Top = 0
+      Top = 2
       Hint = #1050#1086#1084#1087#1080#1083#1080#1088#1091#1077#1090', '#1042#1099#1079#1099#1074#1072#1077#1090' '#1087#1088#1086#1094#1077#1076#1091#1088#1091' Init '#1089' '#1089#1082#1088#1080#1087#1090#1072
       ImageIndex = 45
       ParentShowHint = False
@@ -614,7 +531,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbFree: TToolButton
       Left = 100
-      Top = 0
+      Top = 2
       Hint = #1050#1086#1084#1087#1080#1083#1080#1088#1091#1077#1090', '#1042#1099#1079#1099#1074#1072#1077#1090' '#1087#1088#1086#1094#1077#1076#1091#1088#1091' Free '#1089' '#1089#1082#1088#1080#1087#1090#1072
       Enabled = False
       ImageIndex = 46
@@ -624,7 +541,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbTerminate: TToolButton
       Left = 123
-      Top = 0
+      Top = 2
       Hint = #1055#1088#1077#1088#1099#1074#1072#1077#1090' '#1074#1099#1087#1086#1083#1085#1077#1085#1080#1077' '#1089#1082#1088#1080#1087#1090#1072
       Enabled = False
       ImageIndex = 47
@@ -634,14 +551,14 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object ToolButton2: TToolButton
       Left = 146
-      Top = 0
+      Top = 2
       Width = 8
       ImageIndex = 42
       Style = tbsSeparator
     end
     object tbUsing: TToolButton
       Left = 154
-      Top = 0
+      Top = 2
       Hint = #1054#1073#1088#1072#1073#1072#1090#1099#1074#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1101#1090#1080#1084' '#1089#1082#1088#1080#1087#1090#1086#1084
       ImageIndex = 58
       ParentShowHint = False
@@ -651,14 +568,14 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object ToolButton8: TToolButton
       Left = 177
-      Top = 0
+      Top = 2
       Width = 8
       ImageIndex = 6
       Style = tbsSeparator
     end
     object tbShowErrors: TToolButton
       Left = 185
-      Top = 0
+      Top = 2
       Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1083#1086#1075' '#1086#1096#1080#1073#1086#1082
       ImageIndex = 48
       ParentShowHint = False
@@ -667,7 +584,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbShowPrints: TToolButton
       Left = 208
-      Top = 0
+      Top = 2
       Hint = 'Show Print'#39's'
       DropdownMenu = PrintsBtnMenu
       ImageIndex = 51
@@ -676,7 +593,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbShowCallstack: TToolButton
       Left = 231
-      Top = 0
+      Top = 2
       Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1089#1090#1077#1082
       ImageIndex = 49
       ParentShowHint = False
@@ -685,7 +602,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbShowVariables: TToolButton
       Left = 254
-      Top = 0
+      Top = 2
       Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1087#1077#1088#1077#1084#1077#1085#1085#1099#1077
       ImageIndex = 52
       ParentShowHint = False
@@ -694,7 +611,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbShowWatchList: TToolButton
       Left = 277
-      Top = 0
+      Top = 2
       Hint = 'WatchList'
       DropdownMenu = WatchBntmenu
       ImageIndex = 50
@@ -704,7 +621,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object tbShowObjInspector: TToolButton
       Left = 300
-      Top = 0
+      Top = 2
       Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1080#1085#1089#1087#1077#1082#1090#1086#1088' '#1086#1073#1100#1077#1082#1090#1086#1074
       ImageIndex = 41
       ParentShowHint = False
@@ -714,7 +631,7 @@ object ScriptProjectVisual: TScriptProjectVisual
     end
     object OnlyModulePnl: TPanel
       Left = 323
-      Top = 0
+      Top = 2
       Width = 78
       Height = 22
       Align = alClient
@@ -725,18 +642,20 @@ object ScriptProjectVisual: TScriptProjectVisual
         Top = 0
         Width = 78
         Height = 22
+        EdgeInner = esNone
+        EdgeOuter = esNone
         Images = fEditorMain.ImageList1
         TabOrder = 0
         object ToolButton15: TToolButton
           Left = 0
-          Top = 0
+          Top = 2
           Width = 8
           ImageIndex = 1
           Style = tbsSeparator
         end
         object tbShowUnitTree: TToolButton
           Left = 8
-          Top = 0
+          Top = 2
           Hint = #1054#1090#1086#1073#1088#1072#1078#1072#1077#1090' '#1076#1077#1088#1077#1074#1086' '#1082#1083#1072#1089#1089#1086#1074' '#1089#1082#1088#1080#1087#1090#1072
           ImageIndex = 53
           ParentShowHint = False
@@ -1013,9 +932,9 @@ object ScriptProjectVisual: TScriptProjectVisual
     LangDispatcher = fMain.siLangDispatcher
     LangDelim = 1
     LangNames.Strings = (
-      'Default'
+      'Default(Rus)'
       'English')
-    Language = 'Default'
+    Language = 'Default(Rus)'
     CommonContainer = fEditorMain.siLang1
     ExcludedProperties.Strings = (
       'Category'

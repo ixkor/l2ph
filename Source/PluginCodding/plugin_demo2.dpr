@@ -16,7 +16,7 @@ uses
 
 
 var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,1,      98   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,12,      120   );
   min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct; // структура передаваемая в плагин
 
@@ -27,11 +27,11 @@ function GetPluginInfo(const ver: Integer): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.1.98+'+sLineBreak+
+            'Для версий 3.5.12.120+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.1.98+'+sLineBreak+
+            'Для версий 3.5.12.120+'+sLineBreak+
             'Показывает каким образом можно добавить свою функцию/процедуру в ПХ'+sLineBreak+
             '';
 end;
@@ -147,7 +147,7 @@ end;
 // cnt - номер соединения
 // fromServer - если пакет от сервера равна True, если от клиента то False
 // pck - собственно пакет (в виде массива)
-procedure OnPacket(const cnt: Cardinal; const fromServer: Boolean; var pck: TPacket); stdcall;
+procedure OnPacket(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var pck: TPacket); stdcall;
 begin
   if pck.size<3 then exit; // на случай если предыдущие плагины обнулили пакет
 

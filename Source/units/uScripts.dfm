@@ -1,9 +1,9 @@
 object fScript: TfScript
   Left = 339
   Top = 235
+  Width = 737
+  Height = 517
   Caption = #1057#1082#1088#1080#1087#1090#1099'/'#1057#1082#1088#1080#1087#1090#1080#1085#1075
-  ClientHeight = 479
-  ClientWidth = 721
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -84,7 +84,7 @@ object fScript: TfScript
     TabOrder = 2
     object btnNew: TToolButton
       Left = 0
-      Top = 0
+      Top = 2
       Hint = #1053#1086#1074#1099#1081' '#1089#1082#1088#1080#1087#1090
       ImageIndex = 4
       ParentShowHint = False
@@ -93,7 +93,7 @@ object fScript: TfScript
     end
     object BtnSave: TToolButton
       Left = 23
-      Top = 0
+      Top = 2
       Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1090#1077#1082#1091#1097#1080#1081' '#1089#1082#1088#1080#1087#1090
       ImageIndex = 0
       ParentShowHint = False
@@ -102,7 +102,7 @@ object fScript: TfScript
     end
     object btnLoad: TToolButton
       Left = 46
-      Top = 0
+      Top = 2
       Hint = #1057#1086#1079#1076#1072#1105#1090' '#1085#1086#1074#1099#1081' '#1089#1082#1088#1080#1087#1090' '#1080#1079' '#1091#1082#1072#1079#1072#1085#1085#1086#1075#1086' '#1092#1072#1081#1083#1072
       ImageIndex = 1
       ParentShowHint = False
@@ -111,14 +111,14 @@ object fScript: TfScript
     end
     object ToolButton10: TToolButton
       Left = 69
-      Top = 0
+      Top = 2
       Width = 16
       ImageIndex = 8
       Style = tbsSeparator
     end
     object btnRename: TToolButton
       Left = 85
-      Top = 0
+      Top = 2
       Hint = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1090#1077#1082#1091#1097#1080#1081' '#1089#1082#1088#1080#1087#1090
       ImageIndex = 2
       ParentShowHint = False
@@ -127,7 +127,7 @@ object fScript: TfScript
     end
     object btnDelete: TToolButton
       Left = 108
-      Top = 0
+      Top = 2
       Hint = #1059#1076#1072#1083#1080#1090#1100' '#1090#1077#1082#1091#1097#1080#1081' '#1089#1082#1088#1080#1087#1090
       ImageIndex = 3
       ParentShowHint = False
@@ -136,14 +136,14 @@ object fScript: TfScript
     end
     object ToolButton11: TToolButton
       Left = 131
-      Top = 0
+      Top = 2
       Width = 16
       ImageIndex = 8
       Style = tbsSeparator
     end
     object btnCompile: TToolButton
       Left = 147
-      Top = 0
+      Top = 2
       Hint = #1055#1088#1086#1074#1077#1088#1080#1090#1100' '#1089#1080#1085#1090#1072#1082#1089#1080#1089' '#1080' '#1089#1082#1086#1084#1087#1080#1083#1080#1088#1086#1074#1072#1090#1100
       ImageIndex = 5
       ParentShowHint = False
@@ -152,7 +152,7 @@ object fScript: TfScript
     end
     object btnInitTest: TToolButton
       Left = 170
-      Top = 0
+      Top = 2
       Hint = 'Test init'
       ImageIndex = 6
       ParentShowHint = False
@@ -161,7 +161,7 @@ object fScript: TfScript
     end
     object btnFreeTest: TToolButton
       Left = 193
-      Top = 0
+      Top = 2
       Hint = 'Test Free'
       ImageIndex = 7
       ParentShowHint = False
@@ -170,14 +170,14 @@ object fScript: TfScript
     end
     object ToolButton9: TToolButton
       Left = 216
-      Top = 0
+      Top = 2
       Width = 17
       ImageIndex = 8
       Style = tbsSeparator
     end
     object btnRefresh: TToolButton
       Left = 233
-      Top = 0
+      Top = 2
       Hint = #1054#1073#1085#1086#1074#1080#1090#1100' '#1089#1087#1080#1089#1086#1082
       ImageIndex = 8
       ParentShowHint = False
@@ -186,7 +186,7 @@ object fScript: TfScript
     end
     object btnShowHideList: TToolButton
       Left = 256
-      Top = 0
+      Top = 2
       Hint = #1054#1090#1086#1088#1073#1088#1072#1079#1080#1090#1100'/'#1089#1082#1088#1099#1090#1100' '#1089#1087#1080#1089#1086#1082' '#1089#1082#1088#1080#1087#1090#1086#1074
       ImageIndex = 9
       ParentShowHint = False
@@ -195,7 +195,7 @@ object fScript: TfScript
     end
     object ToolButton1: TToolButton
       Left = 279
-      Top = 0
+      Top = 2
       Hint = #1055#1086#1082#1072#1079#1072#1090#1100' '#1083#1086#1075' '#1087#1072#1082#1077#1090#1093#1072#1082#1072
       ImageIndex = 10
       ParentShowHint = False
@@ -204,7 +204,7 @@ object fScript: TfScript
     end
     object btnShowWatch: TToolButton
       Left = 302
-      Top = 0
+      Top = 2
       Hint = 'WatchList'
       ImageIndex = 12
       ParentShowHint = False
@@ -214,7 +214,7 @@ object fScript: TfScript
     end
     object btnShowClasses: TToolButton
       Left = 325
-      Top = 0
+      Top = 2
       Hint = 'FastScript Classes'
       ImageIndex = 13
       ParentShowHint = False
@@ -223,7 +223,7 @@ object fScript: TfScript
     end
     object ToolButton4: TToolButton
       Left = 348
-      Top = 0
+      Top = 2
       Width = 8
       Caption = 'ToolButton4'
       ImageIndex = 13
@@ -231,7 +231,7 @@ object fScript: TfScript
     end
     object ToolButton2: TToolButton
       Left = 356
-      Top = 0
+      Top = 2
       Hint = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1088#1077#1076#1072#1082#1090#1086#1088#1072
       ImageIndex = 11
       ParentShowHint = False
@@ -240,7 +240,7 @@ object fScript: TfScript
     end
     object ToolButton3: TToolButton
       Left = 379
-      Top = 0
+      Top = 2
       Hint = #1043#1086#1088#1103#1095#1080#1077' '#1082#1083#1072#1074#1080#1096#1080' '#1088#1077#1076#1072#1082#1090#1086#1088#1072
       ImageIndex = 14
       ParentShowHint = False

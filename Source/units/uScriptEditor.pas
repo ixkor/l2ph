@@ -7,7 +7,7 @@ uses
   Dialogs, JvExControls, JvEditorCommon, JvEditor, JvHLEditor, JvTabBar,
   StdCtrls, Mask, JvExMask, JvSpin, ComCtrls, ToolWin, ImgList, ecSyntAnal,
   ecKeyMap, ecPopupCtrl, ecSyntMemo, ecAutoReplace, ecSyntDlg, fs_ipascal,
-  fs_iinterpreter, StdActns, ActnList, ExtCtrls;
+  fs_iinterpreter, StdActns, ActnList, ExtCtrls, siComp;
 
 type
 
@@ -46,6 +46,7 @@ type
     PnlWatchList: TPanel;
     WatchList: TListView;
     CurLineLabel: TLabel;
+    siLang1: TsiLang;
     procedure EditorChange(Sender: TObject);
     procedure EditorKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -59,6 +60,7 @@ type
       Line: Integer; var Show: Boolean);
     procedure EditorTGutterObjects2CheckLine(Sender: TObject;
       Line: Integer; var Show: Boolean);
+    procedure EditorEnter(Sender: TObject);
   private
     { Private declarations }
     FBreakPoints: TList;
@@ -76,7 +78,7 @@ type
 
 
 implementation
-uses uscripts;
+uses umain, uglobalfuncs, uscripts;
 
 
 {$R *.dfm}
@@ -201,7 +203,7 @@ if str <> '' then
       begin
         Nomove := true;
       end;
-    CurLineLabel.Caption := format('Last processed line %d',[CurrentLine]);
+    CurLineLabel.Caption := format(siLang1.GetTextOrDefault('IDS_0' (* 'Last processed line %d' *) ),[CurrentLine]);
 {    if nomove then
       Editor.Invalidate;
     if Assigned(assignedTScript) then
@@ -388,4 +390,15 @@ fvtString :
   end;
 end;
 end;
+
+procedure TfScriptEditor.EditorEnter(Sender: TObject);
+begin
+if GetModifTime(AppPath+'Scripts\'+(assignedTScript as TScript).ScriptName+'.script') > (assignedTScript as TScript).changetime then
+    if MessageDlg(format(siLang1.GetTextOrDefault('IDS_16' (* 'Файл %s был модифицирован внешней программой. Перезагрузить его ?' *) ),[(assignedTScript as TScript).ScriptName]),mtWarning,[mbYes, mbNo],0) = mrYes then
+      (assignedTScript as TScript).LoadOriginal
+    else
+      (assignedTScript as TScript).changetime := GetModifTime(AppPath+'Scripts\'+(assignedTScript as TScript).ScriptName+'.script');
+end;
+
+
 end.

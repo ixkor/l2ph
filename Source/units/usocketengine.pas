@@ -654,7 +654,7 @@ procedure TSocketEngine.NewAction(Action: byte; Caller: TObject);
 begin
  if isGlobalDestroying then exit;
   if caller <> nil then
-    SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
+    SendMessage(fMainReplacer.Handle,WM_NewAction,integer(action),integer(caller));
 end;
 
 { Ttunel }
@@ -718,7 +718,7 @@ end;
 procedure Ttunel.NewAction(action: byte; Caller: TObject);
 begin
   if isGlobalDestroying then exit;
-  SendMessage(L2PacketHackMain.Handle,WM_NewAction,integer(action),integer(caller));
+  SendMessage(fMainReplacer.Handle,WM_NewAction,integer(action),integer(caller));
 end;
 
 procedure Ttunel.NewPacket(var packet:tpacket; FromServer: boolean; Caller: TObject);
@@ -734,7 +734,7 @@ begin
   tmp.FromServer := FromServer;
   tmp.tunel := TencDec(Caller).ParentTtunel;
   tmp.Id := TencDec(Caller).Ident;
-  SendMessage(L2PacketHackMain.Handle, WM_NewPacket, integer(@tmp), 0);
+  SendMessage(fMainReplacer.Handle, WM_NewPacket, integer(@tmp), 0);
   Packet := tmp.packet;
   tmp.destroy;   
 end;

@@ -46,7 +46,7 @@ type
     ToolButton4: TToolButton;
     ToolButton3: TToolButton;
     ToolButton5: TToolButton;
-    ToolButton7: TToolButton;
+    BtnAutoSavePckts: TToolButton;
     ToolButton9: TToolButton;
     ToolButton6: TToolButton;
     ToolButton17: TToolButton;
@@ -100,6 +100,7 @@ type
     Splitter3: TSplitter;
     GroupBox7: TGroupBox;
     Memo4: TJvRichEdit;
+    btnProcessPackets: TToolButton;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -136,6 +137,7 @@ type
     procedure TabSheet1Show(Sender: TObject);
     procedure TabSheet3Show(Sender: TObject);
     procedure OpenBtnClick(Sender: TObject);
+    procedure btnProcessPacketsClick(Sender: TObject);
   private
     { Private declarations }
     hScriptThread, idScriptThread: cardinal;
@@ -176,7 +178,7 @@ uses uencdec, uMain, uSocketEngine, uFilterForm, uData, uScripts;
 procedure TfVisual.init;
 begin
   translate();
-  Panel7.Width := 46;
+  Panel7.Width := 73;
   PacketView := TfPacketView.Create(self);
   PacketView.Parent := packetVievPanel;
   ToolButton17.Down := GlobalSettings.HexViewOffset;
@@ -204,7 +206,7 @@ begin
   
   Dump := TStringList.Create;
   dumpacumulator := TStringList.Create;
-  ToolButton7.Down := GlobalSettings.isSaveLog;
+  BtnAutoSavePckts.Down := GlobalSettings.isSaveLog;
   if CurrentTpacketLog <> nil then //просмотр логов. просто скрываем все ненужное.
     begin
       TabSheet2.TabVisible := false;
@@ -218,6 +220,7 @@ begin
       ToolButton37.Hide;
       ToolButton37.Hide;
       ToolButton38.Hide;
+      btnProcessPackets.hide;
       ToolButton8.Show;
       dump.LoadFromFile(TpacketLogWiev(CurrentTpacketLog).sFileName);
       PacketListRefresh;
@@ -373,8 +376,10 @@ end;
 
 procedure TfVisual.tbtnSaveClick(Sender: TObject);
 begin
+ChDir(AppPath+'logs\');
   if dlgSaveLog.Execute then
     Dump.SaveToFile(dlgSaveLog.FileName);
+ChDir(AppPath+'settings\');
 end;
 
 {$warnings off}
@@ -386,7 +391,7 @@ var
 begin
   if not assigned(dump) then exit;
 
-  if ToolButton7.Down then
+  if BtnAutoSavePckts.Down then
   begin
     AddToLog(rsSavingPacketLog);
     SaveThis := TStringList.Create;
@@ -397,7 +402,7 @@ begin
   ListView5.Items.Clear;
   ListView5.Items.EndUpdate;
 
-  if ToolButton7.Down then
+  if BtnAutoSavePckts.Down then
   begin
     if assigned(currenttunel) then
     charname := '';
@@ -641,13 +646,16 @@ end;
 
 procedure TfVisual.OpenBtnClick(Sender: TObject);
 begin
+ChDir(AppPath+'logs\');
   if DlgOpenPacket.Execute then Memo4.Lines.LoadFromFile(DlgOpenPacket.FileName);
-
+ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.SaveBntClick(Sender: TObject);
 begin
+ChDir(AppPath+'logs\');
   if DlgSavePacket.Execute then Memo4.Lines.SaveToFile(DlgSavePacket.FileName);
+ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.JvSpinEdit2Change(Sender: TObject);
@@ -790,20 +798,26 @@ end;
 
 procedure TfVisual.ToolButton27Click(Sender: TObject);
 begin
+ChDir(AppPath+'scripts\');
   if DlgOpenScript.Execute then
     Edit.Source.Lines.LoadFromFile(DlgOpenScript.FileName);
+ChDir(AppPath+'settings\');
+    
 end;
 
 procedure TfVisual.ToolButton25Click(Sender: TObject);
 begin
+ChDir(AppPath+'scripts\');
   if dlgSaveScript.Execute then
     Edit.Source.Lines.SaveToFile(dlgSaveScript.FileName);
+ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.btnSaveRawClick(Sender: TObject);
 var
 ms : TFileStream;
 begin
+ChDir(AppPath+'logs\');
 if dlgSaveLogRaw.Execute then
 begin
   deletefile(dlgSaveLogRaw.FileName);
@@ -827,6 +841,7 @@ begin
     ms.Destroy;
   end;
 end;
+ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.FrameResize(Sender: TObject);
@@ -869,6 +884,12 @@ var
   FromServer:boolean;
   Currentpacket : TPacket;
 begin
+if not btnProcessPackets.Down then
+  begin
+    dumpacumulator.Clear;
+    exit;
+  end;
+
 while dumpacumulator.Count > 0 do
 begin
   if Dump.Count >= MaxLinesInPktLog then
@@ -908,6 +929,13 @@ procedure TfVisual.TabSheet3Show(Sender: TObject);
 begin
 packetVievPanel.Hide;
 Splitter3.Hide;
+end;
+
+procedure TfVisual.btnProcessPacketsClick(Sender: TObject);
+begin
+BtnAutoSavePckts.Down := BtnAutoSavePckts.Down and btnProcessPackets.Down;
+Panel4.Enabled := btnProcessPackets.Down;
+
 end;
 
 end.

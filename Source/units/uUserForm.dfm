@@ -1,6 +1,6 @@
 object UserForm: TUserForm
-  Left = 262
-  Top = 223
+  Left = 101
+  Top = 96
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = #1055#1086#1083#1100#1079#1086#1074#1072#1090#1077#1083#1100#1089#1082#1072#1103' '#1092#1086#1088#1084#1072

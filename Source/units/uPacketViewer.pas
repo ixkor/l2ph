@@ -18,6 +18,7 @@ type
     ToClient: TToolButton;
     siLang1: TsiLang;
     Memo4: TJvRichEdit;
+    ToolButton1: TToolButton;
     procedure ToClientClick(Sender: TObject);
     procedure ToServerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -26,7 +27,6 @@ type
   protected
     procedure CreateParams (var Params : TCreateParams); override;
   private
-    var
     PacketView : TfPacketView;
     { Private declarations }
   public

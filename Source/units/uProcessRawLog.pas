@@ -147,12 +147,13 @@ end;
 
 procedure TfProcessRawLog.btnOpenRawClick(Sender: TObject);
 begin
-if dlgOpenRawLog.Execute then
+  ChDir(AppPath+'logs\');
+  if dlgOpenRawLog.Execute then
   begin
-  filename := dlgOpenRawLog.FileName;
-  parserawlog(FileName)
+    filename := dlgOpenRawLog.FileName;
+    parserawlog(FileName)
   end;
-ChDir(AppPath);
+  ChDir(AppPath+'settings\');
 end;
 
 Function TfProcessRawLog.AnotherLoadLibraryXor(const name: string): boolean;
@@ -441,8 +442,8 @@ visual.btnSaveRaw.Hide;
 visual.tbtnToSend.Hide;
 visual.ToolButton2.Hide;
 visual.ToolButton5.Hide;
-visual.ToolButton7.Down := false;
-visual.ToolButton7.Hide;
+visual.BtnAutoSavePckts.Down := false;
+visual.BtnAutoSavePckts.Hide;
 visual.TabSheet1.Show;
 visual.Parent := TabSheet3;
 visual.Dump := TStringList.Create;

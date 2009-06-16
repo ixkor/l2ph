@@ -11,7 +11,7 @@ type
   TGetPluginInfo = function(const ver: Integer): PChar; stdcall;
   //TGetEnableFuncs = function: TEnableFuncs; stdcall;
   TSetStruct = function(const struct: PPluginStruct): Boolean; stdcall;
-  TOnPacket = procedure(const cnt: Cardinal; const fromServer: Boolean; var packet : tpacket); stdcall;
+  TOnPacket = procedure(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var packet : tpacket); stdcall;
   TOnConnect = procedure(const cnt: Cardinal; const withServer: Boolean); stdcall;
   TOnDisconnect = TOnConnect;
   TOnLoad = procedure; stdcall;

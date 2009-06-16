@@ -20,6 +20,7 @@ type
     ScriptName: string;                            
     isRunning, Compilled, Modified: Boolean;
     cs: RTL_CRITICAL_SECTION;
+    changetime:TDateTime;
     procedure markerrorline;
     constructor create;
     Procedure Load(Filename:string;isnew:boolean=false;fullfilename:string=''); //инициализация, вызывать после креейта
@@ -30,6 +31,7 @@ type
     Function UseThisScript(UseScript:boolean):boolean;
     Procedure CompileThisScript;
     procedure updatecontrols;
+
   end;
 
 
@@ -154,19 +156,12 @@ begin
       while i < Options.ReadInteger('scripts','Scriptscount',0) do
       begin
         tempname := Options.ReadString('scripts','name'+inttostr(i),'')+'.script';
-        if fileexists(ExtractFilePath(ParamStr(0))+'Scripts\'+tempname) then
+        if fileexists(AppPath+'Scripts\'+tempname) then
           begin
             newScript := TScript.create;
             newScript.Load(tempname);
             if Options.ReadBool('scripts','checked'+inttostr(i), false) then
-              begin
-              newScript.CompileThisScript;
-              if newScript.Compilled then
-                begin
-                  newScript.isRunning := true;
-                  newScript.ListItem.Checked := true;
-                end;
-              end;
+                newScript.ListItem.Checked := true;
           end;
         Inc(i);
       end;
@@ -409,6 +404,7 @@ if isnew then
       Tab.Visible := true;
       Tab.Selected := true;
     end;
+ changetime := getmodiftime(AppPath+'Scripts\'+Filename);  
 end;
 
 procedure TfScript.DestroyAllScripts;
@@ -508,7 +504,6 @@ end;
 procedure TfScript.BtnSaveClick(Sender: TObject);
 begin
   if currentScript = nil then exit;
-
   currentScript.save;
 end;
 
@@ -534,7 +529,7 @@ var
   r: Boolean;// для проверки не нажат ли Cancel
   newscript : TScript;
 begin
-
+  ChDir(AppPath+'scripts\');
   if DlgOpenScript.Execute then
   begin
     s:=ExtractFileName(DlgOpenScript.FileName);
@@ -555,6 +550,7 @@ begin
     newscript.Load('',false,DlgOpenScript.FileName);
     newscript.Save(s);
   end;
+    ChDir(AppPath+'settings\');
 end;
 
 procedure TfScript.btnRenameClick(Sender: TObject);
@@ -651,6 +647,7 @@ begin
   Modified := false;
   Tab.ImageIndex := 0;
   Compilled := false;
+  changetime := getmodiftime(AppPath+'Scripts\'+ScriptName+'.script');
 end;
 
 procedure TScript.markerrorline;
@@ -680,11 +677,11 @@ begin
   end;
   Editor.Editor.Modified := false;;
   Editor.Editor.Invalidate;
-  editor.Source.Lines.SaveToFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  editor.Source.Lines.SaveToFile(AppPath+'Scripts\'+ScriptName+'.script');
   Modified := false;
   Tab.ImageIndex := 0;
   fScript.StatusBar.SimpleText:=fScript.lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+ScriptName+fScript.lang.GetTextOrDefault('IDS_29' (* ' сохранен' *) );
-  
+  changetime := getmodiftime(AppPath+'Scripts\'+ScriptName+'.script');
 end;
 
 procedure TfScript.ListViewWindowProcEx(var Message: TMessage);
@@ -804,14 +801,15 @@ var
   temp:string;
   i:integer;
   cScript : TScript;
+  connectname:string;
 begin
-  
+ connectname := dmdata.ConnectNameById(id); 
   //По прежнему без бутылки сюда не лезть.
   for i := 0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnPacket) then
       begin
-        OnPacket(id, FromServer, newpacket);
+        OnPacket(id, FromServer, connectname, newpacket);
         //если плагин обнулил размер пакета
         if newpacket.Size < 3 then exit; //раньше тут был бряк, но ведь пустой пакет скриптам не нужен. поэтому екзит.
       end;
@@ -832,7 +830,7 @@ begin
         //EnterCriticalSection(_cs);
         cScript.Editor.fsScript.Variables['pck'] := temp;
         cScript.Editor.fsScript.Variables['ConnectID']:=id;
-        cScript.Editor.fsScript.Variables['ConnectName']:=dmdata.ConnectNameById(id);
+        cScript.Editor.fsScript.Variables['ConnectName']:=connectname;
         cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
         cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
         //LeaveCriticalSection(_cs);

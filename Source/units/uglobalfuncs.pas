@@ -92,6 +92,8 @@ uses
   procedure ShowMessageNew(const Msg: string);
   procedure loadpos(Control:TControl);
   procedure savepos(Control:TControl);
+
+  function GetModifTime(const FileName: string): TDateTime;
   
   function DataPckToStrPck(var pck): string; stdcall;
  var
@@ -115,6 +117,32 @@ uses
   
 implementation
 uses uFilterForm, forms, udata, usocketengine, ulogform;
+
+function GetModifTime(const FileName: string): TDateTime;
+var
+  h: THandle;
+  Info1, Info2, Info3: TFileTime;
+  SysTimeStruct: SYSTEMTIME;
+  TimeZoneInfo: TTimeZoneInformation;
+  Bias: Double;
+begin
+  Result := 0;
+  Bias   := 0;
+  if not FileExists(FileName) then exit;
+  h      := FileOpen(FileName, fmOpenRead or fmShareDenyNone);
+  if h > 0 then 
+  begin
+    try
+      if GetTimeZoneInformation(TimeZoneInfo) <> $FFFFFFFF then
+        Bias := TimeZoneInfo.Bias / 1440; // 60x24
+      GetFileTime(h, @Info1, @Info2, @Info3);
+      if FileTimeToSystemTime(Info3, SysTimeStruct) then
+        result := SystemTimeToDateTime(SysTimeStruct) - Bias;
+    finally
+      FileClose(h);
+    end;
+  end;
+end;
 
 procedure savepos(Control:TControl);
 var

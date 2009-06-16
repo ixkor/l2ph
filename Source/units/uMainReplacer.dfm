@@ -1,9 +1,9 @@
-object L2PacketHackMain: TL2PacketHackMain
+object fMainReplacer: TfMainReplacer
   Left = 388
   Top = 239
   BorderStyle = bsNone
   ClientHeight = 66
-  ClientWidth = 111
+  ClientWidth = 116
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

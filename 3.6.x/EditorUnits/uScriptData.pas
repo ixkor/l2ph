@@ -41,10 +41,6 @@ implementation
 
 uses umain, uScriptProject, usharedstructs, udata, uglobalfuncs, uScriptEditorResourcesStrings, strutils;
 
-var
-  searchfor : string;
-  searchresult : thandle;
-
 { TscripterData }
 
 
@@ -412,8 +408,6 @@ begin
 end;
 
 procedure RegisterRoutine(sd:TscriptData;PC: TPaxCompiler);
-var
-  H: Integer;
 begin
 
 pc.RegisterVariable(0,'Pck:string;',@sd.pck);

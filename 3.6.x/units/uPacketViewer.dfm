@@ -1,9 +1,9 @@
 object fPacketViewer: TfPacketViewer
   Left = 0
   Top = 0
+  Width = 698
+  Height = 356
   Caption = #1057#1086#1089#1090#1072#1074#1083#1077#1085#1080#1077'/'#1087#1088#1086#1089#1084#1086#1090#1088' '#1087#1072#1082#1077#1090#1072
-  ClientHeight = 318
-  ClientWidth = 682
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,9 +21,6 @@ object fPacketViewer: TfPacketViewer
     Height = 318
     Align = alRight
     Visible = False
-    ExplicitLeft = 90
-    ExplicitTop = 5
-    ExplicitHeight = 265
   end
   object packetVievPanel: TPanel
     Left = 332
@@ -32,8 +29,6 @@ object fPacketViewer: TfPacketViewer
     Height = 318
     Align = alRight
     TabOrder = 0
-    ExplicitLeft = 371
-    ExplicitHeight = 330
   end
   object Panel1: TPanel
     Left = 0
@@ -43,8 +38,6 @@ object fPacketViewer: TfPacketViewer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 368
-    ExplicitHeight = 330
     object ToolBar2: TToolBar
       Left = 0
       Top = 0
@@ -52,10 +45,9 @@ object fPacketViewer: TfPacketViewer
       Height = 23
       Images = imgBT
       TabOrder = 0
-      ExplicitWidth = 368
       object ToServer: TToolButton
         Left = 0
-        Top = 0
+        Top = 2
         Hint = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072' '#1082' '#1089#1077#1088#1074#1077#1088#1091
         Down = True
         ImageIndex = 0
@@ -66,7 +58,7 @@ object fPacketViewer: TfPacketViewer
       end
       object ToClient: TToolButton
         Left = 23
-        Top = 0
+        Top = 2
         Hint = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072' '#1082' '#1082#1083#1080#1077#1085#1090#1091
         ImageIndex = 1
         ParentShowHint = False
@@ -95,8 +87,6 @@ object fPacketViewer: TfPacketViewer
       UndoLimit = 0
       WordWrap = False
       OnChange = Memo4Change
-      ExplicitWidth = 368
-      ExplicitHeight = 307
     end
   end
   object imgBT: TImageList
@@ -252,9 +242,9 @@ object fPacketViewer: TfPacketViewer
     LangDispatcher = fMain.siLangDispatcher
     LangDelim = 1
     LangNames.Strings = (
-      'Default'
+      'Default(Rus)'
       'English')
-    Language = 'Default'
+    Language = 'Default(Rus)'
     ExcludedProperties.Strings = (
       'Category'
       'SecondaryShortCuts'
