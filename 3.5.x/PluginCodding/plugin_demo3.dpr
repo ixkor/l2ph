@@ -35,7 +35,7 @@ end;
 // Если вернёт False то плагин выгружается.
 function SetStruct(const struct: PPluginStruct): Boolean; stdcall;
 begin
-  ps := TPluginStruct(struct^);
+  ps := struct^;
   Result:=True;
 end;
 
