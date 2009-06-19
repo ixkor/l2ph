@@ -108,7 +108,6 @@ uses uData, uLogForm, uFilterForm, uMain, uLangSelectDialog;
 procedure TfSettings.readsettings;
 begin
   InterfaceEnabled := true;
-  { TODO : я«ык. тут }
 
   fLangSelectDialog.siLangCombo1.ItemIndex := Options.ReadInteger('General', 'language', 0);
   fMain.lang.Language := fLangSelectDialog.siLangCombo1.Items.Strings[fLangSelectDialog.siLangCombo1.ItemIndex];
