@@ -48,6 +48,8 @@ type
     procedure ProcessPacket(var msg: TMessage); Message WM_ProcessPacket;
     procedure NewAction(var msg: TMessage); Message WM_NewAction;
     procedure ReadMsg(var msg: TMessage); Message WM_Dll_Log;
+    procedure UpdAutoCompleate(var msg: TMessage); Message WM_UpdAutoCompleate;    
+
 
     { Public declarations }
   end;
@@ -334,6 +336,22 @@ if GetForegroundWindow = fLog.Handle then
   fLog.Hide
 else
   fLog.Show;
+end;
+
+procedure TfMainReplacer.UpdAutoCompleate(var msg: TMessage);
+var
+  i:integer;
+begin
+  //релоадим доступные нам функции
+  dmData.DO_reloadFuncs;
+
+  i := 0;
+  while i < ScriptList.Count do
+  begin
+    dmData.UpdateAutoCompleate(TScript(ScriptList.Items[i]).Editor.AutoComplete);
+    inc(i);
+  end;
+
 end;
 
 end.

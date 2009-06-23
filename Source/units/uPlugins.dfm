@@ -1,10 +1,10 @@
 object fPlugins: TfPlugins
   Left = 243
   Top = 253
+  Width = 668
+  Height = 446
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = #1055#1083#1072#1075#1080#1085#1099
-  ClientHeight = 408
-  ClientWidth = 652
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

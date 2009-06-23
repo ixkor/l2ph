@@ -41,7 +41,7 @@ var
   fPlugins: TfPlugins;
 
 implementation
-uses uScripts, uMain, uGlobalFuncs, uData, uUserForm, Math;
+uses uScripts, uMain, uGlobalFuncs, uData, uUserForm, Math, uMainReplacer;
 
 {$R *.dfm}
 
@@ -136,17 +136,9 @@ begin
   fMain.nPlugins.Items[i].Checked := clbPluginsList.Checked[i];
 
   if Sender = nil then exit;
-  //релоадим доступные нам функции
-  dmData.DO_reloadFuncs;
   //обновляем автокомплиты
   Options.WriteBool('plugins',clbPluginsList.Items.Strings[i], clbPluginsList.Checked[i]);
-
-  i := 0;
-  while i < ScriptList.Count do
-  begin
-    dmData.UpdateAutoCompleate(TScript(ScriptList.Items[i]).Editor.AutoComplete);
-    inc(i);
-  end;
+  SendMessage(fMainReplacer.Handle, WM_UpdAutoCompleate, 0, 0);
 
 end;
 
