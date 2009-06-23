@@ -21,7 +21,8 @@ uses
   WM_NewAction = WM_APP + 107; //
   WM_AddLog = WM_APP + 108; //
   WM_NewPacket = WM_APP + 109; //
-  WM_ProcessPacket = WM_APP + 110; //  
+  WM_ProcessPacket = WM_APP + 110; //
+  WM_UpdAutoCompleate = WM_APP + 111; //  
   //TencDec вызывает такие
   TencDec_Action_LOG = 1; //Данные в sLastPacket;  обрабатчик - PacketSend
   TencDec_Action_MSG = 2; //дaнные в sLastMessage; обработчик - Log
