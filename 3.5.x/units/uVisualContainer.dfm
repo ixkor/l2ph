@@ -296,6 +296,8 @@ object fVisual: TfVisual
               Hint = #1054#1073#1088#1072#1073#1072#1090#1099#1074#1072#1090#1100' '#1087#1072#1082#1077#1090#1099
               Down = True
               ImageIndex = 23
+              ParentShowHint = False
+              ShowHint = True
               Style = tbsCheck
               OnClick = btnProcessPacketsClick
             end

@@ -496,6 +496,7 @@ end;
 procedure TfSettings.isMainFormCaptionChange(Sender: TObject);
 begin
 fMain.Caption := format(isMainFormCaption.Text, [uGlobalFuncs.getversion]);
+Options.WriteString('general','Caption', isMainFormCaption.Text);
 end;
 
 end.
