@@ -853,8 +853,6 @@ begin
   begin
     if (TlspConnection(LSPConnections.Items[i]).SocketNum = tid) then
       begin
-        TlspConnection(LSPConnections.Items[i]).Visual.AddPacketToAcum(Packet, not ToServer, TlspConnection(LSPConnections.Items[i]).EncDec);
-        TlspConnection(LSPConnections.Items[i]).Visual.processpacketfromacum;
         TlspConnection(LSPConnections.Items[i]).encryptAndSend(Packet, toserver);
         exit;
       end;
@@ -866,8 +864,6 @@ begin
   begin
     if (Ttunel(sockEngine.tunels.Items[i]).serversocket = tid) then
       begin
-        Ttunel(sockEngine.tunels.Items[i]).Visual.AddPacketToAcum(Packet, not ToServer, Ttunel(sockEngine.tunels.Items[i]).EncDec);
-        Ttunel(sockEngine.tunels.Items[i]).Visual.processpacketfromacum;
         Ttunel(sockEngine.tunels.Items[i]).EncryptAndSend(Packet, toserver);
         exit;
       end;
