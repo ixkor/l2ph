@@ -419,7 +419,7 @@ begin
     and(PWord(@pck)^>i+1)do Inc(i,2);
   d:=i-index;
   SetLength(temp,d div 2);
-  if d>=2 then Move(PByteArray(@pck)^[index],temp[1],d);
+  if d>=2 then Move(PByteArray(@pck)^[index], temp[1],d);
   Result:=temp;
   inherited;
 end;
@@ -431,8 +431,8 @@ var
 begin
   FillChar(packet.PacketAsCharArray,$ffff,#0);
   packet.Size := size;
-  Move(pck[1],packet.data[0],length(pck));
-  dmData.SendPacket(packet, tid, False);
+  Move(pck[1],packet.data[0], length(pck));
+  dmData.SendPacket(packet, tid, ToServer);
   inherited;
 end;
 
@@ -447,14 +447,14 @@ var
 begin
   SetLength(spck,tpck.size-2);
   Move(tpck.id,spck[1],Length(spck));
-  SendPacket(tpck.size,spck,tid,ToServer);
+  SendPacket(tpck.size, spck, tid, ToServer);
   inherited;
 end;
 
 procedure TPluginStructClass.SendPacketStr(pck: string; const tid: integer;
   const ToServer: Boolean);
 begin
-  SendPacket(Length(pck)+2,pck,tid,ToServer);
+  SendPacket(Length(pck)+2, pck, tid, ToServer);
   inherited;
 end;
 
