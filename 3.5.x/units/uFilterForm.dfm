@@ -27,6 +27,10 @@ object fPacketFilter: TfPacketFilter
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListView1: TListView
         Left = 0
         Top = 0
@@ -59,6 +63,10 @@ object fPacketFilter: TfPacketFilter
     object TabSheet7: TTabSheet
       Caption = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ListView2: TListView
         Left = 0
         Top = 0

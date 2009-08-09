@@ -79,136 +79,136 @@ var
   i:integer;
 
 begin
-c_s.Enter;
-try
-action := byte(msg.wparam);
+  c_s.Enter;
+  try
+  action := byte(msg.wparam);
 
-case action of
-  TencDec_Action_LOG: //Данные в sLastPacket;  Рисуем пакет
-  begin
-    //TencDec(Caller).sLastPacket
-  end;
-  TencDec_Action_MSG: //дaнные в sLastMessage; обработчик - Log
+  case action of
+    TencDec_Action_LOG: //Данные в sLastPacket;  Рисуем пакет
     begin
-      EncDec := TencDec(msg.LParam);
-      AddToLog(encdec.sLastMessage);
+      //TencDec(Caller).sLastPacket
     end;
-  TencDec_Action_GotName:
-    begin
-      EncDec := TencDec(msg.LParam);
-      if assigned(EncDec.ParentTtunel) then
-        begin
-          Tunel := Ttunel(EncDec.ParentTtunel);
-          if assigned(tunel) then
-            begin
-              AddToLog(Format(rsConnectionName, [integer(pointer(Tunel)), encdec.CharName]));
-              Tunel.AssignedTabSheet.Caption := EncDec.CharName;
-              Tunel.CharName := EncDec.CharName;
-            end;
-        end;
-    end; //данные в name;
+    TencDec_Action_MSG: //дaнные в sLastMessage; обработчик - Log
+      begin
+        EncDec := TencDec(msg.LParam);
+        AddToLog(encdec.sLastMessage);
+      end;
+    TencDec_Action_GotName:
+      begin
+        EncDec := TencDec(msg.LParam);
+        if assigned(EncDec.ParentTtunel) then
+          begin
+            Tunel := Ttunel(EncDec.ParentTtunel);
+            if assigned(tunel) then
+              begin
+                AddToLog(Format(rsConnectionName, [integer(pointer(Tunel)), encdec.CharName]));
+                Tunel.AssignedTabSheet.Caption := EncDec.CharName;
+                Tunel.CharName := EncDec.CharName;
+              end;
+          end;
+      end; //данные в name;
     
-  TencDec_Action_ClearPacketLog:; //данные нет. просто акшин; обработчик ClearPacketsLog
-  //TSocketEngine вызывает эти
-  TSocketEngine_Action_MSG: //данные в sLastMessage; обработчик - Log
+    TencDec_Action_ClearPacketLog:; //данные нет. просто акшин; обработчик ClearPacketsLog
+    //TSocketEngine вызывает эти
+    TSocketEngine_Action_MSG: //данные в sLastMessage; обработчик - Log
+      begin
+        SocketEngine := TSocketEngine(msg.LParam);
+        AddToLog(SocketEngine.sLastMessage);
+      end;
+    Ttunel_Action_connect_server:
     begin
-      SocketEngine := TSocketEngine(msg.LParam);
-      AddToLog(SocketEngine.sLastMessage);
-    end;
-  Ttunel_Action_connect_server:
-  begin
-    Tunel := Ttunel(msg.LParam);
-    Tunel.AssignedTabSheet := TTabSheet.Create(fMain.pcClientsConnection);
-    Tunel.AssignedTabSheet.PageControl := fMain.pcClientsConnection;
-    fMain.pcClientsConnection.ActivePageIndex := Tunel.AssignedTabSheet.PageIndex;
-    Tunel.AssignedTabSheet.Show;
-
-    Tunel.Visual := TfVisual.Create(Tunel.AssignedTabSheet);
-    Tunel.Visual.currentLSP := nil;
-    Tunel.Visual.CurrentTpacketLog := nil;
-    Tunel.Visual.currenttunel := Tunel;
-    Tunel.AssignedTabSheet.Caption := Tunel.CharName;
-    tunel.Visual.init;
-    Tunel.NeedDeinit := true;
-
-    Tunel.Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
-    Tunel.Visual.Parent := Tunel.AssignedTabSheet;
-    Tunel.active := true;
-
-    if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
-
-    for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-      if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, true);
-  end; //
-  Ttunel_Action_disconnect_server:
-  begin
-    Tunel := Ttunel(msg.LParam);
-    Tunel.active := false;
-    for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-      if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.serversocket, true);
-  end; //
-  Ttunel_Action_connect_client:
-    begin ////Создавать такие вещи в нити нельзя.. а вот тут можно...
       Tunel := Ttunel(msg.LParam);
+      Tunel.AssignedTabSheet := TTabSheet.Create(fMain.pcClientsConnection);
+      Tunel.AssignedTabSheet.PageControl := fMain.pcClientsConnection;
+      fMain.pcClientsConnection.ActivePageIndex := Tunel.AssignedTabSheet.PageIndex;
+      Tunel.AssignedTabSheet.Show;
+
+      Tunel.Visual := TfVisual.Create(Tunel.AssignedTabSheet);
+      Tunel.Visual.currentLSP := nil;
+      Tunel.Visual.CurrentTpacketLog := nil;
+      Tunel.Visual.currenttunel := Tunel;
+      Tunel.AssignedTabSheet.Caption := Tunel.CharName;
+      tunel.Visual.init;
+      Tunel.NeedDeinit := true;
+
+      Tunel.Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
+      Tunel.Visual.Parent := Tunel.AssignedTabSheet;
+      Tunel.active := true;
+
+      if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
+
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-        if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, false);
+        if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, true);
     end; //
-  Ttunel_Action_disconnect_client:
+    Ttunel_Action_disconnect_server:
     begin
       Tunel := Ttunel(msg.LParam);
       Tunel.active := false;
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-        if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.serversocket, false);
-    end;
+        if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.serversocket, true);
+    end; //
+    Ttunel_Action_connect_client:
+      begin ////Создавать такие вещи в нити нельзя.. а вот тут можно...
+        Tunel := Ttunel(msg.LParam);
+        for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
+          if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, false);
+      end; //
+    Ttunel_Action_disconnect_client:
+      begin
+        Tunel := Ttunel(msg.LParam);
+        Tunel.active := false;
+        for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
+          if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.serversocket, false);
+      end;
 
-  Ttulel_action_tunel_created:
-    begin
+    Ttulel_action_tunel_created:
+      begin
 
-    end;
-  Ttulel_action_tunel_destroyed:
-    begin
-      Tunel := Ttunel(msg.LParam);
-      if Tunel.NeedDeinit then
-        tunel.Visual.deinit;
-      if assigned(Tunel) then
-        if assigned(Tunel.Visual) then
+      end;
+    Ttulel_action_tunel_destroyed:
+      begin
+        Tunel := Ttunel(msg.LParam);
+        if Tunel.NeedDeinit then
+          tunel.Visual.deinit;
+        if assigned(Tunel) then
+          if assigned(Tunel.Visual) then
+            begin
+            Tunel.Visual.Destroy;
+            Tunel.Visual := nil;
+            end;
+
+        if Assigned(Tunel.AssignedTabSheet) then
           begin
-          Tunel.Visual.Destroy;
-          Tunel.Visual := nil;
+          Tunel.AssignedTabSheet.Destroy;
+          Tunel.AssignedTabSheet := nil;
           end;
+      end;
 
-      if Assigned(Tunel.AssignedTabSheet) then
-        begin
-        Tunel.AssignedTabSheet.Destroy;
-        Tunel.AssignedTabSheet := nil;
-        end;
-    end; 
-
+    end;
+  finally
+    c_s.Leave;
   end;
-finally
-  c_s.Leave;
-end;
 end;
 
 procedure TfMainReplacer.NewPacket(var msg: TMessage);
 var
   temp : SendMessageParam;
 begin
-c_s.Enter;
-try
-temp := SendMessageParam(pointer(msg.WParam)^);
-fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
-if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
-if assigned(Ttunel(temp.tunel)) then
-  if not Ttunel(temp.tunel).MustBeDestroyed then
-    if assigned(Ttunel(temp.tunel).Visual) then
-      begin
-        Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
-        PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
-      end;
-finally
-  c_s.Leave;
-end;
+  c_s.Enter;
+  try
+  temp := SendMessageParam(pointer(msg.WParam)^);
+  fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
+  if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
+  if assigned(Ttunel(temp.tunel)) then
+    if not Ttunel(temp.tunel).MustBeDestroyed then
+      if assigned(Ttunel(temp.tunel).Visual) then
+        begin
+          Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
+          PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
+        end;
+  finally
+    c_s.Leave;
+  end;
 end;
 
 procedure TfMainReplacer.ProcessPacket(var msg: TMessage);
@@ -224,7 +224,7 @@ var
   NewReddirectIP: Integer;
   IPb:array[0..3] of Byte absolute NewReddirectIP;
 begin
-c_s.Enter;
+  c_s.Enter;
   msg.ResultHi := htons(sockEngine.ServerPort);
   NewReddirectIP := msg.WParam;
   sockEngine.RedirrectIP := NewReddirectIP;
@@ -245,11 +245,11 @@ c_s.Enter;
     msg.ResultLo:=0;
     AddToLog (Format(rsInjectConnectInterceptedIgnoder, [IPb[0],IPb[1],IPb[2],IPb[3],ntohs(msg.LParamLo)]));
   end;
-c_s.Leave;
+  c_s.Leave;
 end;
 procedure TfMainReplacer.FormDestroy(Sender: TObject);
 begin
-c_s.Destroy;
+  c_s.Destroy;
 end;
 
 procedure TfMainReplacer.FormCreate(Sender: TObject);
@@ -273,7 +273,6 @@ begin
     fPacketViewer.Hide
   else
     fPacketViewer.Show;
-
 end;
 
 procedure TfMainReplacer.Action2Execute(Sender: TObject);
@@ -298,7 +297,6 @@ begin
     fScript.Hide
   else
     fScript.Show;
-
 end;
 
 procedure TfMainReplacer.Action6Execute(Sender: TObject);
@@ -344,14 +342,12 @@ var
 begin
   //релоадим доступные нам функции
   dmData.DO_reloadFuncs;
-
   i := 0;
   while i < ScriptList.Count do
   begin
     dmData.UpdateAutoCompleate(TScript(ScriptList.Items[i]).Editor.AutoComplete);
     inc(i);
   end;
-
 end;
 
 end.

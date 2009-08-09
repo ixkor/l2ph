@@ -355,9 +355,6 @@ begin
   LastPacket := Packet;
 end;
 
-
-
-
 procedure TencDec.CorrectXor;
 var
 //  tmp: string;
@@ -382,7 +379,6 @@ case pckCount of
     end;
 end;
 end;
-
 
 procedure TencDec.ProcessRecivedPacket;
 var
@@ -449,7 +445,6 @@ begin
   if assigned(onNewAction) then
     onNewAction(act, Self);
 end;
-
 
 { L2Xor }
 

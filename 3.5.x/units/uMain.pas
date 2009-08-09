@@ -138,8 +138,6 @@ begin
   sockEngine.isSocks5 := fSettings.chkSocks5.Checked;
 end;
 
-
-
 procedure TfMain.FormCreate(Sender: TObject);
 begin
   UpdateStrings;
@@ -154,7 +152,6 @@ begin
   ClassIdList := TStringList.Create;
   SkillList := TStringList.Create;
   Reload;
-
 end;
 
 procedure TfMain.nSettingsClick(Sender: TObject);
@@ -167,7 +164,7 @@ end;
 
 procedure TfMain.nProcessesShowClick(Sender: TObject);
 begin
-fProcesses.Show;
+  fProcesses.Show;
 end;
 
 procedure TfMain.nConvertorShowClick(Sender: TObject);
@@ -188,7 +185,7 @@ end;
 
 procedure TfMain.nAboutDlgShowClick(Sender: TObject);
 begin
-fAbout.show;
+  fAbout.show;
 end;
 
 procedure TfMain.UnUsedObjectsDestroyerTimer(Sender: TObject);
@@ -200,7 +197,6 @@ begin
   if pcClientsConnection.Visible then
     if pcClientsConnection.ActivePage = nil then
       pcClientsConnection.Hide;
-
 end;
 
 procedure TfMain.ReadMsg(var msg: TMessage);
@@ -223,11 +219,10 @@ begin
   UnhookCode(@ShowMessageOld);
 
   if Assigned(sockEngine) then
-    begin
-      sockEngine.destroy;
-      sockEngine := nil;
-    end;
-
+  begin
+    sockEngine.destroy;
+    sockEngine := nil;
+  end;
   SysMsgIdList.Destroy;
   SysMsgIdList := nil;
   ItemsList.Destroy;
@@ -238,7 +233,6 @@ begin
   ClassIdList := nil;
   SkillList.Destroy;
   SkillList := nil;
-
 end;
 
 procedure TfMain.nExitAppClick(Sender: TObject);
@@ -248,23 +242,25 @@ end;
 
 procedure TfMain.nReloadPacketsIniClick(Sender: TObject);
 begin
-  Reload;
+  Reload; //перечитываем инишки
+  fPacketFilter.LoadPacketsIni;  //перечитываем packets.ini
   fPacketFilter.refreshexisting;
 end;
 
 procedure TfMain.nUserFormShowClick(Sender: TObject);
 begin
-if (GetForegroundWindow = UserForm.Handle) or not nUserFormShow.Enabled then
-  UserForm.Hide
-else
-  UserForm.show;
+  if (GetForegroundWindow = UserForm.Handle) or not nUserFormShow.Enabled then
+    UserForm.Hide
+  else
+    UserForm.show;
 end;
 
 procedure TfMain.nOpenPlogClick(Sender: TObject);
 var
   NewPacketLogWiev : TpacketLogWiev;
 begin
-  ChDir(AppPath+'logs\');
+  //ChDir(AppPath+'logs\');
+  dlgOpenLog.InitialDir:=AppPath+'logs\';
   if dlgOpenLog.Execute then
   if FileExists(dlgOpenLog.FileName) then
   begin
@@ -272,7 +268,7 @@ begin
     NewPacketLogWiev.INIT(dlgOpenLog.FileName);
     NewPacketLogWiev.AssignedTabSheet.Show;
   end;
-  ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfMain.FormCloseQuery(Sender: TObject;
@@ -300,7 +296,6 @@ begin
     fPlugins.Hide
   else
     fPlugins.Show;
-
 end;
 
 procedure TfMain.nScriptsShowClick(Sender: TObject);
@@ -323,16 +318,16 @@ begin
   if JvTrayIcon1.ApplicationVisible then
     JvTrayIcon1.HideApplication
   else
-    begin
+  begin
     JvTrayIcon1.ShowApplication;
     ShowWindow(fMainReplacer.Handle,sw_hide);
     ShowWindow(application.Handle,sw_hide);
-    end;
+  end;
 end;
 
 procedure TfMain.nExitClick(Sender: TObject);
 begin
-close;
+  close;
 end;
 
 procedure TfMain.Action9Execute(Sender: TObject);
@@ -342,10 +337,10 @@ end;
 
 procedure TfMain.l2ph1Click(Sender: TObject);
 begin
-if GetForegroundWindow = fLog.Handle then
-  fLog.Hide
-else
-  fLog.Show;
+  if GetForegroundWindow = fLog.Handle then
+    fLog.Hide
+  else
+    fLog.Show;
 end;
 
 procedure TfMain.ProcessPacket(var msg: TMessage);
@@ -354,7 +349,6 @@ end;
 
 procedure TfMain.lang1ChangeLanguage(Sender: TObject);
 begin
-
   UpdateStrings;
 end;
 
@@ -415,18 +409,18 @@ end;
 
 procedure TfMain.pcClientsConnectionChange(Sender: TObject);
 begin
-if Assigned(pcClientsConnection.ActivePage) then 
-  if pcClientsConnection.ActivePage.ComponentCount > 0 then
-  begin
-    TfVisual(pcClientsConnection.ActivePage.Components[0]).show;
-    TfVisual(pcClientsConnection.ActivePage.Components[0]).Repaint;
-    TfVisual(pcClientsConnection.ActivePage.Components[0]).Invalidate;
-  end;
+  if Assigned(pcClientsConnection.ActivePage) then 
+    if pcClientsConnection.ActivePage.ComponentCount > 0 then
+    begin
+      TfVisual(pcClientsConnection.ActivePage.Components[0]).show;
+      TfVisual(pcClientsConnection.ActivePage.Components[0]).Repaint;
+      TfVisual(pcClientsConnection.ActivePage.Components[0]).Invalidate;
+    end;
 end;
 
 procedure TfMain.Language1Click(Sender: TObject);
 begin
-fLangSelectDialog.show;
+  fLangSelectDialog.show;
 end;
 
 end.

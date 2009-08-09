@@ -39,7 +39,8 @@ begin
   IsExists := false;
   savepos(self);
   if isDestroying then exit;
-  Log.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2ph'+' '+AddDateTime+'.log');
+  //Log.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2ph'+' '+AddDateTime+'.log');
+  Log.Lines.SaveToFile(AppPath+'\logs\l2ph'+' '+AddDateTime+'.log');
 end;
 
 procedure TfLog.Button1Click(Sender: TObject);
@@ -60,7 +61,8 @@ begin
   //сохраняем лог в файл и очищаем, если превысили установленный предел
   try
     if fLog.Log.Lines.Count>MaxLinesInLog then begin
-      fLog.Log.Lines.SaveToFile(PChar(ExtractFilePath(paramstr(0)))+'\logs\l2ph'+' '+AddDateTime+'.log');
+      //fLog.Log.Lines.SaveToFile(PChar(ExtractFilePath(paramstr(0)))+'\logs\l2ph'+' '+AddDateTime+'.log');
+      fLog.Log.Lines.SaveToFile(AppPath+'\logs\l2ph'+' '+AddDateTime+'.log');
       fLog.Log.Lines.Clear;
       fLog.Log.Lines.Add(AddDateTimeNormal+lang.GetTextOrDefault('IDS_4' (* ' Сохраняем лог...' *) ));
     end;
@@ -73,8 +75,8 @@ end;
 procedure TfLog.CreateParams(var Params: TCreateParams);
 begin
   inherited;
-  with Params do 
-  Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
+  with Params do
+  Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW;
 end;
 
 procedure TfLog.FormCreate(Sender: TObject);

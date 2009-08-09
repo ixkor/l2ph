@@ -1,9 +1,9 @@
 object fClassesDLG: TfClassesDLG
   Left = 192
   Top = 114
-  Width = 327
-  Height = 480
   Caption = 'Supported by fScript classes&funcs'
+  ClientHeight = 446
+  ClientWidth = 319
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,7 +11,6 @@ object fClassesDLG: TfClassesDLG
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96

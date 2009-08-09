@@ -1,8 +1,8 @@
 object fMain: TfMain
   Left = 180
   Top = 171
-  Width = 792
-  Height = 634
+  ClientHeight = 600
+  ClientWidth = 784
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,8 +21,8 @@ object fMain: TfMain
   object Splash: TJvLabel
     Left = 0
     Top = 0
-    Width = 776
-    Height = 557
+    Width = 784
+    Height = 581
     Align = alClient
     Alignment = taCenter
     AutoSize = False
@@ -34,31 +34,36 @@ object fMain: TfMain
     Font.Style = []
     Layout = tlCenter
     ParentFont = False
+    Transparent = True
     AutoOpenURL = False
     HotTrackFont.Charset = DEFAULT_CHARSET
     HotTrackFont.Color = clWindowText
     HotTrackFont.Height = -19
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
+    ExplicitWidth = 776
+    ExplicitHeight = 557
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 557
-    Width = 776
+    Top = 581
+    Width = 784
     Height = 19
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 561
   end
   object pcClientsConnection: TJvPageControl
     Left = 0
     Top = 0
-    Width = 776
-    Height = 557
+    Width = 784
+    Height = 581
     Align = alClient
     TabOrder = 1
     Visible = False
     OnChange = pcClientsConnectionChange
     ClientBorderWidth = 1
+    ExplicitHeight = 561
   end
   object XPManifest1: TXPManifest
     Left = 142

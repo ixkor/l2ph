@@ -23,9 +23,10 @@ object fSettings: TfSettings
     Top = 0
     Width = 371
     Height = 471
-    ActivePage = TabSheet1
+    ActivePage = TabSheet8
     Align = alClient
     TabOrder = 0
+    ExplicitTop = -4
     object TabSheet8: TTabSheet
       Caption = #1054#1073#1097#1080#1077' '#1085#1072#1089#1090#1088#1086#1081#1082#1080
       object rgProtocolVersion: TRadioGroup
@@ -52,8 +53,8 @@ object fSettings: TfSettings
         Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1076#1083#1103' '#1085#1086#1074#1086#1075#1086' '#1087#1077#1088#1077#1093#1074#1072#1095#1077#1085#1086#1075#1086' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1103
         TabOrder = 1
         object btnNewXor: TSpeedButton
-          Left = 322
-          Top = 99
+          Left = 323
+          Top = 101
           Width = 23
           Height = 22
           Glyph.Data = {
