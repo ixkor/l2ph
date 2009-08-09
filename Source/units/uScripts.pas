@@ -148,7 +148,7 @@ begin
 
   DestroyAllScripts;
   //Сначала грузим в порядке очереди с инишки и компилим по надобности.
-{  if assigned(Options) then
+  if assigned(Options) then
     begin
       i := 0;
       while i < Options.ReadInteger('scripts','Scriptscount',0) do
@@ -164,7 +164,7 @@ begin
         Inc(i);
       end;
     end;
-}  //а потом все остальное
+  //а потом все остальное
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
