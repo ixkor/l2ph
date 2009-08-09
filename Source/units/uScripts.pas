@@ -31,11 +31,8 @@ type
     Function UseThisScript(UseScript:boolean):boolean;
     Procedure CompileThisScript;
     procedure updatecontrols;
-
   end;
 
-
-  
   TfScript = class(TForm)
     StatusBar: TStatusBar;
     DlgOpenScript: TOpenDialog;
@@ -146,11 +143,12 @@ var
   i : integer;
   tempname:string;
 begin
+  //Mask := ExtractFilePath(ParamStr(0))+'Scripts\*.Script';
+  Mask:=AppPath+'Scripts\*.Script';
 
-  Mask := ExtractFilePath(ParamStr(0))+'Scripts\*.Script';
   DestroyAllScripts;
   //Сначала грузим в порядке очереди с инишки и компилим по надобности.
-  if assigned(Options) then
+{  if assigned(Options) then
     begin
       i := 0;
       while i < Options.ReadInteger('scripts','Scriptscount',0) do
@@ -166,7 +164,7 @@ begin
         Inc(i);
       end;
     end;
-  //а потом все остальное
+}  //а потом все остальное
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
@@ -299,7 +297,8 @@ end;
 
 Function TScript.delete;
 begin
-  result := DeleteFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  //result := DeleteFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  result := DeleteFile(AppPath+'Scripts\'+ScriptName+'.script');
   if result then
     begin
     Modified := false;
@@ -452,9 +451,9 @@ function TfScript.FindScriptByName(name: string): Tscript;
 var
 i:integer;
 begin
-i := 0;
-Result := nil;
-while i < ScriptList.Count do
+  i := 0;
+  Result := nil;
+  while i < ScriptList.Count do
   begin
     if lowercase(TScript(ScriptList.Items[i]).ScriptName) = lowercase(name) then
       begin
@@ -465,9 +464,8 @@ while i < ScriptList.Count do
   end;
 end;
 
-procedure TfScript.JvTabBar1TabClosed(Sender: TObject;
-  Item: TJvTabBarItem);
-  var
+procedure TfScript.JvTabBar1TabClosed(Sender: TObject; Item: TJvTabBarItem);
+var
   CloseScr:TScript;
 begin
   if item = nil then exit;
@@ -492,8 +490,8 @@ end;
 
 procedure TfScript.btnShowHideListClick(Sender: TObject);
 begin
-pnlScriptList.Visible := not pnlScriptList.Visible;
-Splitter1.Visible := not Splitter1.Visible;
+  pnlScriptList.Visible := not pnlScriptList.Visible;
+  Splitter1.Visible := not Splitter1.Visible;
 end;
 
 procedure TfScript.btnRefreshClick(Sender: TObject);
@@ -529,17 +527,20 @@ var
   r: Boolean;// для проверки не нажат ли Cancel
   newscript : TScript;
 begin
-  ChDir(AppPath+'scripts\');
+  //ChDir(AppPath+'scripts\');
+  DlgOpenScript.InitialDir:=AppPath+'scripts\';
   if DlgOpenScript.Execute then
   begin
     s:=ExtractFileName(DlgOpenScript.FileName);
-    s:=Copy(s,1,LastDelimiter('.',s)-1);   
-    if fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') then
+    s:=Copy(s,1,LastDelimiter('.',s)-1);
+    //if fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') then
+    if fileExists(AppPath+'Scripts\'+s+'.script') then
       if MessageDlg(lang.GetTextOrDefault('IDS_38' (* 'Скрипт с таким названием уже существует, хотите его заменить?' *) ),mtConfirmation,[mbYes, mbNo],0)=mrNo then
       begin
         r := true;
         // будем проверять пока ненажат Cancel или файла с таким именем нету
-        while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') AND r do
+        //while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') AND r do
+        while fileExists(AppPath+'Scripts\'+s+'.script') AND r do
         begin
           r := InputQuery(lang.GetTextOrDefault('IDS_41' (* 'Переименование скрипта' *) ),lang.GetTextOrDefault('IDS_42' (* 'Такой скрипт существует' *) )+sLineBreak+lang.GetTextOrDefault('IDS_43' (* 'Пожалуйста, укажите новое название' *) ), s);
           if not r then exit;
@@ -550,7 +551,7 @@ begin
     newscript.Load('',false,DlgOpenScript.FileName);
     newscript.Save(s);
   end;
-    ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfScript.btnRenameClick(Sender: TObject);
@@ -558,11 +559,12 @@ var
   s: string;
   r: Boolean;
 begin
-  if currentScript = nil then exit; 
+  if currentScript = nil then exit;
     s:= currentScript.ScriptName;
     r:= true;
     // переименовываем пока скрипт с таким именем есть или не нажата кнопка Cancel
-    while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') AND r  do
+    //while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') AND r  do
+    while fileExists(AppPath+'Scripts\'+s+'.script') AND r  do
     begin
       r:= InputQuery(lang.GetTextOrDefault('IDS_41' (* 'Переименование скрипта' *) ),lang.GetTextOrDefault('IDS_43' (* 'Пожалуйста, укажите новое название' *) ),s);
       if not r then exit;
@@ -585,7 +587,8 @@ var
 begin
   s:='NewScript';
   if not InputQuery(lang.GetTextOrDefault('IDS_53' (* 'Новый скрипт' *) ), lang.GetTextOrDefault('IDS_55' (* 'Пожалуйста, укажите имя для создаваемого скрипта' *) ),s )then exit;
-  while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') do
+  //while fileExists(ExtractFilePath(ParamStr(0))+'Scripts\'+s+'.script') do
+  while fileExists(AppPath+'Scripts\'+s+'.script') do
      if not InputQuery(lang.GetTextOrDefault('IDS_53' (* 'Новый скрипт' *) ),lang.GetTextOrDefault('IDS_42' (* 'Такой скрипт существует' *) )+sLineBreak+lang.GetTextOrDefault('IDS_55' (* 'Пожалуйста, укажите название для создаваемого скрипта' *) ), s) then exit;
   newscript := TScript.Create;
   newscript.Load(s,True);
@@ -595,23 +598,23 @@ end;
 
 procedure TfScript.btnFreeTestClick(Sender: TObject);
 begin
-if currentScript = nil then exit;
-if currentScript.isRunning then
+  if currentScript = nil then exit;
+  if currentScript.isRunning then
   begin
-  if currentScript.ListItem.Checked then
-    currentScript.ListItem.Checked := false
-  else
-  begin
-    currentScript.isRunning := false;
-    currentScript.ListItem.Checked := false;
-    currentScript.updatecontrols;
-    try
-      currentScript.Editor.fsScript.CallFunction('Free',0);
-    except
-      StatusBar.SimpleText := currentScript.ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
-      currentScript.markerrorline;
+    if currentScript.ListItem.Checked then
+      currentScript.ListItem.Checked := false
+    else
+    begin
+      currentScript.isRunning := false;
+      currentScript.ListItem.Checked := false;
+      currentScript.updatecontrols;
+      try
+        currentScript.Editor.fsScript.CallFunction('Free',0);
+      except
+        StatusBar.SimpleText := currentScript.ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
+        currentScript.markerrorline;
+      end;
     end;
-  end;
   end;
 end;
 
@@ -624,9 +627,9 @@ end;
 
 procedure TfScript.btnInitTestClick(Sender: TObject);
 begin
-if currentScript = nil then exit;
-if not currentScript.Compilled then currentScript.CompileThisScript;
-if currentScript.Compilled then
+  if currentScript = nil then exit;
+  if not currentScript.Compilled then currentScript.CompileThisScript;
+  if currentScript.Compilled then
   begin
     currentScript.isRunning := true;
     try
@@ -642,7 +645,8 @@ end;
 
 procedure TScript.LoadOriginal;
 begin
-  Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  //Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+ScriptName+'.script');
+  Editor.Source.Lines.LoadFromFile(AppPath+'Scripts\'+ScriptName+'.script');
   Editor.fsScript.Lines.Assign(Editor.Source.Lines);
   Modified := false;
   Tab.ImageIndex := 0;
@@ -712,7 +716,7 @@ begin
                     OriginalListViewWindowProc(Message);
                     exit;
                   end;
-                
+
                 CheckedScrypt := FindScriptByName(listItem.Caption);
                 if assigned(CheckedScrypt) then
                 if CheckedScrypt.isRunning and listItem.Checked then
@@ -743,41 +747,36 @@ begin
   fScript.btnRefresh.Enabled := not isRunning;
   fScript.BtnSave.Enabled := true;
   fScript.btnRename.Enabled := true;
-
 end;
 
 Function TScript.UseThisScript(UseScript: boolean):boolean;
 begin
-result := UseScript;
-if UseScript and not Compilled then CompileThisScript;
-if not Compilled and UseScript then
-    result := false
-else
+  ChDir(AppPath);
+  result := UseScript;
+  if UseScript and not Compilled then CompileThisScript;
+  if not Compilled and UseScript then result := false
+  else
+    if isRunning <> Result then
+      if result then
+        try
+          Editor.fsScript.CallFunction('Init',0);
+        except
+          fScript.StatusBar.SimpleText := ScriptName+': Error in init method. '+SysErrorMessage(GetLastError);
+          markerrorline;
+          result := false;
+        end
+    else
+      try
+        Editor.fsScript.CallFunction('Free',0);
+        if not UseScript and compilled then
+          fScript.StatusBar.SimpleText := ScriptName+fScript.lang.GetTextOrDefault('nouse' (* ': Не будет использоваться' *) );
+      except
+        fScript.StatusBar.SimpleText := ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
+        markerrorline;
+      end;
+      isRunning := Result;
 
-
-if isRunning <> Result then
-if result then
-  try
-  Editor.fsScript.CallFunction('Init',0);
-  except
-    fScript.StatusBar.SimpleText := ScriptName+': Error in init method. '+SysErrorMessage(GetLastError);
-    markerrorline;
-    result := false;
-  end
-else
-  try
-  Editor.fsScript.CallFunction('Free',0);
-  if not UseScript and compilled then
-    fScript.StatusBar.SimpleText := ScriptName+fScript.lang.GetTextOrDefault('nouse' (* ': Не будет использоваться' *) );
-  except
-    fScript.StatusBar.SimpleText := ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
-    markerrorline;
-  end;
-
-isRunning := Result;
-
-if currentScript = Self then
-  updatecontrols;
+      if currentScript = Self then updatecontrols;
 end;
 
 procedure TfScript.ScriptsListVisualDblClick(Sender: TObject);
@@ -796,7 +795,6 @@ end;
 
 procedure TfScript.ScryptProcessPacket;
 //сюда попадаем перед выводом
-
 var
   temp:string;
   i:integer;
@@ -854,8 +852,6 @@ begin
   begin
     FillChar(newpacket.PacketAsCharArray[0], $ffff, #0)
   end;
-  
-
 end;
 
 procedure TfScript.ToolButton1Click(Sender: TObject);
@@ -866,40 +862,39 @@ end;
 procedure TfScript.ScriptsListVisualSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 begin
-Button9.Enabled := false;
-Button10.Enabled := false;
+  Button9.Enabled := false;
+  Button10.Enabled := false;
 
-if item = nil then exit;
+  if item = nil then exit;
 
-if item.Index > 0 then
-  Button9.Enabled := true;
+  if item.Index > 0 then
+    Button9.Enabled := true;
 
-if (item.Index >= 0) and (item.index < ScriptsListVisual.Items.Count -1) then
-  Button10.Enabled := true;
-
+  if (item.Index >= 0) and (item.index < ScriptsListVisual.Items.Count -1) then
+    Button10.Enabled := true;
 end;
 
 procedure TfScript.ScriptsListVisualClick(Sender: TObject);
 begin
-if assigned(currentScript) then
-  currentScript.Editor.Editor.SetFocus;
+  if assigned(currentScript) then
+    currentScript.Editor.Editor.SetFocus;
 end;
 
 procedure TfScript.savescryptorder;
 var
 i:integer;
 begin
-if not Assigned(Options) then exit;
+  if not Assigned(Options) then exit;
 
-Options.WriteInteger('scripts','Scriptscount',ScriptsListVisual.Items.Count);
-i := 0;
-while i < ScriptsListVisual.Items.Count do
-begin
-  Options.WriteString('scripts','name'+inttostr(i), ScriptsListVisual.Items.Item[i].Caption);
-  Options.WriteBool('scripts','checked'+inttostr(i), ScriptsListVisual.Items.Item[i].Checked);
-  Inc(i);
-end;
-Options.UpdateFile;
+  Options.WriteInteger('scripts','Scriptscount',ScriptsListVisual.Items.Count);
+  i := 0;
+  while i < ScriptsListVisual.Items.Count do
+  begin
+    Options.WriteString('scripts','name'+inttostr(i), ScriptsListVisual.Items.Item[i].Caption);
+    Options.WriteBool('scripts','checked'+inttostr(i), ScriptsListVisual.Items.Item[i].Checked);
+    Inc(i);
+  end;
+  Options.UpdateFile;
 end;
 
 procedure TfScript.init;
@@ -920,8 +915,8 @@ end;
 
 procedure TfScript.btnShowWatchClick(Sender: TObject);
 begin
-if Assigned(currentScript) then
-  if btnShowWatch.Down then
+  if Assigned(currentScript) then
+    if btnShowWatch.Down then
     begin
       currentScript.Editor.Splitter1.Visible := true;
       currentScript.Editor.PnlWatchList.Visible := true;
@@ -931,8 +926,6 @@ if Assigned(currentScript) then
       currentScript.Editor.PnlWatchList.Visible := false;
       currentScript.Editor.Splitter1.Visible := false;
     end;
-
-
 end;
 
 procedure TfScript.btnShowClassesClick(Sender: TObject);
@@ -944,7 +937,7 @@ end;
 procedure TfScript.ToolButton3Click(Sender: TObject);
 begin
  if SyntKeyMapping1.Customize then
- SaveComponentToFile(SyntKeyMapping1, AppPath+'settings\editorkeys.dat');
+   SaveComponentToFile(SyntKeyMapping1, AppPath+'settings\editorkeys.dat');
 end;
 
 end.

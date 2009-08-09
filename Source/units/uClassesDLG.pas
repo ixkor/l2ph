@@ -35,12 +35,12 @@ end;
 
 procedure TfClassesDLG.FormCreate(Sender: TObject);
 begin
-loadpos(Self);
+  loadpos(Self);
 end;
 
 procedure TfClassesDLG.FormDestroy(Sender: TObject);
 begin
-savepos(Self);
+  savepos(Self);
 end;
 
 end.

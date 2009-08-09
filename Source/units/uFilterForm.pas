@@ -219,33 +219,33 @@ procedure TfPacketFilter.refreshexisting;
 var
   i : integer;
 begin
-try
-  i := 0;
-  while i < LSPConnections.Count do
-  begin
-    if assigned(TlspConnection(LSPConnections.Items[i]).Visual) then
-        TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh;
-    inc(i);
-  end;
+  try
+    i := 0;
+    while i < LSPConnections.Count do
+    begin
+      if assigned(TlspConnection(LSPConnections.Items[i]).Visual) then
+          TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh;
+      inc(i);
+    end;
 
-  i := 0;
-  if assigned(sockEngine) then
-  while i < sockEngine.tunels.Count do
-  begin
-    if assigned(Ttunel(sockEngine.tunels.Items[i]).Visual) then
-      Ttunel(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
-    inc(i);
-  end;
+    i := 0;
+    if assigned(sockEngine) then
+    while i < sockEngine.tunels.Count do
+    begin
+      if assigned(Ttunel(sockEngine.tunels.Items[i]).Visual) then
+        Ttunel(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
+      inc(i);
+    end;
 
-  i := 0;
-  while i < PacketLogWievs.Count do
-  begin
-    if assigned(TpacketLogWiev(PacketLogWievs.Items[i]).Visual) then
-      TpacketLogWiev(PacketLogWievs.Items[i]).Visual.PacketListRefresh;
-    inc(i);
+    i := 0;
+    while i < PacketLogWievs.Count do
+    begin
+      if assigned(TpacketLogWiev(PacketLogWievs.Items[i]).Visual) then
+        TpacketLogWiev(PacketLogWievs.Items[i]).Visual.PacketListRefresh;
+      inc(i);
+    end;
+  except
   end;
-except
-end;
 end;
 
 procedure TfPacketFilter.CreateParams(var Params: TCreateParams);
@@ -253,7 +253,6 @@ begin
   inherited;
   with Params do
     ExStyle := ExStyle OR WS_EX_APPWINDOW or WS_EX_CONTROLPARENT;
-
 end;
 
 end.

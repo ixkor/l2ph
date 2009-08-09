@@ -147,17 +147,16 @@ begin
   chkRaw.Checked := Options.ReadBool('General','RAWdatarememberallowed',False);
   JvSpinEdit1.Value := Options.ReadFloat('General', 'interval', 5);
   isMainFormCaption.Text := Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team');
-  
+
   ChkHexViewOffset.Checked := Options.ReadBool('General','HexViewOffset', True);
   chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
   ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
 
-
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
   InterfaceEnabled := true;
-  
+
   if iNewxor.Checked and (fileexists(isNewxor.Text)) then
   if LoadLibraryXor(isNewxor.Text) then
   begin
@@ -165,7 +164,6 @@ begin
     btnNewXor.Enabled := false;
     iNewxor.Checked := true;
   end;
-
   if iInject.Checked and (fileexists(isInject.Text)) then
   begin
     isInject.Enabled := false;
@@ -175,12 +173,10 @@ begin
   end
   else
   if iInject.Checked then
-   begin
-   ChkLSPIntercept.Checked := false;
-   ChkInterceptClick(nil);
-   end;
-
-
+  begin
+    ChkLSPIntercept.Checked := false;
+    ChkInterceptClick(nil);
+  end;
   if dmData.LSPControl.isLspModuleInstalled then //+ чуть чуть по другому. буду смотреть реально ли установлена
   begin
     isLSP.Enabled := false;
@@ -188,7 +184,6 @@ begin
     ChkLSPIntercept.Checked := true;
     ChkLSPInterceptClick(nil);
   end;
-
 end;
 
 procedure TfSettings.GenerateSettingsFromInterface;
@@ -215,7 +210,6 @@ with GlobalSettings do
       3: GlobalProtocolVersion := 828;
       else
         GlobalProtocolVersion := 560;
-      
     end;
 
     if oldProto <> GlobalProtocolVersion then
@@ -477,26 +471,29 @@ end;
 
 procedure TfSettings.BtnInjectClick(Sender: TObject);
 begin
-if dlgOpenDll.Execute then
-  isInject.Text := dlgOpenDll.FileName;
+  dlgOpenDll.InitialDir:=AppPath;
+  if dlgOpenDll.Execute then
+    isInject.Text := dlgOpenDll.FileName;
 end;
 
 procedure TfSettings.BtnLspClick(Sender: TObject);
 begin
-if dlgOpenDll.Execute then
-  isLSP.Text := dlgOpenDll.FileName;
+  dlgOpenDll.InitialDir:=AppPath;
+  if dlgOpenDll.Execute then
+    isLSP.Text := dlgOpenDll.FileName;
 end;
 
 procedure TfSettings.btnNewXorClick(Sender: TObject);
 begin
-if dlgOpenDll.Execute then
-  isNewxor.Text := dlgOpenDll.FileName;
+  dlgOpenDll.InitialDir:=AppPath;
+  if dlgOpenDll.Execute then
+    isNewxor.Text := dlgOpenDll.FileName;
 end;
 
 procedure TfSettings.isMainFormCaptionChange(Sender: TObject);
 begin
-fMain.Caption := format(isMainFormCaption.Text, [uGlobalFuncs.getversion]);
-Options.WriteString('general','Caption', isMainFormCaption.Text);
+  fMain.Caption := format(isMainFormCaption.Text, [uGlobalFuncs.getversion]);
+  Options.WriteString('general','Caption', isMainFormCaption.Text);
 end;
 
 end.

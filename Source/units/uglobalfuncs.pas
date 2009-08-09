@@ -238,14 +238,19 @@ end;
 Procedure Reload;
 begin
   //считываем systemmsg.ini
+  SysMsgIdList.Clear;
   SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgid.ini');
   //считываем itemname.ini
+  ItemsList.Clear;
   ItemsList.LoadFromFile(AppPath+'settings\itemsid.ini');
   //считываем npcname.ini
+  NpcIdList.Clear;
   NpcIdList.LoadFromFile(AppPath+'settings\npcsid.ini');
   //считываем ClassId.ini
+  ClassIdList.Clear;
   ClassIdList.LoadFromFile(AppPath+'settings\classid.ini');
   //считываем skillname.ini
+  SkillList.Clear;
   SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
 end;
 
@@ -445,8 +450,6 @@ begin
     AddToLog(format(rsLoadDllUnSuccessful,[name]));
   end;
 end;
-
-
 
 function WideStringToString(const ws: WideString; codePage: Word): AnsiString;
 var

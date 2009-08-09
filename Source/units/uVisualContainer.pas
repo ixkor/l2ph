@@ -184,7 +184,7 @@ begin
   ToolButton17.Down := GlobalSettings.HexViewOffset;
   PacketView.HexViewOffset := GlobalSettings.HexViewOffset;
   ToolButton5.Down := GlobalSettings.ShowLastPacket;
-  
+
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
 
@@ -203,11 +203,11 @@ begin
   'SendToClient;'#10#13+
   'end.');
   dmData.UpdateAutoCompleate(edit.AutoComplete);
-  
+
   Dump := TStringList.Create;
   dumpacumulator := TStringList.Create;
   BtnAutoSavePckts.Down := GlobalSettings.isSaveLog;
-  if CurrentTpacketLog <> nil then //просмотр логов. просто скрываем все ненужное.
+  if CurrentTpacketLog <> nil then //просмотр логов, просто скрываем все ненужное
     begin
       TabSheet2.TabVisible := false;
       TabSheet2.Hide;
@@ -224,7 +224,7 @@ begin
       ToolButton8.Show;
       dump.LoadFromFile(TpacketLogWiev(CurrentTpacketLog).sFileName);
       PacketListRefresh;
-      //в этом екземпляре нет соединения!
+      //в этом экземпляре нет соединения!
     end;
   //
   TabSheet1.Show;
@@ -250,9 +250,6 @@ begin
     PacketView.Destroy;
   PacketView := nil;
 end;
-
-
-
 
 procedure TfVisual.Processpacket;
     Procedure AddToListView5(ItemImageIndex:byte; ItemCaption:String; ItemPacketNumber: LongWord; ItemId, ItemSubId : word; Visible : boolean);
@@ -323,7 +320,6 @@ begin
 
   id := newpacket.Data[0];
   SubId := Word(id shl 8+Byte(newpacket.Data[1]));
-  
 
   isknown := GetPacketName(id, subid, FromServer, pname, IsShow);
   if not isknown then
@@ -345,8 +341,7 @@ begin
 end;
 
 
-procedure TfVisual.ListView5KeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfVisual.ListView5KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   ListView5Click(Sender);
 end;
@@ -376,10 +371,11 @@ end;
 
 procedure TfVisual.tbtnSaveClick(Sender: TObject);
 begin
-ChDir(AppPath+'logs\');
+  //ChDir(AppPath+'logs\');
+  dlgSaveLog.InitialDir:=AppPath+'logs\';
   if dlgSaveLog.Execute then
     Dump.SaveToFile(dlgSaveLog.FileName);
-ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'settings\');
 end;
 
 {$warnings off}
@@ -411,7 +407,7 @@ begin
 
     if assigned(currentLSP) then
       charname := TlspConnection(currentLSP).EncDec.CharName +' ';
-       
+
     i := 1;
     while i <= Length(charname) do
       begin
@@ -420,7 +416,7 @@ begin
         else
           delete(charname,i,1);
       end;
-   
+
     SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].txt');
     SaveThis.Free;
   end;
@@ -500,6 +496,7 @@ begin
   DisableBtns;
   ListView5.Items.BeginUpdate;
   try
+    fPacketFilter.LoadPacketsIni;  //перечитываем packets.ini
     ListView5.Items.Clear;
     PacketView.rvDescryption.Clear;
     PacketView.rvHEX.Clear;
@@ -549,8 +546,6 @@ procedure TfVisual.tbtnDeleteClick(Sender: TObject);
   var
   i,k:Integer;
   tmpItm: TListItem;
-
-
 begin
   tmpItm:=ListView5.Selected;
   for i:=1 to ListView5.SelCount do
@@ -590,30 +585,30 @@ end;
 
 procedure TfVisual.disableControls;
 begin
-OpenBtn.Enabled := false;
-ToServer.Enabled := false;
-ToClient.Enabled := false;
+  OpenBtn.Enabled := false;
+  ToServer.Enabled := false;
+  ToClient.Enabled := false;
 end;
 
 procedure TfVisual.enableControls;
 begin
-OpenBtn.Enabled := true;
-ToServer.Enabled := true;
-ToClient.Enabled := true;
+  OpenBtn.Enabled := true;
+  ToServer.Enabled := true;
+  ToClient.Enabled := true;
 end;
 
 procedure TfVisual.ToServerClick(Sender: TObject);
 begin
-ToServer.Down := true;
-ToClient.Down := false;
-IDontknowHowToNameThis;
+  ToServer.Down := true;
+  ToClient.Down := false;
+  IDontknowHowToNameThis;
 end;
 
 procedure TfVisual.ToClientClick(Sender: TObject);
 begin
-ToServer.Down := false;
-ToClient.Down := true;
-IDontknowHowToNameThis;
+  ToServer.Down := false;
+  ToClient.Down := true;
+  IDontknowHowToNameThis;
 end;
 
 procedure TfVisual.IDontknowHowToNameThis;
@@ -646,26 +641,30 @@ end;
 
 procedure TfVisual.OpenBtnClick(Sender: TObject);
 begin
-ChDir(AppPath+'logs\');
-  if DlgOpenPacket.Execute then Memo4.Lines.LoadFromFile(DlgOpenPacket.FileName);
-ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'logs\');
+  DlgOpenPacket.InitialDir:=AppPath+'logs\';
+  if DlgOpenPacket.Execute then
+    Memo4.Lines.LoadFromFile(DlgOpenPacket.FileName);
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.SaveBntClick(Sender: TObject);
 begin
-ChDir(AppPath+'logs\');
-  if DlgSavePacket.Execute then Memo4.Lines.SaveToFile(DlgSavePacket.FileName);
-ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'logs\');
+  DlgSavePacket.InitialDir:=AppPath+'logs\';
+  if DlgSavePacket.Execute then
+    Memo4.Lines.SaveToFile(DlgSavePacket.FileName);
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.JvSpinEdit2Change(Sender: TObject);
 begin
-timerSend.Interval := round(JvSpinEdit2.Value*1000);
+  timerSend.Interval := round(JvSpinEdit2.Value*1000);
 end;
 
 procedure TfVisual.SendByTimerClick(Sender: TObject);
 begin
-timerSend.Enabled := SendByTimer.Down;
+  timerSend.Enabled := SendByTimer.Down;
 end;
 
 procedure TfVisual.SendBtnClick(Sender: TObject);
@@ -704,7 +703,6 @@ begin
     end;
 end;
 
-
 procedure TfVisual.ToolButton30Click(Sender: TObject);
 begin
   setNofreeBtns(ToolButton37.Down);
@@ -725,17 +723,17 @@ end;
 
 procedure TfVisual.ThisOneDisconnected;
 begin
-timerSend.Enabled := false;
-ToServer.Enabled := false;
-ToClient.Enabled := false;
-SendBtn.Enabled := false;
-JvSpinEdit2.Enabled := false;
-SendByTimer.Enabled := false;
-SendByTimer.Down := false;
-ToolButton37.Enabled := false;
-ToolButton30.Enabled := false;
-btnExecute.Enabled := false;
-btnTerminate.Click;
+  timerSend.Enabled := false;
+  ToServer.Enabled := false;
+  ToClient.Enabled := false;
+  SendBtn.Enabled := false;
+  JvSpinEdit2.Enabled := false;
+  SendByTimer.Enabled := false;
+  SendByTimer.Down := false;
+  ToolButton37.Enabled := false;
+  ToolButton30.Enabled := false;
+  btnExecute.Enabled := false;
+  btnTerminate.Click;
 end;
 
 procedure TfVisual.btnExecuteClick(Sender: TObject);
@@ -793,55 +791,57 @@ end;
 procedure TfVisual.PopupMenu1Popup(Sender: TObject);
 begin
   if ListView5.SelCount=1 then
-  
+
 end;
 
 procedure TfVisual.ToolButton27Click(Sender: TObject);
 begin
-ChDir(AppPath+'scripts\');
+  //ChDir(AppPath+'scripts\');
+  dlgOpenScript.InitialDir:=AppPath+'scripts\';
   if DlgOpenScript.Execute then
     Edit.Source.Lines.LoadFromFile(DlgOpenScript.FileName);
-ChDir(AppPath+'settings\');
-    
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.ToolButton25Click(Sender: TObject);
 begin
-ChDir(AppPath+'scripts\');
+  //ChDir(AppPath+'scripts\');
+  DlgSaveScript.InitialDir:=AppPath+'scripts\';
   if dlgSaveScript.Execute then
     Edit.Source.Lines.SaveToFile(dlgSaveScript.FileName);
-ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.btnSaveRawClick(Sender: TObject);
 var
 ms : TFileStream;
 begin
-ChDir(AppPath+'logs\');
-if dlgSaveLogRaw.Execute then
-begin
-  deletefile(dlgSaveLogRaw.FileName);
-  ms := TFileStream.Create(dlgSaveLogRaw.FileName, fmOpenWrite or fmCreate);
-  try
-    ms.Position := 0;
-    if assigned(currenttunel) then
+  //ChDir(AppPath+'logs\');
+  dlgSaveLogRaw.InitialDir:=AppPath+'logs\';
+  if dlgSaveLogRaw.Execute then
+  begin
+    deletefile(dlgSaveLogRaw.FileName);
+    ms := TFileStream.Create(dlgSaveLogRaw.FileName, fmOpenWrite or fmCreate);
+    try
+      ms.Position := 0;
+      if assigned(currenttunel) then
       begin
-      Ttunel(currenttunel).RawLog.Position := 0;
-      ms.CopyFrom(Ttunel(currenttunel).RawLog,Ttunel(currenttunel).RawLog.Size);
-      Ttunel(currenttunel).RawLog.Position := Ttunel(currenttunel).RawLog.Size;
+        Ttunel(currenttunel).RawLog.Position := 0;
+        ms.CopyFrom(Ttunel(currenttunel).RawLog,Ttunel(currenttunel).RawLog.Size);
+        Ttunel(currenttunel).RawLog.Position := Ttunel(currenttunel).RawLog.Size;
       end
-    else
-    if Assigned(currentLSP) then
-      begin
-      TlspConnection(currentLSP).RawLog.Position := 0;
-      ms.CopyFrom(TlspConnection(currentLSP).RawLog,TlspConnection(currentLSP).RawLog.Size);
-      TlspConnection(currentLSP).RawLog.Position := TlspConnection(currentLSP).RawLog.Size;
-      end;
-  finally
-    ms.Destroy;
+      else
+        if Assigned(currentLSP) then
+        begin
+          TlspConnection(currentLSP).RawLog.Position := 0;
+          ms.CopyFrom(TlspConnection(currentLSP).RawLog,TlspConnection(currentLSP).RawLog.Size);
+          TlspConnection(currentLSP).RawLog.Position := TlspConnection(currentLSP).RawLog.Size;
+        end;
+    finally
+      ms.Destroy;
+    end;
   end;
-end;
-ChDir(AppPath+'settings\');
+  //ChDir(AppPath+'settings\');
 end;
 
 procedure TfVisual.FrameResize(Sender: TObject);
@@ -872,9 +872,7 @@ begin
            ByteArrayToHex(newpacket.PacketAsByteArray, newpacket.Size);
 
   dumpacumulator.Add(sLastPacket);
-
 //  sendAction(TencDec_Action_LOG);
-
 end;
 
 procedure TfVisual.processpacketfromacum;
@@ -884,27 +882,26 @@ var
   FromServer:boolean;
   Currentpacket : TPacket;
 begin
-if not btnProcessPackets.Down then
+  if not btnProcessPackets.Down then
   begin
     dumpacumulator.Clear;
     exit;
   end;
-
-while dumpacumulator.Count > 0 do
-begin
-  if Dump.Count >= MaxLinesInPktLog then
-    SavePacketLog;
-  if dumpacumulator.Count = 0 then exit;
-  PacketNumber := Dump.Count;
-  dump.Add(dumpacumulator.Strings[0]);
-  dumpacumulator.Delete(0);
-  //смотрим второй байт в каждом пакете
-  str := dump.Strings[PacketNumber];
-  FromServer := (str[2]='3');
-  Delete(str,1,18);
-  HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
-  ProcessPacket(Currentpacket, FromServer, nil, packetnumber);
-end;
+  while dumpacumulator.Count > 0 do
+  begin
+    if Dump.Count >= MaxLinesInPktLog then
+      SavePacketLog;
+    if dumpacumulator.Count = 0 then exit;
+    PacketNumber := Dump.Count;
+    dump.Add(dumpacumulator.Strings[0]);
+    dumpacumulator.Delete(0);
+    //смотрим второй байт в каждом пакете
+    str := dump.Strings[PacketNumber];
+    FromServer := (str[2]='3');
+    Delete(str,1,18);
+    HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
+    ProcessPacket(Currentpacket, FromServer, nil, packetnumber);
+  end;
 end;
 
 procedure TfVisual.Translate;
@@ -921,21 +918,20 @@ end;
 
 procedure TfVisual.TabSheet1Show(Sender: TObject);
 begin
-Splitter3.Show;
-packetVievPanel.Show;
+  Splitter3.Show;
+  packetVievPanel.Show;
 end;
 
 procedure TfVisual.TabSheet3Show(Sender: TObject);
 begin
-packetVievPanel.Hide;
-Splitter3.Hide;
+  packetVievPanel.Hide;
+  Splitter3.Hide;
 end;
 
 procedure TfVisual.btnProcessPacketsClick(Sender: TObject);
 begin
-BtnAutoSavePckts.Down := BtnAutoSavePckts.Down and btnProcessPackets.Down;
-Panel4.Enabled := btnProcessPackets.Down;
-
+  BtnAutoSavePckts.Down := BtnAutoSavePckts.Down and btnProcessPackets.Down;
+  Panel4.Enabled := btnProcessPackets.Down;
 end;
 
 end.

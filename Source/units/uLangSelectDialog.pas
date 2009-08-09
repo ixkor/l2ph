@@ -29,16 +29,16 @@ uses uGlobalFuncs, umain;
 
 procedure TfLangSelectDialog.Button1Click(Sender: TObject);
 begin
-close;
-if siLangCombo1.ItemIndex = -1 then exit;
-fMain.lang.Language := siLangCombo1.Items.Strings[siLangCombo1.ItemIndex];
-Options.WriteInteger('General', 'language', fLangSelectDialog.siLangCombo1.ItemIndex);
-Options.UpdateFile;
+  close;
+  if siLangCombo1.ItemIndex = -1 then exit;
+  fMain.lang.Language := siLangCombo1.Items.Strings[siLangCombo1.ItemIndex];
+  Options.WriteInteger('General', 'language', fLangSelectDialog.siLangCombo1.ItemIndex);
+  Options.UpdateFile;
 end;
 
 procedure TfLangSelectDialog.Button2Click(Sender: TObject);
 begin
-close;
+  close;
 end;
 
 end.

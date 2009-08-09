@@ -53,13 +53,14 @@ var
   newplugin : TPlugin;
   i:integer;
 begin
-  Mask := ExtractFilePath(ParamStr(0))+'plugins\*.dll';
+  //Mask := ExtractFilePath(ParamStr(0))+'plugins\*.dll';
+  Mask := AppPath+'plugins\*.dll';
   clbPluginsList.Clear;
   while Plugins.Count > 0 do
     TPlugin(Plugins.Items[0]).Destroy;
 
   fMain.nPlugins.Clear;
-  
+
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
     repeat
@@ -67,7 +68,8 @@ begin
       if (SearchRec.Attr and faDirectory) <> faDirectory then
       begin
         newplugin := TPlugin.Create;
-        newplugin.FileName := ExtractFilePath(ParamStr(0))+'plugins\'+SearchRec.Name;
+        //newplugin.FileName := ExtractFilePath(ParamStr(0))+'plugins\'+SearchRec.Name;
+        newplugin.FileName := AppPath+'plugins\'+SearchRec.Name;
         s:=Copy(SearchRec.Name,1,Length(SearchRec.Name)-4);
         clbPluginsList.Items.Add(s);
         mi := TMenuItem.Create(fMain.nPlugins);
@@ -173,7 +175,7 @@ end;
 procedure TfPlugins.CreateParams(var Params: TCreateParams);
 begin
   inherited;
-  Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
+  Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW;
 end;
 
 procedure TfPlugins.init;

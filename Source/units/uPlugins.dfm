@@ -1,10 +1,10 @@
 object fPlugins: TfPlugins
   Left = 243
   Top = 253
-  Width = 668
-  Height = 446
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = #1055#1083#1072#1075#1080#1085#1099
+  ClientHeight = 412
+  ClientWidth = 660
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object fPlugins: TfPlugins
     Left = 0
     Top = 0
     Width = 206
-    Height = 380
+    Height = 384
     Align = alLeft
     BiDiMode = bdLeftToRight
     Caption = #1057#1087#1080#1089#1086#1082' '#1087#1083#1072#1075#1080#1085#1086#1074':'
@@ -30,7 +30,7 @@ object fPlugins: TfPlugins
       Left = 2
       Top = 15
       Width = 202
-      Height = 363
+      Height = 367
       OnClickCheck = clbPluginsListClickCheck
       Align = alClient
       BorderStyle = bsNone
@@ -42,24 +42,24 @@ object fPlugins: TfPlugins
   object Panel13: TPanel
     Left = 206
     Top = 0
-    Width = 446
-    Height = 380
+    Width = 454
+    Height = 384
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object GroupBox10: TGroupBox
       Left = 0
       Top = 0
-      Width = 446
-      Height = 258
+      Width = 454
+      Height = 262
       Align = alClient
       Caption = #1054#1087#1080#1089#1072#1085#1080#1077':'
       TabOrder = 0
       object mPluginInfo: TMemo
         Left = 2
         Top = 15
-        Width = 442
-        Height = 241
+        Width = 450
+        Height = 245
         Align = alClient
         BorderStyle = bsNone
         ReadOnly = True
@@ -68,8 +68,8 @@ object fPlugins: TfPlugins
     end
     object GroupBox11: TGroupBox
       Left = 0
-      Top = 258
-      Width = 446
+      Top = 262
+      Width = 454
       Height = 122
       Align = alBottom
       Caption = #1055#1086#1076#1076#1077#1088#1078#1080#1074#1072#1077#1084#1099#1077' '#1092#1091#1085#1082#1094#1080#1080':'
@@ -78,7 +78,7 @@ object fPlugins: TfPlugins
       object clbPluginFuncs: TCheckListBox
         Left = 2
         Top = 15
-        Width = 442
+        Width = 450
         Height = 105
         Align = alClient
         BorderStyle = bsNone
@@ -97,8 +97,8 @@ object fPlugins: TfPlugins
   end
   object Panel1: TPanel
     Left = 0
-    Top = 380
-    Width = 652
+    Top = 384
+    Width = 660
     Height = 28
     Align = alBottom
     BevelOuter = bvNone
