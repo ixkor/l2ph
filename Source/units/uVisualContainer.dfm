@@ -1,8 +1,8 @@
 object fVisual: TfVisual
   Left = 0
   Top = 0
-  Width = 451
-  Height = 304
+  Width = 435
+  Height = 266
   Align = alClient
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,19 +14,17 @@ object fVisual: TfVisual
   TabStop = True
   OnResize = FrameResize
   object Splitter3: TSplitter
-    Left = 98
+    Left = 82
     Top = 5
-    Height = 299
+    Height = 261
     Align = alRight
     Visible = False
-    ExplicitLeft = 554
-    ExplicitHeight = 261
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 5
-    Width = 98
-    Height = 299
+    Width = 82
+    Height = 261
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
@@ -36,16 +34,16 @@ object fVisual: TfVisual
       object GroupBox12: TGroupBox
         Left = 0
         Top = 28
-        Width = 90
-        Height = 243
+        Width = 74
+        Height = 205
         Align = alClient
         Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1086#1074':'
         TabOrder = 0
         object ListView5: TListView
           Left = 2
           Top = 15
-          Width = 86
-          Height = 226
+          Width = 70
+          Height = 188
           Hint = #1057#1087#1080#1089#1086#1082' '#1087#1088#1080#1085#1103#1090#1099#1093' '#1080' '#1086#1090#1086#1089#1083#1072#1085#1085#1099#1093' '#1087#1072#1082#1077#1090#1086#1074
           Align = alClient
           BevelInner = bvNone
@@ -55,7 +53,7 @@ object fVisual: TfVisual
               AutoSize = True
               Caption = 'Name'
               WidthType = (
-                -8)
+                -24)
             end
             item
               Caption = #8470
@@ -91,7 +89,7 @@ object fVisual: TfVisual
       object Panel5: TPanel
         Left = 0
         Top = 0
-        Width = 90
+        Width = 74
         Height = 28
         Align = alTop
         BevelOuter = bvNone
@@ -118,7 +116,7 @@ object fVisual: TfVisual
             TabOrder = 0
             object ReloadThis: TToolButton
               Left = 0
-              Top = 0
+              Top = 2
               Hint = #1054#1073#1085#1086#1074#1080#1090#1100
               ImageIndex = 22
               ParentShowHint = False
@@ -128,7 +126,7 @@ object fVisual: TfVisual
             object tbtnSave: TToolButton
               Tag = 1
               Left = 23
-              Top = 0
+              Top = 2
               Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1083#1086#1075' '#1082#1072#1082'..'
               ImageIndex = 0
               ParentShowHint = False
@@ -138,7 +136,7 @@ object fVisual: TfVisual
             object btnSaveRaw: TToolButton
               Tag = 1
               Left = 46
-              Top = 0
+              Top = 2
               ImageIndex = 21
               ParentShowHint = False
               ShowHint = True
@@ -148,7 +146,7 @@ object fVisual: TfVisual
             object tbtnClear: TToolButton
               Tag = 1
               Left = 69
-              Top = 0
+              Top = 2
               Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1083#1086#1075
               ImageIndex = 1
               ParentShowHint = False
@@ -157,14 +155,14 @@ object fVisual: TfVisual
             end
             object ToolButton1: TToolButton
               Left = 92
-              Top = 0
+              Top = 2
               Width = 14
               ImageIndex = 5
               Style = tbsSeparator
             end
             object tbtnFilterDel: TToolButton
               Left = 106
-              Top = 0
+              Top = 2
               Hint = #1059#1073#1088#1072#1090#1100' '#1074#1089#1077' '#1087#1072#1082#1077#1090#1099' '#1090#1077#1082#1091#1097#1077#1075#1086' '#1090#1080#1087#1072' '#1080#1079' '#1092#1080#1083#1100#1090#1088#1072
               Enabled = False
               ImageIndex = 2
@@ -174,7 +172,7 @@ object fVisual: TfVisual
             end
             object tbtnDelete: TToolButton
               Left = 129
-              Top = 0
+              Top = 2
               Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1083#1086#1075#1072
               Enabled = False
               ImageIndex = 3
@@ -184,14 +182,14 @@ object fVisual: TfVisual
             end
             object ToolButton15: TToolButton
               Left = 152
-              Top = 0
+              Top = 2
               Width = 11
               ImageIndex = 16
               Style = tbsSeparator
             end
             object tbtnToSend: TToolButton
               Left = 163
-              Top = 0
+              Top = 2
               Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1082#1077#1090' '#1074' '#1055#1086#1089#1099#1083#1082#1091
               Enabled = False
               ImageIndex = 4
@@ -201,14 +199,14 @@ object fVisual: TfVisual
             end
             object ToolButton2: TToolButton
               Left = 186
-              Top = 0
+              Top = 2
               Width = 14
               ImageIndex = 6
               Style = tbsSeparator
             end
             object ToolButton4: TToolButton
               Left = 200
-              Top = 0
+              Top = 2
               Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
               Down = True
               ImageIndex = 5
@@ -219,7 +217,7 @@ object fVisual: TfVisual
             end
             object ToolButton3: TToolButton
               Left = 223
-              Top = 0
+              Top = 2
               Hint = #1055#1072#1082#1077#1090#1099' '#1086#1090' '#1082#1083#1080#1077#1085#1090#1072
               Down = True
               ImageIndex = 6
@@ -230,7 +228,7 @@ object fVisual: TfVisual
             end
             object ToolButton5: TToolButton
               Left = 246
-              Top = 0
+              Top = 2
               Hint = #1057#1083#1077#1076#1080#1090#1100' '#1079#1072' '#1087#1086#1089#1083#1077#1076#1085#1080#1084' '#1087#1088#1080#1096#1077#1076#1096#1080#1084' '#1087#1072#1082#1077#1090#1086#1084
               Down = True
               ImageIndex = 7
@@ -240,7 +238,7 @@ object fVisual: TfVisual
             end
             object BtnAutoSavePckts: TToolButton
               Left = 269
-              Top = 0
+              Top = 2
               Hint = #1057#1086#1093#1088#1072#1085#1103#1090#1100' '#1083#1086#1075' '#1087#1077#1088#1077#1076' '#1072#1074#1090#1086' '#1086#1095#1080#1089#1090#1082#1086#1081
               AllowAllUp = True
               ImageIndex = 8
@@ -250,14 +248,14 @@ object fVisual: TfVisual
             end
             object ToolButton9: TToolButton
               Left = 292
-              Top = 0
+              Top = 2
               Width = 14
               ImageIndex = 12
               Style = tbsSeparator
             end
             object ToolButton6: TToolButton
               Left = 306
-              Top = 0
+              Top = 2
               Hint = #1055#1086#1082#1072#1079#1072#1090#1100'/'#1089#1087#1088#1103#1090#1072#1090#1100' '#1092#1080#1083#1100#1090#1088#1099
               ImageIndex = 9
               ParentShowHint = False
@@ -267,7 +265,7 @@ object fVisual: TfVisual
             end
             object ToolButton17: TToolButton
               Left = 329
-              Top = 0
+              Top = 2
               Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1089#1084#1077#1097#1077#1085#1080#1077' '#1074' Hex/Dec'
               ImageIndex = 10
               ParentShowHint = False
@@ -278,7 +276,7 @@ object fVisual: TfVisual
           end
         end
         object Panel7: TPanel
-          Left = -5
+          Left = -21
           Top = 0
           Width = 95
           Height = 28
@@ -296,7 +294,7 @@ object fVisual: TfVisual
             TabOrder = 0
             object btnProcessPackets: TToolButton
               Left = 0
-              Top = 0
+              Top = 2
               Hint = #1054#1073#1088#1072#1073#1072#1090#1099#1074#1072#1090#1100' '#1087#1072#1082#1077#1090#1099
               Down = True
               ImageIndex = 23
@@ -307,7 +305,7 @@ object fVisual: TfVisual
             end
             object ToolButton37: TToolButton
               Left = 23
-              Top = 0
+              Top = 2
               Hint = 
                 #1053#1077' '#1079#1072#1082#1088#1099#1074#1072#1090#1100' '#1101#1090#1086#1090' '#1092#1088#1077#1081#1084' '#1087#1086#1089#1083#1077' '#1076#1080#1089#1082#1086#1085#1085#1077#1082#1090#1072' '#1089#1074#1103#1079#1072#1085#1086#1075#1086' '#1089' '#1085#1080#1084' '#1089#1086#1077#1076#1080#1085 +
                 #1077#1085#1080#1103
@@ -319,7 +317,7 @@ object fVisual: TfVisual
             end
             object ToolButton38: TToolButton
               Left = 46
-              Top = 0
+              Top = 2
               Hint = #1059#1073#1080#1090#1100' '#1089#1086#1077#1076#1080#1085#1077#1085#1080#1077' '#1080' ('#1080#1083#1080') '#1047#1072#1082#1088#1099#1090#1100' '#1076#1072#1085#1085#1099#1081' '#1092#1088#1077#1081#1084
               ImageIndex = 11
               ParentShowHint = False
@@ -328,7 +326,7 @@ object fVisual: TfVisual
             end
             object ToolButton8: TToolButton
               Left = 69
-              Top = 0
+              Top = 2
               Hint = #1047#1072#1082#1088#1099#1090#1100' '#1076#1072#1085#1085#1099#1081' '#1083#1086#1075
               ImageIndex = 20
               ParentShowHint = False
@@ -347,7 +345,7 @@ object fVisual: TfVisual
       object Panel8: TPanel
         Left = 0
         Top = 0
-        Width = 90
+        Width = 74
         Height = 28
         Align = alTop
         BevelOuter = bvNone
@@ -355,7 +353,7 @@ object fVisual: TfVisual
         object Panel9: TPanel
           Left = 0
           Top = 0
-          Width = 44
+          Width = 28
           Height = 28
           Align = alClient
           AutoSize = True
@@ -364,7 +362,7 @@ object fVisual: TfVisual
           object ToolBar2: TToolBar
             Left = 0
             Top = 0
-            Width = 44
+            Width = 28
             Height = 28
             Align = alClient
             Images = imgBT
@@ -485,7 +483,7 @@ object fVisual: TfVisual
           end
         end
         object Panel11: TPanel
-          Left = 44
+          Left = 28
           Top = 0
           Width = 46
           Height = 28
@@ -528,8 +526,8 @@ object fVisual: TfVisual
       object GroupBox7: TGroupBox
         Left = 0
         Top = 28
-        Width = 90
-        Height = 243
+        Width = 74
+        Height = 205
         Align = alClient
         Caption = #1055#1072#1082#1077#1090#1099' '#1085#1072' '#1086#1090#1087#1088#1072#1074#1082#1091':'
         TabOrder = 1
@@ -650,17 +648,17 @@ object fVisual: TfVisual
   object Panel14: TPanel
     Left = 0
     Top = 0
-    Width = 451
+    Width = 435
     Height = 5
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
   end
   object packetVievPanel: TPanel
-    Left = 101
+    Left = 85
     Top = 5
     Width = 350
-    Height = 299
+    Height = 261
     Align = alRight
     TabOrder = 3
   end
@@ -678,7 +676,6 @@ object fVisual: TfVisual
       Height = 13
       Align = alTop
       Caption = #1055#1077#1088#1077#1089#1090#1088#1072#1080#1074#1072#1077#1090#1089#1103' '#1089#1087#1080#1089#1086#1082' '#1087#1072#1082#1077#1090#1086#1074'..'
-      ExplicitWidth = 179
     end
     object ProgressBar1: TProgressBar
       Left = 1

@@ -261,12 +261,13 @@ end;
 procedure TScript.CompileThisScript;
 begin
   Editor.Editor.Gutter.Objects.Items[0].Line := -1;
-  Compilled := dmData.Compile(Editor.fsScript, Editor.Editor, fscript.StatusBar);
+  Compilled := dmData.Compile(Editor, fscript.StatusBar);
   fscript.StatusBar.SimpleText := ScriptName +': '+ fscript.StatusBar.SimpleText;
   Editor.BreakNext := false;
   Editor.Nomove := false;
   if Compilled then
       Editor.Editor.Invalidate;
+  
 end;
 
 constructor TScript.create;

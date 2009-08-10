@@ -749,7 +749,7 @@ procedure TfVisual.btnExecuteClick(Sender: TObject);
 begin
     dmData.RefreshPrecompile(Edit.fsScript);
     Edit.fsScript.Lines.Assign(Edit.Source.Lines);
-    if dmData.Compile(Edit.fsScript,Edit.Editor,fMain.StatusBar1) then
+    if dmData.Compile(Edit, fMain.StatusBar1) then
     begin
       //Делаем зелененькие поля.
       Edit.Editor.LineStateDisplay.UnchangedColor := clLime;
