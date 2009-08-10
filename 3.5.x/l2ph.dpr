@@ -35,7 +35,8 @@ uses
   uClassesDLG in 'units\uClassesDLG.pas' {fClassesDLG},
   uMainReplacer in 'units\uMainReplacer.pas' {fMainReplacer},
   uPacketViewer in 'units\uPacketViewer.pas' {fPacketViewer},
-  uLangSelectDialog in 'units\uLangSelectDialog.pas' {fLangSelectDialog};
+  uLangSelectDialog in 'units\uLangSelectDialog.pas' {fLangSelectDialog},
+  uCompilling in 'units\uCompilling.pas' {fCompilling};
 
 {$R *.res}
 Procedure Check2stInstance;
@@ -80,6 +81,7 @@ begin
   Application.CreateForm(TfClassesDLG, fClassesDLG);
   Application.CreateForm(TfPacketViewer, fPacketViewer);
   Application.CreateForm(TfLangSelectDialog, fLangSelectDialog);
+  Application.CreateForm(TfCompilling, fCompilling);
   Application.ShowMainForm := false;
   fSettings.init;
   fMain.INIT;

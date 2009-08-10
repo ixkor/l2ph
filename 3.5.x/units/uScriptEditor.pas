@@ -393,11 +393,14 @@ end;
 
 procedure TfScriptEditor.EditorEnter(Sender: TObject);
 begin
+try
 if GetModifTime(AppPath+'Scripts\'+(assignedTScript as TScript).ScriptName+'.script') > (assignedTScript as TScript).changetime then
     if MessageDlg(format(siLang1.GetTextOrDefault('IDS_16' (* 'Файл %s был модифицирован внешней программой. Перезагрузить его ?' *) ),[(assignedTScript as TScript).ScriptName]),mtWarning,[mbYes, mbNo],0) = mrYes then
       (assignedTScript as TScript).LoadOriginal
     else
       (assignedTScript as TScript).changetime := GetModifTime(AppPath+'Scripts\'+(assignedTScript as TScript).ScriptName+'.script');
+except
+end;
 end;
 
 

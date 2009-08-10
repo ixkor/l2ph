@@ -1,10 +1,10 @@
 object fLog: TfLog
   Left = 2
   Top = 3
+  Width = 684
+  Height = 212
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1093#1072#1082#1072
-  ClientHeight = 174
-  ClientWidth = 668
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

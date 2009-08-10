@@ -26,6 +26,7 @@ uses
   Variants,
   ecPopupCtrl,
   SyncObjs,
+  uScriptEditor,
   fs_iinterpreter, fs_ipascal, fs_iinirtti, fs_imenusrtti, fs_idialogsrtti,
   fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp;
 
@@ -109,7 +110,7 @@ type
     Procedure setNoDisconnectOnDisconnect(id:integer; NoFree:boolean;IsServer:boolean);
     Procedure setNoFreeOnConnectionLost(id:integer; NoFree:boolean);
     procedure DoDisconnect(id:integer);
-    function Compile(var fsScript: TfsScript; Editor: TSyntaxMemo; var StatBat:TStatusBar): Boolean;
+    function Compile(var EditorModule: tfscripteditor; var StatBat:TStatusBar): Boolean;
 
     procedure DO_reloadFuncs;
     procedure RefreshPrecompile(var fsScript: TfsScript);
@@ -126,7 +127,8 @@ var
 
 
 implementation
-uses uscripts, uPluginData, uPlugins, umain, uSettingsDialog, uProcesses, advApiHook;
+uses uPluginData, uPlugins, umain, uSettingsDialog, uProcesses, advApiHook,
+  uCompilling, uScripts;
 
 var
   searchfor : string;
@@ -1028,21 +1030,25 @@ var
   ps,x,y: Integer;
   p:tpoint;
 begin
-  RefreshPrecompile(fsScript);
-  fsScript.Lines.Assign(Editor.Lines);
-  if not fsScript.Compile then begin
-    ps:=Pos(':',fsScript.ErrorPos);
-    x:=StrToInt(Copy(fsScript.ErrorPos,ps+1,length(fsScript.ErrorPos)-ps));
-    y:=StrToInt(Copy(fsScript.ErrorPos,1,ps-1));
-    Editor.Gutter.Objects.Items[0].Line := y-1;
+  fCompilling.AssignedSEditor := EditorModule;
+  fCompilling.ActivateMe;
+  RefreshPrecompile(EditorModule.fsScript);
+  EditorModule.fsScript.Lines.Assign(EditorModule.editor.Lines);
+  if not EditorModule.fsScript.Compile then begin
+    ps:=Pos(':',EditorModule.fsScript.ErrorPos);
+    x:=StrToInt(Copy(EditorModule.fsScript.ErrorPos,ps+1,length(EditorModule.fsScript.ErrorPos)-ps));
+    y:=StrToInt(Copy(EditorModule.fsScript.ErrorPos,1,ps-1));
+    EditorModule.Editor.Gutter.Objects.Items[0].Line := y-1;
     p.X := x-1;
     p.Y := y-1;
-    if Editor.Visible then
+    if EditorModule.Editor.Visible then
     try
-      Editor.SetFocus;
+      EditorModule.Editor.SetFocus;
     except
     //....
     end;
+    with EditorModule do
+    begin
     Editor.CurrentLine := y-1;
     Editor.ShowLine(y-1);
     Editor.SelectLine(y-1);
@@ -1050,10 +1056,12 @@ begin
     Editor.Invalidate;
     StatBat.SimpleText:=lang.GetTextOrDefault('IDS_149' (* 'Ошибка: ' *) )+fsScript.ErrorMsg + lang.GetTextOrDefault('IDS_150' (* ', позиция: ' *) )+fsScript.ErrorPos;
     Result:=False;
+    end;
   end else begin
     StatBat.SimpleText:=lang.GetTextOrDefault('IDS_151' (* 'Скрипт проверен' *) );
     Result:=True;
   end;
+  fCompilling.deactivateMe;
 end;
 
 procedure TdmData.destroyDeadLogWievs;
