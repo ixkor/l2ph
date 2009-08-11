@@ -759,7 +759,7 @@ begin
 
       if assigned(currenttunel) then
       begin
-        Edit.fsScript.Variables['ConnectID'] := Ttunel(currenttunel).serversocket;
+        Edit.fsScript.Variables['ConnectID'] := Ttunel(currenttunel).initserversocket;
         Edit.fsScript.Variables['ConnectName'] := Ttunel(currenttunel).EncDec.CharName;
       end
       else
