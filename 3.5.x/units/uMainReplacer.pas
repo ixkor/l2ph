@@ -138,27 +138,27 @@ begin
       if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
 
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-        if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, true);
+        if Loaded and Assigned(OnConnect) then OnConnect(Tunel.initserversocket, true);
     end; //
     Ttunel_Action_disconnect_server:
     begin
       Tunel := Ttunel(msg.LParam);
       Tunel.active := false;
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-        if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.serversocket, true);
+        if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.initserversocket, true);
     end; //
     Ttunel_Action_connect_client:
       begin ////Создавать такие вещи в нити нельзя.. а вот тут можно...
         Tunel := Ttunel(msg.LParam);
         for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-          if Loaded and Assigned(OnConnect) then OnConnect(Tunel.serversocket, false);
+          if Loaded and Assigned(OnConnect) then OnConnect(Tunel.initserversocket, false);
       end; //
     Ttunel_Action_disconnect_client:
       begin
         Tunel := Ttunel(msg.LParam);
         Tunel.active := false;
         for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-          if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.serversocket, false);
+          if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.initserversocket, false);
       end;
 
     Ttulel_action_tunel_created:

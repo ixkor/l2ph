@@ -939,7 +939,7 @@ begin
     if (LowerCase(Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName) = LowerCase(cname)) and
      (Ttunel(sockEngine.tunels.Items[i]).active) then
       begin
-        result := Ttunel(sockEngine.tunels.Items[i]).serversocket;
+        result := Ttunel(sockEngine.tunels.Items[i]).initserversocket;
         exit;
       end;
     inc(i);

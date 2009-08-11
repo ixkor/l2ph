@@ -248,7 +248,7 @@ begin
   begin
     if Ttunel(sockEngine.tunels.Items[i]).active then
       begin
-        ConnectInfo.ConnectID := Ttunel(sockEngine.tunels.Items[i]).serversocket;
+        ConnectInfo.ConnectID := Ttunel(sockEngine.tunels.Items[i]).initserversocket;
         ConnectInfo.ConnectName := Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName;
         exit;
       end;
@@ -289,7 +289,7 @@ begin
   begin
     if (index = conNum) and Ttunel(sockEngine.tunels.Items[i]).active then
       begin
-        ConnectInfo.ConnectID := Ttunel(sockEngine.tunels.Items[i]).serversocket;
+        ConnectInfo.ConnectID := Ttunel(sockEngine.tunels.Items[i]).initserversocket;
         ConnectInfo.ConnectName := Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName;
         exit;
       end;
