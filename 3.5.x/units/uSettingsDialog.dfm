@@ -26,7 +26,6 @@ object fSettings: TfSettings
     ActivePage = TabSheet8
     Align = alClient
     TabOrder = 0
-    ExplicitTop = -4
     object TabSheet8: TTabSheet
       Caption = #1054#1073#1097#1080#1077' '#1085#1072#1089#1090#1088#1086#1081#1082#1080
       object rgProtocolVersion: TRadioGroup
