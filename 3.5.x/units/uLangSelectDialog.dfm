@@ -1,10 +1,10 @@
 object fLangSelectDialog: TfLangSelectDialog
-  Left = 0
-  Top = 0
+  Left = 68
+  Top = 49
+  Width = 195
+  Height = 133
   BorderStyle = bsSizeToolWin
   Caption = 'Language'
-  ClientHeight = 102
-  ClientWidth = 179
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -30,7 +30,6 @@ object fLangSelectDialog: TfLangSelectDialog
     Height = 22
     ItemHeight = 16
     TabOrder = 0
-    siLang = fMain.lang1
     siLangDispatcher = fMain.lang
     LanguageInfos = <
       item

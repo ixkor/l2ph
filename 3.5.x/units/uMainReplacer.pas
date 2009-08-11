@@ -143,7 +143,8 @@ begin
     Ttunel_Action_disconnect_server:
     begin
       Tunel := Ttunel(msg.LParam);
-      Tunel.active := false;
+      if not Tunel.noFreeOnServerDisconnect then
+        Tunel.active := false;
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
         if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.initserversocket, true);
     end; //
@@ -156,7 +157,8 @@ begin
     Ttunel_Action_disconnect_client:
       begin
         Tunel := Ttunel(msg.LParam);
-        Tunel.active := false;
+        if not Tunel.noFreeOnClientDisconnect then
+          Tunel.active := false;
         for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
           if Loaded and Assigned(OnDisconnect) then OnDisconnect(Tunel.initserversocket, false);
       end;
