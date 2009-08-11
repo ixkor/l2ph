@@ -216,7 +216,6 @@ object fConvert: TfConvert
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'

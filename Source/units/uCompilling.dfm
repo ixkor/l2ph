@@ -1,6 +1,6 @@
 object fCompilling: TfCompilling
-  Left = 347
-  Top = 281
+  Left = 368
+  Top = 325
   Width = 484
   Height = 79
   BorderIcons = []
@@ -19,7 +19,7 @@ object fCompilling: TfCompilling
   object Label1: TLabel
     Left = 0
     Top = 3
-    Width = 177
+    Width = 107
     Height = 13
     Caption = #1050#1086#1084#1087#1080#1083#1103#1094#1080#1103' '#1089#1082#1088#1080#1087#1090#1072
   end
@@ -49,7 +49,6 @@ object fCompilling: TfCompilling
     UseInheritedData = True
     AutoSkipEmpties = True
     NumOfLanguages = 2
-    LangDispatcher = fMain.lang
     LangDelim = 1
     DoNotTranslate.Strings = (
       'Action2'
