@@ -864,7 +864,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if (Ttunel(sockEngine.tunels.Items[i]).serversocket = tid) then
+    if (Ttunel(sockEngine.tunels.Items[i]).initserversocket = tid) then
       begin
         Ttunel(sockEngine.tunels.Items[i]).EncryptAndSend(Packet, toserver);
         exit;
@@ -905,7 +905,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
+    if Ttunel(sockEngine.tunels.Items[i]).initserversocket = id then
       begin
         result := Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName;
         exit;
@@ -966,7 +966,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
+    if Ttunel(sockEngine.tunels.Items[i]).initserversocket = id then
       begin
         Ttunel(sockEngine.tunels.Items[i]).EncDec.CharName := name;
         exit;
@@ -984,7 +984,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
+    if Ttunel(sockEngine.tunels.Items[i]).initserversocket = id then
       begin
         if IsServer then
         Ttunel(sockEngine.tunels.Items[i]).noFreeOnServerDisconnect := NoFree
@@ -1015,7 +1015,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
+    if Ttunel(sockEngine.tunels.Items[i]).initserversocket = id then
       begin
         Ttunel(sockEngine.tunels.Items[i]).mustbedestroyed := true;
         exit;
@@ -1102,7 +1102,7 @@ begin
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
-    if Ttunel(sockEngine.tunels.Items[i]).serversocket = id then
+    if Ttunel(sockEngine.tunels.Items[i]).initserversocket = id then
       begin
         Ttunel(sockEngine.tunels.Items[i]).noFreeAfterDisconnect := NoFree;
         exit;

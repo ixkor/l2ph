@@ -22,6 +22,7 @@ const
 type
 
  Ttunel = class (TObject)
+  initserversocket,              //Инициализированный Серверный сокет
   serversocket,              //Серверный сокет
   clientsocket : integer;    //клиентский
   curSockEngine : TObject;   //Сокетный движек создавший этот объект (для возврата назад по обьектам)
@@ -144,6 +145,7 @@ begin
       //новое соединение на серверный сокет. создаем тунель.
       NewTunel := Ttunel.create(CurrentEngine);
       NewTunel.serversocket := NewSocket; //айди серверного сокета = наш индефикатор
+      NewTunel.initserversocket := NewSocket; //айди серверного сокета = наш индефикатор
       NewTunel.CharName := '[Proxy]#'+IntToStr(NewSocket);
       NewTunel.RUN; //и запускаем его
     end;
@@ -275,10 +277,11 @@ begin
   DeinitSocket(thisTunel.serversocket,WSAGetLastError);
 
   //не разрываем связь c клиентом если отключен сервер и noFreeOnServerDisconnect
-  while thisTunel.noFreeOnServerDisconnect do sleep(1);
+  while thisTunel.noFreeOnServerDisconnect and (thisTunel.clientsocket <> -1) do sleep(1);
 
   //закрываем  клиент
-  DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
+  if thisTunel.clientsocket <> -1 then
+    DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
   thisTunel.TunelWork := false;
 
   //ставим этому обьекту статус камикадзе если надо.
@@ -404,11 +407,12 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
 
   //не разрываем связь c сервером если отключен клиент и noFreeOnClientDisconnect
-  while thisTunel.noFreeOnClientDisconnect do sleep(1);
+  while (thisTunel.noFreeOnClientDisconnect) and (thisTunel.serversocket <> -1) do sleep(1);
 
 
   //закрываем серверный сокет
-  DeinitSocket(thisTunel.serversocket,WSAGetLastError);
+  if thisTunel.clientsocket <> -1 then
+    DeinitSocket(thisTunel.serversocket,WSAGetLastError);
   thisTunel.TunelWork := false;
 
   //ставим этому обьекту статус камикадзе если надо.
@@ -773,8 +777,9 @@ if ToServer then
     EncDec.EncodePacket(packet, PCK_GS_ToClient);
     sSendTo := serversocket;
   end;
-
-Send(sSendTo, Packet, packet.Size, 0);
+  
+if sSendTo <> -1 then
+  Send(sSendTo, Packet, packet.Size, 0);
 end;
 
 procedure Ttunel.SendNewAction(action: byte);
