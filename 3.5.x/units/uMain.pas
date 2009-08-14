@@ -218,11 +218,6 @@ begin
   isGlobalDestroying := true;
   UnhookCode(@ShowMessageOld);
 
-  if Assigned(sockEngine) then
-  begin
-    sockEngine.destroy;
-    sockEngine := nil;
-  end;
   SysMsgIdList.Destroy;
   SysMsgIdList := nil;
   ItemsList.Destroy;
@@ -274,12 +269,24 @@ end;
 procedure TfMain.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
-  if AllowExit then Application.Terminate;
-  if MessageDlg(pchar(
+  if not AllowExit then
+  if not (MessageDlg(pchar(
                 lang1.GetTextOrDefault('IDS_18' (* 'Вы уверены что хотите выйти из программы?' *) ) + #10#13+
                 lang1.GetTextOrDefault('IDS_19' (* 'Все соединения прервутся!' *) )),
-                mtConfirmation,[mbYes, mbNo],0)=mrYes then Application.Terminate;
-  CanClose:=False;
+                mtConfirmation,[mbYes, mbNo],0)=mrYes) then
+    begin
+      CanClose := false;
+      exit;
+    end;
+    
+    if Assigned(sockEngine) then
+    begin
+      sockEngine.destroy;
+      sockEngine := nil;
+    end;
+
+    fScript.DestroyAllScripts;
+    Application.Terminate;
 end;
 
 procedure TfMain.nOpenRawLogClick(Sender: TObject);

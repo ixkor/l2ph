@@ -247,7 +247,6 @@ end;
 procedure TfScript.FormDestroy(Sender: TObject);
 begin
   savepos(self);
-
   DestroyAllScripts;
   ScriptList.Destroy;
 end;

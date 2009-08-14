@@ -1,8 +1,8 @@
 object fMain: TfMain
-  Left = 180
-  Top = 171
-  ClientHeight = 600
-  ClientWidth = 784
+  Left = 159
+  Top = 155
+  Width = 800
+  Height = 658
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -41,8 +41,6 @@ object fMain: TfMain
     HotTrackFont.Height = -19
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
-    ExplicitWidth = 776
-    ExplicitHeight = 557
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -51,7 +49,6 @@ object fMain: TfMain
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 561
   end
   object pcClientsConnection: TJvPageControl
     Left = 0
@@ -63,7 +60,6 @@ object fMain: TfMain
     Visible = False
     OnChange = pcClientsConnectionChange
     ClientBorderWidth = 1
-    ExplicitHeight = 561
   end
   object XPManifest1: TXPManifest
     Left = 142
