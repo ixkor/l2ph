@@ -32,14 +32,15 @@ object fSettings: TfSettings
         Left = 5
         Top = 146
         Width = 350
-        Height = 82
+        Height = 103
         Caption = #1042#1077#1088#1089#1080#1103' '#1087#1088#1086#1090#1086#1082#1086#1083#1072' ('#1043#1083#1086#1073#1072#1083#1100#1085#1086')'
         ItemIndex = 0
         Items.Strings = (
-          'C4 - ProtocolVersion<660'
+          'C4 - 100<ProtocolVersion<660'
           'C5 - 660<ProtocolVersion<737'
           'T0 - Interlude  - 736<ProtocolVersion<827'
-          'T1 - Kamael-Hellbound-Gracia - ProtocolVersion>827')
+          'T1 - Kamael-Hellbound-Gracia - ProtocolVersion>827'
+          'T2 - Gracia Final - 12<ProtocolVersion<100')
         TabOrder = 0
         OnClick = rgProtocolVersionClick
       end
