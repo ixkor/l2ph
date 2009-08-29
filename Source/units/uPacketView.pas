@@ -129,7 +129,7 @@ begin
           Inc(PosInPkt,d);
           value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
         end else
-          value:=lang.GetTextOrDefault('skip scrypt' (* 'Пропускаем скрипт' *) );
+          value:=lang.GetTextOrDefault('skip script' (* 'Пропускаем скрипт' *) );
       end else
       begin
         d:=strtoint(name);
@@ -147,7 +147,7 @@ begin
 
      Inc(PosInPkt,d+2);
     end;
-    else value:= lang.GetTextOrDefault('unknowind' (* 'Неизвестный идентификатор -> ?(name)!' *) );
+    else value:= lang.GetTextOrDefault('unknownid' (* 'Неизвестный идентификатор -> ?(name)!' *) );
   end;
   Result:=value;
   if PosInPkt>Size+10 then
@@ -435,7 +435,7 @@ var
   oldpos:integer;
   isshow:boolean;
 begin
-    //строка пакета, sid номер пакета, cid номер соединения
+    //строка пакета, sid - номер пакета, cid - номер соединения
     PktStr := HexToString(packet);
     if Length(PktStr)<12 then Exit;
     Move(PktStr[2],ptime,8);
@@ -462,21 +462,21 @@ begin
       //фиксим пакет 39 для Грация-Камаель
         if (ID in [$39,$D0]) and (size>3) then
         //C4, C5, T0
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)')
+          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknown:h(subID)')
         else
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:')
+          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
       else
         if (ID=$D0) and (size>3) then
         //T1 и выше
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknow:h(subID)')
+          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknown:h(subID)')
         else
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknow:')
+          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
     else
       //server
       if (ID in [$FE]) and (size>3) then
-        StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknow:h(subID)')
+        StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknown:h(subID)')
       else
-        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknow:');
+        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknown:');
 
     Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id,2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
 

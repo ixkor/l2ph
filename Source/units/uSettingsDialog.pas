@@ -204,12 +204,13 @@ with GlobalSettings do
     isSaveLog := chkAutoSavePlog.Checked;
     ShowLastPacket := ChkShowLastPacket.Checked;
     case rgProtocolVersion.ItemIndex of
-      0: GlobalProtocolVersion := 560;
+      0: GlobalProtocolVersion := 560;  //С4
       1: GlobalProtocolVersion := 660;
-      2: GlobalProtocolVersion := 737;
-      3: GlobalProtocolVersion := 828;
+      2: GlobalProtocolVersion := 737;  //Интерлюд
+      3: GlobalProtocolVersion := 828;  //Грация
+      4: GlobalProtocolVersion := 83;   //Грация Финал
       else
-        GlobalProtocolVersion := 560;
+        GlobalProtocolVersion := 560;   //по умолчанию
     end;
 
     if oldProto <> GlobalProtocolVersion then

@@ -158,8 +158,8 @@ begin
           begin
             newScript := TScript.create;
             newScript.Load(tempname);
-            if Options.ReadBool('scripts','checked'+inttostr(i), false) then
-                newScript.ListItem.Checked := true;
+            //if Options.ReadBool('scripts','checked'+inttostr(i), false) then
+            //    newScript.ListItem.Checked := true;
           end;
         Inc(i);
       end;

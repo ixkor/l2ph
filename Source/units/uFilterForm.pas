@@ -149,23 +149,27 @@ procedure TfPacketFilter.LoadPacketsIni;
 var
   i, j: Integer;
 begin
-  //  ProtocolVersion:=560; //C4
-  if GlobalProtocolVersion<828 then begin
-    // С4/C5/CT0
-    if GlobalProtocolVersion<660 then begin
-      // C4 секция [GS_c4]
-      LoadPktIni('packetsc4.ini');
+  if (GlobalProtocolVersion>=12) and (GlobalProtocolVersion<=100) then
+    LoadPktIni('packetst2.ini')   //пакеты для Грация Финал
+  else begin
+    //  ProtocolVersion:=560; //C4
+    if GlobalProtocolVersion<828 then begin
+      // С4/C5/CT0
+      if GlobalProtocolVersion<660 then begin
+        // C4 секция [GS_c4]
+        LoadPktIni('packetsc4.ini');
+      end;
+      if (GlobalProtocolVersion>=660) and (GlobalProtocolVersion<=736) then begin
+        // C5 секция [GS]
+        LoadPktIni('packetsc5.ini');
+      end;
+      if GlobalProtocolVersion>=737 then begin
+        // interlude T0  секция [GS_t0]
+        LoadPktIni('packetst0.ini');
+      end;
+    end else begin // >= 828 (какой там минимальный T1 протокол ?)
+        LoadPktIni('packetst1.ini');
     end;
-    if (GlobalProtocolVersion>=660) and (GlobalProtocolVersion<=736) then begin
-      // C5 секция [GS]
-      LoadPktIni('packetsc5.ini');
-    end;
-    if GlobalProtocolVersion>=737 then begin
-      // interlude T0  секция [GS_t0]
-      LoadPktIni('packetst0.ini');
-    end;
-  end else begin // >= 828 (какой там минимальный T1 протокол ?)
-      LoadPktIni('packetst1.ini');
   end;
   filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
   filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
