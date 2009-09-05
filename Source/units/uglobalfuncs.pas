@@ -596,7 +596,7 @@ if FromServer then
   end
 else
   begin  //от клиента
-    if GlobalProtocolVersion<828 then
+    if (GlobalProtocolVersion>83) and (GlobalProtocolVersion<828) then
     begin //фиксим пакет 39 в Камаель-Грация
       if (id in [$39,$D0]) then
       begin //для C4, C5, T0
