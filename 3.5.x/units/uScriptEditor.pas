@@ -280,7 +280,6 @@ begin
         tDebugItem(DebugList.Items[i]).VarTyp := VarTyp;
         tDebugItem(DebugList.Items[i]).LastModifiedLine := line;
         tDebugItem(DebugList.Items[i]).OldValue := OldValue;
-
         tDebugItem(DebugList.Items[i]).updateValue;
         exit;
       end; 

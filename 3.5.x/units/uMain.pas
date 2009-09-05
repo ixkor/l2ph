@@ -116,12 +116,13 @@ var
   ver : string;
 begin
   deltemps; //׃האכÿול *.temp פאיכû
-  JvTrayIcon1.ShowApplication;
-  ShowWindow(fMainReplacer.Handle,sw_hide);
-  ShowWindow(application.Handle,sw_hide);
-
   ver := uGlobalFuncs.getversion;
+
   Splash.Caption := 'L2PacketHack v'+ ver;
+  fMainReplacer.Status.Caption := Splash.Caption;
+  fMainReplacer.Repaint;
+  Application.ProcessMessages;
+
   fAbout.AboutMemo.Lines.Add('L2PacketHack v' + ver);
   fAbout.AboutMemo.Lines.Add('');
   fAbout.AboutMemo.Lines.Add(lang1.GetTextOrDefault('IDS_6'));

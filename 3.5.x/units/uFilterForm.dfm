@@ -1,10 +1,10 @@
 object fPacketFilter: TfPacketFilter
-  Left = 391
-  Top = 263
+  Left = 364
+  Top = 258
+  Width = 334
+  Height = 480
   BorderStyle = bsSizeToolWin
   Caption = #1060#1080#1083#1100#1090#1088' '#1087#1072#1082#1077#1090#1086#1074
-  ClientHeight = 442
-  ClientWidth = 326
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object fPacketFilter: TfPacketFilter
   object PageControl2: TPageControl
     Left = 0
     Top = 0
-    Width = 326
+    Width = 318
     Height = 391
     ActivePage = TabSheet1
     Align = alClient
@@ -30,7 +30,7 @@ object fPacketFilter: TfPacketFilter
       object ListView1: TListView
         Left = 0
         Top = 0
-        Width = 318
+        Width = 310
         Height = 363
         Align = alClient
         Checkboxes = True
@@ -59,15 +59,11 @@ object fPacketFilter: TfPacketFilter
     object TabSheet7: TTabSheet
       Caption = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListView2: TListView
         Left = 0
         Top = 0
         Width = 310
-        Height = 351
+        Height = 363
         Align = alClient
         Checkboxes = True
         Columns = <
@@ -97,7 +93,7 @@ object fPacketFilter: TfPacketFilter
   object Panel17: TPanel
     Left = 0
     Top = 391
-    Width = 326
+    Width = 318
     Height = 51
     Align = alBottom
     BevelOuter = bvNone

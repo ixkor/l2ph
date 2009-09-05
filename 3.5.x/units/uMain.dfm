@@ -12,7 +12,6 @@ object fMain: TfMain
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poDefault
-  Visible = True
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy

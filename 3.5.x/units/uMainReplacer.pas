@@ -9,7 +9,7 @@ uses
   uResourceStrings,
   advApiHook,  
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ActnList;
+  Dialogs, ActnList, jpeg, ExtCtrls, StdCtrls;
 
 type
   pShareMain = ^TShareMain;
@@ -28,6 +28,9 @@ type
     Action9: TAction;
     Action10: TAction;
     Action1: TAction;
+    Image1: TImage;
+    HideSplash: TTimer;
+    Status: TLabel;
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Action2Execute(Sender: TObject);
@@ -39,6 +42,7 @@ type
     procedure Action9Execute(Sender: TObject);
     procedure Action10Execute(Sender: TObject);
     procedure Action1Execute(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
   private
     MapData : PShareMain;
     MapHandle : THandle; 
@@ -350,6 +354,16 @@ begin
     dmData.UpdateAutoCompleate(TScript(ScriptList.Items[i]).Editor.AutoComplete);
     inc(i);
   end;
+end;
+
+procedure TfMainReplacer.Image1Click(Sender: TObject);
+begin
+  HideSplash.Enabled := false;
+  FormStyle := fsNormal;
+  visible := false;
+  ShowWindow(application.Handle,sw_hide);
+  fMain.show;
+
 end;
 
 end.

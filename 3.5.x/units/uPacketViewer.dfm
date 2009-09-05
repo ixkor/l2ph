@@ -1,9 +1,9 @@
 object fPacketViewer: TfPacketViewer
   Left = 0
   Top = 0
+  Width = 752
+  Height = 372
   Caption = #1057#1086#1089#1090#1072#1074#1083#1077#1085#1080#1077'/'#1087#1088#1086#1089#1084#1086#1090#1088' '#1087#1072#1082#1077#1090#1072
-  ClientHeight = 334
-  ClientWidth = 729
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,16 +16,14 @@ object fPacketViewer: TfPacketViewer
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter3: TSplitter
-    Left = 376
+    Left = 383
     Top = 0
     Height = 334
     Align = alRight
     Visible = False
-    ExplicitLeft = 368
-    ExplicitHeight = 330
   end
   object packetVievPanel: TPanel
-    Left = 379
+    Left = 386
     Top = 0
     Width = 350
     Height = 334
@@ -35,7 +33,7 @@ object fPacketViewer: TfPacketViewer
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 376
+    Width = 383
     Height = 334
     Align = alClient
     BevelOuter = bvNone
@@ -43,7 +41,7 @@ object fPacketViewer: TfPacketViewer
     object ToolBar2: TToolBar
       Left = 0
       Top = 0
-      Width = 376
+      Width = 383
       Height = 25
       EdgeInner = esNone
       EdgeOuter = esNone
@@ -51,14 +49,14 @@ object fPacketViewer: TfPacketViewer
       TabOrder = 0
       object ToolButton1: TToolButton
         Left = 0
-        Top = 0
+        Top = 2
         Width = 5
         ImageIndex = 2
         Style = tbsSeparator
       end
       object ToServer: TToolButton
         Left = 5
-        Top = 0
+        Top = 2
         Hint = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072' '#1082' '#1089#1077#1088#1074#1077#1088#1091
         Down = True
         ImageIndex = 0
@@ -69,7 +67,7 @@ object fPacketViewer: TfPacketViewer
       end
       object ToClient: TToolButton
         Left = 28
-        Top = 0
+        Top = 2
         Hint = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072' '#1082' '#1082#1083#1080#1077#1085#1090#1091
         ImageIndex = 1
         ParentShowHint = False
@@ -81,7 +79,7 @@ object fPacketViewer: TfPacketViewer
     object Memo4: TJvRichEdit
       Left = 0
       Top = 25
-      Width = 376
+      Width = 383
       Height = 309
       Align = alClient
       AutoSize = False
