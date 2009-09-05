@@ -2,8 +2,8 @@ object dmData: TdmData
   OldCreateOrder = False
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Left = 116
-  Top = 114
+  Left = 209
+  Top = 168
   Height = 269
   Width = 496
   object LSPControl: TLSPModuleControl
@@ -22,16 +22,16 @@ object dmData: TdmData
     Top = 72
   end
   object fsClassesRTTI1: TfsClassesRTTI
-    Left = 192
-    Top = 16
+    Left = 232
+    Top = 24
   end
   object fsFormsRTTI1: TfsFormsRTTI
-    Left = 112
-    Top = 136
+    Left = 224
+    Top = 80
   end
   object fsExtCtrlsRTTI1: TfsExtCtrlsRTTI
-    Left = 40
-    Top = 128
+    Left = 224
+    Top = 144
   end
   object fsDialogsRTTI1: TfsDialogsRTTI
     Left = 280
@@ -42,8 +42,8 @@ object dmData: TdmData
     Top = 80
   end
   object fsIniRTTI1: TfsIniRTTI
-    Left = 192
-    Top = 144
+    Left = 328
+    Top = 120
   end
   object lang: TsiLang
     Version = '6.1.0.1'

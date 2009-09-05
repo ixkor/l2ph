@@ -1,6 +1,6 @@
-// JCL_DEBUG_EXPERT_INSERTJDBG ON
-// JCL_DEBUG_EXPERT_GENERATEJDBG ON
-// JCL_DEBUG_EXPERT_DELETEMAPFILE ON
+// JCL_DEBUG_EXPERT_INSERTJDBG OFF
+// JCL_DEBUG_EXPERT_GENERATEJDBG OFF
+// JCL_DEBUG_EXPERT_DELETEMAPFILE OFF
 program l2ph;
 
 uses
@@ -64,8 +64,12 @@ begin
   Check2stInstance;
   isGlobalDestroying := false;
   Application.Initialize;
-  Application.Title := 'L2PacketHack';
+  Application.Title := '';
   Application.CreateForm(TfMainReplacer, fMainReplacer);
+  ShowWindow(application.Handle,sw_hide);
+  windows.BringWindowToTop(fMainReplacer.Handle);
+  fMainReplacer.Repaint;
+  Application.ProcessMessages;
   Application.CreateForm(TfMain, fMain);
   Application.CreateForm(TfAbout, fAbout);
   Application.CreateForm(TfConvert, fConvert);
@@ -82,11 +86,13 @@ begin
   Application.CreateForm(TfPacketViewer, fPacketViewer);
   Application.CreateForm(TfLangSelectDialog, fLangSelectDialog);
   Application.CreateForm(TfCompilling, fCompilling);
-  Application.ShowMainForm := false;
+//  Application.ShowMainForm := false;
   fSettings.init;
   fMain.INIT;
   fPlugins.init;
   fScript.init;
+  fMainReplacer.HideSplash.Enabled := true;
+  fMainReplacer.Status.Hide;
   Application.Run;
 
 end.

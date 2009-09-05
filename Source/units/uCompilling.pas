@@ -24,7 +24,7 @@ var
   fCompilling: TfCompilling;
 
 implementation
-uses umain, uscripts;
+uses umain, uscripts, uMainReplacer;
 
 {$R *.dfm}
 
@@ -32,6 +32,14 @@ uses umain, uscripts;
 
 procedure TfCompilling.ActivateMe;
 begin
+  if fMainReplacer.Visible then
+    begin
+      fMainReplacer.Status.caption := Label1.caption +': '+Tscript(AssignedSEditor.assignedTScript).ScriptName;
+      fMainReplacer.Repaint;
+      Application.ProcessMessages;
+      exit;
+    end;
+    
   Label2.Caption := Tscript(AssignedSEditor.assignedTScript).ScriptName;
   show;
   Application.ProcessMessages;
