@@ -1,8 +1,8 @@
 object fMain: TfMain
   Left = 159
   Top = 155
-  Width = 800
-  Height = 658
+  ClientHeight = 604
+  ClientWidth = 792
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object fMain: TfMain
   object Splash: TJvLabel
     Left = 0
     Top = 0
-    Width = 784
-    Height = 581
+    Width = 792
+    Height = 585
     Align = alClient
     Alignment = taCenter
     AutoSize = False
@@ -40,11 +40,13 @@ object fMain: TfMain
     HotTrackFont.Height = -19
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
+    ExplicitWidth = 784
+    ExplicitHeight = 581
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 581
-    Width = 784
+    Top = 585
+    Width = 792
     Height = 19
     Panels = <>
     SimplePanel = True
@@ -52,8 +54,8 @@ object fMain: TfMain
   object pcClientsConnection: TJvPageControl
     Left = 0
     Top = 0
-    Width = 784
-    Height = 581
+    Width = 792
+    Height = 585
     Align = alClient
     TabOrder = 1
     Visible = False
@@ -2795,6 +2797,7 @@ object fMain: TfMain
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000}
     IconIndex = 0
+    Hint = 'L2PacketHack'
     PopupMenu = trayMenu
     Visibility = []
     Left = 104

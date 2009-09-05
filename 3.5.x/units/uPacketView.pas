@@ -458,7 +458,7 @@ begin
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then
     //client
-      if GlobalProtocolVersion<828 then
+      if (GlobalProtocolVersion>83) and (GlobalProtocolVersion<828) then
       //фиксим пакет 39 для Грация-Камаель
         if (ID in [$39,$D0]) and (size>3) then
         //C4, C5, T0
