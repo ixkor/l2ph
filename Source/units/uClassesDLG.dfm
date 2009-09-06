@@ -1,9 +1,9 @@
 object fClassesDLG: TfClassesDLG
   Left = 192
   Top = 114
+  Width = 335
+  Height = 484
   Caption = 'Supported by fScript classes&funcs'
-  ClientHeight = 446
-  ClientWidth = 319
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

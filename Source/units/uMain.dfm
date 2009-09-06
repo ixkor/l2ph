@@ -1,8 +1,8 @@
 object fMain: TfMain
   Left = 159
   Top = 155
-  ClientHeight = 604
-  ClientWidth = 792
+  Width = 808
+  Height = 662
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -40,8 +40,6 @@ object fMain: TfMain
     HotTrackFont.Height = -19
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
-    ExplicitWidth = 784
-    ExplicitHeight = 581
   end
   object StatusBar1: TStatusBar
     Left = 0

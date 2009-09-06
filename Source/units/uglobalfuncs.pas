@@ -99,7 +99,7 @@ uses
   function DataPckToStrPck(var pck): string; stdcall;
  var
   l2pxversion_array: array[0..3] of Byte; //теперь заполняется вызовом FillVersion_a
-  l2pxversion: Integer  absolute l2pxversion_array;
+  l2pxversion: LongWord  absolute l2pxversion_array;
 
   ShowMessageOld: procedure (const Msg: string);
   MaxLinesInLog : Integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог

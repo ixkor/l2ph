@@ -8,10 +8,10 @@ type
                  efOnCallMethod, efOnRefreshPrecompile);
   TEnableFuncs = set of TEnableFunc;
 
-  TGetPluginInfo = function(const ver: Integer): PChar; stdcall;
+  TGetPluginInfo = function(const ver: LongWord): PChar; stdcall;
   //TGetEnableFuncs = function: TEnableFuncs; stdcall;
   TSetStruct = function(const struct: PPluginStruct): Boolean; stdcall;
-  TOnPacket = procedure(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var packet : tpacket); stdcall;
+  TOnPacket = procedure(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var packet : string); stdcall;
   TOnConnect = procedure(const cnt: Cardinal; const withServer: Boolean); stdcall;
   TOnDisconnect = TOnConnect;
   TOnLoad = procedure; stdcall;
@@ -30,16 +30,16 @@ type
       conNum:integer;
       function getconnectionscount:integer;
     public
-    function ReadC(const pck: string; const index:integer):byte; override;
-    function ReadH(const pck: string; const index:integer):word; override;
-    function ReadD(const pck: string; const index:integer):integer; override;
-    function ReadF(const pck: string; const index:integer):double; override;
-    function ReadS(const pck: string; const index:integer):string; override;
-    function ReadCEx(const pck; const index:integer):byte; override;
-    function ReadHEx(const pck; const index:integer):word; override;
-    function ReadDEx(const pck; const index:integer):integer; override;
-    function ReadFEx(const pck; const index:integer):double; override;
-    function ReadSEx(const pck; const index:integer):string; override;
+    function ReadC(const pck:string; const index:integer):byte; override;
+    function ReadH(const pck:string; const index:integer):word; override;
+    function ReadD(const pck:string; const index:integer):integer; override;
+    function ReadF(const pck:string; const index:integer):double; override;
+    function ReadS(const pck:string; const index:integer):string; override;
+    function ReadCEx(const pck:string; const index:integer):byte; override;
+    function ReadHEx(const pck:string; const index:integer):word; override;
+    function ReadDEx(const pck:string; const index:integer):integer; override;
+    function ReadFEx(const pck:string; const index:integer):double; override;
+    function ReadSEx(const pck:string; const index:integer):string; override;
     procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); override;
     procedure WriteH(var pck: string; const v:word;    ind:integer=-1); override;
     procedure WriteD(var pck: string; const v:integer; ind:integer=-1); override;
@@ -326,8 +326,7 @@ begin
   fMain.nUserFormShow.Enabled := false;
 end;
 
-function TPluginStructClass.ReadC(const pck: string;
-  const index: integer): byte;
+function TPluginStructClass.ReadC;
 begin
   Result:=0;
   if index>Length(pck) then Exit;
@@ -335,7 +334,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadCEx(const pck; const index: integer): byte;
+function TPluginStructClass.ReadCEx(const pck:string; const index: integer): byte;
 begin
   Result:=0;
   if index>=PWord(@pck)^ then Exit;
@@ -343,7 +342,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadD(const pck: string;
+function TPluginStructClass.ReadD(const pck:string;
   const index: integer): integer;
 begin
   Result:=0;
@@ -352,7 +351,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadDEx(const pck;
+function TPluginStructClass.ReadDEx(const pck:string;
   const index: integer): integer;
 begin
   Result:=0;
@@ -361,7 +360,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadF(const pck: string;
+function TPluginStructClass.ReadF(const pck:string;
   const index: integer): double;
 begin
   Result:=0;
@@ -370,7 +369,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadFEx(const pck; const index: integer): double;
+function TPluginStructClass.ReadFEx(const pck:string; const index: integer): double;
 begin
   Result:=0;
   if index+7>=PWord(@pck)^ then Exit;
@@ -378,7 +377,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadH(const pck: string;
+function TPluginStructClass.ReadH(const pck:string;
   const index: integer): word;
 begin
   Result:=0;
@@ -387,7 +386,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadHEx(const pck; const index: integer): word;
+function TPluginStructClass.ReadHEx(const pck:string; const index: integer): word;
 begin
   Result:=0;
   if index+1>=PWord(@pck)^ then Exit;
@@ -395,7 +394,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadS(const pck: string;
+function TPluginStructClass.ReadS(const pck:string;
   const index: integer): string;
 var
   temp: WideString;
@@ -409,7 +408,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadSEx(const pck; const index: integer): string;
+function TPluginStructClass.ReadSEx(const pck:string; const index: integer): string;
 var
   temp: WideString;
   i,d: Integer;
