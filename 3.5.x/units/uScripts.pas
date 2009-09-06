@@ -801,21 +801,22 @@ var
   cScript : TScript;
   connectname:string;
 begin
- connectname := dmdata.ConnectNameById(id); 
+ connectname := dmdata.ConnectNameById(id);
+ setlength(temp,newpacket.Size - 2);
+ Move(newpacket.data[0], temp[1], newpacket.size - 2);
+
   //По прежнему без бутылки сюда не лезть.
   for i := 0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnPacket) then
       begin
-        OnPacket(id, FromServer, connectname, newpacket);
+        OnPacket(id, FromServer, connectname, temp);
         //если плагин обнулил размер пакета
-        if newpacket.Size < 3 then exit; //раньше тут был бряк, но ведь пустой пакет скриптам не нужен. поэтому екзит.
+        if length(temp) < 3 then exit; //раньше тут был бряк, но ведь пустой пакет скриптам не нужен. поэтому екзит.
       end;
 
 
   //Скрипты
-  setlength(temp,newpacket.Size - 2);
-  Move(newpacket.data[0], temp[1], newpacket.size - 2);
   for i:=0 to ScriptsListVisual.Items.Count-1 do
   begin
     if fScript.ScriptsListVisual.Items.Item[i].Checked then

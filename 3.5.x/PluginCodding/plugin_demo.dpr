@@ -11,29 +11,30 @@ uses
   Classes,
   usharedstructs in '..\units\usharedstructs.pas';
 
-var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,12,      120   );
-  min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
+var                                
+  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver: LongWord absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct;
-  ppck: PPacket;
+  ppck: string;
 const
   pause=15000;
 
 var
   ColvoHP, CharObjID, ItemObjHP: integer;
-  CurHP, MaxHP, lastHP, cntHP:integer;
+  CurHP, MaxHP : integer;
+  lastHP, cntHP:cardinal;
   TimerHP: Boolean;
   StatusHP: Boolean;
 
-function GetPluginInfo(const ver: Integer): PChar; stdcall;
+function GetPluginInfo(const ver: LongWord): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.12.120+'+sLineBreak+
+            'Для версий 3.5.20.134+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.12.120+'+sLineBreak+
+            'Для версий 3.5.20.134+'+sLineBreak+
             'Автовыпивалка НР бутылок';
 end;
 
@@ -56,6 +57,7 @@ function SetStruct(const struct: PPluginStruct): Boolean; stdcall;
 begin
   ps := struct^;
   Result:=True;
+  cntHP := 0;
 end;
 
 
@@ -65,10 +67,10 @@ procedure StatsUpdate;
 var
  i: integer;
 begin
- for i:=0 to ps.ReadDEx(ppck^,7)-1 do
- case ppck^.data[i*8+8] of
-   $09: CurHP:=ps.ReadDEx(ppck^,i*8+15);
-   $0A: MaxHP:=ps.ReadDEx(ppck^,i*8+15);
+ for i:=0 to ps.ReadDEx(ppck,7)-1 do
+ case ppck[i*8+8] of
+   #$09: CurHP:=ps.ReadDEx(ppck,i*8+15);
+   #$0A: MaxHP:=ps.ReadDEx(ppck,i*8+15);
  end;
  say('CurHP/MaxHP = '+inttostr(curhp)+'/'+inttostr(maxhp));
  if (CurHP<=MaxHP-50) then TimerHP:=true else TimerHP:=false;
@@ -94,16 +96,16 @@ begin
     end;
 end;
 
-procedure OnPacket(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var pck: Tpacket); stdcall;
+procedure OnPacket(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var pck: string); stdcall;
 var
   buf: string;
 begin
-  if pck.size<3 then exit;
-  ppck:=@pck;
+  if length(pck) < 3 then exit;
+  ppck:=pck;
 
-  if not FromServer and(pck.pckId=$38)and(cntHP=-1)then
+  if not FromServer and (pck[1]=#$38) and (cntHP=0) then
   if(ps.ReadSEx(pck,3)='set')then begin
-    pck.size:=2; // не пропускаем пакет
+    pck := ''; // не пропускаем пакет
     cntHP:=cnt;
     Say('Выбрано это соединение.');
     Say('Для начала работы скрипта бросаем, подбираем или выпиваем Heal Potion!');
@@ -111,7 +113,7 @@ begin
 
   if FromServer and(cnt = cntHP)then begin
     //InventoryUpdate
-    if(pck.pckId=$27)and((ps.ReadDEx(pck,13)=1060)
+    if(pck[1]=#$27)and((ps.ReadDEx(pck,13)=1060)
     or(ps.ReadDEx(pck,13)=1061))then begin //Healing Potion, Lesser Healing Potion
       ItemObjHP:=ps.ReadDEx(pck,9);
       ColvoHP:=ps.ReadDEx(pck,17); //количество хилок
@@ -122,14 +124,14 @@ begin
     end;
 
     //UserInfo
-    if(pck.pckId=$04)then
+    if(pck[1]=#$04)then
       begin
-        CharObjID:=ps.ReadDEx(ppck^,19);
-        MaxHP:=ps.ReadDEx(ppck^,83);     
+        CharObjID:=ps.ReadDEx(ppck,19);
+        MaxHP:=ps.ReadDEx(ppck,83);
       end;
 
     //StatusUpdate
-    if((pck.pckId=$0E)and(ps.ReadDEx(pck,3)=CharObjID)and(pck.data[4]=$04))then
+    if((pck[1]=#$0E)and(ps.ReadDEx(pck,3)=CharObjID)and(pck[4]=#$04))then
       StatsUpdate;
 
     if TimerHP and(GetTickCount-lastHP > pause)then begin

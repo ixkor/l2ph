@@ -80,16 +80,17 @@ type
     userFormHandle: THandle;
     ConnectInfo : tConnectInfo;
     UserFuncs : tstringlist;
-    function ReadC(const pck: string; const index:integer):byte; Virtual; Abstract;
-    function ReadH(const pck: string; const index:integer):word; Virtual; Abstract;
-    function ReadD(const pck: string; const index:integer):integer; Virtual; Abstract;
-    function ReadF(const pck: string; const index:integer):double; Virtual; Abstract;
-    function ReadS(const pck: string; const index:integer):string; Virtual; Abstract;
-    function ReadCEx(const pck; const index:integer):byte; Virtual; Abstract;
-    function ReadHEx(const pck; const index:integer):word; Virtual; Abstract;
-    function ReadDEx(const pck; const index:integer):integer; Virtual; Abstract;
-    function ReadFEx(const pck; const index:integer):double; Virtual; Abstract;
-    function ReadSEx(const pck; const index:integer):string; Virtual; Abstract;
+    function ReadC(const pck:string; const index:integer):byte; Virtual; Abstract;
+    function ReadH(const pck:string; const index:integer):word; Virtual; Abstract;
+    function ReadD(const pck:string; const index:integer):integer; Virtual; Abstract;
+    function ReadF(const pck:string; const index:integer):double; Virtual; Abstract;
+    function ReadS(const pck:string; const index:integer):string; Virtual; Abstract;
+
+    function ReadCEx(const pck:string; const index:integer):byte; Virtual; Abstract;
+    function ReadHEx(const pck:string; const index:integer):word; Virtual; Abstract;
+    function ReadDEx(const pck:string; const index:integer):integer; Virtual; Abstract;
+    function ReadFEx(const pck:string; const index:integer):double; Virtual; Abstract;
+    function ReadSEx(const pck:string; const index:integer):string; Virtual; Abstract;
     procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); Virtual; Abstract;
     procedure WriteH(var pck: string; const v:word;    ind:integer=-1); Virtual; Abstract;
     procedure WriteD(var pck: string; const v:integer; ind:integer=-1); Virtual; Abstract;

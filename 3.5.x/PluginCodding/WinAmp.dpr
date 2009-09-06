@@ -11,14 +11,14 @@ uses
   usharedstructs in '..\units\usharedstructs.pas';
 
 var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,12,      120   );
-  min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
+  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver: longword absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct; // структура передаваемая в плагин
 
-function GetPluginInfo(const ver: Integer): PChar; stdcall;
+function GetPluginInfo(const ver: longword): PChar; stdcall;
 begin
     Result:='Плагин управления Winamp к программе l2ph'+sLineBreak+
-            'Для версий 3.5.12.120+';
+            'Для версий 3.5.20.134+';
 end;
 
 
