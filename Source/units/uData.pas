@@ -522,6 +522,7 @@ var
   buf,pct,tmp: string;
   temp: WideString;
   d: Integer;
+  i64:Int64;
   ConId:integer;
   b: byte;
   h: Word;
@@ -606,6 +607,12 @@ begin
     Params[0]:=Integer(Params[0])+4;
     Result:=d;
   end else
+  if sMethodName = 'READQ' then begin
+    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    if Integer(Params[0])<Length(pct)-4 then Move(pct[Integer(Params[0])],i64,8);
+    Params[0]:=Integer(Params[0])+8;
+    Result:=i64;
+  end else
   if sMethodName = 'READH' then begin
     pct:=TfsScript(Integer(Params[1])).Variables['pck'];
     if Integer(Params[0])<Length(pct) then Move(pct[Integer(Params[0])],h,2);
@@ -644,6 +651,18 @@ begin
       buf:=buf+tmp;
     end else begin
       Move(d,buf[Integer(Params[1])],4);
+    end;
+    TfsScript(Integer(Params[2])).Variables['buf']:=buf;
+  end else
+  if sMethodName = 'WRITEQ' then begin
+    buf:=TfsScript(Integer(Params[2])).Variables['buf'];
+    SetLength(tmp,8);
+    i64:=Params[0];
+    if Integer(Params[1])=0 then begin
+      Move(i64,tmp[1],8);
+      buf:=buf+tmp;
+    end else begin
+      Move(i64,buf[Integer(Params[1])],8);
     end;
     TfsScript(Integer(Params[2])).Variables['buf']:=buf;
   end else
@@ -1201,11 +1220,13 @@ begin
   MyFuncs.Add('procedure WriteD(v:integer; ind:integer=0;%s)');
   MyFuncs.Add('procedure WriteH(v:word; ind:integer=0;%s)');
   MyFuncs.Add('procedure WriteF(v:double; ind:integer=0;%s)');
+  MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0;%s)');
   MyFuncs.Add('function ReadS(var index:integer;%s):string');
   MyFuncs.Add('function ReadC(var index:integer;%s):byte');
   MyFuncs.Add('function ReadD(var index:integer;%s):integer');
   MyFuncs.Add('function ReadH(var index:integer;%s):word');
   MyFuncs.Add('function ReadF(var index:integer;%s):double');
+  MyFuncs.Add('function ReadQ(var index:integer;%s):Int64');
   MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
   MyFuncs.Add('function FreeLibrary(LibHandle:Integer):Boolean');
   MyFuncs.Add('function StrToHex(str1:String):String');
