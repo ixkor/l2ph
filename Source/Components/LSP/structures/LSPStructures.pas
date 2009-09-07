@@ -53,9 +53,10 @@ type
     application:string[255]; //что за приложение
     pid: Cardinal; //pid процесса
     SockNum : integer;
-    ip : string[15];  //куда соединился сокет (только инфо. управления нет.)
+    ip : string[15];  //куда соединился сокет
     port : Cardinal;  //на какой порт
     HookIt : boolean;
+    reddirect:boolean;
     ReciverHandle : thandle;
     /////////////////
     MemBuf : PTmemoryBuffer;

@@ -14,15 +14,6 @@ const
   LSP_Install_error_badspipath = 7;
 
 
-resourcestring
-  rsLSP_Install_success = 'LSP успешно зарегистрирован.';
-  rsLSP_Already_installed = 'LSP модуль зарегистрирован в системе';
-  rsLSP_Uninstall_success = '–егистраци€ LSP модул€ успешно сн€та';
-  rsLSP_Not_installed = 'LSP модуль не зарегистрирован';
-  rsLSP_Install_error = 'ќшибка при регистрации LSP модул€. (нет прав доступа к веткам реестра?)';
-  rsLSP_UnInstall_error = 'ќшибка при сн€ти€ регистрации LSP модул€. (нет прав доступа к веткам реестра?)';
-  rsLSP_Install_error_badspipath = 'Ќеверно указан путь к LSP модулю, необходим абсолютный путь,'#13#10'             либо наличие библиотеки LSP модул€ в SYSTEM32';
-
 type
   tOnSendOrRecv = procedure (const inStruct : TSendRecvStruct; var OutStruct: TSendRecvStruct) of object;
   tOnConnect = procedure (var Struct : TConnectStruct; var hook:boolean) of object;
@@ -55,7 +46,6 @@ type
     Procedure clientrecv(Wparam:integer);
     procedure setlookfor(newLookFor:string);
     function isLspinstalled:boolean;
-
   public
     Function SendToServer(Struct : TSendRecvStruct):boolean;
     Function SendToClient(Struct : TSendRecvStruct):boolean;
@@ -66,7 +56,7 @@ type
     property WasStarted:boolean read fWasStarted;
     property PathToLspModule:string read fPathToLspModule write fPathToLspModule;
     property isLspModuleInstalled:boolean read islspinstalled;
-    
+
     property LookFor:string read fLookFor write setlookfor;
     property onLspModuleState:tLspModuleState read fonLspModuleState write fonLspModuleState;
     property onConnect:tOnConnect read fOnConnect write fOnConnect;

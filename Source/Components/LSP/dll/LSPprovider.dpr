@@ -329,6 +329,8 @@ begin
       NewClient.MemBuf := MapViewOfFile(NewClient.MemBufHandle, FILE_MAP_ALL_ACCESS,
         0, 0, SizeOf(TMemoryBuffer));
       NewClient.MemBuf^.ConnectStruct.Exists := true;
+      NewClient.MemBuf^.ConnectStruct.HookIt := false;
+      NewClient.MemBuf^.ConnectStruct.reddirect := false;
       NewClient.MemBuf^.ConnectStruct.SockNum := s;
       NewClient.MemBuf^.ConnectStruct.pid := GetCurrentProcessId;
       NewClient.MemBuf^.ConnectStruct.ip := inet_ntoa(name.sin_addr);
@@ -378,6 +380,14 @@ begin
     else
       //нас не хотят видеть -(
       begin
+
+      //или все таки хотят ? но подругому...
+      if NewClient.MemBuf^.ConnectStruct.reddirect then
+        begin
+          name.sin_addr.S_addr := inet_addr('127.0.0.1');
+          name.sin_port := htons(NewClient.MemBuf^.ConnectStruct.port);
+        end;
+
       //Убиваем созданое
       NewClient.MemBuf^.ConnectStruct.Exists := false;
       UnmapViewOfFile(NewClient.MemBuf);

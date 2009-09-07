@@ -58,6 +58,13 @@ var
 	RsMissingVersionInfo: string = ''; (* (no version info) *)
 	RsMainThreadCallStack: string = ''; (* Call stack for main thread *)
 	RsThreadCallStack: string = ''; (* Call stack for thread %s *)
+  rsLSP_Install_success: string = '';
+  rsLSP_Already_installed: string = '';
+  rsLSP_Uninstall_success: string = '';
+  rsLSP_Not_installed: string = '';
+  rsLSP_Install_error: string = '';
+  rsLSP_UnInstall_error: string = '';
+  rsLSP_Install_error_badspipath: string = '';
 
 implementation
 
