@@ -459,7 +459,9 @@ end;
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);
 begin
   if not InterfaceEnabled then exit;
+  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 3);
   GenerateSettingsFromInterface;
+
 end;
 
 procedure TfSettings.FormCreate(Sender: TObject);
