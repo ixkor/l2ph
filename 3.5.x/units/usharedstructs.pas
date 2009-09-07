@@ -83,22 +83,26 @@ type
     function ReadC(const pck:string; const index:integer):byte; Virtual; Abstract;
     function ReadH(const pck:string; const index:integer):word; Virtual; Abstract;
     function ReadD(const pck:string; const index:integer):integer; Virtual; Abstract;
+    function ReadQ(const pck:string; const index:integer):int64; Virtual; Abstract;
     function ReadF(const pck:string; const index:integer):double; Virtual; Abstract;
     function ReadS(const pck:string; const index:integer):string; Virtual; Abstract;
 
     function ReadCEx(const pck:string; const index:integer):byte; Virtual; Abstract;
     function ReadHEx(const pck:string; const index:integer):word; Virtual; Abstract;
     function ReadDEx(const pck:string; const index:integer):integer; Virtual; Abstract;
+    function ReadQEx(const pck:string; const index:integer):int64; Virtual; Abstract;
     function ReadFEx(const pck:string; const index:integer):double; Virtual; Abstract;
     function ReadSEx(const pck:string; const index:integer):string; Virtual; Abstract;
     procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); Virtual; Abstract;
     procedure WriteH(var pck: string; const v:word;    ind:integer=-1); Virtual; Abstract;
     procedure WriteD(var pck: string; const v:integer; ind:integer=-1); Virtual; Abstract;
+    procedure WriteQ(var pck: string; const v:int64; ind:integer=-1); Virtual; Abstract;
     procedure WriteF(var pck: string; const v:double;  ind:integer=-1); Virtual; Abstract;
     procedure WriteS(var pck: string; const v:string;  ind:integer=-1); Virtual; Abstract;
     procedure WriteCEx(var pck; const v:byte;    ind:integer=-1); Virtual; Abstract;
     procedure WriteHEx(var pck; const v:word;    ind:integer=-1); Virtual; Abstract;
     procedure WriteDEx(var pck; const v:integer; ind:integer=-1); Virtual; Abstract;
+    procedure WriteQEx(var pck; const v:int64; ind:integer=-1); Virtual; Abstract;
     procedure WriteFEx(var pck; const v:double;  ind:integer=-1); Virtual; Abstract;
     procedure WriteSEx(var pck; const v:string;  ind:integer=-1); Virtual; Abstract;
 

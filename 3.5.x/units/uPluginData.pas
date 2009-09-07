@@ -33,21 +33,25 @@ type
     function ReadC(const pck:string; const index:integer):byte; override;
     function ReadH(const pck:string; const index:integer):word; override;
     function ReadD(const pck:string; const index:integer):integer; override;
+    function ReadQ(const pck:string; const index:integer):int64; override;
     function ReadF(const pck:string; const index:integer):double; override;
     function ReadS(const pck:string; const index:integer):string; override;
     function ReadCEx(const pck:string; const index:integer):byte; override;
     function ReadHEx(const pck:string; const index:integer):word; override;
     function ReadDEx(const pck:string; const index:integer):integer; override;
+    function ReadQEx(const pck:string; const index:integer):int64; override;
     function ReadFEx(const pck:string; const index:integer):double; override;
     function ReadSEx(const pck:string; const index:integer):string; override;
     procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); override;
     procedure WriteH(var pck: string; const v:word;    ind:integer=-1); override;
     procedure WriteD(var pck: string; const v:integer; ind:integer=-1); override;
+    procedure WriteQ(var pck: string; const v:int64; ind:integer=-1); override;
     procedure WriteF(var pck: string; const v:double;  ind:integer=-1); override;
     procedure WriteS(var pck: string; const v:string;  ind:integer=-1); override;
     procedure WriteCEx(var pck; const v:byte;    ind:integer=-1); override;
     procedure WriteHEx(var pck; const v:word;    ind:integer=-1); override;
     procedure WriteDEx(var pck; const v:integer; ind:integer=-1); override;
+    procedure WriteQEx(var pck; const v:int64; ind:integer=-1); override;
     procedure WriteFEx(var pck; const v:double;  ind:integer=-1); override;
     procedure WriteSEx(var pck; const v:string;  ind:integer=-1); override;
 
@@ -394,6 +398,24 @@ begin
   inherited;
 end;
 
+function TPluginStructClass.ReadQ(const pck: string;
+  const index: integer): int64;
+begin
+  Result:=0;
+  if index+7>Length(pck) then Exit;
+  Move(pck[index],Result,8);
+  inherited;
+end;
+
+function TPluginStructClass.ReadQEx(const pck: string;
+  const index: integer): int64;
+begin
+  Result:=0;
+  if index+7>=PWord(@pck)^ then Exit;
+  Move(PByteArray(@pck)^[index],Result,8);
+  inherited;
+end;
+
 function TPluginStructClass.ReadS(const pck:string;
   const index: integer): string;
 var
@@ -557,6 +579,28 @@ end;
 procedure TPluginStructClass.WriteHEx(var pck; const v: word; ind: integer);
 const
   dt_size = 2;
+begin
+  if ind=-1 then ind:=PWord(@pck)^;
+  if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
+  Move(v,PByteArray(@pck)^[ind],dt_size);
+  inherited;
+end;
+
+procedure TPluginStructClass.WriteQ(var pck: string; const v: int64;
+  ind: integer);
+const
+  dt_size = 8;
+begin
+  if ind=-1 then ind:=Length(pck)+1;
+  if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
+  Move(v,pck[ind],dt_size);
+  inherited;
+end;
+
+procedure TPluginStructClass.WriteQEx(var pck; const v: int64;
+  ind: integer);
+const
+  dt_size = 8;
 begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
