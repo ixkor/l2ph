@@ -370,6 +370,14 @@ end;
 
 procedure TfMain.UpdateStrings;
 begin
+  rsLSP_Install_success := lang1.GetTextOrDefault('strLSP_Install_success');
+  rsLSP_Already_installed := lang1.GetTextOrDefault('strLSP_Already_installed');
+  rsLSP_Uninstall_success := lang1.GetTextOrDefault('strLSP_Uninstall_success');
+  rsLSP_Not_installed := lang1.GetTextOrDefault('strLSP_Not_installed');
+  rsLSP_Install_error := lang1.GetTextOrDefault('strLSP_Install_error');
+  rsLSP_UnInstall_error := lang1.GetTextOrDefault('strLSP_UnInstall_error');
+  rsLSP_Install_error_badspipath := lang1.GetTextOrDefault('strLSP_Install_error_badspipath');
+
   RsThreadCallStack := lang1.GetTextOrDefault('strRsThreadCallStack');
   RsMainThreadCallStack := lang1.GetTextOrDefault('strRsMainThreadCallStack');
   RsMissingVersionInfo := lang1.GetTextOrDefault('strRsMissingVersionInfo');

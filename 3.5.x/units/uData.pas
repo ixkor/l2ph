@@ -27,6 +27,7 @@ uses
   ecPopupCtrl,
   SyncObjs,
   uScriptEditor,
+  JwaWinsock2,
   fs_iinterpreter, fs_ipascal, fs_iinirtti, fs_imenusrtti, fs_idialogsrtti,
   fs_iextctrlsrtti, fs_iformsrtti, fs_iclassesrtti, siComp;
 
@@ -1359,15 +1360,19 @@ var
   str : string;
   i : integer;
   newlspconnection : TlspConnection;
+  needhook : boolean;
 begin
-
-  hook := (Pos(IntToStr(Struct.port)+';',sIgnorePorts+';')=0);
-  if hook then
+  hook := false;
+  needhook := (Pos(';'+IntToStr(Struct.port)+';',';'+sIgnorePorts+';')=0);
+  if needhook then
     str := rsLSPConnectionWillbeIntercepted
   else
     str := rsLSPConnectionWillbeIgnored;
-  if hook then
+
+  if needhook then
+  if fSettings.lspInterceptMethod.ItemIndex = 1 then
     begin
+      hook := true;
       newlspconnection := TlspConnection.create(Struct.SockNum);
       newlspconnection.INIT;
       Application.ProcessMessages;
@@ -1378,9 +1383,18 @@ begin
         if Assigned(OnConnect) then OnConnect(Struct.SockNum, true);
         if Assigned(OnConnect) then OnConnect(Struct.SockNum, false);
       end;
-    end;
+    end
+  else
+  begin
+    sockEngine.RedirrectIP := inet_addr(pchar(string(Struct.ip)));
+    sockEngine.RedirrectPort := HToNS(Struct.port);//msg.LParamLo;
+    Struct.port := LocalPort;
+    Struct.reddirect := true;
+  end;
+
   AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
 end;
+
 procedure TdmData.LSPControlDisconnect(var Struct: TDisconnectStruct);
 var
   connection : TlspConnection;

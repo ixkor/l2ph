@@ -64,6 +64,7 @@ type
     Label3: TLabel;
     isMainFormCaption: TEdit;
     Bevel5: TBevel;
+    lspInterceptMethod: TRadioGroup;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -152,6 +153,7 @@ begin
   chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
   ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
+  LspInterceptMethod.ItemIndex := Options.ReadInteger('General','lspInterceptMethod',0);
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
@@ -270,6 +272,8 @@ begin
   Options.WriteBool('General','AutoSaveLog',chkAutoSavePlog.Checked);
   Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
   Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
+  Options.WriteInteger('General','lspInterceptMethod',lspInterceptMethod.ItemIndex);
+
   Options.UpdateFile;
 end;
 
