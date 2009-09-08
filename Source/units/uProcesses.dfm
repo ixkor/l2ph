@@ -1,17 +1,16 @@
 object fProcesses: TfProcesses
   Left = 125
   Top = 117
+  Width = 287
+  Height = 652
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1086#1094#1077#1089#1089#1099
-  ClientHeight = 614
-  ClientWidth = 271
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy

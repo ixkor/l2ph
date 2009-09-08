@@ -1,6 +1,7 @@
 object fMainReplacer: TfMainReplacer
   Left = 388
   Top = 239
+  formstyle = fsnormal
   AutoSize = True
   BorderStyle = bsNone
   ClientHeight = 143
@@ -11,7 +12,6 @@ object fMainReplacer: TfMainReplacer
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
   Visible = True
