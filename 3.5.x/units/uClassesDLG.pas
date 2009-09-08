@@ -11,9 +11,11 @@ type
     fsTree1: TfsTree;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+  protected
+    procedure CreateParams(var Params : TCreateParams); override;
   private
     { Private declarations }
-    procedure CreateParams(var Params : TCreateParams); override;
+
   public
 
     { Public declarations }

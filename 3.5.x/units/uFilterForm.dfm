@@ -11,7 +11,6 @@ object fPacketFilter: TfPacketFilter
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
