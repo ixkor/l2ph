@@ -12,7 +12,7 @@ uses
   usharedstructs in '..\units\usharedstructs.pas';
 
 var                                
-  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,23,      141   );
   min_ver: LongWord absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct;
   ppck: string;
@@ -30,11 +30,11 @@ function GetPluginInfo(const ver: LongWord): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'Автовыпивалка НР бутылок';
 end;
 
@@ -96,7 +96,7 @@ begin
     end;
 end;
 
-procedure OnPacket(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var pck: string); stdcall;
+procedure OnPacket(const cnt: integer; const fromServer: Boolean; const connectionname:string; var pck: string); stdcall;
 var
   buf: string;
 begin

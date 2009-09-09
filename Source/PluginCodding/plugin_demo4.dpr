@@ -11,7 +11,7 @@ uses
   usharedstructs in '..\units\usharedstructs.pas';
 
 var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,23,      141   );
   min_ver: Integer absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct;
 
@@ -19,11 +19,11 @@ function GetPluginInfo(const ver: Integer): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2ph'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2ph'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             '"Как добавить свою функцию и ее обработчик" часть вторая. © alexteam'+sLineBreak+
             sLineBreak+
             sLineBreak+
@@ -153,7 +153,8 @@ begin
   end;
 end;
 
-function OnCallMethod(const MethodName: String; // имя функции в верхнем регистре
+function OnCallMethod(const cnt: integer; //id соединения пакет от которого при обработке в фастскрипте вызвал этот метод 
+                      const MethodName: String; // имя функции в верхнем регистре
                       var Params, // параметры функции
                       FuncResult: Variant // результат функции
          ): Boolean; stdcall; // если вернёт True то дальнейшая

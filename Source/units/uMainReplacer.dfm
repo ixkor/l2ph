@@ -1,7 +1,6 @@
 object fMainReplacer: TfMainReplacer
   Left = 388
   Top = 239
-  formstyle = fsnormal
   AutoSize = True
   BorderStyle = bsNone
   ClientHeight = 143

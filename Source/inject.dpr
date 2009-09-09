@@ -159,7 +159,8 @@ var
   ConnectNextHook : function (s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
   MapHandle : THandle;
   Mapdata: pShareMain;
-  
+
+
 function FindWindow(lpClassName, lpWindowName: PChar): HWND; stdcall; external user32 name 'FindWindowA';
 //function FindWindow; external user32 name 'FindWindowA';
 function SendMessage(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall; external user32 name 'SendMessageA';

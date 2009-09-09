@@ -16,7 +16,7 @@ uses
 
 
 var
-  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,23,      141   );
   min_ver: LongWord absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct; // структура передаваемая в плагин
 
@@ -27,11 +27,11 @@ function GetPluginInfo(const ver: LongWord): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'Показывает каким образом можно добавить свою функцию/процедуру в ПХ'+sLineBreak+
             '';
 end;
@@ -49,7 +49,8 @@ end;
 
 // Необязательно вызываемая функция. (может отсутствовать в плагине)
 // Вызывается при вызове скриптовой функции обьявленной в RefreshPrecompile
-function OnCallMethod(const MethodName: String; // имя функции в верхнем регистре
+function OnCallMethod(const cnt: integer; //id соединения вызвавшее обработку метода в фастскрипте
+                      const MethodName: String; // имя функции в верхнем регистре
                       var Params, // параметры функции
                       FuncResult: Variant // результат функции
          ): Boolean; stdcall; // если вернёт True то дальнейшая
