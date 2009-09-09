@@ -545,11 +545,12 @@ var
   //support DLL
 begin
   result := null;
+  ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
-        if OnCallMethod(sMethodName, Params, Result) then Exit;
+        if OnCallMethod(ConId, sMethodName, Params, Result) then Exit;
 
 
 
@@ -570,14 +571,12 @@ begin
   end else
   if sMethodName = 'SENDTOCLIENT' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     packet.Size := Length(buf)+2;
     Move(buf[1], packet.Data[0], Length(buf));
     SendPacket(packet, ConId, False);
   end else
   if sMethodName = 'SENDTOSERVER' then begin
     buf:=TfsScript(Integer(Params[0])).Variables['buf'];
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     packet.Size := Length(buf)+2;
     Move(buf[1], packet.Data[0], Length(buf));
     SendPacket(packet, ConId, true);
@@ -819,35 +818,27 @@ begin
   end else
   if sMethodName = 'SETNAME' then begin
     buf:=TfsScript(Integer(Params[1])).Variables['buf'];
-    ConId:=TfsScript(Integer(Params[1])).Variables['ConnectID'];
     SetConName(ConId, String(Params[0]));
   end else
   if sMethodName = 'NOCLOSESERVERAFTERCLIENTDISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, true, false);
   end else
   if sMethodName = 'CLOSESERVERAFTERCLIENTDISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, false, true);
   end else
   if sMethodName = 'NOCLOSECLIENTAFTERSERVERDISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, true, true);
   end else
   if sMethodName = 'CLOSECLIENTAFTERSERVERDISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoDisconnectOnDisconnect(ConId, false, false);
   end else
   if sMethodName = 'NOCLOSEFRAMEAFTERDISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoFreeOnConnectionLost(ConId, true);
   end else
   if sMethodName = 'CLOSEFRAMEAFTERDISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     setNoFreeOnConnectionLost(ConId, false);
   end ELSE
   if sMethodName = 'DISCONNECT' then begin
-    ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
     DoDisconnect(ConId);
   end else
   if sMethodName = 'DELAY' then Sleep(Params[0]) else

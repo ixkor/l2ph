@@ -10,7 +10,7 @@ uses
   plugin_demo3_form in 'plugin_demo3_form.pas' {MyForm};
 
 var
-  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,23,      141   );
   min_ver: LongWord absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct; // структура передаваемая в плагин
 
@@ -21,11 +21,11 @@ function GetPluginInfo(const ver: LongWord): PChar; stdcall;
 begin
   if ver<min_ver then
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.20.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'У вас старая версия программы! Плагин не сможет корректно с ней работать!'
   else
     Result:='Демонстрационный Plugin к программе l2phx'+sLineBreak+
-            'Для версий 3.5.30.134+'+sLineBreak+
+            'Для версий 3.5.23.141+'+sLineBreak+
             'Как можно использовать пользовательскую форму ?';
 end;
 

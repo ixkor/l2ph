@@ -11,12 +11,12 @@ type
   TGetPluginInfo = function(const ver: LongWord): PChar; stdcall;
   //TGetEnableFuncs = function: TEnableFuncs; stdcall;
   TSetStruct = function(const struct: PPluginStruct): Boolean; stdcall;
-  TOnPacket = procedure(const cnt: Cardinal; const fromServer: Boolean; const connectionname:string; var packet : string); stdcall;
-  TOnConnect = procedure(const cnt: Cardinal; const withServer: Boolean); stdcall;
+  TOnPacket = procedure(const cnt: integer; const fromServer: Boolean; const connectionname:string; var packet : string); stdcall;
+  TOnConnect = procedure(const cnt: integer; const withServer: Boolean); stdcall;
   TOnDisconnect = TOnConnect;
   TOnLoad = procedure; stdcall;
   TOnFree = TOnLoad;
-  TOnCallMethod = function(const MethodName: String; var Params,
+  TOnCallMethod = function(const cnt: integer; const MethodName: String; var Params,
                            FuncResult: Variant): Boolean; stdcall;
   TOnRefreshPrecompile = procedure; stdcall;
 

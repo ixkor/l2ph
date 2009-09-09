@@ -11,14 +11,14 @@ uses
   usharedstructs in '..\units\usharedstructs.pas';
 
 var                                {version} {revision}
-  min_ver_a: array[0..3] of Byte = ( 3,5,20,      134   );
+  min_ver_a: array[0..3] of Byte = ( 3,5,23,      141   );
   min_ver: longword absolute min_ver_a; // минимальная поддерживаемая версия программы
   ps: TPluginStruct; // структура передаваемая в плагин
 
 function GetPluginInfo(const ver: longword): PChar; stdcall;
 begin
     Result:='Плагин управления Winamp к программе l2ph'+sLineBreak+
-            'Для версий 3.5.20.134+';
+            'Для версий 3.5.23.141+';
 end;
 
 
@@ -38,7 +38,8 @@ end;
 
 
 // Вызывается при вызове скриптовой функции обьявленной в RefreshPrecompile
-function OnCallMethod(const MethodName: String; // имя функции в верхнем регистре
+function OnCallMethod(const cnt: integer;
+                      const MethodName: String; // имя функции в верхнем регистре
                       var Params, // параметры функции
                       FuncResult: Variant // результат функции
          ): Boolean; stdcall; // если вернёт True то дальнейшая
