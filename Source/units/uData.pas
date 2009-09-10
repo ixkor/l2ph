@@ -1392,9 +1392,12 @@ begin
   hook := false;
   needhook := (Pos(';'+IntToStr(Struct.port)+';',';'+sIgnorePorts+';')=0);
   if needhook then
-    str := rsLSPConnectionWillbeIntercepted
-  else
-    str := rsLSPConnectionWillbeIgnored;
+    if fSettings.lspInterceptMethod.ItemIndex = 1 then
+        str := rsLSPConnectionWillbeInterceptedAndRettirected
+      else
+        str := rsLSPConnectionWillbeIntercepted
+    else
+      str := rsLSPConnectionWillbeIgnored;
     
   AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
 
