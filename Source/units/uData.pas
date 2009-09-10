@@ -1395,6 +1395,8 @@ begin
     str := rsLSPConnectionWillbeIntercepted
   else
     str := rsLSPConnectionWillbeIgnored;
+    
+  AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
 
   if needhook then
   if fSettings.lspInterceptMethod.ItemIndex = 1 then
@@ -1419,7 +1421,7 @@ begin
     Struct.reddirect := true;
   end;
 
-  AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
+
 end;
 
 procedure TdmData.LSPControlDisconnect(var Struct: TDisconnectStruct);
