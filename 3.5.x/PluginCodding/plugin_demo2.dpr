@@ -49,7 +49,7 @@ end;
 
 // Необязательно вызываемая функция. (может отсутствовать в плагине)
 // Вызывается при вызове скриптовой функции обьявленной в RefreshPrecompile
-function OnCallMethod(const cnt: integer; //id соединения вызвавшее обработку метода в фастскрипте
+function OnCallMethod(const ConnectId, ScriptId: integer;
                       const MethodName: String; // имя функции в верхнем регистре
                       var Params, // параметры функции
                       FuncResult: Variant // результат функции

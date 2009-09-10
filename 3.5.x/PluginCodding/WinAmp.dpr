@@ -38,7 +38,7 @@ end;
 
 
 // Вызывается при вызове скриптовой функции обьявленной в RefreshPrecompile
-function OnCallMethod(const cnt: integer;
+function OnCallMethod(const ConnectId, ScriptId: integer;
                       const MethodName: String; // имя функции в верхнем регистре
                       var Params, // параметры функции
                       FuncResult: Variant // результат функции

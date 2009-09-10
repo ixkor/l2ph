@@ -173,6 +173,7 @@ begin
       end;
     Ttulel_action_tunel_destroyed:
       begin
+        
         Tunel := Ttunel(msg.LParam);
         if Tunel.NeedDeinit then
           tunel.Visual.deinit;

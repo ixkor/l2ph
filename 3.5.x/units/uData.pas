@@ -99,7 +99,7 @@ type
     procedure destroyDeadLSPConnections;
     procedure destroyDeadLogWievs;
 
-    function CallMethod(Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
+    function CallMethod(Scripter:TfsScript; Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
 
     procedure SendPacket(Packet: Tpacket; tid: integer; ToServer: Boolean);
     procedure SendPacketToName(Packet: Tpacket; cName: string; ToServer: Boolean);
@@ -498,6 +498,9 @@ begin
   fsScript.AddVariable('FromClient','Boolean',False);
   fsScript.AddVariable('ConnectID','Integer',0);
   fsScript.AddVariable('ConnectName','String','');
+  fsScript.AddVariable('UseForConnectName','String','');
+  fsScript.AddVariable('UseForConnectID','Integer',0);
+  fsScript.AddVariable('ThisScriptId','Integer',round(Random($ffff)));
 end;
 
 
@@ -516,7 +519,7 @@ Begin
 end;
 
 
-function TdmData.CallMethod(Instance: TObject; ClassType: TClass;
+function TdmData.CallMethod(Scripter: TfsScript; Instance: TObject; ClassType: TClass;
   const sMethodName: String; var Params: Variant): Variant;
 var
   buf,pct,tmp: string;
@@ -532,6 +535,7 @@ var
   Par:array of Pointer;
   List:variant;
   i:integer;
+  ThisScriptId:integer;
   Res:Integer;
   //support DLL
   popa:array of PChar;
@@ -545,14 +549,21 @@ var
   //support DLL
 begin
   result := null;
-  ConId:=TfsScript(Integer(Params[0])).Variables['ConnectID'];
+  if Scripter.Variables['UseForConnectName'] <> '' then
+    ConId := ConnectIdByName(Scripter.Variables['UseForConnectName'])
+  else
+  if Scripter.Variables['UseForConnectID'] <> 0 then
+    ConId := Scripter.Variables['UseForConnectID']
+  else
+    ConId := Scripter.Variables['ConnectID'];
+    
+  ThisScriptId := Scripter.Variables['ThisScriptId'];
+  
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
-        if OnCallMethod(ConId, sMethodName, Params, Result) then Exit;
-
-
+        if OnCallMethod(ConId, ThisScriptId, sMethodName, Params, Result) then Exit;
 
   // если плагины не обработать то обрабатываем сами
   if sMethodName = 'CANUSEALTTAB' then begin
@@ -570,62 +581,62 @@ begin
     end;
   end else
   if sMethodName = 'SENDTOCLIENT' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     packet.Size := Length(buf)+2;
     Move(buf[1], packet.Data[0], Length(buf));
     SendPacket(packet, ConId, False);
   end else
   if sMethodName = 'SENDTOSERVER' then begin
-    buf:=TfsScript(Integer(Params[0])).Variables['buf'];
+    buf := scripter.Variables['buf'];
     packet.Size := Length(buf)+2;
     Move(buf[1], packet.Data[0], Length(buf));
     SendPacket(packet, ConId, true);
   end else
   if sMethodName = 'SENDTOCLIENTEX' then begin
-    buf:=TfsScript(Integer(Params[1])).Variables['buf'];
+    buf := scripter.Variables['buf'];
     packet.Size := Length(buf)+2;
     Move(buf[1], packet.Data[0], Length(buf));
     SendPacketToName(packet, string(Params[0]), False);
   end else
   if sMethodName = 'SENDTOSERVEREX' then begin
-    buf:=TfsScript(Integer(Params[1])).Variables['buf'];
+    buf := scripter.Variables['buf'];
     packet.Size := Length(buf)+2;
     Move(buf[1], packet.Data[0], Length(buf));
     SendPacketToName(packet, string(Params[0]), True);
   end else
   if sMethodName = 'READC' then begin
-    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct) then b:=Byte(pct[Integer(Params[0])])
     else b:=0;
     Params[0]:=Integer(Params[0])+1;
     Result:=b;
   end else
   if sMethodName = 'READD' then begin
-    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    pct := scripter.Variables['pck'];
     if Integer(Params[0])<Length(pct)-2 then Move(pct[Integer(Params[0])],d,4);
     Params[0]:=Integer(Params[0])+4;
     Result:=d;
   end else
   if sMethodName = 'READQ' then begin
-    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    pct := scripter.Variables['pck'];
     if Integer(Params[0])<Length(pct)-4 then Move(pct[Integer(Params[0])],i64,8);
     Params[0]:=Integer(Params[0])+8;
     Result:=i64;
   end else
   if sMethodName = 'READH' then begin
-    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    pct := scripter.Variables['pck'];
     if Integer(Params[0])<Length(pct) then Move(pct[Integer(Params[0])],h,2);
     Params[0]:=Integer(Params[0])+2;
     Result:=h;
   end else
   if sMethodName = 'READF' then begin
-    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    pct := scripter.Variables['pck'];
     if Integer(Params[0])<Length(pct)-6 then Move(pct[Integer(Params[0])],f,8);
     Params[0]:=Integer(Params[0])+8;
     Result:=f;
   end else
   if sMethodName = 'READS' then begin
-    pct:=TfsScript(Integer(Params[1])).Variables['pck'];
+    pct := Scripter.Variables['pck'];
     d:=PosEx(#0#0,pct,Integer(Params[0]))-Integer(Params[0]);
     if (d mod 2)=1 then Inc(d);
     SetLength(temp,d div 2);
@@ -635,14 +646,14 @@ begin
     Result:=tmp;//WideStringToString(temp,1251);
   end else
   if sMethodName = 'WRITEC' then begin
-    buf:=TfsScript(Integer(Params[2])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     b:=Params[0];
     if Integer(Params[1])=0 then buf:=buf+Char(b)
       else buf[Integer(Params[1])]:=Char(b);
-    TfsScript(Integer(Params[2])).Variables['buf']:=buf;
+    Scripter.Variables['buf']:=buf;
   end else
   if sMethodName = 'WRITED' then begin
-    buf:=TfsScript(Integer(Params[2])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     SetLength(tmp,4);
     d:=Params[0];
     if Integer(Params[1])=0 then begin
@@ -651,10 +662,10 @@ begin
     end else begin
       Move(d,buf[Integer(Params[1])],4);
     end;
-    TfsScript(Integer(Params[2])).Variables['buf']:=buf;
+    Scripter.Variables['buf'] := buf;
   end else
   if sMethodName = 'WRITEQ' then begin
-    buf:=TfsScript(Integer(Params[2])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     SetLength(tmp,8);
     i64:=Params[0];
     if Integer(Params[1])=0 then begin
@@ -663,10 +674,10 @@ begin
     end else begin
       Move(i64,buf[Integer(Params[1])],8);
     end;
-    TfsScript(Integer(Params[2])).Variables['buf']:=buf;
+    Scripter.Variables['buf'] := buf;
   end else
   if sMethodName = 'WRITEH' then begin
-    buf:=TfsScript(Integer(Params[2])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     SetLength(tmp,2);
     h:=Params[0];
     if Integer(Params[1])=0 then begin
@@ -675,10 +686,10 @@ begin
     end else begin
       Move(h,buf[Integer(Params[1])],2);
     end;
-    TfsScript(Integer(Params[2])).Variables['buf']:=buf;
+    Scripter.Variables['buf'] := buf;
   end else
   if sMethodName = 'WRITEF' then begin
-    buf:=TfsScript(Integer(Params[2])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     SetLength(tmp,8);
     f:=Params[0];
     if Integer(Params[1])=0 then begin
@@ -687,20 +698,16 @@ begin
     end else begin
       Move(f,buf[Integer(Params[1])],8);
     end;
-    TfsScript(Integer(Params[2])).Variables['buf']:=buf;
+    Scripter.Variables['buf'] := buf;
   end else
   if sMethodName = 'WRITES' then begin
-    buf:=TfsScript(Integer(Params[1])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     tmp:=Params[0];
     temp:=tmp;//StringToWideString(tmp,1251);
     tmp:=tmp+tmp;
     Move(temp[1],tmp[1],Length(tmp));
-    {if Integer(Params[1])=0 then }
     buf:=buf+tmp+#0#0;
-    { else begin
-//      buf[Integer(Params[1])]:=Char(5);
-    end;}
-    TfsScript(Integer(Params[1])).Variables['buf']:=buf;
+    Scripter.Variables['buf']:=buf;
   end else
   if sMethodName = 'LOADLIBRARY' then begin
     Result := LoadLibrary(PAnsiChar(VarToStr(Params[0])));
@@ -817,7 +824,7 @@ begin
     Result := ConnectIdByName(string(Params[0]));
   end else
   if sMethodName = 'SETNAME' then begin
-    buf:=TfsScript(Integer(Params[1])).Variables['buf'];
+    buf := Scripter.Variables['buf'];
     SetConName(ConId, String(Params[0]));
   end else
   if sMethodName = 'NOCLOSESERVERAFTERCLIENTDISCONNECT' then begin
@@ -861,6 +868,7 @@ var
 begin
 // Совместимо.
 //нужно бужет найти соединение по айди и отправить данные
+  if tid = 0 then exit;
   i := 0;
   while i < LSPConnections.Count do
   begin
@@ -1181,6 +1189,15 @@ begin
   AutoComplete.DisplayItems.add('const ConnectName: string;');
   AutoComplete.Items.add('ConnectName');
 
+  AutoComplete.DisplayItems.add('var UseForConnectName: string;');
+  AutoComplete.Items.add('UseForConnectName');
+
+  AutoComplete.DisplayItems.add('var UseForConnectID: Integer;');
+  AutoComplete.Items.add('UseForConnectID');
+  
+  AutoComplete.DisplayItems.add('const ThisScriptId: Integer;');
+  AutoComplete.Items.add('ThisScriptId');
+
 end;
 
 procedure TdmData.DO_reloadFuncs;
@@ -1189,7 +1206,7 @@ var
 begin
   MyFuncs.Clear;
   MyFuncs.Add('function HStr(Hex:String):String');
-  MyFuncs.Add('procedure SendToClient(%s)');
+  MyFuncs.Add('procedure SendToClient()');
   MyFuncs.Add('procedure SendToServer(%s)');
   MyFuncs.Add('procedure SendToClientEx(CharName:string;%s)');
   MyFuncs.Add('procedure SendToServerEx(CharName:string;%s)');
@@ -1413,7 +1430,6 @@ var
   i : integer;
 
 begin
-
   //Уведомляем плагины
   for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
   if Loaded  then
