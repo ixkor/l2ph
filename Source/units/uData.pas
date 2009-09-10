@@ -477,17 +477,15 @@ end;
 
 procedure TdmData.RefreshPrecompile(var fsScript: TfsScript);
 var
-  fss: string;
   i: Integer;
 begin
-  fss:='fss:integer='+IntToStr(Integer(fsScript));
   fsScript.Clear;
   fsScript.AddRTTI;
 
   i := 0;
   while i < MyFuncs.Count do
   begin
-    fsScript.AddMethod(Format(MyFuncs.Strings[i],[fss]),CallMethod);
+    fsScript.AddMethod(MyFuncs.Strings[i],CallMethod);
     inc(i);
   end;
 
@@ -1149,7 +1147,7 @@ begin
       delete(fname, pos('(',fname), length(fname)-pos('(',fname)+1);
       fname := fname + '(';
       end;
-    AutoComplete.DisplayItems.add(format(Orig,[''])+';');
+    AutoComplete.DisplayItems.add(Orig+';');
     AutoComplete.Items.add(fname);
     inc(i);
   end;
@@ -1165,7 +1163,7 @@ begin
       delete(fname, pos('(',fname), length(fname)-pos('(',fname)+1);
       fname := fname + '(';
       end;
-    AutoComplete.DisplayItems.add(format(Orig,[''])+';');
+    AutoComplete.DisplayItems.add(Orig+';');
     AutoComplete.Items.add(fname);
     inc(i);
   end;
@@ -1207,34 +1205,34 @@ begin
   MyFuncs.Clear;
   MyFuncs.Add('function HStr(Hex:String):String');
   MyFuncs.Add('procedure SendToClient()');
-  MyFuncs.Add('procedure SendToServer(%s)');
-  MyFuncs.Add('procedure SendToClientEx(CharName:string;%s)');
-  MyFuncs.Add('procedure SendToServerEx(CharName:string;%s)');
-  MyFuncs.Add('procedure NoCloseFrameAfterDisconnect(%s)');
-  MyFuncs.Add('procedure CloseFrameAfterDisconnect(%s)');
-  MyFuncs.Add('procedure NoCloseClientAfterServerDisconnect(%s)');
-  MyFuncs.Add('procedure CloseClientAfterServerDisconnect(%s)');
-  MyFuncs.Add('procedure NoCloseServerAfterClientDisconnect(%s)');
-  MyFuncs.Add('procedure CloseServerAfterClientDisconnect(%s)');
-  MyFuncs.Add('procedure Disconnect(%s)');
-  MyFuncs.Add('function ConnectNameByID(id:integer;%s):string');
-  MyFuncs.Add('function ConnectIDByName(name:string;%s):integer');
-  MyFuncs.Add('procedure SetName(Name:string;%s)');
+  MyFuncs.Add('procedure SendToServer()');
+  MyFuncs.Add('procedure SendToClientEx(CharName:string)');
+  MyFuncs.Add('procedure SendToServerEx(CharName:string)');
+  MyFuncs.Add('procedure NoCloseFrameAfterDisconnect()');
+  MyFuncs.Add('procedure CloseFrameAfterDisconnect()');
+  MyFuncs.Add('procedure NoCloseClientAfterServerDisconnect()');
+  MyFuncs.Add('procedure CloseClientAfterServerDisconnect()');
+  MyFuncs.Add('procedure NoCloseServerAfterClientDisconnect()');
+  MyFuncs.Add('procedure CloseServerAfterClientDisconnect()');
+  MyFuncs.Add('procedure Disconnect()');
+  MyFuncs.Add('function ConnectNameByID(id:integer):string');
+  MyFuncs.Add('function ConnectIDByName(name:string):integer');
+  MyFuncs.Add('procedure SetName(Name:string)');
   MyFuncs.Add('procedure Delay(msec: Cardinal)');
   MyFuncs.Add('procedure ShowForm()');
   MyFuncs.Add('procedure HideForm()');
-  MyFuncs.Add('procedure WriteS(v:string;%s)');
-  MyFuncs.Add('procedure WriteC(v:byte; ind:integer=0;%s)');
-  MyFuncs.Add('procedure WriteD(v:integer; ind:integer=0;%s)');
-  MyFuncs.Add('procedure WriteH(v:word; ind:integer=0;%s)');
-  MyFuncs.Add('procedure WriteF(v:double; ind:integer=0;%s)');
-  MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0;%s)');
-  MyFuncs.Add('function ReadS(var index:integer;%s):string');
-  MyFuncs.Add('function ReadC(var index:integer;%s):byte');
-  MyFuncs.Add('function ReadD(var index:integer;%s):integer');
-  MyFuncs.Add('function ReadH(var index:integer;%s):word');
-  MyFuncs.Add('function ReadF(var index:integer;%s):double');
-  MyFuncs.Add('function ReadQ(var index:integer;%s):Int64');
+  MyFuncs.Add('procedure WriteS(v:string)');
+  MyFuncs.Add('procedure WriteC(v:byte; ind:integer=0)');
+  MyFuncs.Add('procedure WriteD(v:integer; ind:integer=0)');
+  MyFuncs.Add('procedure WriteH(v:word; ind:integer=0)');
+  MyFuncs.Add('procedure WriteF(v:double; ind:integer=0)');
+  MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0)');
+  MyFuncs.Add('function ReadS(var index:integer):string');
+  MyFuncs.Add('function ReadC(var index:integer):byte');
+  MyFuncs.Add('function ReadD(var index:integer):integer');
+  MyFuncs.Add('function ReadH(var index:integer):word');
+  MyFuncs.Add('function ReadF(var index:integer):double');
+  MyFuncs.Add('function ReadQ(var index:integer):Int64');
   MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
   MyFuncs.Add('function FreeLibrary(LibHandle:Integer):Boolean');
   MyFuncs.Add('function StrToHex(str1:String):String');
