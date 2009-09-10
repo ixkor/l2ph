@@ -824,23 +824,42 @@ begin
       cScript := fScript.FindScriptByName(fScript.ScriptsListVisual.Items.Item[i].Caption);
       if cScript <> nil then
         if cScript.isRunning and cScript.Compilled then
-        begin
-        //по очереди посылаем всем включенным скриптам
-        //EnterCriticalSection(_cs);
-        cScript.Editor.fsScript.Variables['pck'] := temp;
-        cScript.Editor.fsScript.Variables['ConnectID']:=id;
-        cScript.Editor.fsScript.Variables['ConnectName']:=connectname;
-        cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
-        cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
-        //LeaveCriticalSection(_cs);
-        try
-        cScript.Editor.fsScript.Execute;
-        temp:=cScript.Editor.fsScript.Variables['pck'];
-        except
-          fMain.StatusBar1.SimpleText := cScript.ScriptName+': '+SysErrorMessage(GetLastError)+'; on line '+inttostr(cScript.Editor.Editor.CurrentLine);
-          StatusBar.SimpleText := fMain.StatusBar1.SimpleText;
-        end;
-        end;
+          if (
+                (cScript.Editor.fsScript.Variables['UseForConnectName'] = '')
+              or
+                (cScript.Editor.fsScript.Variables['UseForConnectName'] = connectname )
+              )
+          and
+             (
+                (cScript.Editor.fsScript.Variables['UseForConnectID'] = 0)
+              or
+                (cScript.Editor.fsScript.Variables['UseForConnectID'] = id )
+             )
+             then
+                begin
+                  //по очереди посылаем всем включенным скриптам
+                  //EnterCriticalSection(_cs);
+                  cScript.Editor.fsScript.Variables['pck'] := temp;
+                  cScript.Editor.fsScript.Variables['buf'] := temp;
+                  cScript.Editor.fsScript.Variables['ConnectID']:=id;
+                  cScript.Editor.fsScript.Variables['ConnectName']:=connectname;
+                  cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
+                  cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
+                  //LeaveCriticalSection(_cs);
+                  try
+                    cScript.Editor.fsScript.Execute;
+                     temp:=cScript.Editor.fsScript.Variables['pck'];
+                  except
+                    fMain.StatusBar1.SimpleText := cScript.ScriptName+': '+SysErrorMessage(GetLastError)+'; on line '+inttostr(cScript.Editor.Editor.CurrentLine);
+                    StatusBar.SimpleText := fMain.StatusBar1.SimpleText;
+                  end;
+
+                  //В момент когда скрипт не выполняеться - обнуляем эти переменные.
+                  cScript.Editor.fsScript.Variables['pck'] := '';
+                  cScript.Editor.fsScript.Variables['buf'] := '';
+                  cScript.Editor.fsScript.Variables['ConnectID'] := '';
+                  cScript.Editor.fsScript.Variables['ConnectName'] := '';
+                end;
     end;
   end;
   

@@ -153,7 +153,7 @@ begin
   end;
 end;
 
-function OnCallMethod(const cnt: integer; //id соединения пакет от которого при обработке в фастскрипте вызвал этот метод 
+function OnCallMethod(const ConnectId, ScriptId: integer; 
                       const MethodName: String; // имя функции в верхнем регистре
                       var Params, // параметры функции
                       FuncResult: Variant // результат функции
