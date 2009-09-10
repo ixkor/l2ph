@@ -106,6 +106,11 @@ type
     procedure WriteFEx(var pck; const v:double;  ind:integer=-1); Virtual; Abstract;
     procedure WriteSEx(var pck; const v:string;  ind:integer=-1); Virtual; Abstract;
 
+    Function SerScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; Virtual; Abstract;
+    Function GetScriptVariable(scriptid:integer; varname:string):variant; Virtual; Abstract;
+    function IsScriptIdValid(scriptid:integer):boolean; Virtual; Abstract;
+
+
     function CreateAndRunTimerThread(const interval, usrParam: Cardinal;
                                      const OnTimerProc: TOnTimer): Pointer; Virtual; Abstract;
     procedure ChangeTimerThread(const timer: Pointer; const interval: Cardinal;

@@ -498,7 +498,7 @@ begin
   fsScript.AddVariable('ConnectName','String','');
   fsScript.AddVariable('UseForConnectName','String','');
   fsScript.AddVariable('UseForConnectID','Integer',0);
-  fsScript.AddVariable('ThisScriptId','Integer',round(Random($ffff)));
+  fsScript.AddVariable('ThisScriptId','Integer',integer(fsScript));
 end;
 
 

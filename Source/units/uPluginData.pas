@@ -55,6 +55,10 @@ type
     procedure WriteFEx(var pck; const v:double;  ind:integer=-1); override;
     procedure WriteSEx(var pck; const v:string;  ind:integer=-1); override;
 
+    Function SerScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; override;
+    function GetScriptVariable(scriptid:integer; varname:string):variant; override;
+    function IsScriptIdValid(scriptid:integer):boolean; override;
+
     function CreateAndRunTimerThread(const interval, usrParam: Cardinal;
                                      const OnTimerProc: TOnTimer): Pointer; override;
     procedure ChangeTimerThread(const timer: Pointer; const interval: Cardinal;
@@ -116,8 +120,10 @@ var
   Plugins : tlist;
   
 implementation
-uses uscripts, uglobalFuncs, uMain, uUserForm, udata, usocketengine, uencdec, Controls;
+uses fs_iinterpreter, uscripts, uglobalFuncs, uMain, uUserForm, udata, usocketengine, uencdec, Controls,
+  Variants;
 { TPluginDataClass }
+
 
 procedure TPluginStructClass.ChangeTimerThread(const timer: Pointer;
   const interval, usrParam: Cardinal; const OnTimerProc: TOnTimer);
@@ -221,6 +227,17 @@ begin
     inc(i);
   end;
   
+end;
+
+function TPluginStructClass.GetScriptVariable(scriptid: integer;
+  varname: string): variant;
+begin
+  try
+    result := TfsScript(scriptid).Variables[varname];
+  except
+    result := Null;
+  end;
+  inherited;
 end;
 
 function TPluginStructClass.GoFirstConnection: boolean;
@@ -328,6 +345,15 @@ begin
   inherited;
   UserForm.Hide;
   fMain.nUserFormShow.Enabled := false;
+end;
+
+function TPluginStructClass.IsScriptIdValid(scriptid: integer): boolean;
+begin
+  try
+    Result := TfScript(scriptid).ClassName = 'TfsScript'
+  except
+    result := false;
+  end;
 end;
 
 function TPluginStructClass.ReadC;
@@ -476,6 +502,17 @@ procedure TPluginStructClass.SendPacketStr(pck: string; const tid: integer;
   const ToServer: Boolean);
 begin
   SendPacket(Length(pck)+2, pck, tid, ToServer);
+  inherited;
+end;
+
+Function TPluginStructClass.SerScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; 
+begin
+  try
+    TfsScript(scriptid).Variables[varname] := varvalue;
+    result := true;
+  except
+    result := false;
+  end;
   inherited;
 end;
 
