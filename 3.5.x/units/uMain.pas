@@ -396,6 +396,7 @@ begin
   rsLSPDisconnectDetected := lang1.GetTextOrDefault('strrsLSPDisconnectDetected');
   rsLSPConnectionWillbeIgnored := lang1.GetTextOrDefault('strrsLSPConnectionWillbeIgnored');
   rsLSPConnectionWillbeIntercepted := lang1.GetTextOrDefault('strrsLSPConnectionWillbeIntercepted');
+  rsLSPConnectionWillbeInterceptedAndRettirected := lang1.GetTextOrDefault('rsLSPConnectionWillbeInterceptedAndRettirected');
   rsLSPConnectionDetected := lang1.GetTextOrDefault('strrsLSPConnectionDetected');
   rsFailedLocalServer := lang1.GetTextOrDefault('strrsFailedLocalServer');
   rsStartLocalServer := lang1.GetTextOrDefault('strrsStartLocalServer');

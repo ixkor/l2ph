@@ -40,6 +40,7 @@ var
 
 	rsLSPConnectionDetected: string = ''; (* (LSP) Обнаружено соединение (Сокет %d) IP/port %s:%d. %s *)
 	rsLSPConnectionWillbeIntercepted: string = ''; (* Соединение будет перехвачено *)
+  rsLSPConnectionWillbeInterceptedAndRettirected: string = ''; (* Соединение будет перехвачено *)
 	rsLSPConnectionWillbeIgnored: string = ''; (* Соединение будет проигнорировано *)
 	rsLSPDisconnectDetected: string = ''; (* (LSP) Соединение закрыто (Сокет %d) *)
 
