@@ -8,10 +8,10 @@
 </head>
 
 <BODY>
-<P><FONT face=Arial size=2>&nbsp;&nbsp;<FONT size=2><FONT 
-face=Arial>&nbsp;</FONT><FONT size=5><FONT face=Arial 
-color=#003f7d><STRONG>Плагины. Структура плагина.</STRONG></FONT><FONT 
-size=3><FONT color=#003f7d> </FONT>
+<P><FONT size=2 face=Arial>&nbsp;&nbsp;<FONT size=2><FONT 
+face=Arial>&nbsp;</FONT><FONT size=5><FONT color=#003f7d 
+face=Arial><STRONG>Плагины. Структура плагина.</STRONG></FONT><FONT size=3><FONT 
+color=#003f7d> </FONT>
 <P><FONT face=Arial></FONT>
 <P><FONT face=Arial></FONT>
 <P><FONT face=Arial></FONT>
@@ -25,91 +25,76 @@ size=3><FONT color=#003f7d> </FONT>
 <P>
 <HR>
 </FONT></FONT></FONT></FONT></FONT>
-<P><STRONG><FONT size=2>Для версии 3.5.2.102</FONT></STRONG></P>
-<P><STRONG>Структура плагина, ОБЯЗАТЕЛЬНАЯ.</STRONG></P>
-<P><FONT size=2><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">uses</SPAN><BR>&nbsp; FastMM4 
-<SPAN style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> <SPAN 
-style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4.pas'</SPAN>, <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Должен идти 
-первым.</SPAN><BR>&nbsp; FastMM4Messages <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> <SPAN 
-style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4Messages.pas'</SPAN>,<BR>&nbsp;&nbsp;windows,<BR>&nbsp;&nbsp;&nbsp; 
-<SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// модуль с описаниями 
-основных типов</SPAN><BR>&nbsp; &nbsp; <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// используемых в плагине и 
-программе</SPAN><BR>&nbsp; usharedstructs <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">in</SPAN> <SPAN 
-style="COLOR: rgb(0,0,240)">'..\units\usharedstructs.pas'</SPAN>;<BR><BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">var</SPAN>&nbsp; &nbsp; &nbsp; 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
-&nbsp; &nbsp; <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{version}</SPAN> <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{revision}</SPAN><BR>&nbsp; 
-min_ver_a: array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
+<P><STRONG>Структура плагина, ОБЯЗАТЕЛЬНАЯ.</STRONG></P>library 
+plugin_demo3;<BR><BR><FONT size=2><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">uses</SPAN><BR>&nbsp; FastMM4 
+<SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">in</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4.pas'</SPAN>,<BR>&nbsp; 
+FastMM4Messages <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">in</SPAN> 
+<SPAN 
+style="COLOR: rgb(0,0,240)">'..\fastmm\FastMM4Messages.pas'</SPAN>,<BR>&nbsp; 
+windows,&nbsp; <BR>&nbsp; usharedstructs <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">in</SPAN> <SPAN 
+style="COLOR: rgb(0,0,240)">'..\units\usharedstructs.pas'</SPAN>,<BR>&nbsp; 
+plugin_demo3_form <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">in</SPAN> 
+<SPAN style="COLOR: rgb(0,0,240)">'plugin_demo3_form.pas'</SPAN> <SPAN 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">{MyForm}</SPAN>;<BR><BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">var</SPAN><BR>&nbsp; min_ver_a: 
+array[<SPAN style="COLOR: rgb(0,0,240)">0</SPAN>..<SPAN 
 style="COLOR: rgb(0,0,240)">3</SPAN>] <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">of</SPAN> <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">of</SPAN> <SPAN 
 style="COLOR: rgb(0,0,0)">Byte</SPAN> = <SPAN style="COLOR: rgb(0,0,0)">(</SPAN> 
 <SPAN style="COLOR: rgb(0,0,240)">3</SPAN>,<SPAN 
 style="COLOR: rgb(0,0,240)">5</SPAN>,<SPAN 
-style="COLOR: rgb(0,0,240)">1</SPAN>,&nbsp; &nbsp; &nbsp; <SPAN 
-style="COLOR: rgb(0,0,240)">98</SPAN>&nbsp; &nbsp;<SPAN 
+style="COLOR: rgb(0,0,240)">23</SPAN>,&nbsp; &nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,240)">141</SPAN>&nbsp; &nbsp;<SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; min_ver: <SPAN 
-style="COLOR: rgb(0,0,0)">Integer</SPAN> absolute min_ver_a; <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// минимальная поддерживаемая 
+style="COLOR: rgb(0,0,0)">LongWord</SPAN> absolute min_ver_a; <SPAN 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// минимальная поддерживаемая 
 версия программы</SPAN><BR>&nbsp; ps: TPluginStruct; <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// структура передаваемая в 
-плагин</SPAN><BR><BR><SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// структура передаваемая в 
+плагин</SPAN><BR><BR><SPAN style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// 
 Обязательно вызываемая функция.</SPAN><BR><SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Должна вернуть описание 
-плагина,</SPAN><BR><SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// Должна вернуть описание 
+плагина,</SPAN><BR><SPAN style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// 
 заодно может проверить версию программы</SPAN><BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
 GetPluginInfo<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> ver: <SPAN 
-style="COLOR: rgb(0,0,0)">Integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> ver: <SPAN 
+style="COLOR: rgb(0,0,0)">LongWord</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
 style="COLOR: rgb(0,0,0)">PChar</SPAN>; stdcall;<BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">if</SPAN> ver&lt;min_ver <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">then</SPAN><BR>&nbsp; &nbsp; 
-Result:=<SPAN style="COLOR: rgb(0,0,240)">'Демонстрационный Plugin к программе 
-l2phx'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
-style="COLOR: rgb(0,0,240)">'Для версий 3.5.1.98+'</SPAN>+sLineBreak+<BR>&nbsp; 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN style="COLOR: rgb(0,0,240)">'У вас 
-старая версия программы! Плагин не сможет корректно с ней 
-работать!'</SPAN><BR>&nbsp; <SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">else</SPAN><BR>&nbsp; &nbsp; 
-Result:=<SPAN style="COLOR: rgb(0,0,240)">'Демонстрационный Plugin к программе 
-l2phx'</SPAN>+sLineBreak+<BR>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <SPAN 
-style="COLOR: rgb(0,0,240)">'Для версий 3.5.1.98+'</SPAN>;<BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Обязательно вызываемая 
-функция.</SPAN><BR><SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">begin</SPAN><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">if</SPAN> ver&lt;min_ver <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">then</SPAN><BR>&nbsp; &nbsp; 
+Result:=<SPAN style="COLOR: rgb(0,0,240)">Описание 
+плагина</SPAN>+sLineBreak+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+<SPAN style="COLOR: rgb(0,0,240)">'У вас старая версия программы! Плагин не 
+сможет корректно с ней работать!'</SPAN><BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">else</SPAN><BR>&nbsp; &nbsp; 
+Result:=<SPAN style="COLOR: rgb(0,0,240)">описание плагина'</SPAN>;<BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>;<BR><BR><SPAN 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// Обязательно вызываемая 
+функция.</SPAN><BR><SPAN style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// 
 Получает структуру с ссылками на все функции основной программы,</SPAN><BR><SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// которые могут вызываться из 
-плагина.</SPAN><BR><SPAN style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// Если 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// которые могут вызываться из 
+плагина.</SPAN><BR><SPAN style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// Если 
 вернёт False то плагин выгружается.</SPAN><BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">function</SPAN> SetStruct<SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> SetStruct<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">const</SPAN> struct: 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> struct: 
 PPluginStruct<SPAN style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
 style="COLOR: rgb(0,0,0)">Boolean</SPAN>; stdcall;<BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR>&nbsp; ps := 
-TPluginStruct<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>struct^<SPAN 
-style="COLOR: rgb(0,0,0)">)</SPAN>;<BR>&nbsp; Result:=<SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">True</SPAN>;<BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>;<BR><BR><SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">// экспортируем используемые 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">begin</SPAN><BR>&nbsp; ps := 
+struct^;<BR>&nbsp; Result:=<SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">True</SPAN>;<BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>;<BR><BR><BR><BR><SPAN 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">// экспортируем используемые 
 программой функции</SPAN><BR>exports<BR>&nbsp; GetPluginInfo,<BR>&nbsp; 
-SetStruct;<BR>&nbsp; <SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">//Остальные не обязательны, и 
-используютсся по желанию.</SPAN><BR>&nbsp; </FONT><FONT size=2><SPAN 
-style="COLOR: rgb(0,128,0); FONT-STYLE: italic">{<BR>&nbsp; OnPacket,<BR>&nbsp; 
-OnConnect,<BR>&nbsp; OnDisconnect,<BR>&nbsp; OnLoad,<BR>&nbsp; OnFree,<BR>&nbsp; 
-OnCallMethod,<BR>&nbsp; OnRefreshPrecompile;<BR>&nbsp; }</SPAN><BR><BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">begin</SPAN><BR><SPAN 
-style="FONT-WEIGHT: bold; COLOR: rgb(0,0,128)">end</SPAN>.</FONT></P>
+SetStruct;<BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">begin</SPAN><BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>.</FONT> 
+<P><STRONG></STRONG>&nbsp;</P>
 <P>Класс&nbsp;TPluginStruct экземпляр которого передается плагину можно глянуть 
 в разделе "Содержимое uSharedStructs"<BR>Все&nbsp;ее&nbsp;функции/процедуры в 
 ней аналогичны тем что используются в скриптах.</P></BODY>
