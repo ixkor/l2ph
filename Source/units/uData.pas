@@ -99,7 +99,7 @@ type
     procedure destroyDeadLSPConnections;
     procedure destroyDeadLogWievs;
 
-    function CallMethod(Scripter:TfsScript; Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
+    function CallMethod(Scripter:TfsScript; CalledByScripter:boolean; Instance: TObject; ClassType: TClass; const sMethodName: String; var Params: Variant): Variant;
 
     procedure SendPacket(Packet: Tpacket; tid: integer; ToServer: Boolean);
     procedure SendPacketToName(Packet: Tpacket; cName: string; ToServer: Boolean);
@@ -485,7 +485,7 @@ begin
   i := 0;
   while i < MyFuncs.Count do
   begin
-    fsScript.AddMethod(MyFuncs.Strings[i],CallMethod);
+    fsScript.AddMethod(MyFuncs.Strings[i], CallMethod);
     inc(i);
   end;
 
@@ -516,8 +516,7 @@ Begin
 end;
 
 
-function TdmData.CallMethod(Scripter: TfsScript; Instance: TObject; ClassType: TClass;
-  const sMethodName: String; var Params: Variant): Variant;
+function TdmData.CallMethod;
 var
   buf,pct,tmp: string;
   temp: WideString;
@@ -551,10 +550,10 @@ begin
   result := Null;
   ConId := 0;    
 
-  //Скриптер не будет присвоен при вызове CallMethod с ReadMask и WriteMask
+  //если не CalledByScripter то вызов CallMethod идет с ReadMask и WriteMask
   //в ReadMask и WriteMask нам не нужно уведомлять плагины об "иттерациях" и нам не нужнен ConId
   //оптимизация, мать ее. наиболее часто используемые методы вытянул вперед
-  if Scripter <> nil then
+  if CalledByScripter then
   begin
   ThisScriptId := integer(Scripter);
 
@@ -687,12 +686,12 @@ begin
     begin
       arrtmp := VarArrayOf([arr[i],0]);
       case mask[i+1] of
-      'S':CallMethod(nil,Instance,ClassType,'WRITES',arrtmp);
-      'C':CallMethod(nil,Instance,ClassType,'WRITEC',arrtmp);
-      'D':CallMethod(nil,Instance,ClassType,'WRITED',arrtmp);
-      'H':CallMethod(nil,Instance,ClassType,'WRITEH',arrtmp);
-      'F':CallMethod(nil,Instance,ClassType,'WRITEF',arrtmp);
-      'Q':CallMethod(nil,Instance,ClassType,'WRITEQ',arrtmp);
+      'S':CallMethod(Scripter, false, Instance,ClassType,'WRITES',arrtmp);
+      'C':CallMethod(Scripter, false, Instance,ClassType,'WRITEC',arrtmp);
+      'D':CallMethod(Scripter, false, Instance,ClassType,'WRITED',arrtmp);
+      'H':CallMethod(Scripter, false, Instance,ClassType,'WRITEH',arrtmp);
+      'F':CallMethod(Scripter, false, Instance,ClassType,'WRITEF',arrtmp);
+      'Q':CallMethod(Scripter, false, Instance,ClassType,'WRITEQ',arrtmp);
       end;
       inc(i);
     end;
@@ -705,12 +704,12 @@ begin
     while (i < length(mask)) do
     begin
       case mask[i+1] of
-      'S':arr[i] := CallMethod(nil,Instance,ClassType,'READS',arrtmp);
-      'C':arr[i] := CallMethod(nil,Instance,ClassType,'READC',arrtmp);
-      'D':arr[i] := CallMethod(nil,Instance,ClassType,'READD',arrtmp);
-      'H':arr[i] := CallMethod(nil,Instance,ClassType,'READH',arrtmp);
-      'F':arr[i] := CallMethod(nil,Instance,ClassType,'READF',arrtmp);
-      'Q':arr[i] := CallMethod(nil,Instance,ClassType,'READQ',arrtmp);
+      'S':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READS',arrtmp);
+      'C':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READC',arrtmp);
+      'D':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READD',arrtmp);
+      'H':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READH',arrtmp);
+      'F':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READF',arrtmp);
+      'Q':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READQ',arrtmp);
       end;
       inc(i);
     end;
