@@ -611,8 +611,16 @@ begin
       try
         currentScript.Editor.fsScript.CallFunction('Free',0);
       except
-        StatusBar.SimpleText := currentScript.ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
-        currentScript.markerrorline;
+      on e : exception do
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> ' + e.ClassName +' : '+ e.Message;
+          currentScript.markerrorline;
+        end
+      else   //EOSError ?
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> '+SysErrorMessage(GetLastError);
+          currentScript.markerrorline;
+        end;
       end;
     end;
   end;
@@ -789,8 +797,16 @@ begin
         if not UseScript and compilled then
           fScript.StatusBar.SimpleText := ScriptName+fScript.lang.GetTextOrDefault('nouse' (* ': Не будет использоваться' *) );
       except
-        fScript.StatusBar.SimpleText := ScriptName+': Error in free method. '+SysErrorMessage(GetLastError);
-        markerrorline;
+      on e : exception do
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> ' + e.ClassName +' : '+ e.Message;
+          markerrorline;
+        end
+      else   //EOSError ?
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> '+SysErrorMessage(GetLastError);
+          markerrorline;
+        end;
       end;
       isRunning := Result;
 
