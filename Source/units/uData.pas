@@ -548,63 +548,32 @@ var
   arrtmp : variant;
   //support DLL
 begin
+  result := Null;
+  ConId := 0;    
 
-  result := null;
-  if Scripter.Variables['UseForConnectName'] <> '' then
-    ConId := ConnectIdByName(Scripter.Variables['UseForConnectName'])
-  else
-  if Scripter.Variables['UseForConnectID'] <> 0 then
-    ConId := Scripter.Variables['UseForConnectID']
-  else
-    ConId := Scripter.Variables['ConnectID'];
-    
+  //Скриптер не будет присвоен при вызове CallMethod с ReadMask и WriteMask
+  //в ReadMask и WriteMask нам не нужно уведомлять плагины об "иттерациях" и нам не нужнен ConId
+  //оптимизация, мать ее. наиболее часто используемые методы вытянул вперед
+  if Scripter <> nil
+  begin
   ThisScriptId := integer(Scripter);
+
+  if Scripter.Variables['UseForConnectName'] <> '' then
+      ConId := ConnectIdByName(Scripter.Variables['UseForConnectName'])
+    else
+      if Scripter.Variables['UseForConnectID'] <> 0 then
+          ConId := Scripter.Variables['UseForConnectID']
+        else
+          ConId := Scripter.Variables['ConnectID'];
 
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
         if OnCallMethod(ConId, ThisScriptId, sMethodName, Params, Result) then Exit;
+  end;
 
   // если плагины не обработать то обрабатываем сами
-  if sMethodName = 'CANUSEALTTAB' then begin
-    searchfor := VarAsType(Params[0],varString);
-    if searchfor <> '' then
-    begin
-      //FindWindow ищет по верхнему уровню. значит поступим воттак
-      searchresult := 0;
-      EnumWindows (@EnumWinsProc, 0);
-      if searchresult > 0 then
-      begin
-        SetWindowLong(searchresult, GWL_EXSTYLE,
-        GetWindowLong(searchresult, GWL_EXSTYLE) or WS_EX_APPWINDOW);
-      end
-    end;
-  end else
-  if sMethodName = 'SENDTOCLIENT' then begin
-    buf := Scripter.Variables['buf'];
-    packet.Size := Length(buf)+2;
-    Move(buf[1], packet.Data[0], Length(buf));
-    SendPacket(packet, ConId, False);
-  end else
-  if sMethodName = 'SENDTOSERVER' then begin
-    buf := scripter.Variables['buf'];
-    packet.Size := Length(buf)+2;
-    Move(buf[1], packet.Data[0], Length(buf));
-    SendPacket(packet, ConId, true);
-  end else
-  if sMethodName = 'SENDTOCLIENTEX' then begin
-    buf := scripter.Variables['buf'];
-    packet.Size := Length(buf)+2;
-    Move(buf[1], packet.Data[0], Length(buf));
-    SendPacketToName(packet, string(Params[0]), False);
-  end else
-  if sMethodName = 'SENDTOSERVEREX' then begin
-    buf := scripter.Variables['buf'];
-    packet.Size := Length(buf)+2;
-    Move(buf[1], packet.Data[0], Length(buf));
-    SendPacketToName(packet, string(Params[0]), True);
-  end else
   if sMethodName = 'READC' then begin
     pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct) then b:=Byte(pct[Integer(Params[0])])
@@ -646,45 +615,7 @@ begin
     tmp:=temp;
     Result:=tmp;//WideStringToString(temp,1251);
   end else
-  if sMethodName = 'WRITEMASK' then begin
-    mask := UpperCase(Params[0]);
-    arr := params[1];
-    i := 0;
-    while (i < length(mask)) do
-    begin
-      arrtmp := VarArrayOf([arr[i],0]);
-      case mask[i+1] of
-      'S':CallMethod(Scripter,Instance,ClassType,'WRITES',arrtmp);
-      'C':CallMethod(Scripter,Instance,ClassType,'WRITEC',arrtmp);
-      'D':CallMethod(Scripter,Instance,ClassType,'WRITED',arrtmp);
-      'H':CallMethod(Scripter,Instance,ClassType,'WRITEH',arrtmp);
-      'F':CallMethod(Scripter,Instance,ClassType,'WRITEF',arrtmp);
-      'Q':CallMethod(Scripter,Instance,ClassType,'WRITEQ',arrtmp);
-      end;
-      inc(i);
-    end;
-  end else
-  if sMethodName = 'READMASK' then begin
-    mask := UpperCase(Params[0]);
-    arrtmp := VarArrayOf([Params[1]]);
-    arr := Params[2];
-    i := 0;
-    while (i < length(mask)) do
-    begin
-      case mask[i+1] of
-      'S':arr[i] := CallMethod(Scripter,Instance,ClassType,'READS',arrtmp);
-      'C':arr[i] := CallMethod(Scripter,Instance,ClassType,'READC',arrtmp);
-      'D':arr[i] := CallMethod(Scripter,Instance,ClassType,'READD',arrtmp);
-      'H':arr[i] := CallMethod(Scripter,Instance,ClassType,'READH',arrtmp);
-      'F':arr[i] := CallMethod(Scripter,Instance,ClassType,'READF',arrtmp);
-      'Q':arr[i] := CallMethod(Scripter,Instance,ClassType,'READQ',arrtmp);
-      end;
-      inc(i);
-    end;
-    Params[2] := arr;
-    Params[1] := arrtmp[0];
-  end else  
-    if sMethodName = 'WRITEC' then begin
+  if sMethodName = 'WRITEC' then begin
     buf := Scripter.Variables['buf'];
     b:=Params[0];
     if Integer(Params[1])=0 then buf:=buf+Char(b)
@@ -748,6 +679,83 @@ begin
     buf:=buf+tmp+#0#0;
     Scripter.Variables['buf']:=buf;
   end else
+  if sMethodName = 'WRITEMASK' then begin
+    mask := UpperCase(Params[0]);
+    arr := params[1];
+    i := 0;
+    while (i < length(mask)) do
+    begin
+      arrtmp := VarArrayOf([arr[i],0]);
+      case mask[i+1] of
+      'S':CallMethod(nil,Instance,ClassType,'WRITES',arrtmp);
+      'C':CallMethod(nil,Instance,ClassType,'WRITEC',arrtmp);
+      'D':CallMethod(nil,Instance,ClassType,'WRITED',arrtmp);
+      'H':CallMethod(nil,Instance,ClassType,'WRITEH',arrtmp);
+      'F':CallMethod(nil,Instance,ClassType,'WRITEF',arrtmp);
+      'Q':CallMethod(nil,Instance,ClassType,'WRITEQ',arrtmp);
+      end;
+      inc(i);
+    end;
+  end else
+  if sMethodName = 'READMASK' then begin
+    mask := UpperCase(Params[0]);
+    arrtmp := VarArrayOf([Params[1]]);
+    arr := Params[2];
+    i := 0;
+    while (i < length(mask)) do
+    begin
+      case mask[i+1] of
+      'S':arr[i] := CallMethod(nil,Instance,ClassType,'READS',arrtmp);
+      'C':arr[i] := CallMethod(nil,Instance,ClassType,'READC',arrtmp);
+      'D':arr[i] := CallMethod(nil,Instance,ClassType,'READD',arrtmp);
+      'H':arr[i] := CallMethod(nil,Instance,ClassType,'READH',arrtmp);
+      'F':arr[i] := CallMethod(nil,Instance,ClassType,'READF',arrtmp);
+      'Q':arr[i] := CallMethod(nil,Instance,ClassType,'READQ',arrtmp);
+      end;
+      inc(i);
+    end;
+    Params[2] := arr;
+    Params[1] := arrtmp[0];
+  end else  
+  if sMethodName = 'CANUSEALTTAB' then begin
+    searchfor := VarAsType(Params[0],varString);
+    if searchfor <> '' then
+    begin
+      //FindWindow ищет по верхнему уровню. значит поступим воттак
+      searchresult := 0;
+      EnumWindows (@EnumWinsProc, 0);
+      if searchresult > 0 then
+      begin
+        SetWindowLong(searchresult, GWL_EXSTYLE,
+        GetWindowLong(searchresult, GWL_EXSTYLE) or WS_EX_APPWINDOW);
+      end
+    end;
+  end else
+  if sMethodName = 'SENDTOCLIENT' then begin
+    buf := Scripter.Variables['buf'];
+    packet.Size := Length(buf)+2;
+    Move(buf[1], packet.Data[0], Length(buf));
+    SendPacket(packet, ConId, False);
+  end else
+  if sMethodName = 'SENDTOSERVER' then begin
+    buf := scripter.Variables['buf'];
+    packet.Size := Length(buf)+2;
+    Move(buf[1], packet.Data[0], Length(buf));
+    SendPacket(packet, ConId, true);
+  end else
+  if sMethodName = 'SENDTOCLIENTEX' then begin
+    buf := scripter.Variables['buf'];
+    packet.Size := Length(buf)+2;
+    Move(buf[1], packet.Data[0], Length(buf));
+    SendPacketToName(packet, string(Params[0]), False);
+  end else
+  if sMethodName = 'SENDTOSERVEREX' then begin
+    buf := scripter.Variables['buf'];
+    packet.Size := Length(buf)+2;
+    Move(buf[1], packet.Data[0], Length(buf));
+    SendPacketToName(packet, string(Params[0]), True);
+  end else
+
   if sMethodName = 'LOADLIBRARY' then begin
     Result := LoadLibrary(PAnsiChar(VarToStr(Params[0])));
   end else
