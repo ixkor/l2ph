@@ -12,11 +12,6 @@ uses
   Dialogs, ActnList, jpeg, ExtCtrls, StdCtrls;
 
 type
-  pShareMain = ^TShareMain;
-  TShareMain = record
-    ReciverHandle : Thandle;  //Сюда - хендл нашего приемника
-  end;
-
   TfMainReplacer = class(TForm)
     ActionList1: TActionList;
     Action2: TAction;
@@ -44,8 +39,6 @@ type
     procedure Action1Execute(Sender: TObject);
     procedure Image1Click(Sender: TObject);
   private
-    MapData : PShareMain;
-    MapHandle : THandle; 
     { Private declarations }
   public
     procedure NewPacket(var msg: TMessage); Message WM_NewPacket;
@@ -263,15 +256,6 @@ procedure TfMainReplacer.FormCreate(Sender: TObject);
 begin
   AppPath := ExtractFilePath(Application.ExeName);
   c_s := TCriticalSection.Create;
-  left := -1000;
-  //Создаем мапфайл.
-  MapHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
-        PAGE_READWRITE, 0, SizeOf(TShareMain), 'l2packethacktorinject');
-  if MapHandle = 0 then
-    MapHandle := OpenFileMapping(PAGE_READWRITE, false, 'l2packethacktorinject');
-  MapData := MapViewOfFile(MapHandle, FILE_MAP_ALL_ACCESS,
-        0, 0, SizeOf(TShareMain));
-  MapData^.ReciverHandle := self.Handle;  
 end;
 
 procedure TfMainReplacer.Action1Execute(Sender: TObject);

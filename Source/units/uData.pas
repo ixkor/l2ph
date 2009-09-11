@@ -498,7 +498,6 @@ begin
   fsScript.AddVariable('ConnectName','String','');
   fsScript.AddVariable('UseForConnectName','String','');
   fsScript.AddVariable('UseForConnectID','Integer',0);
-  fsScript.AddVariable('ThisScriptId','Integer',integer(fsScript));
 end;
 
 
@@ -555,7 +554,7 @@ begin
   else
     ConId := Scripter.Variables['ConnectID'];
     
-  ThisScriptId := Scripter.Variables['ThisScriptId'];
+  ThisScriptId := integer(Scripter);
   
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
@@ -1192,9 +1191,6 @@ begin
 
   AutoComplete.DisplayItems.add('var UseForConnectID: Integer;');
   AutoComplete.Items.add('UseForConnectID');
-  
-  AutoComplete.DisplayItems.add('const ThisScriptId: Integer;');
-  AutoComplete.Items.add('ThisScriptId');
 
 end;
 

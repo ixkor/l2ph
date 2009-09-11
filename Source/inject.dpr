@@ -107,11 +107,6 @@ const
   );
   PAGE_EXECUTE_READWRITE = $40;
 type
-  pShareMain = ^TShareMain;
-  TShareMain = record
-    ReciverHandle : Thandle;  //—юда - хендл нашего приемника
-  end;
-
   HWND = type LongWord;
   DWORD = LongWord;
   UINT = LongWord;
@@ -157,9 +152,6 @@ type
 
 var
   ConnectNextHook : function (s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
-  MapHandle : THandle;
-  Mapdata: pShareMain;
-
 
 function FindWindow(lpClassName, lpWindowName: PChar): HWND; stdcall; external user32 name 'FindWindowA';
 //function FindWindow; external user32 name 'FindWindowA';
@@ -167,18 +159,6 @@ function SendMessage(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRE
 //function SendMessage; external user32 name 'SendMessageA';
 function inet_addr(cp: PChar): u_long; stdcall;  external    winsocket name 'inet_addr';
 //function inet_addr;         external    winsocket name 'inet_addr';
-
-Procedure OpenSharemain;
-begin
-  //—оздаем открываем/мапфайл.
-
-  MapHandle := CreateFileMapping(INVALID_HANDLE_VALUE, nil,
-        PAGE_READWRITE, 0, SizeOf(TShareMain), 'l2packethacktorinject');
-  if MapHandle = 0 then
-    MapHandle := OpenFileMapping(PAGE_READWRITE, false, 'l2packethacktorinject');
-  MapData := MapViewOfFile(MapHandle, FILE_MAP_ALL_ACCESS,
-        0, 0, SizeOf(TShareMain));
-end;
 
 function ConnectHookProc(s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
 var
@@ -189,9 +169,7 @@ var
     hi: Word;
   end absolute apph;
 begin
-  if MapHandle = 0 then
-    OpenSharemain;
-  apph:=MapData^.ReciverHandle;
+  apph:=FindWindow('TfMainReplacer',nil);
   if (apph>0)then begin
     apph:=SendMessage(apph,$04F0,Name.sin_addr.S_addr,Name.sin_port);
     if x.lo=1 then begin
@@ -411,7 +389,6 @@ end;
 
 begin
   StopProcess(GetCurrentProcessId);
-  MapHandle := 0;
   if not HookProc('ws2_32.dll', 'connect', @ConnectHookProc, @ConnectNextHook) then
     HookProc('wsock32.dll', 'connect', @ConnectHookProc, @ConnectNextHook);
   RunProcess(GetCurrentProcessId);
