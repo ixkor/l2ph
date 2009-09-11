@@ -554,7 +554,7 @@ begin
   //Скриптер не будет присвоен при вызове CallMethod с ReadMask и WriteMask
   //в ReadMask и WriteMask нам не нужно уведомлять плагины об "иттерациях" и нам не нужнен ConId
   //оптимизация, мать ее. наиболее часто используемые методы вытянул вперед
-  if Scripter <> nil
+  if Scripter <> nil then
   begin
   ThisScriptId := integer(Scripter);
 
