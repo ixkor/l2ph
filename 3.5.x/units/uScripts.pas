@@ -635,9 +635,18 @@ begin
     try
       currentScript.Editor.fsScript.CallFunction('Init',0);
     except
-      currentScript.isRunning := false;
-      StatusBar.SimpleText := currentScript.ScriptName+': Error in init method. '+SysErrorMessage(GetLastError);
-      currentScript.markerrorline;
+      on e : exception do
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> ' + e.ClassName +' : '+ e.Message;
+          currentScript.isRunning := false;
+          currentScript.markerrorline;
+        end
+      else   //EOSError ?
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> '+SysErrorMessage(GetLastError);
+          currentScript.isRunning := false;
+          currentScript.markerrorline;
+        end;
     end;
     currentScript.updatecontrols;
   end;
@@ -761,9 +770,18 @@ begin
         try
           Editor.fsScript.CallFunction('Init',0);
         except
-          fScript.StatusBar.SimpleText := ScriptName+': Error in init method. '+SysErrorMessage(GetLastError);
-          markerrorline;
-          result := false;
+          on e : exception do
+            begin
+              fScript.StatusBar.SimpleText := ScriptName+'> ' + e.ClassName +' : '+ e.Message;
+              markerrorline;
+              result := false;
+            end
+          else   //EOSError ?
+            begin
+              fScript.StatusBar.SimpleText := ScriptName+'> '+SysErrorMessage(GetLastError);
+              markerrorline;
+              result := false;
+            end;
         end
     else
       try
