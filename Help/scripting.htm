@@ -24,23 +24,27 @@ color=#003f7d face=Arial><STRONG>Перечень поддерживаемых функций/процедур,
 <P>
 <HR>
 </FONT></FONT></FONT></FONT></FONT><FONT size=2 face=Arial>
-<P></FONT><FONT size=2><FONT size=3><STRONG>Перечень добавляемых ПХ в движек 
-FastScript:<BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold"><FONT 
+<P></FONT><FONT size=2><FONT size=3><STRONG>Перечень функций и 
+процедуо,&nbsp;добавляемых ПХ в движек FastScript:<BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold"><FONT 
 size=2>function</FONT></SPAN></STRONG><FONT size=2> HStr<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN>Hex:<SPAN 
 style="COLOR: rgb(0,0,0)">String</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">String 
 <BR></SPAN>Конвертирует HEX представление в строку.<BR>Пример 
 использования:<BR>Buf := HStr('01 20 30 30 0a 30 10 58 19 38 29 49 11 31 23 44 
-55 66 ab fa f5 f1 f6 f2 f5 01 00 00 00');<BR><BR><SPAN 
+55 66 ab fa f5 f1 f6 f2 f5 01 00 00 00'); <BR><BR><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
 SendToClient<BR></FONT></FONT></FONT><FONT size=2><FONT size=3><FONT 
 size=2>Отправляет buf в направлении клиента. </FONT></FONT></FONT><FONT 
 size=2><FONT size=3><FONT size=2>действует для текущего обрабатываемого 
 соединения либо, для явно установленного с помошью UseForConnectName имени 
 соединения или установленного с помошью UseForConnectID идентификатора 
-соединения.<BR>Пример использования:<BR>Buf := HStr('01 20 30 30 0a 30 10 58 19 
-38 29 49 11 31 23 44 55 66 ab fa f5 f1 f6 f2 f5 01 00 00 
+соединения.<BR><FONT color=#a6caf0>действует для текущего обрабатываемого 
+соединения либо, для явно установленного с помошью UseForConnectName имени 
+соединения или установленного с помошью UseForConnectID идентификатора 
+соединения.<BR></FONT><BR>Пример использования:<BR>Buf := HStr('01 20 30 30 0a 
+30 10 58 19 38 29 49 11 31 23 44 55 66 ab fa f5 f1 f6 f2 f5 01 00 00 
 00');<BR>SendToClient;</FONT></FONT></FONT></P>
 <P><FONT size=2>либо<BR>UseForConnectName := 'charactername';<BR>Buf := HStr('01 
 20 30 30 0a 30 10 58 19 38 29 49 11 31 23 44 55 66 ab fa f5 f1 f6 f2 f5 01 00 00 
@@ -59,43 +63,45 @@ style="COLOR: rgb(0,0,0)">)<BR></SPAN>Аналогично SendToServer но с явным
 указанием имени соединения.</P>
 <P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
 NoCloseFrameAfterDisconnect<BR>Уведомляет пх что после отключения от сервера 
-либо клиента не нужно закрывать "фрейм соединения"<BR>действует для текущего 
-обрабатываемого соединения либо, для явно установленного с помошью 
-UseForConnectName имени соединения или установленного с помошью UseForConnectID 
-идентификатора соединения.</P>
+либо клиента не нужно закрывать "фрейм соединения"<BR><FONT 
+color=#a6caf0>действует для текущего обрабатываемого соединения либо, для явно 
+установленного с помошью UseForConnectName имени соединения или установленного с 
+помошью UseForConnectID идентификатора соединения.</FONT></P>
 <P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
-NoCloseFrameAfterDisconnect<BR>анулирует предидущему<BR>действует для текущего 
+NoCloseFrameAfterDisconnect<BR>анулирует действие 
+NoCloseFrameAfterDisconnect<BR><FONT color=#a6caf0>действует для текущего 
 обрабатываемого соединения либо, для явно установленного с помошью 
 UseForConnectName имени соединения или установленного с помошью UseForConnectID 
-идентификатора соединения.</P>
+идентификатора соединения.</FONT></P>
 <P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
 NoCloseClientAfterServerDisconnect<BR>Не будет отсоединять клиент от пх при 
-отсоединении пх от сервера<BR>действует для текущего обрабатываемого соединения 
-либо, для явно установленного с помошью UseForConnectName имени соединения или 
-установленного с помошью UseForConnectID идентификатора соединения.</P>
-<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
-CloseClientAfterServerDisconnect<BR>анулирует 
-NoCloseClientAfterServerDisconnect<BR>действует для текущего обрабатываемого 
-соединения либо, для явно установленного с помошью UseForConnectName имени 
-соединения или установленного с помошью UseForConnectID идентификатора 
-соединения.</P>
-<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
-NoCloseServerAfterClientDisconnect<BR>Не будет разрушать соединение пх с 
-сервером при отключении клиента от пх<BR>действует для текущего обрабатываемого 
-соединения либо, для явно установленного с помошью UseForConnectName имени 
-соединения или установленного с помошью UseForConnectID идентификатора 
-соединения.</P>
-<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
-CloseServerAfterClientDisconnect<BR>анулирует 
-NoCloseServerAfterClientDisconnect<BR>действует для текущего обрабатываемого 
-соединения либо, для явно установленного с помошью UseForConnectName имени 
-соединения или установленного с помошью UseForConnectID идентификатора 
-соединения.</P>
-<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
-Disconnect<BR>разрывает текущее соединение<BR>действует для текущего 
+отсоединении пх от сервера<BR><FONT color=#a6caf0>действует для текущего 
 обрабатываемого соединения либо, для явно установленного с помошью 
 UseForConnectName имени соединения или установленного с помошью UseForConnectID 
-идентификатора соединения.<BR></P>
+идентификатора соединения.</FONT></P>
+<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
+CloseClientAfterServerDisconnect<BR>анулирует 
+действие&nbsp;NoCloseClientAfterServerDisconnect<BR><FONT 
+color=#a6caf0>действует для текущего обрабатываемого соединения либо, для явно 
+установленного с помошью UseForConnectName имени соединения или установленного с 
+помошью UseForConnectID идентификатора соединения.</FONT></P>
+<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
+NoCloseServerAfterClientDisconnect<BR>Не будет разрушать соединение пх с 
+сервером при отключении клиента от пх<BR><FONT color=#a6caf0>действует для 
+текущего обрабатываемого соединения либо, для явно установленного с помошью 
+UseForConnectName имени соединения или установленного с помошью UseForConnectID 
+идентификатора соединения.</FONT></P>
+<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
+CloseServerAfterClientDisconnect<BR>анулирует 
+действие&nbsp;NoCloseServerAfterClientDisconnect<BR><FONT 
+color=#a6caf0>действует для текущего обрабатываемого соединения либо, для явно 
+установленного с помошью UseForConnectName имени соединения или установленного с 
+помошью UseForConnectID идентификатора соединения.</FONT></P>
+<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
+Disconnect<BR>разрывает текущее соединение<BR><FONT color=#a6caf0>действует для 
+текущего обрабатываемого соединения либо, для явно установленного с помошью 
+UseForConnectName имени соединения или установленного с помошью UseForConnectID 
+идентификатора соединения.</FONT><BR></P>
 <P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
 ConnectNameByID<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>id:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
@@ -111,10 +117,10 @@ style="COLOR: rgb(0,0,0)">integer<BR>Получает идентификатор соединения по его
 <P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold"><BR>procedure</SPAN> 
 SetName<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>Name:<SPAN 
 style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
-style="COLOR: rgb(0,0,0)">)<BR>задает имя для текущего соединения<BR>действует 
-для текущего обрабатываемого соединения либо, для явно установленного с помошью 
-UseForConnectName имени соединения или установленного с помошью UseForConnectID 
-идентификатора соединения.<BR></SPAN></P>
+style="COLOR: rgb(0,0,0)">)<BR>задает имя для текущего соединения<BR><FONT 
+color=#a6caf0>действует для текущего обрабатываемого соединения либо, для явно 
+установленного с помошью UseForConnectName имени соединения или установленного с 
+помошью UseForConnectID идентификатора соединения.</FONT><BR></SPAN></P>
 <P><SPAN style="COLOR: rgb(0,0,0)"></SPAN><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> Delay<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN>msec: <SPAN 
@@ -214,7 +220,7 @@ style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">var</SPAN> index:<SPAN
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
 style="COLOR: rgb(0,0,0)">int64<BR></SPAN></SPAN>Читают требуемый тип по 
-указанному офсету&nbsp;из pck и сдвигает index на длинну прочитаного 
+указанному офсету&nbsp;из pck и сдвигают index на длинну прочитаного 
 значения.<BR>Пример использования<BR><BR>var<BR>&nbsp; i:integer;<BR>&nbsp; 
 s:string;<BR>&nbsp; c:byte;<BR>&nbsp; d:integer;<BR></FONT><FONT size=2>&nbsp; 
 h:word;<BR>&nbsp; f:double;<BR>&nbsp; q:int64;<BR>begin<BR>i := 10; 
@@ -224,14 +230,16 @@ h:word;<BR>&nbsp; f:double;<BR>&nbsp; q:int64;<BR>begin<BR>i := 10;
 <P><FONT size=2><STRONG><FONT color=#000080>procedure</FONT></STRONG> 
 ReadMask(Mask:string; var index:integer; var parameters : array of 
 variant)<BR></FONT><FONT size=2>Читает целый ряд значений из pck в зависимости 
-от маски, и здвигает index на длинну прочитаного значения.<BR>пример выше 
-выполненный с помошью этой функции выглядит вот так:<BR><BR>var<BR>&nbsp; 
+от маски, и здвигает index на сумарную длинну прочитаных значений.<BR>пример 
+выше выполненный с помошью этой функции выглядит вот так:<BR><BR>var<BR>&nbsp; 
 i:integer;<BR>&nbsp; s:string;<BR>&nbsp; c:byte;<BR>&nbsp; d:integer;<BR><FONT 
 size=2>&nbsp; h:word;<BR>&nbsp; f:double;<BR>&nbsp; q:int64;<BR>begin<BR>i := 
-10; //offset;<BR>ReadMask('cdhfqs', i, [c, d, h, f, q, s]);<BR>.....<BR>Чуть 
-короче.. не так ли ?<BR>ряд параметров можно "пропустить" к примеру вот так 
-(допустим нам нужен только первый байт и строка в конце):<BR>ReadMask('cdhfqs', 
-i, [c, 0, 0, 0, 0, s]);<BR>либо<BR>ReadMask('cdhfqs', i, [c, '', '', '', '', 
+10; //offset;<BR>ReadMask('cdhfqs', i, [c, d, h, f, q, 
+s]);<BR>.....</FONT></FONT></P>
+<P><FONT size=2><FONT size=2><BR>Чуть короче.. не так ли ?<BR>ряд параметров 
+можно "пропустить" к примеру вот так (допустим нам нужен только первый байт и 
+строка в конце):<BR>ReadMask('cdhfqs', i, [c, 0, 0, 0, 0, 
+s]);<BR>либо<BR>ReadMask('cdhfqs', i, [c, '', '', '', '', 
 s]);<BR></FONT></FONT><FONT size=2><FONT size=2><BR></P></FONT></FONT>
 <P><FONT size=2><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> sendMSG<SPAN 
@@ -302,8 +310,9 @@ style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">array</SPAN> <SPAN
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">of</SPAN> <SPAN 
 style="COLOR: rgb(0,0,0)">variant</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
-style="COLOR: rgb(0,0,0)">variant<BR>Функции для работы(проверки наличия)&nbsp;с 
-процедурами/функциями длл загруженными с помошью LoadLibrary</SPAN></P>
+style="COLOR: rgb(0,0,0)">variant<BR>Функции для работы&nbsp;с 
+процедурами/функциями длл (и проверки наличиятребуемых)&nbsp;загруженными с 
+помошью LoadLibrary</SPAN></P>
 <P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
 CallSF<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>ScriptName:<SPAN 
 style="COLOR: rgb(0,0,0)">String</SPAN>;FunctionName:<SPAN 
@@ -313,8 +322,8 @@ style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">of</SPAN> <SPAN
 style="COLOR: rgb(0,0,0)">variant</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
 style="COLOR: rgb(0,0,0)">variant<BR>Вызов определенного метода(процедуры, 
-функции) из другого скрипта.</SPAN><BR><BR><BR><BR><BR><BR><STRONG>Перечень 
-переменных добавляемых ПХ:</STRONG><BR><SPAN 
+функции) из другого скрипта.</SPAN><BR><BR><BR><BR><BR><BR><STRONG><FONT 
+size=4>Перечень переменных добавляемых ПХ:</FONT></STRONG><BR><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">var</SPAN> buf: <SPAN 
 style="COLOR: rgb(0,0,0)">string</SPAN>; <BR>Содержит буффер(пакет) отправляемый 
 на сервер/клиент с помошью SendToServer, SntToClient, SendToServerEx, 
@@ -343,10 +352,12 @@ UseForConnectName</P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">
 <P><BR>var </SPAN>UseForConnectID: <SPAN style="COLOR: rgb(0,0,0)"><SPAN 
 style="COLOR: rgb(0,0,0)">Integer</SPAN></SPAN>;<BR>При задании действует 
 аналогично UseForConnectName но для идентификатора соединения.</P>
-<P><BR><BR><STRONG>Перечень функций/процедур&nbsp;имеющихся в FastScript 
-согласно официального мануала</STRONG><BR><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> <SPAN 
-style="COLOR: rgb(0,0,0)">IntToStr</SPAN><SPAN 
+<P><BR><BR><FONT size=4><STRONG>Перечень функций/процедур&nbsp;имеющихся в 
+FastScript согласно официального мануала<BR></STRONG></FONT>Описание не 
+требуеться ибо они стандартны для языка паскать и их описание легко можно найти 
+в поисковиках</P>
+<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
+<SPAN style="COLOR: rgb(0,0,0)">IntToStr</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN>i: <SPAN 
 style="COLOR: rgb(0,0,0)">Integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>: <SPAN 
