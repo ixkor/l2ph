@@ -543,8 +543,12 @@ var
   tstFunc: procedure (ar:integer);
   packet:TPacket;
   SelectedScript:tscript;
+  mask:string;
+  arr : array of variant;
+  arrtmp : variant;
   //support DLL
 begin
+
   result := null;
   if Scripter.Variables['UseForConnectName'] <> '' then
     ConId := ConnectIdByName(Scripter.Variables['UseForConnectName'])
@@ -555,7 +559,7 @@ begin
     ConId := Scripter.Variables['ConnectID'];
     
   ThisScriptId := integer(Scripter);
-  
+
   // сначала даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
@@ -642,7 +646,45 @@ begin
     tmp:=temp;
     Result:=tmp;//WideStringToString(temp,1251);
   end else
-  if sMethodName = 'WRITEC' then begin
+  if sMethodName = 'WRITEMASK' then begin
+    mask := UpperCase(Params[0]);
+    arr := params[1];
+    i := 0;
+    while (i < length(mask)) do
+    begin
+      arrtmp := VarArrayOf([arr[i],0]);
+      case mask[i+1] of
+      'S':CallMethod(Scripter,Instance,ClassType,'WRITES',arrtmp);
+      'C':CallMethod(Scripter,Instance,ClassType,'WRITEC',arrtmp);
+      'D':CallMethod(Scripter,Instance,ClassType,'WRITED',arrtmp);
+      'H':CallMethod(Scripter,Instance,ClassType,'WRITEH',arrtmp);
+      'F':CallMethod(Scripter,Instance,ClassType,'WRITEF',arrtmp);
+      'Q':CallMethod(Scripter,Instance,ClassType,'WRITEQ',arrtmp);
+      end;
+      inc(i);
+    end;
+  end else
+  if sMethodName = 'READMASK' then begin
+    mask := UpperCase(Params[0]);
+    arrtmp := VarArrayOf([Params[1]]);
+    arr := Params[2];
+    i := 0;
+    while (i < length(mask)) do
+    begin
+      case mask[i+1] of
+      'S':arr[i] := CallMethod(Scripter,Instance,ClassType,'READS',arrtmp);
+      'C':arr[i] := CallMethod(Scripter,Instance,ClassType,'READC',arrtmp);
+      'D':arr[i] := CallMethod(Scripter,Instance,ClassType,'READD',arrtmp);
+      'H':arr[i] := CallMethod(Scripter,Instance,ClassType,'READH',arrtmp);
+      'F':arr[i] := CallMethod(Scripter,Instance,ClassType,'READF',arrtmp);
+      'Q':arr[i] := CallMethod(Scripter,Instance,ClassType,'READQ',arrtmp);
+      end;
+      inc(i);
+    end;
+    Params[2] := arr;
+    Params[1] := arrtmp[0];
+  end else  
+    if sMethodName = 'WRITEC' then begin
     buf := Scripter.Variables['buf'];
     b:=Params[0];
     if Integer(Params[1])=0 then buf:=buf+Char(b)
@@ -1223,12 +1265,14 @@ begin
   MyFuncs.Add('procedure WriteH(v:word; ind:integer=0)');
   MyFuncs.Add('procedure WriteF(v:double; ind:integer=0)');
   MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0)');
+  MyFuncs.Add('procedure WriteMask(Mask:string; parameters : array of variant)');
   MyFuncs.Add('function ReadS(var index:integer):string');
   MyFuncs.Add('function ReadC(var index:integer):byte');
   MyFuncs.Add('function ReadD(var index:integer):integer');
   MyFuncs.Add('function ReadH(var index:integer):word');
   MyFuncs.Add('function ReadF(var index:integer):double');
   MyFuncs.Add('function ReadQ(var index:integer):Int64');
+  MyFuncs.Add('procedure ReadMask(Mask:string; var index:integer; var parameters : array of variant)');
   MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
   MyFuncs.Add('function FreeLibrary(LibHandle:Integer):Boolean');
   MyFuncs.Add('function StrToHex(str1:String):String');
