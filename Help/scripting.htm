@@ -151,9 +151,8 @@ style="COLOR: rgb(0,0,0)">word</SPAN>; ind:<SPAN
 style="COLOR: rgb(0,0,0)">integer</SPAN>=<SPAN 
 style="COLOR: rgb(0,0,240)">0</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)<BR>Вписывает(при указании оффсета 
-ind)/Дописывает&nbsp;2 байта (word) в Buf</SPAN></P><SPAN 
-style="COLOR: rgb(0,0,0)"></SPAN>
-<P><BR><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
+ind)/Дописывает&nbsp;2 байта (word) в Buf</SPAN></P>
+<P><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
 WriteF<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>v:<SPAN 
 style="COLOR: rgb(0,0,0)">double</SPAN>; ind:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN>=<SPAN 
@@ -167,7 +166,17 @@ style="COLOR: rgb(0,0,240)">0</SPAN><SPAN
 style="COLOR: rgb(0,0,0)">)<BR></SPAN>Вписывает(при указании оффсета 
 ind)/Дописывает&nbsp;8 байт (<SPAN style="COLOR: rgb(0,0,0)">double/<SPAN 
 style="COLOR: rgb(0,0,0)">int64</SPAN></SPAN>) в Buf<BR>Для поддержки WriteQ в 
-FastScript был вручную добавлен тип Int64<BR></SPAN></FONT></P>
+FastScript был вручную добавлен тип Int64</SPAN></FONT></P><FONT size=2><SPAN 
+style="COLOR: rgb(0,0,0)">
+<P><SPAN style="COLOR: rgb(0,0,0)"><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> 
+WriteMask(Mask:string; parameters : array of variant);<BR>Дописывает к буфферу 
+целый ряд значений ориентируясь на указанную маску.<BR>к примеру вот такой вот 
+ряд операторов</SPAN></P>
+<P><SPAN 
+style="COLOR: rgb(0,0,0)">WriteC(12);<BR>WriteD(SomeDVariabble);<BR>WriteH(19);<BR>WriteF(333);<BR>WriteQ(4923489);<BR>WriteS('Somestring');<BR><BR>Заменяеться 
+одной строчкой<BR>WriteMask('cdhfqs', [12, SomeDVariabble, 19, 333, 4923489, 
+'Somestring']);<BR></SPAN><BR></P></SPAN></FONT>
 <P><FONT size=2><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> ReadS<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
@@ -205,7 +214,25 @@ style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">var</SPAN> index:<SPAN
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
 style="COLOR: rgb(0,0,0)">int64<BR></SPAN></SPAN>Читают требуемый тип по 
-указанному офсету&nbsp;из pck<BR></FONT></P>
+указанному офсету&nbsp;из pck и сдвигает index на длинну прочитаного 
+значения.<BR>Пример использования<BR><BR>var<BR>&nbsp; i:integer;<BR>&nbsp; 
+s:string;<BR>&nbsp; c:byte;<BR>&nbsp; d:integer;<BR></FONT><FONT size=2>&nbsp; 
+h:word;<BR>&nbsp; f:double;<BR>&nbsp; q:int64;<BR>begin<BR>i := 10; 
+//offset;<BR>c&nbsp;:= readc(i); //i = 11<BR>d&nbsp;:= readd(i); //i = 15 
+...<BR>h&nbsp;:= readh(i);<BR>f&nbsp;:= readsf(i);<BR>q&nbsp;:= readq(i);<BR>s 
+:= reads(i);<BR><BR>.....</FONT></P>
+<P><FONT size=2><STRONG><FONT color=#000080>procedure</FONT></STRONG> 
+ReadMask(Mask:string; var index:integer; var parameters : array of 
+variant)<BR></FONT><FONT size=2>Читает целый ряд значений из pck в зависимости 
+от маски, и здвигает index на длинну прочитаного значения.<BR>пример выше 
+выполненный с помошью этой функции выглядит вот так:<BR><BR>var<BR>&nbsp; 
+i:integer;<BR>&nbsp; s:string;<BR>&nbsp; c:byte;<BR>&nbsp; d:integer;<BR><FONT 
+size=2>&nbsp; h:word;<BR>&nbsp; f:double;<BR>&nbsp; q:int64;<BR>begin<BR>i := 
+10; //offset;<BR>ReadMask('cdhfqs', i, [c, d, h, f, q, s]);<BR>.....<BR>Чуть 
+короче.. не так ли ?<BR>ряд параметров можно "пропустить" к примеру вот так 
+(допустим нам нужен только первый байт и строка в конце):<BR>ReadMask('cdhfqs', 
+i, [c, 0, 0, 0, 0, s]);<BR>либо<BR>ReadMask('cdhfqs', i, [c, '', '', '', '', 
+s]);<BR></FONT></FONT><FONT size=2><FONT size=2><BR></P></FONT></FONT>
 <P><FONT size=2><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">procedure</SPAN> sendMSG<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN>msg:<SPAN 
