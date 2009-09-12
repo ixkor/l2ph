@@ -36,8 +36,9 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
+  protected
+    procedure CreateParams(var Params : TCreateParams); override;
   private
-  procedure CreateParams(var Params : TCreateParams); override;
     { Private declarations }
   public
     { Public declarations }

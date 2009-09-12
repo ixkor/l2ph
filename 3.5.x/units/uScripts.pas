@@ -371,12 +371,12 @@ if isnew then
     fScript.lang.GetTextOrDefault('IDS_11' (* 'procedure Free; //Вызывается при выключении скрипта' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end;'+sLineBreak+sLineBreak+
-    fScript.lang.GetTextOrDefault('IDS_14' (* 'procedure OnConnect(WithClient: Boolean); //Вызывается при установке соединения' *) )+sLineBreak+
+{    fScript.lang.GetTextOrDefault('IDS_14' (* 'procedure OnConnect(WithClient: Boolean); //Вызывается при установке соединения' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
     'end;'+sLineBreak+sLineBreak+
     fScript.lang.GetTextOrDefault('IDS_17' (* 'procedure OnDisonnect(WithClient: Boolean); //Вызывается при потере соединения' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
-    'end;'+sLineBreak+sLineBreak+
+    'end;'+sLineBreak+sLineBreak+ //}
     fScript.lang.GetTextOrDefault('IDS_22' (* '//основная часть скрипта' *) )+sLineBreak+
     fScript.lang.GetTextOrDefault('IDS_23' (* '//вызывается при приходе каждого пакета если скрипт включен' *) )+sLineBreak+
     'begin'+sLineBreak+sLineBreak+
