@@ -137,7 +137,6 @@ type
     procedure TabSheet1Show(Sender: TObject);
     procedure TabSheet3Show(Sender: TObject);
     procedure OpenBtnClick(Sender: TObject);
-    procedure btnProcessPacketsClick(Sender: TObject);
   private
     { Private declarations }
     hScriptThread, idScriptThread: cardinal;
@@ -926,12 +925,6 @@ procedure TfVisual.TabSheet3Show(Sender: TObject);
 begin
   packetVievPanel.Hide;
   Splitter3.Hide;
-end;
-
-procedure TfVisual.btnProcessPacketsClick(Sender: TObject);
-begin
-  BtnAutoSavePckts.Down := BtnAutoSavePckts.Down and btnProcessPackets.Down;
-  Panel4.Enabled := btnProcessPackets.Down;
 end;
 
 end.

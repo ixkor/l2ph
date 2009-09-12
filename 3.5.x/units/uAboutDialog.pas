@@ -15,6 +15,7 @@ type
     AboutMemo: TMemo;
     procedure Label2Click(Sender: TObject);
     procedure Label3Click(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -37,6 +38,11 @@ end;
 procedure TfAbout.Label3Click(Sender: TObject);
 begin
   ShellExecute(handle, 'open', 'http://l2phx.pp.ru/', nil, nil, SW_SHOW);
+end;
+
+procedure TfAbout.FormDeactivate(Sender: TObject);
+begin
+  SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
 end;
 
 end.

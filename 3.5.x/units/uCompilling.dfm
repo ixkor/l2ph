@@ -14,6 +14,7 @@ object fCompilling: TfCompilling
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
+  OnDeactivate = FormDeactivate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

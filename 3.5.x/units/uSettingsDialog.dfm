@@ -15,6 +15,7 @@ object fSettings: TfSettings
   OldCreateOrder = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnDeactivate = FormDeactivate
   PixelsPerInch = 96
   TextHeight = 13
   object PageControl3: TPageControl
@@ -22,7 +23,7 @@ object fSettings: TfSettings
     Top = 0
     Width = 371
     Height = 497
-    ActivePage = TabSheet8
+    ActivePage = TabSheet9
     Align = alClient
     TabOrder = 0
     object TabSheet8: TTabSheet

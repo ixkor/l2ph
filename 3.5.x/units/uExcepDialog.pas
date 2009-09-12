@@ -51,6 +51,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   private
     private
     FDetailsVisible: Boolean;
@@ -689,6 +690,11 @@ begin
 end;
 
 //--------------------------------------------------------------------------------------------------
+
+procedure TExceptionDialog.FormDeactivate(Sender: TObject);
+begin
+  SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
+end;
 
 initialization
   InitializeHandler;

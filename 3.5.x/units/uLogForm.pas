@@ -17,6 +17,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   protected
     procedure CreateParams(var Params : TCreateParams); override;
   private
@@ -83,6 +84,11 @@ procedure TfLog.FormCreate(Sender: TObject);
 begin
   loadpos(self);
   IsExists := true;
+end;
+
+procedure TfLog.FormDeactivate(Sender: TObject);
+begin
+  SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
 end;
 
 end.

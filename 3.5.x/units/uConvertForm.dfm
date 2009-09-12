@@ -15,6 +15,7 @@ object fConvert: TfConvert
   OldCreateOrder = False
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnDeactivate = FormDeactivate
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox4: TGroupBox

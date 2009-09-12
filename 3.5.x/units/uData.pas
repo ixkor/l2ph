@@ -169,6 +169,16 @@ if fSettings.InterfaceEnabled then
   end;
 end;
 
+Function IsProcessInjected(Pid:string):boolean;
+var
+ hMutex : cardinal;
+begin
+ hMutex := CreateMutex(nil, false, pchar('injected'+pid));
+ result := (GetLastError = ERROR_ALREADY_EXISTS);
+ ReleaseMutex(hMutex);
+ CloseHandle(hMutex);
+end;
+
 procedure TdmData.timerSearchProcessesTimer(Sender: TObject);
 var
   tmp: TStrings;
@@ -205,8 +215,12 @@ begin
         begin
           if fSettings.ChkIntercept.Checked and (Processes.Values[tmp.Names[k]]='') then
           begin
-            Processes.Values[tmp.Names[k]] := 'error';
             cc := OpenProcess(PROCESS_ALL_ACCESS,False,StrToInt(tmp.Names[k]));
+            if IsProcessInjected(tmp.Names[k]) then
+              Processes.Values[tmp.Names[k]]:='ok'
+            else
+            begin
+            Processes.Values[tmp.Names[k]] := 'error';
             case fSettings.HookMethod.ItemIndex of
               0:
               begin
@@ -232,6 +246,7 @@ begin
                   AddToLog (format(rsClientPatched2, [tmp.ValueFromIndex[k], tmp.Names[k]]));
                 end;
               end;
+            end;
             end;
             CloseHandle(cc);
           end;

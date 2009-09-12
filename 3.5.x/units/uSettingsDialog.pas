@@ -83,6 +83,7 @@ type
     procedure BtnLspClick(Sender: TObject);
     procedure btnNewXorClick(Sender: TObject);
     procedure isMainFormCaptionChange(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   protected
     procedure CreateParams(var Params : TCreateParams); override;
   private
@@ -501,6 +502,11 @@ procedure TfSettings.isMainFormCaptionChange(Sender: TObject);
 begin
   fMain.Caption := format(isMainFormCaption.Text, [uGlobalFuncs.getversion]);
   Options.WriteString('general','Caption', isMainFormCaption.Text);
+end;
+
+procedure TfSettings.FormDeactivate(Sender: TObject);
+begin
+  SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
 end;
 
 end.
