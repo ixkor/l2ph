@@ -19,6 +19,7 @@ object ExceptionDialog: TExceptionDialog
   ShowHint = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnDeactivate = FormDeactivate
   OnKeyDown = FormKeyDown
   OnPaint = FormPaint
   OnResize = FormResize

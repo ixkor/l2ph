@@ -387,9 +387,99 @@ begin
  Result := HookCode(fnAdr, NewProc, OldProc);
 end;
 
+procedure CvtInt;
+{ IN:
+    EAX:  The integer value to be converted to text
+    ESI:  Ptr to the right-hand side of the output buffer:  LEA ESI, StrBuf[16]
+    ECX:  Base for conversion: 0 for signed decimal, 10 or 16 for unsigned
+    EDX:  Precision: zero padded minimum field width
+  OUT:
+    ESI:  Ptr to start of converted text (not start of buffer)
+    ECX:  Length of converted text
+}
+asm
+        OR      CL,CL
+        JNZ     @CvtLoop
+@C1:    OR      EAX,EAX
+        JNS     @C2
+        NEG     EAX
+        CALL    @C2
+        MOV     AL,'-'
+        INC     ECX
+        DEC     ESI
+        MOV     [ESI],AL
+        RET
+@C2:    MOV     ECX,10
+
+@CvtLoop:
+        PUSH    EDX
+        PUSH    ESI
+@D1:    XOR     EDX,EDX
+        DIV     ECX
+        DEC     ESI
+        ADD     DL,'0'
+        CMP     DL,'0'+10
+        JB      @D2
+        ADD     DL,('A'-'0')-10
+@D2:    MOV     [ESI],DL
+        OR      EAX,EAX
+        JNE     @D1
+        POP     ECX
+        POP     EDX
+        SUB     ECX,ESI
+        SUB     EDX,ECX
+        JBE     @D5
+        ADD     ECX,EDX
+        MOV     AL,'0'
+        SUB     ESI,EDX
+        JMP     @z
+@zloop: MOV     [ESI+EDX],AL
+@z:     DEC     EDX
+        JNZ     @zloop
+        MOV     [ESI],AL
+@D5:
+end;
+
+
+function IntToStr(Value: Integer): string;
+//  FmtStr(Result, '%d', [Value]);
+asm
+        PUSH    ESI
+        MOV     ESI, ESP
+        SUB     ESP, 16
+        XOR     ECX, ECX       // base: 0 for signed decimal
+        PUSH    EDX            // result ptr
+        XOR     EDX, EDX       // zero filled field width: 0 for no leading zeros
+        CALL    CvtInt
+        MOV     EDX, ESI
+        POP     EAX            // result ptr
+        CALL    System.@LStrFromPCharLen
+        ADD     ESP, 16
+        POP     ESI
+end;
+
+Function MarkProcessInjected:boolean;
+var
+ hMutex : cardinal;
 begin
-  StopProcess(GetCurrentProcessId);
-  if not HookProc('ws2_32.dll', 'connect', @ConnectHookProc, @ConnectNextHook) then
-    HookProc('wsock32.dll', 'connect', @ConnectHookProc, @ConnectNextHook);
-  RunProcess(GetCurrentProcessId);
+ result := false;
+ hMutex := CreateMutex(nil, false, pchar('injected'+inttostr(GetCurrentProcessId)));
+ if GetLastError = ERROR_ALREADY_EXISTS then
+ begin
+   ReleaseMutex(hMutex);
+   CloseHandle(hMutex);
+   exit;
+ end;
+ result := true;
+end;
+
+
+begin
+  if MarkProcessInjected then
+  begin
+    StopProcess(GetCurrentProcessId);
+    if not HookProc('ws2_32.dll', 'connect', @ConnectHookProc, @ConnectNextHook) then
+      HookProc('wsock32.dll', 'connect', @ConnectHookProc, @ConnectNextHook);
+    RunProcess(GetCurrentProcessId);
+  end;
 end.

@@ -14,6 +14,7 @@ type
     Label2: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -39,6 +40,11 @@ end;
 procedure TfLangSelectDialog.Button2Click(Sender: TObject);
 begin
   close;
+end;
+
+procedure TfLangSelectDialog.FormDeactivate(Sender: TObject);
+begin
+  SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
 end;
 
 end.

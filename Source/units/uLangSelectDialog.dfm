@@ -14,6 +14,7 @@ object fLangSelectDialog: TfLangSelectDialog
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
+  OnDeactivate = FormDeactivate
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel

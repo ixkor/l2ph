@@ -51,7 +51,7 @@ begin
    ReleaseMutex(hMutex);
    CloseHandle(hMutex);
    
-   hWindow := FindWindow('TL2PacketHackMain', nil);
+   hWindow := FindWindow('TfMain', nil);
    if hWindow > 0 then
    begin
      SetForegroundWindow(hWindow);

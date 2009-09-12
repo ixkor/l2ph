@@ -35,6 +35,7 @@ type
     procedure Memo7Change(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   private
   procedure CreateParams(var Params : TCreateParams); override;
     { Private declarations }
@@ -174,6 +175,11 @@ begin
   inherited;
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW; 
 
+end;
+
+procedure TfConvert.FormDeactivate(Sender: TObject);
+begin
+  SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
 end;
 
 end.
