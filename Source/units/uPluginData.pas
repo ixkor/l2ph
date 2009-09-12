@@ -36,12 +36,12 @@ type
     function ReadQ(const pck:string; const index:integer):int64; override;
     function ReadF(const pck:string; const index:integer):double; override;
     function ReadS(const pck:string; const index:integer):string; override;
-    function ReadCEx(const pck:string; const index:integer):byte; override;
-    function ReadHEx(const pck:string; const index:integer):word; override;
-    function ReadDEx(const pck:string; const index:integer):integer; override;
-    function ReadQEx(const pck:string; const index:integer):int64; override;
-    function ReadFEx(const pck:string; const index:integer):double; override;
-    function ReadSEx(const pck:string; const index:integer):string; override;
+    function ReadCEx(const pck; const index:integer):byte; override;
+    function ReadHEx(const pck; const index:integer):word; override;
+    function ReadDEx(const pck; const index:integer):integer; override;
+    function ReadQEx(const pck; const index:integer):int64; override;
+    function ReadFEx(const pck; const index:integer):double; override;
+    function ReadSEx(const pck; const index:integer):string; override;
     procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); override;
     procedure WriteH(var pck: string; const v:word;    ind:integer=-1); override;
     procedure WriteD(var pck: string; const v:integer; ind:integer=-1); override;
@@ -55,7 +55,7 @@ type
     procedure WriteFEx(var pck; const v:double;  ind:integer=-1); override;
     procedure WriteSEx(var pck; const v:string;  ind:integer=-1); override;
 
-    Function SerScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; override;
+    Function SetScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; override;
     function GetScriptVariable(scriptid:integer; varname:string):variant; override;
     function IsScriptIdValid(scriptid:integer):boolean; override;
 
@@ -364,7 +364,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadCEx(const pck:string; const index: integer): byte;
+function TPluginStructClass.ReadCEx;
 begin
   Result:=0;
   if index>=PWord(@pck)^ then Exit;
@@ -381,8 +381,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadDEx(const pck:string;
-  const index: integer): integer;
+function TPluginStructClass.ReadDEx;
 begin
   Result:=0;
   if index+3>=PWord(@pck)^ then Exit;
@@ -399,7 +398,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadFEx(const pck:string; const index: integer): double;
+function TPluginStructClass.ReadFEx;
 begin
   Result:=0;
   if index+7>=PWord(@pck)^ then Exit;
@@ -407,8 +406,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadH(const pck:string;
-  const index: integer): word;
+function TPluginStructClass.ReadH;
 begin
   Result:=0;
   if index+1>Length(pck) then Exit;
@@ -416,7 +414,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadHEx(const pck:string; const index: integer): word;
+function TPluginStructClass.ReadHEx;
 begin
   Result:=0;
   if index+1>=PWord(@pck)^ then Exit;
@@ -424,8 +422,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadQ(const pck: string;
-  const index: integer): int64;
+function TPluginStructClass.ReadQ;
 begin
   Result:=0;
   if index+7>Length(pck) then Exit;
@@ -433,8 +430,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadQEx(const pck: string;
-  const index: integer): int64;
+function TPluginStructClass.ReadQEx;
 begin
   Result:=0;
   if index+7>=PWord(@pck)^ then Exit;
@@ -442,8 +438,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadS(const pck:string;
-  const index: integer): string;
+function TPluginStructClass.ReadS;
 var
   temp: WideString;
   d: Integer;
@@ -456,7 +451,7 @@ begin
   inherited;
 end;
 
-function TPluginStructClass.ReadSEx(const pck:string; const index: integer): string;
+function TPluginStructClass.ReadSEx;
 var
   temp: WideString;
   i,d: Integer;
@@ -505,7 +500,7 @@ begin
   inherited;
 end;
 
-Function TPluginStructClass.SerScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; 
+Function TPluginStructClass.SetScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean;
 begin
   try
     TfsScript(scriptid).Variables[varname] := varvalue;
