@@ -874,7 +874,7 @@ begin
                   //по очереди посылаем всем включенным скриптам
                   //EnterCriticalSection(_cs);
                   cScript.Editor.fsScript.Variables['pck'] := temp;
-                  cScript.Editor.fsScript.Variables['buf'] := temp;
+                  cScript.Editor.fsScript.Variables['buf'] := '';
                   cScript.Editor.fsScript.Variables['ConnectID']:=id;
                   cScript.Editor.fsScript.Variables['ConnectName']:=connectname;
                   cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
@@ -891,7 +891,7 @@ begin
                   //В момент когда скрипт не выполняеться - обнуляем эти переменные.
                   cScript.Editor.fsScript.Variables['pck'] := '';
                   cScript.Editor.fsScript.Variables['buf'] := '';
-                  cScript.Editor.fsScript.Variables['ConnectID'] := '';
+                  cScript.Editor.fsScript.Variables['ConnectID'] := 0;
                   cScript.Editor.fsScript.Variables['ConnectName'] := '';
                 end;
     end;

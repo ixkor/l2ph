@@ -9,7 +9,7 @@ uses
   uGlobalFuncs,
   Windows,
   Messages, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, RVScroll, RichView, RVStyle, ExtCtrls, siComp, StdCtrls;
+  Dialogs, RVScroll, RichView, RVStyle, ExtCtrls, siComp, StdCtrls, Menus;
 
 type
   TfPacketView = class(TFrame)
@@ -20,6 +20,8 @@ type
     lang: TsiLang;
     Label1: TLabel;
     Label2: TLabel;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure rvHEXMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure rvDescryptionMouseMove(Sender: TObject; Shift: TShiftState;
@@ -30,6 +32,7 @@ type
       Shift: TShiftState; ItemNo, X, Y: Integer);
     procedure rvHEXSelect(Sender: TObject);
     procedure rvDescryptionSelect(Sender: TObject);
+    procedure N1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -806,6 +809,12 @@ result := false;
   if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
   if param1='SKILL' then    value:=GetSkill(strtoint(value));
 result := true;
+end;
+
+procedure TfPacketView.N1Click(Sender: TObject);
+begin
+N1.Checked := not N1.Checked;
+rvDescryption.WordWrap := N1.Checked;
 end;
 
 end.
