@@ -1307,16 +1307,18 @@ begin
   MyFuncs.Add('procedure sendMSG(msg:String)');
   MyFuncs.Add('procedure CanUseAltTab(FormCaption: string)');
 
-
+  PluginStruct.UserFuncs.clear;
   if assigned(Plugins) then
   begin
   // позволяем плагинам добавить свои функции в скрипты
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnRefreshPrecompile) then
+      begin
         OnRefreshPrecompile;
-        
-  MyFuncs.AddStrings(PluginStruct.UserFuncs);
+        MyFuncs.AddStrings(PluginStruct.UserFuncs);
+        PluginStruct.UserFuncs.clear;
+      end;
   end;
   
 end;

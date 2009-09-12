@@ -377,13 +377,13 @@ begin
   //ChDir(AppPath+'settings\');
 end;
 
-{$warnings off}
 procedure TfVisual.SavePacketLog;
 var
   SaveThis: TStringList;
   charname:string;
   i:integer;
 begin
+try
   if not assigned(dump) then exit;
 
   if BtnAutoSavePckts.Down then
@@ -419,6 +419,8 @@ begin
     SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].txt');
     SaveThis.Free;
   end;
+except
+end;
 end;
 
 {$warnings on}
