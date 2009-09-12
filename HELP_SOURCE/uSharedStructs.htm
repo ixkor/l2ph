@@ -26,13 +26,13 @@ color=#003f7d><FONT face=Arial>Содержимое uSharedStructs.pas</FONT>
 <P><FONT color=#000000 size=2></FONT></P><FONT color=#000000 size=2>
 <HR>
 </FONT>
-<P><FONT color=#000000 size=2>Для версии 3.5.2.102</FONT></P>
+<P><FONT color=#000000 size=2>Для версии 3.5.23.141</FONT></P>
 <P><FONT size=2><SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">unit</SPAN> 
 usharedstructs;<BR><BR><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">interface</SPAN><BR><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">uses</SPAN> Classes;<BR><BR><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN><BR>&nbsp; 
-PCK_GS_ToServer = <SPAN style="COLOR: rgb(0,0,240)">4</SPAN>;</P>&nbsp; 
+PCK_GS_ToServer = <SPAN style="COLOR: rgb(0,0,240)">4</SPAN>;&nbsp; 
 PCK_GS_ToClient = <SPAN style="COLOR: rgb(0,0,240)">3</SPAN>;<BR>&nbsp; 
 PCK_LS_ToServer = <SPAN style="COLOR: rgb(0,0,240)">2</SPAN>;<BR>&nbsp; 
 PCK_LS_ToClient = <SPAN style="COLOR: rgb(0,0,240)">1</SPAN>;<BR><BR><SPAN 
@@ -162,7 +162,14 @@ style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">record</SPAN><BR>&nbsp; &nbsp;
 ConnectID:<SPAN style="COLOR: rgb(0,0,0)">integer</SPAN>;<BR>&nbsp; &nbsp; 
 ConnectName:string[<SPAN style="COLOR: rgb(0,0,240)">200</SPAN>];<BR>&nbsp; 
 <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>;<BR><BR>&nbsp; 
-PPluginStruct = ^TPluginStruct;<BR>&nbsp; TPluginStruct = <SPAN 
+tConnectInfoEx = <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">packed</SPAN> <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">record</SPAN>&nbsp; <SPAN 
+style="FONT-STYLE: italic; COLOR: rgb(0,128,0)">//Используеться в 
+ASL</SPAN><BR>&nbsp; &nbsp; ConnectInfo : tConnectInfo;<BR>&nbsp; &nbsp; Valid : 
+<SPAN style="COLOR: rgb(0,0,0)">boolean</SPAN>;<BR>&nbsp; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>;<BR>PPluginStruct = 
+^TPluginStruct;<BR>&nbsp; TPluginStruct = <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">class</SPAN> <SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">tobject</SPAN><SPAN 
@@ -222,49 +229,42 @@ style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN
 style="COLOR: rgb(0,0,0)">string</SPAN>; Virtual; Abstract;<BR><BR>&nbsp; &nbsp; 
 <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
 ReadCEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck:<SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> index:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">byte</SPAN>; 
 Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> ReadHEx<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck:<SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> index:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">word</SPAN>; 
-Virtual; Abstract;</FONT> 
-<P><FONT size=2><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">&nbsp;&nbsp;&nbsp; 
-function</SPAN> ReadDEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck:<SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> ReadDEx<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> index:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
 <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
 ReadQEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck:<SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> index:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN style="COLOR: rgb(0,0,0)">int64</SPAN>; 
 Virtual; Abstract;<BR>&nbsp; &nbsp; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> ReadFEx<SPAN 
 style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck:<SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> index:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
 style="COLOR: rgb(0,0,0)">double</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
 <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
 ReadSEx<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck:<SPAN 
-style="COLOR: rgb(0,0,0)">string</SPAN>; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> pck; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> index:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
 style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
@@ -370,10 +370,28 @@ style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> v:<SPAN
 style="COLOR: rgb(0,0,0)">string</SPAN>;&nbsp; ind:<SPAN 
 style="COLOR: rgb(0,0,0)">integer</SPAN>=-<SPAN 
 style="COLOR: rgb(0,0,240)">1</SPAN><SPAN style="COLOR: rgb(0,0,0)">)</SPAN>; 
-Virtual; Abstract;</FONT></P>
-<P><FONT size=2>&nbsp;&nbsp;&nbsp; <SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
-CreateAndRunTimerThread<SPAN style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
+Virtual; Abstract;<BR><BR>&nbsp; &nbsp; <SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">Function</SPAN> 
+SetScriptVariable<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>scriptid:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; varname:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN>; varvalue:<SPAN 
+style="COLOR: rgb(0,0,0)">variant</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">Function</SPAN> 
+GetScriptVariable<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>scriptid:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN>; varname:<SPAN 
+style="COLOR: rgb(0,0,0)">string</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">variant</SPAN>; Virtual; Abstract;<BR>&nbsp; &nbsp; 
+<SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">function</SPAN> 
+IsScriptIdValid<SPAN style="COLOR: rgb(0,0,0)">(</SPAN>scriptid:<SPAN 
+style="COLOR: rgb(0,0,0)">integer</SPAN><SPAN 
+style="COLOR: rgb(0,0,0)">)</SPAN>:<SPAN 
+style="COLOR: rgb(0,0,0)">boolean</SPAN>; Virtual; Abstract;<BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">&nbsp;&nbsp;&nbsp; 
+function</SPAN> CreateAndRunTimerThread<SPAN 
+style="COLOR: rgb(0,0,0)">(</SPAN><SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">const</SPAN> interval, usrParam: 
 <SPAN style="COLOR: rgb(0,0,0)">Cardinal</SPAN>;<BR>&nbsp; &nbsp; &nbsp; &nbsp; 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
@@ -462,8 +480,7 @@ style="COLOR: rgb(0,0,0)">)</SPAN>;&nbsp; Virtual; Abstract;<BR>&nbsp; &nbsp;
 <SPAN style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">Procedure</SPAN> 
 HideUserForm;&nbsp; Virtual; Abstract;<BR>&nbsp; <SPAN 
 style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>;<BR><BR><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">implementation</SPAN><BR><BR><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>.</FONT></P></FONT></FONT></SPAN><SPAN 
-style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold"></SPAN>
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">implementation</SPAN><BR><BR><BR><BR><SPAN 
+style="COLOR: rgb(0,0,128); FONT-WEIGHT: bold">end</SPAN>.</FONT></P></FONT></FONT></SPAN>
 <P><FONT size=2></FONT>&nbsp;</P></BODY>
 </html>
