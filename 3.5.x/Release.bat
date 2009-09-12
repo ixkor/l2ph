@@ -15,7 +15,7 @@ md Plugins
 md Scripts
 md settings
 copy ..\build\settings\*.* settings\*.*
-copy ..\build\plugins\*.dll plugins\*.dll
+copy ..\build\plugins\als.dll plugins\als.dll
 
 del settings\windows.ini
 del settings\options.ini

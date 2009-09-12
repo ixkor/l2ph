@@ -73,6 +73,11 @@ type
     ConnectName:string[200];
   end;
 
+  tConnectInfoEx = packed record  //Используеться в ASL
+    ConnectInfo : tConnectInfo;
+    Valid : boolean;
+  end;   
+
   PPluginStruct = ^TPluginStruct;
   TPluginStruct = class (tobject)
     private
@@ -87,12 +92,12 @@ type
     function ReadF(const pck:string; const index:integer):double; Virtual; Abstract;
     function ReadS(const pck:string; const index:integer):string; Virtual; Abstract;
 
-    function ReadCEx(const pck:string; const index:integer):byte; Virtual; Abstract;
-    function ReadHEx(const pck:string; const index:integer):word; Virtual; Abstract;
-    function ReadDEx(const pck:string; const index:integer):integer; Virtual; Abstract;
-    function ReadQEx(const pck:string; const index:integer):int64; Virtual; Abstract;
-    function ReadFEx(const pck:string; const index:integer):double; Virtual; Abstract;
-    function ReadSEx(const pck:string; const index:integer):string; Virtual; Abstract;
+    function ReadCEx(const pck; const index:integer):byte; Virtual; Abstract;
+    function ReadHEx(const pck; const index:integer):word; Virtual; Abstract;
+    function ReadDEx(const pck; const index:integer):integer; Virtual; Abstract;
+    function ReadQEx(const pck; const index:integer):int64; Virtual; Abstract;
+    function ReadFEx(const pck; const index:integer):double; Virtual; Abstract;
+    function ReadSEx(const pck; const index:integer):string; Virtual; Abstract;
     procedure WriteC(var pck: string; const v:byte;    ind:integer=-1); Virtual; Abstract;
     procedure WriteH(var pck: string; const v:word;    ind:integer=-1); Virtual; Abstract;
     procedure WriteD(var pck: string; const v:integer; ind:integer=-1); Virtual; Abstract;
@@ -106,7 +111,7 @@ type
     procedure WriteFEx(var pck; const v:double;  ind:integer=-1); Virtual; Abstract;
     procedure WriteSEx(var pck; const v:string;  ind:integer=-1); Virtual; Abstract;
 
-    Function SerScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; Virtual; Abstract;
+    Function SetScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; Virtual; Abstract;
     Function GetScriptVariable(scriptid:integer; varname:string):variant; Virtual; Abstract;
     function IsScriptIdValid(scriptid:integer):boolean; Virtual; Abstract;
 
