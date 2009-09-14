@@ -1294,7 +1294,7 @@ begin
   MyFuncs.Add('function ReadH(var index:integer):word');
   MyFuncs.Add('function ReadF(var index:integer):double');
   MyFuncs.Add('function ReadQ(var index:integer):Int64');
-  MyFuncs.Add('procedure ReadMask(Mask:string; var index:integer; var parameters : array of variant)');
+  MyFuncs.Add('procedure ReadMask(Mask:string; var index:integer; var resultarray : array of variant)');
   MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
   MyFuncs.Add('function FreeLibrary(LibHandle:Integer):Boolean');
   MyFuncs.Add('function StrToHex(str1:String):String');
