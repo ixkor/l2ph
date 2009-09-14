@@ -113,6 +113,8 @@ type
 
     Function SetScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; Virtual; Abstract;
     Function GetScriptVariable(scriptid:integer; varname:string):variant; Virtual; Abstract;
+    function CallScriptFunction(scriptid:integer; Name: String; Params: Variant; var error:string): Variant; Virtual; Abstract;
+    
     function IsScriptIdValid(scriptid:integer):boolean; Virtual; Abstract;
 
 

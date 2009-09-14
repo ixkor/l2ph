@@ -122,17 +122,20 @@ begin
         if InitXOR_copy and (not Settings.isNoDecrypt) then
           xorS.DecryptGP(packet.data, Packet.Size - 2);
 
-        LastPacket := Packet;
-        if Assigned(onNewPacket) then
-          if Packet.Size > 2 then //не отправл€ем скриптам пакеты длинной 2 байта (физически)
-            onNewPacket(Packet, true, self);
-
         if Packet.Size <= 2 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
         else
           //выт€гиваем им€ соединени€ и прочее
           if (not Settings.isNoDecrypt) then
             ProcessRecivedPacket(packet);
+
+        LastPacket := Packet;
+        if Assigned(onNewPacket) then
+          if Packet.Size > 2 then //не отправл€ем скриптам пакеты длинной 2 байта (физически)
+            onNewPacket(Packet, true, self);
+
+        if Packet.Size <= 2 then
+            FillChar(Packet.PacketAsCharArray, $FFFF, #0); //авдруг!
 
       end;
 

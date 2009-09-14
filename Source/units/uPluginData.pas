@@ -58,6 +58,8 @@ type
     Function SetScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean; override;
     function GetScriptVariable(scriptid:integer; varname:string):variant; override;
     function IsScriptIdValid(scriptid:integer):boolean; override;
+    function CallScriptFunction(scriptid:integer; Name: String; Params: Variant; var error:string): Variant; override;
+
 
     function CreateAndRunTimerThread(const interval, usrParam: Cardinal;
                                      const OnTimerProc: TOnTimer): Pointer; override;
@@ -124,6 +126,25 @@ uses fs_iinterpreter, uscripts, uglobalFuncs, uMain, uUserForm, udata, usocketen
   Variants;
 { TPluginDataClass }
 
+
+function TPluginStructClass.CallScriptFunction(scriptid: integer;
+  Name: String; Params: Variant; var error:string): Variant;
+begin
+if IsScriptIdValid(scriptid) then
+    try
+      Result := TfsScript(scriptid).CallFunction(name,params);
+    except
+      on e : exception do
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> ' + e.ClassName +' : '+ e.Message;
+        end
+      else   //EOSError ?
+        begin
+          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> '+SysErrorMessage(GetLastError);
+        end;
+    end;
+    inherited;
+end;
 
 procedure TPluginStructClass.ChangeTimerThread(const timer: Pointer;
   const interval, usrParam: Cardinal; const OnTimerProc: TOnTimer);
