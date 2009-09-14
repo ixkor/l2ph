@@ -279,14 +279,12 @@ begin
       CanClose := false;
       exit;
     end;
-    
+    fScript.DestroyAllScripts;    
     if Assigned(sockEngine) then
     begin
       sockEngine.destroy;
       sockEngine := nil;
     end;
-
-    fScript.DestroyAllScripts;
     Application.Terminate;
 end;
 
