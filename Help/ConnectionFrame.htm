@@ -8,8 +8,8 @@
 </head>
 
 <BODY>
-<P><FONT size=2><FONT face=Arial color=#003f7d>&nbsp;</FONT><FONT size=5><FONT 
-face=Arial color=#003f7d>"Фрейм" соединения</FONT><FONT size=3> 
+<P><FONT size=2><FONT color=#003f7d face=Arial>&nbsp;</FONT><FONT size=5><FONT 
+color=#003f7d face=Arial>"Фрейм" соединения</FONT><FONT size=3> 
 <P><FONT face=Arial></FONT>
 <P><FONT face=Arial></FONT>
 <P><FONT face=Arial></FONT>
@@ -35,7 +35,7 @@ face=Arial color=#003f7d>"Фрейм" соединения</FONT><FONT size=3>
 <P><STRONG>Вкладка Просмотр:<BR></STRONG><IMG alt="" src="PSD/connections.jpg"></P>
 <P>&nbsp;</P>
 <P>Элементы:</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">1. Перечитывает информацию из ini файлов и 
+<P style="MARGIN-RIGHT: 0px" dir=ltr>1. Перечитывает информацию из ini файлов и 
 обновляет список пакетов в текущем фрейме.<BR>2. Сохраняет лог пакетов запросив 
 имя файла.<BR><FONT color=#004a95><FONT size=2><STRONG>Оговорка<BR></STRONG>При 
 активированном пункте "<STRONG>Дать возможность сохранять RAW логи</STRONG>" в 
@@ -67,12 +67,12 @@ HEX/DEC<BR>13. При установленном запрещает автозакрытие данного фрейма при
 вкладка называется именем соединения. в других случаях название вкладки 
 описывается следующим образом: [тип перехвата/лог]#(идентификатор соединения/Имя 
 лог файла)</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px"><STRONG>Вкладка посылка:</STRONG></P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">Предназначена для ручной отправки пакета 
+<P style="MARGIN-RIGHT: 0px" dir=ltr><STRONG>Вкладка посылка:</STRONG></P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr>Предназначена для ручной отправки пакета 
 (пакет указывается без первых байтов длинны) на сервер/клиент.</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px"><STRONG>Внешний вид:</STRONG><BR><IMG alt="" src="PSD/posilka.jpg"><BR></P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">Элементы:</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">1. Сохраняет текущий пакет(ы) в файл<BR>2. 
+<P style="MARGIN-RIGHT: 0px" dir=ltr><STRONG>Внешний вид:</STRONG><BR><IMG alt="" src="PSD/posilka.jpg"><BR></P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr>Элементы:</P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr>1. Сохраняет текущий пакет(ы) в файл<BR>2. 
 Загружает пакет(ы) из файла.<BR>3. Отправка пакетов будет производится в сторону 
 сервера.<BR>4. Отправка пакетов будет производится в сторону клиента<BR>5. При 
 установленной опции каждая строчка будет восприниматься как отдельный 
@@ -82,16 +82,20 @@ HEX/DEC<BR>13. При установленном запрещает автозакрытие данного фрейма при
 дисконнекте.<BR>10. Закрывает фрейм и связаное с ним соединение.<BR>11. перечень 
 пакетов на отправку<BR>12. hex вид пакета на текущей линии в п.11.<BR>13. 
 Детальная расшифровка пакета в п.12.</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">&nbsp;</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px"><STRONG>Вкладка дополнительно:</STRONG></P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">Содержит редактор скриптов привязанный 
-конкретно к этому соединению. отличие от основного редактора скриптов&nbsp;- нет 
-процедур Init, Free. в основном тут проверяют будут ли работать скрипты на 
-сервере вообще. по умолчанию содержит скрипт отправляющий на клиент уведомление 
-"Hello!!!"</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px"><STRONG>Внешний вид:</STRONG><BR><IMG alt="" src="PSD/dopolnitelno.jpg"></P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">Элементы.</P>
-<P dir=ltr style="MARGIN-RIGHT: 0px">1. Сохраняет скрипт в файл.<BR>2. Загружает 
+<P style="MARGIN-RIGHT: 0px" dir=ltr>&nbsp;</P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr><STRONG>Вкладка дополнительно:</STRONG></P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr>Содержит редактор скриптов привязанный 
+конкретно к этому соединению. отличие от основного редактора скриптов&nbsp;- 
+<STRONG>нет процедур Init, Free</STRONG>. Сюда <STRONG>так же не поступают 
+переменные&nbsp;PCK</STRONG>.&nbsp;В основном тут проверяют будут ли работать 
+скрипты на сервере вообще. по умолчанию содержит скрипт отправляющий на клиент 
+уведомление "Hello!!!"</P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr><FONT color=#ff0000><STRONG>Данная вкладка 
+не предназначена для запуска ПОЛНОЦЕННЫХ СКРИПТОВ<BR>Выполнение полноценного 
+скрипта тут приведет к ошибке.</STRONG></FONT></P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr><STRONG>Внешний вид:</STRONG><BR><IMG alt="" src="PSD/dopolnitelno.jpg"></P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr>Элементы.</P>
+<P style="MARGIN-RIGHT: 0px" dir=ltr>1. Сохраняет скрипт в файл.<BR>2. Загружает 
 скрипт из файла.<BR>3. Запускает скрипт.<BR>4. Прерывает выполнение 
 скрипта.</P></BODY>
 </html>
