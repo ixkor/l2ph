@@ -187,6 +187,7 @@ end;
 function TfScriptEditor.fsScriptGetVarValue(VarName: String;
   VarTyp: TfsVarType; OldValue: Variant): Variant;
 begin
+  if not Assigned(assignedTScript) then exit; //не назначен ? мы используемся в "дополнительно".
   SetVar(VarName, VarTyp, OldValue, currentline);
 end;
 
@@ -195,6 +196,7 @@ procedure TfScriptEditor.fsScriptRunLine(Sender: TfsScript; const UnitName,
 var
 str:string;
 begin
+if not Assigned(assignedTScript) then exit; //не назначен ? мы используемся в "дополнительно".
 str := copy(SourcePos, 1, pos(':',SourcePos)-1);
 if str <> '' then
   begin
@@ -393,6 +395,7 @@ end;
 procedure TfScriptEditor.EditorEnter(Sender: TObject);
 begin
 try
+if assignedTScript = nil then exit;
 if GetModifTime(AppPath+'Scripts\'+(assignedTScript as TScript).ScriptName+'.script') > (assignedTScript as TScript).changetime then
     if MessageDlg(format(siLang1.GetTextOrDefault('IDS_16' (* 'Файл %s был модифицирован внешней программой. Перезагрузить его ?' *) ),[(assignedTScript as TScript).ScriptName]),mtWarning,[mbYes, mbNo],0) = mrYes then
       (assignedTScript as TScript).LoadOriginal

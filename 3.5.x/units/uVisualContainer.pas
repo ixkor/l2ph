@@ -416,7 +416,7 @@ try
           delete(charname,i,1);
       end;
 
-    SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].txt');
+    SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].pLog');
     SaveThis.Free;
   end;
 except
