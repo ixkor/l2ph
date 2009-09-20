@@ -33,6 +33,9 @@ uses umain, uscripts, uMainReplacer;
 
 procedure TfCompilling.ActivateMe;
 begin
+  if AssignedSEditor = nil then exit;
+  if AssignedSEditor.assignedTScript = nil then exit;
+
   if fMainReplacer.Visible then
     begin
       fMainReplacer.Status.caption := Label1.caption +': '+Tscript(AssignedSEditor.assignedTScript).ScriptName;

@@ -709,10 +709,10 @@ begin
     inc(i);
   end;
 
-  if Assigned(encdec) then EncDec.destroy;
   if hServerThread <> 0 then TerminateThread(hServerThread, 0);
   if hClientThread <> 0 then TerminateThread(hClientThread, 0);
   sendNewAction(Ttulel_action_tunel_destroyed);
+  if Assigned(encdec) then EncDec.destroy;
   CriticalSection.Destroy;
   RawLog.Destroy;
   DeleteFile(tempfilename);
