@@ -1,7 +1,7 @@
 object fScriptEditor: TfScriptEditor
   Left = 0
   Top = 0
-  Width = 435
+  Width = 770
   Height = 266
   Align = alClient
   TabOrder = 0
@@ -14,7 +14,7 @@ object fScriptEditor: TfScriptEditor
   object Editor: TSyntaxMemo
     Left = 236
     Top = 0
-    Width = 199
+    Width = 534
     Height = 266
     Lines.Strings = (
       '1'
@@ -214,7 +214,7 @@ object fScriptEditor: TfScriptEditor
     OnEnter = EditorEnter
     OnKeyUp = EditorKeyUp
   end
-  object PnlWatchList: TPanel
+  object PnWatchList: TPanel
     Left = 0
     Top = 0
     Width = 233
@@ -355,7 +355,6 @@ object fScriptEditor: TfScriptEditor
   object fsScript: TfsScript
     SyntaxType = 'PascalScript'
     OnRunLine = fsScriptRunLine
-    OnGetVarValue = fsScriptGetVarValue
     Left = 88
     Top = 48
   end

@@ -3,7 +3,8 @@ unit uScripts;
 interface
 
 uses
-  usharedstructs, uglobalfuncs, uresourcestrings, CommCtrl, Menus, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  usharedstructs, uglobalfuncs, uresourcestrings, CommCtrl, Menus, Windows, Messages,
+  SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, ExtCtrls, StdCtrls, CheckLst, JvExControls,
   JvEditorCommon, JvEditor, JvHLEditor, uscripteditor,
   siComp, ecSyntAnal, ImgList, ToolWin, JvTabBar, JvLabel, ecKeyMap;
@@ -313,8 +314,12 @@ begin
   if currentScript = self then
     begin
     currentScript := nil;
-    fClassesDLG.fsTree1.Script := nil;
-    fClassesDLG.Hide;
+    if fClassesDLG <> nil then
+      begin
+      fClassesDLG.Hide;
+      if fClassesDLG.fsTree1 <> nil then
+        fClassesDLG.fsTree1.Script := nil;
+      end;
     end;
   if Modified then
     if MessageDlg(pchar(fScript.lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+scriptname+' ?'),mtConfirmation,[mbYes, mbNo],0)=mrYes then
@@ -443,7 +448,11 @@ begin
   currentScript.Editor.BringToFront;
   currentScript.updatecontrols;
   currentScript.Editor.SetFocus;
-  btnShowWatch.Down := currentScript.Editor.PnlWatchList.Visible;
+  btnShowWatch.Down := currentScript.Editor.PnWatchList.Visible;
+  if currentScript.Editor.PnWatchList.Visible then
+    currentScript.Editor.fsScript.OnGetVarValue := currentScript.Editor.fsScriptGetVarValue
+  else
+    currentScript.Editor.fsScript.OnGetVarValue := nil;
 
 end;
 
@@ -846,11 +855,12 @@ begin
       begin
         OnPacket(id, FromServer, connectname, temp);
         //если плагин обнулил размер пакета
-        if length(temp) < 3 then exit; //раньше тут был бряк, но ведь пустой пакет скриптам не нужен. поэтому екзит.
+        if length(temp) = 0 then break; 
       end;
 
 
   //Скрипты
+  if length(temp) > 0 then
   for i:=0 to ScriptsListVisual.Items.Count-1 do
   begin
     if fScript.ScriptsListVisual.Items.Item[i].Checked then
@@ -872,14 +882,12 @@ begin
              then
                 begin
                   //по очереди посылаем всем включенным скриптам
-                  //EnterCriticalSection(_cs);
                   cScript.Editor.fsScript.Variables['pck'] := temp;
                   cScript.Editor.fsScript.Variables['buf'] := '';
                   cScript.Editor.fsScript.Variables['ConnectID']:=id;
                   cScript.Editor.fsScript.Variables['ConnectName']:=connectname;
                   cScript.Editor.fsScript.Variables['FromServer']:=FromServer;
                   cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
-                  //LeaveCriticalSection(_cs);
                   try
                     cScript.Editor.fsScript.Execute;
                      temp:=cScript.Editor.fsScript.Variables['pck'];
@@ -893,6 +901,7 @@ begin
                   cScript.Editor.fsScript.Variables['buf'] := '';
                   cScript.Editor.fsScript.Variables['ConnectID'] := 0;
                   cScript.Editor.fsScript.Variables['ConnectName'] := '';
+                  if length(temp) = 0 then break; //Вылетаем с цикла если пцк был обнулен
                 end;
     end;
   end;
@@ -973,12 +982,14 @@ begin
     if btnShowWatch.Down then
     begin
       currentScript.Editor.Splitter1.Visible := true;
-      currentScript.Editor.PnlWatchList.Visible := true;
+      currentScript.Editor.PnWatchList.Visible := true;
+      currentScript.Editor.fsScript.OnGetVarValue := currentScript.Editor.fsScriptGetVarValue
     end
     else
     begin
-      currentScript.Editor.PnlWatchList.Visible := false;
+      currentScript.Editor.PnWatchList.Visible := false;
       currentScript.Editor.Splitter1.Visible := false;
+      currentScript.Editor.fsScript.OnGetVarValue := nil;
     end;
 end;
 

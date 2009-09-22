@@ -43,7 +43,7 @@ type
     actClearAllBreakpoints: TAction;
     EditPaste1: TEditPaste;
     Splitter1: TSplitter;
-    PnlWatchList: TPanel;
+    PnWatchList: TPanel;
     WatchList: TListView;
     CurLineLabel: TLabel;
     siLang1: TsiLang;
@@ -206,15 +206,6 @@ if str <> '' then
         Nomove := true;
       end;
     CurLineLabel.Caption := format(siLang1.GetTextOrDefault('IDS_0' (* 'Last processed line %d' *) ),[CurrentLine]);
-{    if nomove then
-      Editor.Invalidate;
-    if Assigned(assignedTScript) then
-    while (nomove) and (TScript(assignedTScript).Compilled) do
-      begin
-        Application.ProcessMessages;
-        sleep(1);
-      end;
-      }
   end;
 end;
 
