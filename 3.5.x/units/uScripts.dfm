@@ -2673,9 +2673,14 @@ object fScript: TfScript
         Font.Color = clWindow
         Font.Height = -16
         Font.Name = 'Courier New'
-        Font.Style = [fsBold]
+        Font.Style = [fsItalic]
         BgColor = clBlack
-        FormatType = ftCustomFont
+        FormatType = ftBackGround
+        BorderColorLeft = clSilver
+        BorderColorTop = clSilver
+        BorderColorRight = clSilver
+        BorderColorBottom = clSilver
+        FormatFlags = [ffBold, ffItalic, ffUnderline, ffStrikeOut, ffReadOnly, ffHidden]
       end>
     TokenRules = <
       item

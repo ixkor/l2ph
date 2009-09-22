@@ -1114,7 +1114,8 @@ begin
   fCompilling.ActivateMe;
   RefreshPrecompile(EditorModule.fsScript);
   EditorModule.fsScript.Lines.Assign(EditorModule.editor.Lines);
-  if not EditorModule.fsScript.Compile then begin
+  if not EditorModule.fsScript.Compile then
+  try
     ps:=Pos(':',EditorModule.fsScript.ErrorPos);
     x:=StrToInt(Copy(EditorModule.fsScript.ErrorPos,ps+1,length(EditorModule.fsScript.ErrorPos)-ps));
     y:=StrToInt(Copy(EditorModule.fsScript.ErrorPos,1,ps-1));
@@ -1137,7 +1138,12 @@ begin
     StatBat.SimpleText:=lang.GetTextOrDefault('IDS_149' (* 'Ошибка: ' *) )+fsScript.ErrorMsg + lang.GetTextOrDefault('IDS_150' (* ', позиция: ' *) )+fsScript.ErrorPos;
     Result:=False;
     end;
-  end else begin
+  except
+    StatBat.SimpleText:=lang.GetTextOrDefault('IDS_149' (* 'Ошибка: ' *) )+EditorModule.fsScript.ErrorMsg + '>' + EditorModule.fsScript.ErrorPos;
+    Result:=False;
+  end
+   else
+  begin
     StatBat.SimpleText:=lang.GetTextOrDefault('IDS_151' (* 'Скрипт проверен' *) );
     Result:=True;
   end;
