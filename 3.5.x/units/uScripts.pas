@@ -452,9 +452,15 @@ begin
   currentScript.Editor.SetFocus;
   btnShowWatch.Down := currentScript.Editor.PnWatchList.Visible;
   if currentScript.Editor.PnWatchList.Visible then
-    currentScript.Editor.fsScript.OnGetVarValue := currentScript.Editor.fsScriptGetVarValue
+    begin
+    currentScript.Editor.fsScript.OnGetVarValue := currentScript.Editor.fsScriptGetVarValue;
+    currentScript.Editor.fsScript.OnRunLine := currentScript.Editor.fsScriptRunLine;
+    end
   else
+    begin
     currentScript.Editor.fsScript.OnGetVarValue := nil;
+    currentScript.Editor.fsScript.OnRunLine := nil;
+    end;
 
 end;
 
@@ -985,13 +991,15 @@ begin
     begin
       currentScript.Editor.Splitter1.Visible := true;
       currentScript.Editor.PnWatchList.Visible := true;
-      currentScript.Editor.fsScript.OnGetVarValue := currentScript.Editor.fsScriptGetVarValue
+      currentScript.Editor.fsScript.OnGetVarValue := currentScript.Editor.fsScriptGetVarValue;
+      currentScript.Editor.fsScript.OnRunLine := currentScript.Editor.fsScriptRunLine;
     end
     else
     begin
       currentScript.Editor.PnWatchList.Visible := false;
       currentScript.Editor.Splitter1.Visible := false;
       currentScript.Editor.fsScript.OnGetVarValue := nil;
+      currentScript.Editor.fsScript.OnRunLine := nil;      
     end;
 end;
 

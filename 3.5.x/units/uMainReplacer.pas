@@ -194,7 +194,6 @@ procedure TfMainReplacer.NewPacket(var msg: TMessage);
 var
   temp : SendMessageParam;
 begin
-  c_s.Enter;
   try
   temp := SendMessageParam(pointer(msg.WParam)^);
   fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
@@ -207,7 +206,6 @@ begin
           PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
         end;
   finally
-    c_s.Leave;
   end;
 end;
 

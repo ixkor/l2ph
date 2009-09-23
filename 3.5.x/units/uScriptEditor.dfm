@@ -1,7 +1,7 @@
 object fScriptEditor: TfScriptEditor
   Left = 0
   Top = 0
-  Width = 770
+  Width = 435
   Height = 266
   Align = alClient
   TabOrder = 0
@@ -14,7 +14,7 @@ object fScriptEditor: TfScriptEditor
   object Editor: TSyntaxMemo
     Left = 236
     Top = 0
-    Width = 534
+    Width = 199
     Height = 266
     Lines.Strings = (
       '1'

@@ -584,38 +584,42 @@ begin
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
+        try
         if OnCallMethod(ConId, ThisScriptId, sMethodName, Params, Result) then Exit;
+        except
+        end;
   end;
 
   // если плагины не обработать то обрабатываем сами
   if sMethodName = 'READC' then begin
     pct := scripter.Variables['pck'];
-    if Integer(Params[0])<=Length(pct) then b:=Byte(pct[Integer(Params[0])])
+    if Integer(Params[0])<=Length(pct)-1 then b:=Byte(pct[Integer(Params[0])])
     else b:=0;
     Params[0]:=Integer(Params[0])+1;
     Result:=b;
   end else
   if sMethodName = 'READD' then begin
     pct := scripter.Variables['pck'];
-    if Integer(Params[0])<=Length(pct)-4 then Move(pct[Integer(Params[0])],d,4);
+    if Integer(Params[0])<=Length(pct)-3 then
+      Move(pct[Integer(Params[0])],d,4);
     Params[0]:=Integer(Params[0])+4;
     Result:=d;
   end else
   if sMethodName = 'READQ' then begin
     pct := scripter.Variables['pck'];
-    if Integer(Params[0])<=Length(pct)-8 then Move(pct[Integer(Params[0])],i64,8);
+    if Integer(Params[0])<=Length(pct)-7 then Move(pct[Integer(Params[0])],i64,8);
     Params[0]:=Integer(Params[0])+8;
     Result:=i64;
   end else
   if sMethodName = 'READH' then begin
     pct := scripter.Variables['pck'];
-    if Integer(Params[0])<=Length(pct)-2 then Move(pct[Integer(Params[0])],h,2);
+    if Integer(Params[0])<=Length(pct)-1 then Move(pct[Integer(Params[0])],h,2);
     Params[0]:=Integer(Params[0])+2;
     Result:=h;
   end else
   if sMethodName = 'READF' then begin
     pct := scripter.Variables['pck'];
-    if Integer(Params[0])<=Length(pct)-8 then Move(pct[Integer(Params[0])],f,8);
+    if Integer(Params[0])<=Length(pct)-7 then Move(pct[Integer(Params[0])],f,8);
     Params[0]:=Integer(Params[0])+8;
     Result:=f;
   end else
