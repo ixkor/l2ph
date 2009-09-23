@@ -195,7 +195,7 @@ procedure TfScriptEditor.fsScriptRunLine(Sender: TfsScript; const UnitName,
   SourcePos: String);
 var
 str:string;
-begin
+begin             { TODO : Надо будет отключать }
 if not Assigned(assignedTScript) then exit; //не назначен ? мы используемся в "дополнительно".
 str := copy(SourcePos, 1, pos(':',SourcePos)-1);
 if str <> '' then
