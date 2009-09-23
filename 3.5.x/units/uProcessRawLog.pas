@@ -408,6 +408,7 @@ var
   apendix : string;
   sLastPacket : string;
 begin
+  if Packet.Size = 0 then exit;
   //на серве - апендикс 04, на клиент = 03
   if FromServer then
     apendix := '03'

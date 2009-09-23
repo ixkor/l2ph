@@ -144,7 +144,7 @@ begin
   UpdateStrings;
   loadpos(self);
   Randomize;
-  HookCode(@ShowMessage,@ShowMessageNew,@ShowMessageOld);
+//  HookCode(@ShowMessage,@ShowMessageNew,@ShowMessageOld);
   DoubleBuffered := true;
   FillVersion_a;
   SysMsgIdList := TStringList.Create;
@@ -215,9 +215,13 @@ end;
 
 procedure TfMain.FormDestroy(Sender: TObject);
 begin
+  if Assigned(sockEngine) then
+    begin
+      sockEngine.Destroy;
+      sockEngine := nil;
+    end;
   savepos(self);
-  isGlobalDestroying := true;
-  UnhookCode(@ShowMessageOld);
+//  UnhookCode(@ShowMessageOld);
 
   SysMsgIdList.Destroy;
   SysMsgIdList := nil;
@@ -229,6 +233,7 @@ begin
   ClassIdList := nil;
   SkillList.Destroy;
   SkillList := nil;
+  ExitProcess(0);
 end;
 
 procedure TfMain.nExitAppClick(Sender: TObject);
@@ -279,11 +284,7 @@ begin
       CanClose := false;
       exit;
     end;
-    if Assigned(sockEngine) then
-    begin
-      sockEngine.destroy;
-      sockEngine := nil;
-    end;
+    isGlobalDestroying := true;
     fScript.DestroyAllScripts;    
     Application.Terminate;
 end;

@@ -250,6 +250,7 @@ begin
   savepos(self);
   DestroyAllScripts;
   ScriptList.Destroy;
+  ScriptList := nil;
 end;
 
 procedure TfScript.ScriptCheckClick(Sender: TObject);
@@ -413,6 +414,7 @@ end;
 
 procedure TfScript.DestroyAllScripts;
 begin
+  if ScriptList <> nil then
   while ScriptList.Count > 0 do
     TScript(ScriptList.Items[0]).destroy;
 end;
