@@ -584,10 +584,7 @@ begin
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
-        try
         if OnCallMethod(ConId, ThisScriptId, sMethodName, Params, Result) then Exit;
-        except
-        end;
   end;
 
   // если плагины не обработать то обрабатываем сами
