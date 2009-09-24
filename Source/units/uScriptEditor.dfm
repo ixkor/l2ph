@@ -2,20 +2,20 @@ object fScriptEditor: TfScriptEditor
   Left = 0
   Top = 0
   Width = 435
-  Height = 266
+  Height = 445
   Align = alClient
   TabOrder = 0
   object Splitter1: TSplitter
     Left = 233
     Top = 0
-    Height = 266
+    Height = 445
     Visible = False
   end
   object Editor: TSyntaxMemo
     Left = 236
     Top = 0
     Width = 199
-    Height = 266
+    Height = 445
     Lines.Strings = (
       '1'
       '2'
@@ -218,13 +218,13 @@ object fScriptEditor: TfScriptEditor
     Left = 0
     Top = 0
     Width = 233
-    Height = 266
+    Height = 445
     Align = alLeft
     TabOrder = 1
     Visible = False
     object CurLineLabel: TLabel
       Left = 1
-      Top = 252
+      Top = 431
       Width = 231
       Height = 13
       Align = alBottom
@@ -233,7 +233,7 @@ object fScriptEditor: TfScriptEditor
       Left = 1
       Top = 1
       Width = 231
-      Height = 251
+      Height = 430
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -354,7 +354,6 @@ object fScriptEditor: TfScriptEditor
   end
   object fsScript: TfsScript
     SyntaxType = 'PascalScript'
-    OnRunLine = fsScriptRunLine
     Left = 88
     Top = 48
   end

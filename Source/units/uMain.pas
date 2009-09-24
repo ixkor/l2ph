@@ -233,6 +233,7 @@ begin
   ClassIdList := nil;
   SkillList.Destroy;
   SkillList := nil;
+  JvTrayIcon1.IconVisible := false;
   ExitProcess(0);
 end;
 

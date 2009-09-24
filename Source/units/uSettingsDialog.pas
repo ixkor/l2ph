@@ -65,6 +65,7 @@ type
     isMainFormCaption: TEdit;
     Bevel5: TBevel;
     lspInterceptMethod: TRadioGroup;
+    chkProcessPackets: TCheckBox;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -155,6 +156,7 @@ begin
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
   ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
   LspInterceptMethod.ItemIndex := Options.ReadInteger('General','lspInterceptMethod',0);
+  chkProcessPackets.Checked := Options.ReadBool('General','chkProcessPackets',true);
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
@@ -206,6 +208,7 @@ with GlobalSettings do
     HexViewOffset := ChkHexViewOffset.Checked;
     isSaveLog := chkAutoSavePlog.Checked;
     ShowLastPacket := ChkShowLastPacket.Checked;
+    isprocesspackets := chkProcessPackets.Checked;
     case rgProtocolVersion.ItemIndex of
       0: GlobalProtocolVersion := 560;  //Ñ4
       1: GlobalProtocolVersion := 660;
@@ -274,7 +277,7 @@ begin
   Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
   Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
   Options.WriteInteger('General','lspInterceptMethod',lspInterceptMethod.ItemIndex);
-
+  Options.WriteBool('General','chkProcessPackets',chkProcessPackets.Checked);
   Options.UpdateFile;
 end;
 

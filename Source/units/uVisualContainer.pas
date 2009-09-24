@@ -183,7 +183,8 @@ begin
   ToolButton17.Down := GlobalSettings.HexViewOffset;
   PacketView.HexViewOffset := GlobalSettings.HexViewOffset;
   ToolButton5.Down := GlobalSettings.ShowLastPacket;
-
+  btnProcessPackets.Down := GlobalSettings.isprocesspackets;
+  
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
 

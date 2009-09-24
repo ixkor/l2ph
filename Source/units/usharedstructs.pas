@@ -21,7 +21,8 @@ type
     isGraciaOff,
     isSaveLog,
     ShowLastPacket,
-    HexViewOffset : boolean;
+    HexViewOffset,
+    isprocesspackets : boolean;
   end;
 
   {Используется плагинами}
