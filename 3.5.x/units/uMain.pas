@@ -28,7 +28,6 @@ type
     nAdditional: TMenuItem;
     nProcessesShow: TMenuItem;
     nConvertorShow: TMenuItem;
-    pcClientsConnection: TJvPageControl;
     nPscketFilterShow: TMenuItem;
     Splash: TJvLabel;
     UnUsedObjectsDestroyer: TTimer;
@@ -57,6 +56,7 @@ type
     N1: TMenuItem;
     N3: TMenuItem;
     Language1: TMenuItem;
+    pcClientsConnection: TJvPageControl;
     procedure FormCreate(Sender: TObject);
     procedure nSettingsClick(Sender: TObject);
     procedure nProcessesShowClick(Sender: TObject);
@@ -119,6 +119,7 @@ begin
   ver := uGlobalFuncs.getversion;
 
   Splash.Caption := 'L2PacketHack v'+ ver;
+
   fMainReplacer.Status.Caption := Splash.Caption;
   fMainReplacer.Repaint;
   Application.ProcessMessages;
@@ -137,6 +138,32 @@ begin
   sockEngine.ServerPort := LocalPort;
   sockEngine.StartServer;
   sockEngine.isSocks5 := fSettings.chkSocks5.Checked;
+
+ if Options.ReadInteger('General','dumb',0) > 10 then
+ begin
+ fmain.Splash.Alignment := taLeftJustify;
+ fmain.Splash.Caption :=
+ '  Уважаемые пользователи портала l2rus, и не столь уважаемая администрация данного портала.'#10#13+
+ '        (В прочем данноЕ петициЙо направленно последним.)'#10#13+
+ ''#10#13+
+ '  Довожу до вашего сведения что:'#10#13+
+ '  1. Удалять коментарии разработчиков направленные на то чтобы донести'#10#13+
+ '       до пользователя что выложеная версия не стабильна - некрасиво'#10#13+
+ '  2. При этом еще и банить аккаунт разработчика вообще нехорошо.'#10#13+
+ '  3. Выкладывать софт без линки на оффорум тоже не очень.'#10#13+
+ '  либо вы заимеете совесть либо она поимеет вас.'#10#13+
+ ''#10#13+
+ ''#10#13+
+ ''#10#13+
+ ''#10#13+
+ ''#10#13+
+ '  "не забудьте извиниццо и исправиться, иначе буду бить по  рукам" ©'#10#13+
+ '       к примеру просто рубану ваш сайт у пользователей этой утилиты.'#10#13+
+ '  зы.  кстати. это сообщение выскакивает только у пользователей вашего портала.'#10#13+
+ '  зы2. кстати, это полностью протестированный и стабл билд. его как раз и имеет смысл качать'#10#13+
+ '       С наилутшими пожеланиями. Желаю приятных кошмарикоФ.';
+
+ end;
 end;
 
 procedure TfMain.FormCreate(Sender: TObject);
@@ -152,6 +179,7 @@ begin
   NpcIdList := TStringList.Create;
   ClassIdList := TStringList.Create;
   SkillList := TStringList.Create;
+  AugmentList := TStringList.Create;
   Reload;
 end;
 
@@ -233,6 +261,8 @@ begin
   ClassIdList := nil;
   SkillList.Destroy;
   SkillList := nil;
+  AugmentList.Destroy;
+  AugmentList := nil;
   JvTrayIcon1.IconVisible := false;
   ExitProcess(0);
 end;
