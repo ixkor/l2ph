@@ -349,6 +349,15 @@ begin
   result:=SkillList.Values[inttostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Skill ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
+
+function GetAugment(const ar1 : integer) : string;
+// внешн€€ ф-ци€, вызываетс€ не из скрипта, а по аргументу
+// :Get.AugmentID - возвращает название скила по его ID из значени€ аргумента
+begin
+  result:='0'; if ar1=0 then exit;
+  result := AugmentList.Values[inttostr(ar1)];
+  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Augment ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
 //-------------
 function GetMsgID(const ar1 : integer) : string;
 // внешн€€ ф-ци€, вызываетс€ не из скрипта, а по аргументу
@@ -808,6 +817,8 @@ result := false;
   if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
   if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
   if param1='SKILL' then    value:=GetSkill(strtoint(value));
+  if param1='AUGMENTID' then    value:=GetAugment(strtoint(value));
+
 result := true;
 end;
 

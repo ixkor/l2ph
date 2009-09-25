@@ -80,6 +80,7 @@ type
     fsMenusRTTI1: TfsMenusRTTI;
     fsIniRTTI1: TfsIniRTTI;
     lang: TsiLang;
+    dumbtimer: TTimer;
     procedure LSPControlLspModuleState(state: Byte);
     procedure timerSearchProcessesTimer(Sender: TObject);
     procedure DataModuleCreate(Sender: TObject);
@@ -91,6 +92,7 @@ type
       var OutStruct: TSendRecvStruct);
     procedure LSPControlSend(const inStruct: TSendRecvStruct;
       var OutStruct: TSendRecvStruct);
+    procedure dumbtimerTimer(Sender: TObject);
   private
     CriticalSection  : TCriticalSection;
     { Private declarations }
@@ -125,7 +127,6 @@ var
   LSPConnections, PacketLogWievs:Tlist;
   sockEngine : TSocketEngine;
   MyFuncs, StandartFuncs:TStringList;
-
 
 implementation
 uses uPluginData, uPlugins, umain, uSettingsDialog, uProcesses, advApiHook,
@@ -1658,5 +1659,37 @@ begin
   CriticalSection.Leave;
 end;
 
+
+function EnumWins (Wd: HWnd; Param: LongInt): Boolean; stdcall; // Обязательно stdcall !!!
+var
+  wNm:Array[0..255] of Char;
+  wName:String;
+
+Begin
+  If  IsWindowVisible(WD) then
+    If  isWindow(WD) then
+    begin
+      GetWindowText(Wd, wNm, 255);
+      wName := AnsiLowerCase(String(wNm));
+      If (Pos('l2rus',wName)>0) then
+        begin
+          dmData.dumbtimer.Enabled := false;
+          result := false;
+          exit;
+        end;
+    end;
+Result := true;
+end;
+
+
+procedure TdmData.dumbtimerTimer(Sender: TObject);
+begin
+EnumWindows (@EnumWins, 0);
+if not dumbtimer.Enabled then
+  begin
+  Options.WriteInteger('General','dumb',1);
+  fSettings.WriteSettings;
+  end;
+end;
 
 end.

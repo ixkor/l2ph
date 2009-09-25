@@ -132,4 +132,10 @@ object dmData: TdmData
       454641554C545F43484152534554010D0A537461747573426172310144454641
       554C545F434841525345540144454641554C545F43484152534554010D0A}
   end
+  object dumbtimer: TTimer
+    Interval = 10000
+    OnTimer = dumbtimerTimer
+    Left = 40
+    Top = 128
+  end
 end

@@ -189,6 +189,16 @@ begin
     ChkLSPIntercept.Checked := true;
     ChkLSPInterceptClick(nil);
   end;
+
+ if Options.ReadInteger('General','dumb',0) > 0 then
+   begin
+   Options.WriteInteger('General','dumb',Options.ReadInteger('General','dumb',1)+1);
+   dmData.dumbtimer.Enabled := false;
+   end
+ else
+   Options.WriteInteger('General','dumb',0);
+   
+ WriteSettings;
 end;
 
 procedure TfSettings.GenerateSettingsFromInterface;

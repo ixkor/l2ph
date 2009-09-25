@@ -111,6 +111,7 @@ uses
   ItemsList,
   NpcIdList,
   ClassIdList,
+  AugmentList,
   SkillList : TStringList; //и до сель - используются fPacketFilter
   
   GlobalRawAllowed, GlobalNoFreeAfterDisconnect : boolean; //глобальная установка не разрешающая освобожать фреймы при обрыве соединений
@@ -252,6 +253,9 @@ begin
   //считываем skillname.ini
   SkillList.Clear;
   SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
+ //считываем augment.ini
+  AugmentList.Clear;
+  AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
 end;
 
 function TimeStepByteStr:string;
