@@ -485,7 +485,7 @@ begin
           StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
     else
       //server
-      if (ID in [$FE]) and (size>3) then
+      if (Byte(PktStr[12]) in [$FE]) and (size>3) then
         StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknown:h(subID)')
       else
         StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknown:');

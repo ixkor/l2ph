@@ -20,7 +20,6 @@ object fPacketViewer: TfPacketViewer
     Top = 0
     Height = 334
     Align = alRight
-    Visible = False
   end
   object packetVievPanel: TPanel
     Left = 386
