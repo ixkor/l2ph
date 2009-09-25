@@ -816,7 +816,7 @@ result := false;
   if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
   if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
   if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-  if param1='SKILL' then    value:=GetSkill(strtoint(value));
+  if param1='SKILL' then    value:=GetSkill(strtoint(value)) else
   if param1='AUGMENTID' then    value:=GetAugment(strtoint(value));
 
 result := true;
