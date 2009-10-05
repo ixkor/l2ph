@@ -20,6 +20,8 @@ type
     procedure InitKey(const XorKey; Interlude: Boolean = False);override;
     procedure DecryptGP(var Data; const Size: Word);override;
     procedure EncryptGP(var Data; const Size: Word);override;
+    procedure PreDecrypt(var Data; const Size: Word); override;
+    procedure PostEncrypt(var Data; const Size: Word); override;
   end;
 
   TXorCodingOut = class(TCodingClass)
@@ -27,9 +29,11 @@ type
     keyLen: Byte;
   public
     constructor Create;
-    procedure InitKey(const XorKey; Interlude: Boolean = False);override;
-    procedure DecryptGP(var Data; const Size: Word);override;
-    procedure EncryptGP(var Data; const Size: Word);override;
+    procedure InitKey(const XorKey; Interlude: Boolean = False);override;    
+    procedure DecryptGP(var Data; const Size: Word); override;
+    procedure EncryptGP(var Data; const Size: Word); override;
+    procedure PreDecrypt(var Data; const Size: Word); override;
+    procedure PostEncrypt(var Data; const Size: Word); override;
   end;
 
 function CreateCoding(Value:PCodingClass): HRESULT; stdcall;
@@ -70,6 +74,7 @@ var
   k:integer;
   pck:array[0..$4FFF] of Byte absolute Data;
 begin
+//server>>PreDecrypt>[DecryptGP]>(PH)>EncryptGP>PostEncrypt>>client
   for k:=size-1 downto 1 do
     pck[k]:=pck[k] xor GKeyR[k and keyLen] xor pck[k-1];
   if size<>0 then pck[0]:=pck[0] xor GKeyR[0];
@@ -81,6 +86,8 @@ var
   i:integer;
   pck:array[0..$4FFF] of Byte absolute Data;
 begin
+//server>>PreDecrypt>DecryptGP>(PH)>[EncryptGP]>PostEncrypt>>client
+
   if size<>0 then pck[0]:=pck[0] xor GKeyS[0];
   for i:=1 to size-1 do
     pck[i]:=pck[i] xor GKeyS[i and keyLen] xor pck[i-1];
@@ -106,6 +113,17 @@ begin
   Move(key2,GKeyR,16);
 end;
 
+procedure TXorCoding.PostEncrypt(var Data; const Size: Word);
+begin
+//server>>PreDecrypt>DecryptGP>(PH)>EncryptGP>[PostEncrypt]>>client
+end;
+
+procedure TXorCoding.PreDecrypt(var Data; const Size: Word);
+begin
+//server>>[PreDecrypt]>DecryptGP>(PH)>EncryptGP>PostEncrypt>>client
+
+end;
+
 { TXorCodingOut }
 
 constructor TXorCodingOut.Create;
@@ -120,6 +138,8 @@ var
   k:integer;
   pck:array[0..$4FFF] of Byte absolute Data;
 begin
+//client>>PreDecrypt>[DecryptGP]>(PH)>EncryptGP>PostEncrypt>>server
+
   for k:=size-1 downto 1 do
     pck[k]:=pck[k] xor GKeyR[k and keyLen] xor pck[k-1];
   if size<>0 then pck[0]:=pck[0] xor GKeyR[0];
@@ -131,6 +151,8 @@ var
   i:integer;
   pck:array[0..$4FFF] of Byte absolute Data;
 begin
+//client>>PreDecrypt>DecryptGP>(PH)>[EncryptGP]>PostEncrypt>>server
+
   if size<>0 then pck[0]:=pck[0] xor GKeyS[0];
   for i:=1 to size-1 do
     pck[i]:=pck[i] xor GKeyS[i and keyLen] xor pck[i-1];
@@ -155,6 +177,19 @@ begin
   Move(key2,GKeyS,16);
   Move(key2,GKeyR,16);
 end;
+
+procedure TXorCodingOut.PostEncrypt(var Data; const Size: Word);
+begin
+//client>>PreDecrypt>DecryptGP>(PH)>EncryptGP>[PostEncrypt]>>server
+
+end;
+
+procedure TXorCodingOut.PreDecrypt(var Data; const Size: Word);
+begin
+//client>>[PreDecrypt]>DecryptGP>(PH)>EncryptGP>PostEncrypt>>server
+
+end;
+
 
 begin
 
