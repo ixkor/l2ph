@@ -155,6 +155,8 @@ end;
 Procedure ServerBody(thisTunel:Ttunel);
 var
   StackAccumulator : TCharArray;
+  PreSize : integer;
+  PreAccumulator : TCharArray;
   AccumulatorLen : integer;
   BytesInStack : Longint;
   curPacket : TPacket;
@@ -172,7 +174,6 @@ begin
 
   thisTunel.ConnectOrErrorEvent := CreateEvent(nil, true,false,PChar('ConnectOrErrorEvent'+
                                                       IntToStr(thisTunel.hServerThread)));
-
   //поток с коннектом на сервер
   thisTunel.hClientThread :=BeginThread(nil, 0, @ClientBody, thisTunel, 0, thisTunel.idClientThread);
 
@@ -189,7 +190,11 @@ begin
       DeinitSocket(thisTunel.serversocket,WSAGetLastError);
       TerminateThread(thisTunel.hServerThread,0);
     end;
+
+
     CloseHandle(thisTunel.ConnectOrErrorEvent);
+
+
 
 
   ip := RedirrectIP;
@@ -197,19 +202,33 @@ begin
   //////////////////////////////////////////////////////////////
   AccumulatorLen := 0;
   LastResult := 1;
+  FillChar(PreAccumulator[0],$ffff,0);
   
   While (LastResult > 0) and (thisTunel.serversocket <> -1) do
   begin //Читаем пока не отвалимся
+
     //Сколько еще в буфере ?!
     ioctlsocket(thisTunel.serversocket, FIONREAD, Longint(BytesInStack));
     if BytesInStack = 0 then
       BytesInStack := 1;
-    LastResult := recv(thisTunel.serversocket, StackAccumulator[AccumulatorLen], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+
+    presize := recv(thisTunel.serversocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+    LastResult := PreSize;
+
+    if lastresult > 0 then
+      begin
+        ioctlsocket(thisTunel.serversocket, FIONREAD, Longint(BytesInStack));
+        if BytesInStack > 0 then //Дочитываем
+          LastResult := LastResult + recv(thisTunel.serversocket, PreAccumulator[presize], BytesInStack, 0);
+      end;
 
     if LastResult > 0 then
     begin
+    thisTunel.AddToRawLog(PCK_GS_ToServer, Preaccumulator[0], LastResult);
+    thisTunel.EncDec.xorC.PreDecrypt(Preaccumulator, LastResult);
+    Move(PreAccumulator[0], StackAccumulator[AccumulatorLen], LastResult);
+    FillChar(PreAccumulator[0],$ffff,0);
     inc(AccumulatorLen, LastResult);
-    thisTunel.AddToRawLog(PCK_GS_ToServer, StackAccumulator[AccumulatorLen-LastResult], LastResult);
 
     if not thisTunel.EncDec.Settings.isNoProcessToServer then
       begin
@@ -238,8 +257,12 @@ begin
                     begin
                       //кодируем
                       thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToServer);
+                      //постенкод
+                      Move(curPacket, PreAccumulator[0], curPacket.Size);
+                      presize := curPacket.Size;
+                      thisTunel.EncDec.xorC.PostEncrypt(PreAccumulator, PreSize);
                       //и отправляем
-                      send(thisTunel.clientsocket, curPacket, curPacket.Size, 0);
+                      send(thisTunel.clientsocket, PreAccumulator[0], PreSize, 0);
                     end;
                   end;
 
@@ -293,6 +316,8 @@ end;
 Procedure ClientBody(thisTunel:Ttunel);
 var
   socks5ok : string;
+  PreSize : integer;
+  PreAccumulator : TCharArray;
   StackAccumulator : TCharArray;
   AccumulatorLen : integer;
   BytesInStack : Longint;
@@ -330,16 +355,30 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   
   While (LastResult > 0) and (thisTunel.clientsocket <> -1) do
   begin //Читаем пока не отвалимся
+
     //Сколько еще в буфере ?!
     ioctlsocket(thisTunel.clientsocket, FIONREAD, Longint(BytesInStack));
     if BytesInStack = 0 then
       BytesInStack := 1;
-    LastResult := recv(thisTunel.clientsocket, StackAccumulator[AccumulatorLen], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+
+    presize := recv(thisTunel.clientsocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+    LastResult := PreSize;
+
+    if lastresult > 0 then
+      begin
+        ioctlsocket(thisTunel.clientsocket, FIONREAD, Longint(BytesInStack));
+        if BytesInStack > 0 then //Дочитываем
+          LastResult := LastResult + recv(thisTunel.clientsocket, PreAccumulator[presize], BytesInStack, 0);
+      end;
 
     if LastResult > 0 then
     begin
+    thisTunel.AddToRawLog(PCK_GS_ToClient, Preaccumulator[0], LastResult);
+    thisTunel.EncDec.xorS.PreDecrypt(Preaccumulator, LastResult);
+    Move(PreAccumulator[0], StackAccumulator[AccumulatorLen], LastResult);
+    FillChar(PreAccumulator[0],$ffff,0);
     inc(AccumulatorLen, LastResult);
-    thisTunel.AddToRawLog(PCK_GS_ToClient, StackAccumulator[AccumulatorLen-LastResult], LastResult);
+
 
     if not thisTunel.EncDec.Settings.isNoProcessToClient then
       begin
@@ -368,8 +407,12 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
                     begin
                       //кодируем
                       thisTunel.EncDec.EncodePacket(CurPacket, PCK_GS_ToClient);
+                      //постенкод
+                      Move(curPacket, PreAccumulator[0], curPacket.Size);
+                      presize := curPacket.Size;
+                      thisTunel.EncDec.xorS.PostEncrypt(PreAccumulator, PreSize);
                       //и отправляем
-                      send(thisTunel.serversocket, curPacket, curPacket.Size, 0);
+                      send(thisTunel.serversocket, PreAccumulator[0], PreSize, 0);
                     end;
                   end;
 
@@ -758,6 +801,8 @@ end;
 procedure Ttunel.EncryptAndSend(Packet: Tpacket; ToServer: Boolean);
 var
   sSendTo : TSocket;
+  PreSize : integer;
+  PreAccumulator : TCharArray;  
 begin
 if isGlobalDestroying then exit;
 if assigned(Visual) then
@@ -770,16 +815,28 @@ if assigned(Visual) then
 if ToServer then
   begin
     EncDec.EncodePacket(Packet, PCK_GS_ToServer);
+    //Для постенкрипта  
+    FillChar(PreAccumulator[0],$ffff,0);
+    move(packet.data[0], PreAccumulator[0], Packet.Size);
+    PreSize := Packet.Size;
+    //постенкрипт
+    EncDec.xorC.PostEncrypt(PreAccumulator, PreSize);
     sSendTo := clientsocket;
   end
   else
   begin
     EncDec.EncodePacket(packet, PCK_GS_ToClient);
+    //Для постенкрипта  
+    FillChar(PreAccumulator[0],$ffff,0);
+    move(packet, PreAccumulator[0], Packet.Size);
+    PreSize := Packet.Size;
+    //постенкрипт  
+    EncDec.xorS.PostEncrypt(PreAccumulator, PreSize);
     sSendTo := serversocket;
   end;
   
-if sSendTo <> -1 then
-  Send(sSendTo, Packet, packet.Size, 0);
+if (sSendTo <> -1) and (PreSize > 0) then
+  Send(sSendTo, PreAccumulator[0], PreSize, 0);
 end;
 
 procedure Ttunel.SendNewAction(action: byte);

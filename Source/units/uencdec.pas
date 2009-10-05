@@ -21,6 +21,8 @@ type
     procedure InitKey(const XorKey; Interlude: Boolean = False); override;
     procedure DecryptGP(var Data; const Size: Word); override;
     procedure EncryptGP(var Data; const Size: Word); override;
+    procedure PreDecrypt(var Data; const Size: Word); override;
+    procedure PostEncrypt(var Data; const Size: Word); override;
   end;
 
 
@@ -507,6 +509,16 @@ begin
   Move(key2,GKeyS,16);
   Move(key2,GKeyR,16);
   inherited;          
+end;
+
+procedure L2Xor.PostEncrypt(var Data; const Size: Word);
+begin
+//Ќичего не делаем, ибо ничего делать и не надо.
+end;
+
+procedure L2Xor.PreDecrypt(var Data; const Size: Word);
+begin
+//Ќичего не делаем, ибо ничего делать и не надо.
 end;
 
 end.
