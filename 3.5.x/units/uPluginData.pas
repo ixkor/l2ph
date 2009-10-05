@@ -134,14 +134,6 @@ if IsScriptIdValid(scriptid) then
     try
       Result := TfsScript(scriptid).CallFunction(name,params);
     except
-      on e : exception do
-        begin
-          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> ' + e.ClassName +' : '+ e.Message;
-        end
-      else   //EOSError ?
-        begin
-          fScript.StatusBar.SimpleText := currentScript.ScriptName+'> '+SysErrorMessage(GetLastError);
-        end;
     end;
     inherited;
 end;

@@ -203,7 +203,8 @@ begin
       if assigned(Ttunel(temp.tunel).Visual) then
         begin
           Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
-          PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
+          if assigned(Ttunel(temp.tunel).Visual) then
+            PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
         end;
   finally
   end;
@@ -213,8 +214,11 @@ procedure TfMainReplacer.ProcessPacket(var msg: TMessage);
 var
 visual:tfvisual;
 begin
+try
   visual := TfVisual(pointer(msg.WParam)^);
   visual.processpacketfromacum;
+except
+end;
 end;
 
 procedure TfMainReplacer.ReadMsg(var msg: TMessage);
