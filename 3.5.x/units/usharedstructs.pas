@@ -32,10 +32,10 @@ type
   public
     GKeyS,GKeyR:array[0..15] of Byte;
     procedure InitKey(const XorKey; Interlude: Boolean = False); Virtual; Abstract;   
-    procedure DecryptGP(var Data; const Size: Word); Virtual; Abstract;
-    procedure EncryptGP(var Data; const Size: Word); Virtual; Abstract;
-    procedure PreDecrypt(var Data; const Size: Word); Virtual; Abstract;
-    procedure PostEncrypt(var Data; const Size: Word); Virtual; Abstract;
+    procedure DecryptGP(var Data; var Size: Word); Virtual; Abstract;
+    procedure EncryptGP(var Data; var Size: Word); Virtual; Abstract;
+    procedure PreDecrypt(var Data; var Size: Word); Virtual; Abstract;
+    procedure PostEncrypt(var Data; var Size: Word); Virtual; Abstract;
   end;
 
 
