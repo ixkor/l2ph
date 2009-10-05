@@ -155,12 +155,11 @@ end;
 Procedure ServerBody(thisTunel:Ttunel);
 var
   StackAccumulator : TCharArray;
-  PreSize : integer;
   PreAccumulator : TCharArray;
   AccumulatorLen : integer;
   BytesInStack : Longint;
   curPacket : TPacket;
-  LastResult : integer;
+  PreSize, LastResult : Word;
   EventTimeout : boolean;
   IP: Integer;
   IPb:array[0..3] of Byte absolute ip;
@@ -316,13 +315,12 @@ end;
 Procedure ClientBody(thisTunel:Ttunel);
 var
   socks5ok : string;
-  PreSize : integer;
   PreAccumulator : TCharArray;
   StackAccumulator : TCharArray;
   AccumulatorLen : integer;
   BytesInStack : Longint;
   curPacket : TPacket;
-  LastResult : integer;
+  PreSize, LastResult : Word;
   IP: Integer;
   IPb:array[0..3] of Byte absolute ip;
 begin
@@ -801,7 +799,7 @@ end;
 procedure Ttunel.EncryptAndSend(Packet: Tpacket; ToServer: Boolean);
 var
   sSendTo : TSocket;
-  PreSize : integer;
+  PreSize : Word;
   PreAccumulator : TCharArray;  
 begin
 if isGlobalDestroying then exit;

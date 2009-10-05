@@ -19,10 +19,10 @@ type
   public
     constructor Create;
     procedure InitKey(const XorKey; Interlude: Boolean = False); override;
-    procedure DecryptGP(var Data; const Size: Word); override;
-    procedure EncryptGP(var Data; const Size: Word); override;
-    procedure PreDecrypt(var Data; const Size: Word); override;
-    procedure PostEncrypt(var Data; const Size: Word); override;
+    procedure DecryptGP(var Data; var Size: Word); override;
+    procedure EncryptGP(var Data; var Size: Word); override;
+    procedure PreDecrypt(var Data; var Size: Word); override;
+    procedure PostEncrypt(var Data; var Size: Word); override;
   end;
 
 
@@ -101,6 +101,7 @@ end;
 procedure TencDec.DecodePacket;
 var
   InitXOR_copy : boolean;
+  temp : word;
 begin
   InitXOR_copy := InitXOR;  //надо так.
   if (Packet.Size>2) then
@@ -122,7 +123,11 @@ begin
 
         //собственно декрипт, если есть ключ и не стоит галочка "не декриптовать".
         if InitXOR_copy and (not Settings.isNoDecrypt) then
-          xorS.DecryptGP(packet.data, Packet.Size - 2);
+          begin
+          temp := Packet.Size - 2;
+          xorS.DecryptGP(packet.data, temp);
+          Packet.Size := temp + 2
+          end;
 
         if Packet.Size <= 2 then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
@@ -146,7 +151,11 @@ begin
         if Packet.Size=29754 then Packet.Size:=267;
         //Декодирование
         if InitXOR and (not Settings.isNoDecrypt) then
-          xorC.DecryptGP(Packet.Data, Packet.Size - 2);
+          begin
+          temp := Packet.Size - 2;
+          xorC.DecryptGP(Packet.Data, temp);
+          Packet.Size := temp + 2;
+          end;
 
 
         //корректор для грации
@@ -330,6 +339,7 @@ var
   isToServer : boolean;
   CurrentCoddingClass : TCodingClass;
   NeedEncrypt : boolean;
+  temp : word;
 begin
   isToServer := (Dirrection = PCK_GS_ToServer) or (Dirrection = PCK_LS_ToServer); //пакет идет на сервер ?
 
@@ -349,7 +359,11 @@ begin
     begin
       if isToServer and Settings.isGraciaOff then
         Corrector(Packet.Size, True);
-      CurrentCoddingClass.EncryptGP(Packet.data, Packet.Size - 2); //кодируем
+
+      temp := Packet.Size - 2;
+      CurrentCoddingClass.EncryptGP(Packet.data, temp); //кодируем
+      Packet.Size := temp + 2;
+
     end;
 
   if SetInitXORAfterEncode then
@@ -365,6 +379,7 @@ var
 //  tmp: string;
   Offset: Word;
   TempPacket : Tpacket;
+  temp : word;
 begin
 //Обход смены XOR ключа.
 case pckCount of
@@ -373,13 +388,25 @@ case pckCount of
       TempPacket := Packet;
 //      SetLength(tmp, TempPacket.Size);
 //      Move(TempPacket, tmp[1], TempPacket.Size);
-      xorS.DecryptGP(TempPacket.Data, TempPacket.Size-2);
+      temp := TempPacket.Size-2;
+      xorS.DecryptGP(TempPacket.Data, temp);
+      TempPacket.Size := temp + 2;
       Offset := $13 or ((TempPacket.size-7) div 295) shl 8;
       PInteger(@TempPacket.Data[0])^:=PInteger(@TempPacket.Data[0])^ xor Offset xor PInteger(@(xorS.GKeyS[0]))^;
       xorS.InitKey(TempPacket.Data[0],isInterlude);
       xorC.InitKey(TempPacket.Data[0],isInterlude);
-      if (not Settings.isNoDecrypt) then xorC.DecryptGP(CorrectXorData.Data, CorrectXorData.Size-2);
-      if (not Settings.isNoDecrypt) then xorC.EncryptGP(CorrectXorData.Data, CorrectXorData.Size-2);
+      if (not Settings.isNoDecrypt) then
+        begin
+          temp := CorrectXorData.Size - 2;
+          xorC.DecryptGP(CorrectXorData.Data, temp);
+          CorrectXorData.Size := temp + 2;
+        end;
+      if (not Settings.isNoDecrypt) then
+        begin
+          temp := CorrectXorData.Size - 2;
+          xorC.EncryptGP(CorrectXorData.Data, temp);
+          CorrectXorData.Size := temp + 2;
+        end;
       InitXOR:=True;
     end;
 end;
@@ -460,7 +487,7 @@ begin
   keyLen := 0;
 end;
 
-procedure L2Xor.DecryptGP(var Data; const Size: Word);
+procedure L2Xor.DecryptGP(var Data; var Size: Word);
 var
   k:integer;
   i,t:byte;
@@ -476,7 +503,7 @@ begin
   Inc(PCardinal(@GKeyR[keyLen-7])^,size);
 end;
 
-procedure L2Xor.EncryptGP(var Data; const Size: Word);
+procedure L2Xor.EncryptGP(var Data; var Size: Word);
 var
   i:integer;
   k:byte;
@@ -511,12 +538,12 @@ begin
   inherited;          
 end;
 
-procedure L2Xor.PostEncrypt(var Data; const Size: Word);
+procedure L2Xor.PostEncrypt(var Data; var Size: Word);
 begin
 //Ничего не делаем, ибо ничего делать и не надо.
 end;
 
-procedure L2Xor.PreDecrypt(var Data; const Size: Word);
+procedure L2Xor.PreDecrypt(var Data; var Size: Word);
 begin
 //Ничего не делаем, ибо ничего делать и не надо.
 end;
