@@ -415,8 +415,8 @@ end;
 procedure TfScript.DestroyAllScripts;
 begin
   if ScriptList <> nil then
-  while ScriptList.Count > 0 do
-    TScript(ScriptList.Items[0]).destroy;
+    while ScriptList.Count > 0 do
+      TScript(ScriptList.Items[0]).destroy;
 end;
 
 procedure TfScript.JvTabBar1TabSelected(Sender: TObject;
@@ -449,6 +449,7 @@ begin
   currentScript.Editor.Editor.Visible := true;
   currentScript.Editor.BringToFront;
   currentScript.updatecontrols;
+  try
   currentScript.Editor.SetFocus;
   btnShowWatch.Down := currentScript.Editor.PnWatchList.Visible;
   if currentScript.Editor.PnWatchList.Visible then
@@ -461,7 +462,8 @@ begin
     currentScript.Editor.fsScript.OnGetVarValue := nil;
     currentScript.Editor.fsScript.OnRunLine := nil;
     end;
-
+  except
+  end;
 end;
 
 function TfScript.FindScriptByName(name: string): Tscript;

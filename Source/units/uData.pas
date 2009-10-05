@@ -564,15 +564,9 @@ var
   //support DLL
 begin
   result := Null;
-  ConId := 0;    
+  ConId := 0;
 
-  //если не CalledByScripter то вызов CallMethod идет с ReadMask и WriteMask
-  //в ReadMask и WriteMask нам не нужно уведомлять плагины об "иттерациях" и нам не нужнен ConId
-  //оптимизация, мать ее. наиболее часто используемые методы вытянул вперед
-  if CalledByScripter then
-  begin
   ThisScriptId := integer(Scripter);
-
   if Scripter.Variables['UseForConnectName'] <> '' then
       ConId := ConnectIdByName(Scripter.Variables['UseForConnectName'])
     else
@@ -580,14 +574,30 @@ begin
           ConId := Scripter.Variables['UseForConnectID']
         else
           ConId := Scripter.Variables['ConnectID'];
-
-  // сначала даём возможность плагинам обработать функции
+          
+  if CalledByScripter then
+  begin
+  // даём возможность плагинам обработать функции
+  if (sMethodName <> 'READC')
+  and (sMethodName <> 'READD')
+  and (sMethodName <> 'READQ')
+  and (sMethodName <> 'READH')
+  and (sMethodName <> 'READF')
+  and (sMethodName <> 'READS')
+  and (sMethodName <> 'WRITEC')
+  and (sMethodName <> 'WRITED')
+  and (sMethodName <> 'WRITEQ')
+  and (sMethodName <> 'WRITEH')
+  and (sMethodName <> 'WRITEF')
+  and (sMethodName <> 'WRITES')
+  and (sMethodName <> 'WRITEMASK')
+  and (sMethodName <> 'READMASK')
+  then
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then
         if OnCallMethod(ConId, ThisScriptId, sMethodName, Params, Result) then Exit;
   end;
-
   // если плагины не обработать то обрабатываем сами
   if sMethodName = 'READC' then begin
     pct := scripter.Variables['pck'];
@@ -922,7 +932,8 @@ begin
       begin
       UserForm.Hide;
       fMain.nUserFormShow.Enabled := false;
-    end
+    end;
+
 end;
 
 procedure TdmData.SendPacket(Packet: Tpacket; tid: integer; ToServer: Boolean);
