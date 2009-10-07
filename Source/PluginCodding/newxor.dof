@@ -138,7 +138,8 @@ Comments=
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlOutputDirectorry]
-Count=3
+Count=4
 Item0=..\build\
-Item1=..\build\plugins\
-Item2=..\..\Build\plugins\
+Item1=D:\PHX\l2phx.3.5.25.145
+Item2=..\build\plugins\
+Item3=..\..\Build\plugins\
