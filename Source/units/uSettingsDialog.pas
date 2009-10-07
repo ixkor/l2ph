@@ -395,6 +395,7 @@ begin
       if not isNewxor.Enabled then
       begin
         FreeLibrary(hXorLib);
+        hXorLib := 0;
         isNewxor.Enabled := true;
         btnNewXor.Enabled := true;
       end;
