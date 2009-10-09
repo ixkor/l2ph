@@ -396,6 +396,8 @@ begin
       begin
         FreeLibrary(hXorLib);
         hXorLib := 0;
+        @CreateXorIn := nil;
+        @CreateXorOut := nil;
         isNewxor.Enabled := true;
         btnNewXor.Enabled := true;
       end;
