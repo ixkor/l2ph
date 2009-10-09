@@ -366,6 +366,9 @@ procedure TlspConnection.encryptAndSend(Packet: Tpacket; ToServer: Boolean);
 var
   Dirrection : byte;
   struct : TSendRecvStruct;
+  PreSize : Word;
+  PreAccumulator : TCharArray;
+    
 begin
   if assigned(Visual) then
   begin
@@ -380,13 +383,22 @@ begin
     Dirrection := PCK_GS_ToClient;
 
   EncDec.EncodePacket(packet, Dirrection);
+  //Для постенкрипта
+  FillChar(PreAccumulator[0],$ffff,0);
+  move(packet, PreAccumulator[0], Packet.Size);
+  PreSize := Packet.Size;
+
+  if ToServer then
+    EncDec.xorC.PostEncrypt(PreAccumulator, PreSize)
+  else
+    EncDec.xorS.PostEncrypt(PreAccumulator, PreSize);
 
   //Заполняем структуру
   struct.SockNum := SocketNum;
   FillChar(struct.CurrentBuff[0], $ffff, #0);
 
-  Move(Packet.PacketAsByteArray[0], struct.CurrentBuff[0], Packet.Size);
-  struct.CurrentSize := Packet.Size;
+  Move(PreAccumulator[0], struct.CurrentBuff[0], PreSize);
+  struct.CurrentSize := PreSize;
 
 
   if ToServer then

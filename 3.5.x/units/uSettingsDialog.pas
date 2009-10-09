@@ -379,6 +379,7 @@ end;
 
 procedure TfSettings.iNewxorClick(Sender: TObject);
 begin
+  if not InterfaceEnabled then exit;
     if iNewxor.Checked then
     begin
       isNewxor.Enabled := false;
@@ -402,7 +403,6 @@ begin
         btnNewXor.Enabled := true;
       end;
     end;
-  if not InterfaceEnabled then exit;
   GenerateSettingsFromInterface;
 end;
 
