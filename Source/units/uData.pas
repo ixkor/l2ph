@@ -1562,6 +1562,7 @@ var
   //ResultBuff : Tbuffer;
   //ResultLen : cardinal;
   tmppack:tpacket;
+  TmpInStruct : TSendRecvStruct;
 begin
 
   CriticalSection.Enter;
@@ -1574,13 +1575,14 @@ begin
       exit;
     end;
   LspConnection.AddToRawLog(PCK_GS_ToClient, inStruct.CurrentBuff, inStruct.CurrentSize);
-
+  TmpInStruct := inStruct;
+  LspConnection.EncDec.xorS.PreDecrypt(TmpInStruct.CurrentBuff, TmpInStruct.CurrentSize);
 
 //  ResultLen := 0;
 //  FillChar(ResultBuff,$ffff,#0);
   //Запихиваем все поступившие данные во временный буффер (хранит необработанные данные)
-  Move(inStruct.CurrentBuff[0], LspConnection.tempbufferRecv[LspConnection.TempBufferRecvLen], inStruct.CurrentSize);
-  inc(LspConnection.TempBufferRecvLen, inStruct.CurrentSize);
+  Move(TmpInStruct.CurrentBuff[0], LspConnection.tempbufferRecv[LspConnection.TempBufferRecvLen], TmpInStruct.CurrentSize);
+  inc(LspConnection.TempBufferRecvLen, TmpInStruct.CurrentSize);
 
   //получаем длинну пакета хранящегося в временном буфере
   Move(LspConnection.TempBufferRecv[0], PcktLen, 2);
@@ -1617,8 +1619,6 @@ begin
   end;
 
   //в итоге у тас получается результирующий буффер
-{  Struct.CurrentBuff := ResultBuff;
-  Struct.CurrentSize := ResultLen;}
   CriticalSection.Leave;
 end;
 
@@ -1628,6 +1628,7 @@ var
   LspConnection : TlspConnection;
   PcktLen : Word;
   tmppack:tpacket;
+  TmpInStruct : TSendRecvStruct;
 begin
 
   CriticalSection.Enter;
@@ -1640,10 +1641,12 @@ begin
     end;
     
   LspConnection.AddToRawLog(PCK_GS_ToServer, inStruct.CurrentBuff, inStruct.CurrentSize);
+  TmpInStruct := inStruct;
+  LspConnection.EncDec.xorS.PreDecrypt(TmpInStruct.CurrentBuff, TmpInStruct.CurrentSize);
 
   //Запихиваем все поступившие данные во временный буффер (хранит необработанные данные)
-  Move(inStruct.CurrentBuff[0],LspConnection.tempbufferSend[LspConnection.TempBufferSendLen], inStruct.CurrentSize);
-  inc(LspConnection.TempBufferSendLen, inStruct.CurrentSize);
+  Move(TmpInStruct.CurrentBuff[0],LspConnection.tempbufferSend[LspConnection.TempBufferSendLen], TmpInStruct.CurrentSize);
+  inc(LspConnection.TempBufferSendLen, TmpInStruct.CurrentSize);
 
   //получаем длинну пакета хранящегося в временном буфере
   Move(LspConnection.TempBufferSend[0], PcktLen, 2);

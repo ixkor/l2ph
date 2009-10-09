@@ -35,7 +35,7 @@ type
       exists:boolean;
       SockNum : integer;
       CurrentBuff: Tbuffer;
-      CurrentSize : cardinal;
+      CurrentSize : Word;
     end;
 
   TDisconnectStruct = packed record
