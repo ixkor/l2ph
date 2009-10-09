@@ -213,8 +213,8 @@ begin
      begin
       if anotherXorLib <> 0 then
             FreeLibrary(anotherXorLib);
-      AnotherCreateXorIn := nil;
-      AnotherCreateXorOut := nil;
+      @AnotherCreateXorIn := nil;
+      @AnotherCreateXorOut := nil;
      end;
 
     //xorS, xorC - init
