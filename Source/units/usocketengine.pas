@@ -815,7 +815,7 @@ if ToServer then
     EncDec.EncodePacket(Packet, PCK_GS_ToServer);
     //Для постенкрипта  
     FillChar(PreAccumulator[0],$ffff,0);
-    move(packet.data[0], PreAccumulator[0], Packet.Size);
+    move(packet, PreAccumulator[0], Packet.Size);
     PreSize := Packet.Size;
     //постенкрипт
     EncDec.xorC.PostEncrypt(PreAccumulator, PreSize);
