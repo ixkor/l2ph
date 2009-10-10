@@ -491,7 +491,7 @@ procedure L2Xor.DecryptGP(var Data; var Size: Word);
 var
   k:integer;
   i,t:byte;
-  pck:array[0..$4FFF] of Byte absolute Data;
+  pck:array[0..$FFFD] of Byte absolute Data;
 begin
   i:=0;
   for k:=0 to size-1 do
@@ -507,7 +507,7 @@ procedure L2Xor.EncryptGP(var Data; var Size: Word);
 var
   i:integer;
   k:byte;
-  pck:array[0..$4FFF] of Byte absolute Data;
+  pck:array[0..$FFFD] of Byte absolute Data;
 begin
   k:=0;
   for i:=0 to size-1 do begin
