@@ -51,7 +51,8 @@ type
   end;  
 
   TCharArray = array[0..$FFFF] of AnsiChar;
-  
+  TCharArrayEx = array[0..$1FFFE] of AnsiChar; //2õ
+
   PPacket = ^TPacket;  
   TPacket = packed record case Integer of
     0: (Size: Word;

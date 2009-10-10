@@ -154,9 +154,9 @@ end;
 
 Procedure ServerBody(thisTunel:Ttunel);
 var
-  StackAccumulator : TCharArray;
+  StackAccumulator : TCharArrayEx;
   PreAccumulator : TCharArray;
-  AccumulatorLen : integer;
+  AccumulatorLen : Cardinal;
   BytesInStack : Longint;
   curPacket : TPacket;
   PreSize, LastResult : Word;
@@ -207,16 +207,17 @@ begin
   begin //Читаем пока не отвалимся
 
     //Сколько еще в буфере ?!
-    ioctlsocket(thisTunel.serversocket, FIONREAD, Longint(BytesInStack));
+    ioctlsocket(thisTunel.serversocket, FIONREAD, BytesInStack);
     if BytesInStack = 0 then
       BytesInStack := 1;
-
+      
     presize := recv(thisTunel.serversocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
     LastResult := PreSize;
 
-    if lastresult > 0 then
+    if lastresult = 1 then
       begin
-        ioctlsocket(thisTunel.serversocket, FIONREAD, Longint(BytesInStack));
+        ioctlsocket(thisTunel.serversocket, FIONREAD, BytesInStack);
+        if BytesInStack > $FFFE then BytesInStack := $FFFE; //В прочитаном буффере - не более чем то что можем скушать за раз.
         if BytesInStack > 0 then //Дочитываем
           LastResult := LastResult + recv(thisTunel.serversocket, PreAccumulator[presize], BytesInStack, 0);
       end;
@@ -236,7 +237,7 @@ begin
             try
             thisTunel.CriticalSection.enter;
             //читаем длину
-            curPacket.PacketAsCharArray := StackAccumulator;
+            move(StackAccumulator[0],curPacket.PacketAsByteArray[0],$ffff);
             //Хватит ли в акамуляторе данных для пакета ?
               while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen >= 2) and (curPacket.Size >= 2) do
                 begin
@@ -267,7 +268,7 @@ begin
 
                   //повторно загоняем пакет. для вайла
                   if AccumulatorLen >= 2 then
-                      curPacket.PacketAsCharArray := StackAccumulator
+                      move(StackAccumulator[0],curPacket.PacketAsByteArray[0],$ffff)
                     else
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
@@ -316,8 +317,8 @@ Procedure ClientBody(thisTunel:Ttunel);
 var
   socks5ok : string;
   PreAccumulator : TCharArray;
-  StackAccumulator : TCharArray;
-  AccumulatorLen : integer;
+  StackAccumulator : TCharArrayEx;
+  AccumulatorLen : Cardinal;
   BytesInStack : Longint;
   curPacket : TPacket;
   PreSize, LastResult : Word;
@@ -355,19 +356,21 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   begin //Читаем пока не отвалимся
 
     //Сколько еще в буфере ?!
-    ioctlsocket(thisTunel.clientsocket, FIONREAD, Longint(BytesInStack));
+    ioctlsocket(thisTunel.clientsocket, FIONREAD, BytesInStack);
     if BytesInStack = 0 then
       BytesInStack := 1;
 
     presize := recv(thisTunel.clientsocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
     LastResult := PreSize;
 
-    if lastresult > 0 then
+    if lastresult = 1 then //Мы ждали данных. поэтому там 1 байт. дочитываем.
       begin
-        ioctlsocket(thisTunel.clientsocket, FIONREAD, Longint(BytesInStack));
+        ioctlsocket(thisTunel.clientsocket, FIONREAD, BytesInStack);
+        if BytesInStack > $FFFE then BytesInStack := $FFFE; //В прочитаном буффере - не более чем то что можем скушать за раз.
         if BytesInStack > 0 then //Дочитываем
           LastResult := LastResult + recv(thisTunel.clientsocket, PreAccumulator[presize], BytesInStack, 0);
       end;
+
 
     if LastResult > 0 then
     begin
@@ -385,7 +388,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
             try
             thisTunel.CriticalSection.enter;
             //читаем длину
-            curPacket.PacketAsCharArray := StackAccumulator;
+            move(StackAccumulator[0],curPacket.PacketAsByteArray[0],$ffff);
             if curPacket.Size=29754 then curPacket.Size:=267;
             //Хватит ли в акамуляторе данных для пакета ?
               while (AccumulatorLen >= curPacket.Size) and (AccumulatorLen >= 2) and (curPacket.Size >= 2) do
@@ -416,7 +419,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
 
                   //повторно загоняем пакет. для вайла
                   if AccumulatorLen >= 2 then
-                      curPacket.PacketAsCharArray := StackAccumulator
+                      move(StackAccumulator[0],curPacket.PacketAsByteArray[0],$ffff)
                     else
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
