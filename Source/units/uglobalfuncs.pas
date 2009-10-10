@@ -35,7 +35,8 @@ uses
   Ttunel_Action_connect_client = 8; //
   Ttunel_Action_disconnect_client = 9; //
   Ttulel_action_tunel_created = 10; //
-  Ttulel_action_tunel_destroyed = 11; //  
+  Ttulel_action_tunel_destroyed = 11; //
+                                //Reserved 100-115!!! 
   type
   SendMessageParam = class
   packet:tpacket;

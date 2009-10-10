@@ -74,7 +74,6 @@ var
   SocketEngine : TSocketEngine;
   action : byte;
   i:integer;
-
 begin
   c_s.Enter;
   try
@@ -183,7 +182,6 @@ begin
           Tunel.AssignedTabSheet := nil;
           end;
       end;
-
     end;
   finally
     c_s.Leave;
@@ -231,21 +229,30 @@ begin
   NewReddirectIP := msg.WParam;
   sockEngine.RedirrectIP := NewReddirectIP;
   sockEngine.RedirrectPort := msg.LParamLo;
-
   if Pos(IntToStr(ntohs(msg.LParamLo))+';',sIgnorePorts+';')=0 then begin
     if fSettings.ChkIntercept.Checked then
     begin
       msg.ResultLo:=1;
       AddToLog (Format(rsInjectConnectIntercepted, [IPb[0],IPb[1],IPb[2],IPb[3],ntohs(msg.LParamLo)]));
+      sockEngine.donotdecryptnextconnection := false;
     end else
     begin
       msg.ResultLo:=0;
       AddToLog (Format(rsInjectConnectInterceptOff, [IPb[0],IPb[1],IPb[2],IPb[3],ntohs(msg.LParamLo)]));
+      sockEngine.donotdecryptnextconnection := false;
     end;
   end else
+  if GlobalSettings.UseSocks5Chain then
+    begin
+      msg.ResultLo:=1;
+      AddToLog (Format(rsInjectConnectInterceptedIgnoredPort, [IPb[0],IPb[1],IPb[2],IPb[3],ntohs(msg.LParamLo)]));
+      sockEngine.donotdecryptnextconnection := true;
+    end
+  else
   begin
     msg.ResultLo:=0;
     AddToLog (Format(rsInjectConnectInterceptedIgnoder, [IPb[0],IPb[1],IPb[2],IPb[3],ntohs(msg.LParamLo)]));
+    sockEngine.donotdecryptnextconnection := false;
   end;
   c_s.Leave;
 end;

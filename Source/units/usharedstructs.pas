@@ -23,6 +23,11 @@ type
     ShowLastPacket,
     HexViewOffset,
     isprocesspackets : boolean;
+
+    NoFreeAfterDisconnect : boolean;
+    UseSocks5Chain, Socks5NeedAuth : boolean;
+    Socks5Port : cardinal;
+    Socks5Host, Socks5AuthUsername, Socks5AuthPwd : string;
   end;
 
   {Используется плагинами}

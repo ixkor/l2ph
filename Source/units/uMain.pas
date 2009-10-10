@@ -86,10 +86,6 @@ type
     procedure CreateParams (var Params : TCreateParams); override;
   private
     { Private declarations }
-    procedure NewPacket(var msg: TMessage); Message WM_NewPacket;
-    procedure ProcessPacket(var msg: TMessage); Message WM_ProcessPacket;
-    procedure NewAction(var msg: TMessage); Message WM_NewAction;
-    procedure ReadMsg(var msg: TMessage); Message WM_Dll_Log;
   public
     { Public declarations }
     Procedure init;
@@ -137,7 +133,7 @@ begin
   sockEngine := TSocketEngine.create;
   sockEngine.ServerPort := LocalPort;
   sockEngine.StartServer;
-  sockEngine.isSocks5 := fSettings.chkSocks5.Checked;
+  sockEngine.isSocks5 := fSettings.ChkSocks5Mode.Checked;
 
  if Options.ReadInteger('General','dumb',0) > 10 then
  begin
@@ -228,18 +224,6 @@ begin
       pcClientsConnection.Hide;
 end;
 
-procedure TfMain.ReadMsg(var msg: TMessage);
-begin
-end;
-
-
-procedure TfMain.NewPacket(var msg: TMessage);
-begin
-end;
-
-procedure TfMain.NewAction(var msg: TMessage);
-begin
-end;
 
 procedure TfMain.FormDestroy(Sender: TObject);
 begin
@@ -381,10 +365,6 @@ begin
     fLog.Show;
 end;
 
-procedure TfMain.ProcessPacket(var msg: TMessage);
-begin
-end;
-
 procedure TfMain.lang1ChangeLanguage(Sender: TObject);
 begin
   UpdateStrings;
@@ -446,12 +426,31 @@ begin
   rsInjectConnectInterceptedIgnoder := lang1.GetTextOrDefault('strrsInjectConnectInterceptedIgnoder');
   rsInjectConnectInterceptOff := lang1.GetTextOrDefault('strrsInjectConnectInterceptOff');
   rsInjectConnectIntercepted := lang1.GetTextOrDefault('strrsInjectConnectIntercepted');
+  rsInjectConnectInterceptedIgnoredPort := lang1.GetTextOrDefault('strrsInjectConnectInterceptedIgnoredPort');
   rsTunelTimeout := lang1.GetTextOrDefault('strrsTunelTimeout');
   rsTunelConnected := lang1.GetTextOrDefault('strrsTunelConnected');
   rsTunelConnecting := lang1.GetTextOrDefault('strrsTunelConnecting');
   rsTunelDestroy := lang1.GetTextOrDefault('strrsTunelDestroy');
   rsTunelRUN := lang1.GetTextOrDefault('strrsTunelRUN');
   rsTunelCreated := lang1.GetTextOrDefault('strrsTunelCreated');
+
+  rs100 := lang1.GetTextOrDefault('strrs100');
+  rs101 := lang1.GetTextOrDefault('strrs101');
+  rs102 := lang1.GetTextOrDefault('strrs102');
+  rs103 := lang1.GetTextOrDefault('strrs103');
+  rs104 := lang1.GetTextOrDefault('strrs104');
+  rs105 := lang1.GetTextOrDefault('strrs105');
+  rs106 := lang1.GetTextOrDefault('strrs106');
+  rs107 := lang1.GetTextOrDefault('strrs107');
+  rs108 := lang1.GetTextOrDefault('strrs108');
+  rs109 := lang1.GetTextOrDefault('strrs109');
+  rs110 := lang1.GetTextOrDefault('strrs110');
+  rs111 := lang1.GetTextOrDefault('strrs111');
+  rs112 := lang1.GetTextOrDefault('strrs112');
+  rs113 := lang1.GetTextOrDefault('strrs113');
+  rs114 := lang1.GetTextOrDefault('strrs114');
+  rs115 := lang1.GetTextOrDefault('strrs115');
+  rsProxyServerOk := lang1.GetTextOrDefault('strrsProxyServerOk');
 end;
 
 procedure TfMain.pcClientsConnectionChange(Sender: TObject);

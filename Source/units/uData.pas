@@ -576,6 +576,7 @@ var
   //support DLL
 begin
   result := Null;
+  arr := nil;
 
   ThisScriptId := integer(Scripter);
   if Scripter.Variables['UseForConnectName'] <> '' then

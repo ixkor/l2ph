@@ -24,7 +24,7 @@ type
     HookMethod: TRadioGroup;
     ChkIntercept: TCheckBox;
     JvSpinEdit1: TJvSpinEdit;
-    ChkSocks5: TCheckBox;
+    ChkSocks5Mode: TCheckBox;
     iInject: TCheckBox;
     ChkLSPIntercept: TCheckBox;
     isLSP: TLabeledEdit;
@@ -66,10 +66,22 @@ type
     Bevel5: TBevel;
     lspInterceptMethod: TRadioGroup;
     chkProcessPackets: TCheckBox;
+    PnlSocks5Chain: TGroupBox;
+    ChkUseSocks5Chain: TCheckBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    edSocks5Host: TEdit;
+    edSocks5Port: TEdit;
+    chkSocks5NeedAuth: TCheckBox;
+    edSocks5AuthUsername: TEdit;
+    Label6: TLabel;
+    edSocks5AuthPwd: TEdit;
+    Label7: TLabel;
+    btnTestSocks5Chain: TButton;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
-    procedure ChkSocks5Click(Sender: TObject);
+    procedure ChkSocks5ModeClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ChkLSPInterceptClick(Sender: TObject);
     procedure iNewxorClick(Sender: TObject);
@@ -85,6 +97,12 @@ type
     procedure btnNewXorClick(Sender: TObject);
     procedure isMainFormCaptionChange(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
+    procedure edSocks5AuthPwdEnter(Sender: TObject);
+    procedure edSocks5AuthPwdExit(Sender: TObject);
+    procedure edSocks5PortKeyPress(Sender: TObject; var Key: Char);
+    procedure edSocks5PortExit(Sender: TObject);
+    procedure lspInterceptMethodClick(Sender: TObject);
+    procedure btnTestSocks5ChainClick(Sender: TObject);
   protected
     procedure CreateParams(var Params : TCreateParams); override;
   private
@@ -104,7 +122,7 @@ var
 
 implementation
 
-uses uData, uLogForm, uFilterForm, uMain, uLangSelectDialog;
+uses uData, usocketengine, uLogForm, uFilterForm, uMain, uLangSelectDialog;
 
 {$R *.dfm}
 
@@ -138,7 +156,7 @@ begin
 
   ChkLSPIntercept.Checked:=Options.ReadBool('General','EnableLSP',False);
   ChkIntercept.Checked:=Options.ReadBool('General','Enable',True);
-  chkSocks5.Checked:=Options.ReadBool('General','Socks5',False);
+  ChkSocks5Mode.Checked:=Options.ReadBool('General','Socks5Mode',False);
   JvSpinEdit1.Value:=Options.ReadFloat('General','Timer',5);
   HookMethod.ItemIndex:=Options.ReadInteger('General','HookMethod',0);
   JvSpinEdit2.Value := Options.ReadInteger('General','LocalPort',7788);
@@ -157,6 +175,16 @@ begin
   ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
   LspInterceptMethod.ItemIndex := Options.ReadInteger('General','lspInterceptMethod',0);
   chkProcessPackets.Checked := Options.ReadBool('General','chkProcessPackets',true);
+
+
+  ChkUseSocks5Chain.Checked := Options.ReadBool('General','ChkUseSocks5Chain',false);
+  chkSocks5NeedAuth.Checked := Options.ReadBool('General','ChkSocks5NeedAuth',false);
+
+  edSocks5Host.Text := Options.ReadString('General','Socks5Host','');
+  edSocks5Port.Text := Options.ReadString('General','Socks5Port','1080');
+  edSocks5AuthUsername.Text := Options.ReadString('General','Socks5AuthUsername','');
+  edSocks5AuthPwd.Text := Options.ReadString('General','Socks5AuthPwd','');
+
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
@@ -198,6 +226,8 @@ begin
  else
    Options.WriteInteger('General','dumb',0);
    
+ PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+ PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
  WriteSettings;
 end;
 
@@ -235,9 +265,17 @@ with GlobalSettings do
         if InterfaceEnabled then
         fPacketFilter.UpdateBtnClick(nil);
       end;
+
+    UseSocks5Chain := ChkUseSocks5Chain.Checked;
+    Socks5NeedAuth := chkSocks5NeedAuth.Checked;
+    Socks5Port := strtointdef(edSocks5Port.Text,1080);
+    Socks5Host := edSocks5Host.Text;
+    Socks5AuthUsername := edSocks5AuthUsername.Text;
+    Socks5AuthPwd := edSocks5AuthPwd.Text;
+    NoFreeAfterDisconnect := chkNoFree.Checked;
   end;
 
-  GlobalNoFreeAfterDisconnect := chkNoFree.Checked;
+
 
   sClientsList := isClientsList.Text;
   sIgnorePorts := isIgnorePorts.Text;
@@ -248,7 +286,7 @@ with GlobalSettings do
   dmData.timerSearchProcesses.Interval := round(JvSpinEdit1.Value*1000);
 
   if assigned(sockEngine) then
-    sockEngine.isSocks5 := chkSocks5.Checked;
+    sockEngine.isSocks5 := ChkSocks5Mode.Checked;
 
 end;
 
@@ -270,7 +308,7 @@ begin
   Options.WriteFloat('General', 'interval', JvSpinEdit1.Value);
   Options.WriteBool('General', 'Enable', ChkIntercept.Checked);
   Options.WriteBool('General', 'EnableLSP', ChkLSPIntercept.Checked);
-  Options.WriteBool('General', 'Socks5', chkSocks5.Checked);
+  Options.WriteBool('General', 'Socks5Mode', ChkSocks5Mode.Checked);
   Options.WriteFloat('General','Timer',JvSpinEdit1.Value);
   Options.WriteInteger('General','HookMethod',HookMethod.ItemIndex);
   Options.WriteBool('General', 'FastExit', ChkAllowExit.Checked);
@@ -288,6 +326,17 @@ begin
   Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
   Options.WriteInteger('General','lspInterceptMethod',lspInterceptMethod.ItemIndex);
   Options.WriteBool('General','chkProcessPackets',chkProcessPackets.Checked);
+
+  Options.WriteBool('General','ChkUseSocks5Chain',ChkUseSocks5Chain.Checked);
+  Options.WriteBool('General','ChkSocks5NeedAuth',chkSocks5NeedAuth.Checked);
+
+  Options.WriteString('General','Socks5Host',edSocks5Host.Text);
+  Options.WriteString('General','Socks5Port',edSocks5Port.Text);
+  Options.WriteString('General','Socks5AuthUsername',edSocks5AuthUsername.Text);
+  Options.WriteString('General','Socks5AuthPwd',edSocks5AuthPwd.Text);
+
+
+
   Options.UpdateFile;
 end;
 
@@ -312,21 +361,22 @@ begin
 
   if ChkIntercept.Checked then
     begin
-      chkSocks5.Checked:= False;
+      ChkSocks5Mode.Checked:= False;
       dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
       isLSP.Enabled := true;
       BtnLsp.Enabled := true;
       ChkLSPIntercept.Checked := False;
-    end
-  else
-    exit;
+    end;
+
   dmData.timerSearchProcesses.Enabled := ChkIntercept.Checked;
+  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);  
 end;
 
-procedure TfSettings.ChkSocks5Click(Sender: TObject);
+procedure TfSettings.ChkSocks5ModeClick(Sender: TObject);
 begin
   if not InterfaceEnabled then exit;
-  if chkSocks5.Checked then
+  if ChkSocks5Mode.Checked then
   begin
     ChkIntercept.Checked := False;
     dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
@@ -337,7 +387,10 @@ begin
   if Sender = nil then exit;
   ChkInterceptClick(nil);
   ChkLSPInterceptClick(nil);
+
   GenerateSettingsFromInterface;
+  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
 end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
@@ -367,7 +420,7 @@ if (ExtractFilePath(isLSP.Text) = '') and ChkLSPIntercept.Checked then
   begin
     isLSP.Enabled := false;
     BtnLsp.Enabled := false;
-    ChkSocks5.Checked := false;
+    ChkSocks5Mode.Checked := false;
     ChkIntercept.Checked := false;
   end else
   begin
@@ -375,6 +428,9 @@ if (ExtractFilePath(isLSP.Text) = '') and ChkLSPIntercept.Checked then
     BtnLsp.Enabled := true;
   end;
   dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
+
+  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
 end;
 
 procedure TfSettings.iNewxorClick(Sender: TObject);
@@ -523,6 +579,70 @@ end;
 procedure TfSettings.FormDeactivate(Sender: TObject);
 begin
   SetWindowPos(handle,HWND_TOP,0,0,0,0, SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE);
+end;
+
+procedure TfSettings.edSocks5AuthPwdEnter(Sender: TObject);
+begin
+  edSocks5AuthPwd.PasswordChar := #0;
+end;
+
+procedure TfSettings.edSocks5AuthPwdExit(Sender: TObject);
+begin
+  edSocks5AuthPwd.PasswordChar := '*';
+end;
+
+procedure TfSettings.edSocks5PortKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (pos(key, '1234567890') = 0) and (key<>#8) then
+  key := #0;
+end;
+
+procedure TfSettings.edSocks5PortExit(Sender: TObject);
+begin
+  edSocks5Port.Text := inttostr(StrToIntDef(edSocks5Port.text,1080));
+end;
+
+procedure TfSettings.lspInterceptMethodClick(Sender: TObject);
+begin
+  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
+end;
+
+procedure TfSettings.btnTestSocks5ChainClick(Sender: TObject);
+var
+  s : tsocket;
+  res : integer;
+begin
+ S:=socket(AF_INET,SOCK_STREAM,0);
+ if S=INVALID_SOCKET then
+    Showmessage('Socket error');
+
+ res := AuthOnSocks5(s, edSocks5Host.Text, strtointdef(edSocks5Port.text,1080), inet_addr(pchar('207.46.232.182')){microsoft.com}, htons(80), chkSocks5NeedAuth.Checked, edSocks5AuthUsername.Text, edSocks5AuthPwd.Text);
+ if res = 0 then 
+        begin
+          ShowMessage(rsProxyServerOk);
+        end
+      else
+        begin
+        //неуспешно
+          case res of
+          1:ShowMessage(rs101);
+          2:ShowMessage(rs102);
+          3:ShowMessage(rs103);
+          4:ShowMessage(rs105);
+          5:ShowMessage(rs105);
+          6:ShowMessage(rs106);
+          7:ShowMessage(rs107);
+          8:ShowMessage(rs108);
+          9:ShowMessage(rs109);
+          10:ShowMessage(rs110);
+          11:ShowMessage(rs111);
+          12:ShowMessage(rs112);
+          13:ShowMessage(rs113);
+          14:ShowMessage(rs114);
+          15:ShowMessage(rs115);
+          end;
+        end;
 end;
 
 end.
