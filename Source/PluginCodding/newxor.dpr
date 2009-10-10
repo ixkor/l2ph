@@ -81,7 +81,7 @@ End;
 procedure TXorCoding.DecryptGP(var Data; var Size: Word);
 var
   k:integer;
-  pck:array[0..$4FFF] of Byte absolute Data;
+  pck:array[0..$FFFD] of Byte absolute Data;
 begin
 //server>>PreDecrypt>[DecryptGP]>(PH)>EncryptGP>PostEncrypt>>client
   for k:=size-1 downto 1 do
@@ -93,7 +93,7 @@ end;
 procedure TXorCoding.EncryptGP(var Data; var Size: Word);
 var
   i:integer;
-  pck:array[0..$4FFF] of Byte absolute Data;
+  pck:array[0..$FFFD] of Byte absolute Data;
 begin
 //server>>PreDecrypt>DecryptGP>(PH)>[EncryptGP]>PostEncrypt>>client
 
@@ -243,7 +243,7 @@ end;
 procedure TXorCodingOut.DecryptGP(var Data; var Size: Word);
 var
   k:integer;
-  pck:array[0..$4FFF] of Byte absolute Data;
+  pck:array[0..$FFFD] of Byte absolute Data;
 begin
 //client>>PreDecrypt>[DecryptGP]>(PH)>EncryptGP>PostEncrypt>>server
 
@@ -256,7 +256,7 @@ end;
 procedure TXorCodingOut.EncryptGP(var Data; var Size: Word);
 var
   i:integer;
-  pck:array[0..$4FFF] of Byte absolute Data;
+  pck:array[0..$FFFD] of Byte absolute Data;
 begin
 //client>>PreDecrypt>DecryptGP>(PH)>[EncryptGP]>PostEncrypt>>server
 
