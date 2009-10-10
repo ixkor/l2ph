@@ -81,6 +81,7 @@ type
  public
    //Установать перед Init
    ServerPort : Word;
+   donotdecryptnextconnection : boolean;
    //можно менять в момент работы
    isSocks5 : boolean;
    RedirrectIP : Integer;
@@ -94,10 +95,11 @@ type
    destructor Destroy; override; //по цепочке разрушит все имеющиеся экземпляры Ttunel
  end;
 
+
 Procedure ClientBody(thisTunel:Ttunel);
 Procedure ServerBody(thisTunel:Ttunel);
 procedure showpacket(str:string; packet: TPacket);
-
+function  AuthOnSocks5(var socket:integer; Sock5Host : string; Socks5Port:Cardinal; RedirrectIP : integer; RedirrectPort : Word; Socks5NeedAuth:boolean; Socks5AuthUsername, Socks5AuthPwd : string):integer;
 
 implementation
 uses uglobalfuncs, umain, Math;
@@ -193,9 +195,6 @@ begin
 
     CloseHandle(thisTunel.ConnectOrErrorEvent);
 
-
-
-
   ip := RedirrectIP;
   AddToLog(Format(rsTunelConnected, [integer(pointer(thisTunel)), thisTunel.initserversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
   //////////////////////////////////////////////////////////////
@@ -225,7 +224,10 @@ begin
     if LastResult > 0 then
     begin
     thisTunel.AddToRawLog(PCK_GS_ToServer, Preaccumulator[0], LastResult);
-    thisTunel.EncDec.xorC.PreDecrypt(Preaccumulator, LastResult);
+
+    if not thisTunel.EncDec.Settings.isNoProcessToServer then
+      thisTunel.EncDec.xorC.PreDecrypt(Preaccumulator, LastResult);
+      
     Move(PreAccumulator[0], StackAccumulator[AccumulatorLen], LastResult);
     FillChar(PreAccumulator[0],$ffff,0);
     inc(AccumulatorLen, LastResult);
@@ -313,6 +315,7 @@ begin
 end;
 end;
 
+
 Procedure ClientBody(thisTunel:Ttunel);
 var
   socks5ok : string;
@@ -324,6 +327,7 @@ var
   PreSize, LastResult : Word;
   IP: Integer;
   IPb:array[0..3] of Byte absolute ip;
+  res : integer;
 begin
 with TSocketEngine(thisTunel.curSockEngine) do
 begin
@@ -333,17 +337,53 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   end;
   ip := RedirrectIP;
   AddToLog(Format(rsTunelConnecting, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
+
+  if GlobalSettings.UseSocks5Chain then //мы используем проксисервер 0_о!
+    begin
+      res := AuthOnSocks5(thisTunel.clientsocket, GlobalSettings.Socks5Host, GlobalSettings.Socks5Port, RedirrectIP, RedirrectPort, GlobalSettings.Socks5NeedAuth, GlobalSettings.Socks5AuthUsername, GlobalSettings.Socks5AuthPwd);
+
+      if res = 0 then
+        begin
+          AddToLog(Format(rs100,[IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]),ntohs(RedirrectPort)]));
+        end
+      else
+        begin
+        //неуспешно
+          case res of
+          1:AddToLog(rs101);
+          2:AddToLog(rs102);
+          3:AddToLog(rs103);
+          4:AddToLog(rs105);
+          5:AddToLog(rs105);
+          6:AddToLog(rs106);
+          7:AddToLog(rs107);
+          8:AddToLog(rs108);
+          9:AddToLog(rs109);
+          10:AddToLog(rs110);
+          11:AddToLog(rs111);
+          12:AddToLog(rs112);
+          13:AddToLog(rs113);
+          14:AddToLog(rs114);
+          15:AddToLog(rs115);
+          end;
+        DeInitSocket(thisTunel.clientsocket,WSAGetLastError);
+        SetEvent(thisTunel.ConnectOrErrorEvent); //разрешаем сдвинутся с места в сервербоди
+        EndThread(0);
+        end;
+    end
+  else{} //Мы не используем прокси. коннект напрямую.
   if not ConnectToServer(thisTunel.clientsocket, RedirrectPort, RedirrectIP) then
   begin
     SetEvent(thisTunel.ConnectOrErrorEvent); //разрешаем сдвинутся с места в сервербоди
     EndThread(0);
   end;
 
-  if isSocks5 then
+  if isSocks5 then //Мы являемся соцк5 сервером. отсылаем уведомление сокцификатору.
   begin
     socks5ok:=#5#0#0#1#$7f#0#0#1#0#0;
     send(thisTunel.serversocket, socks5ok[1], Length(socks5ok), 0);
   end;
+
 
   thisTunel.sendNewAction(Ttunel_Action_connect_client);
   thisTunel.TunelWork := true;
@@ -375,7 +415,10 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     if LastResult > 0 then
     begin
     thisTunel.AddToRawLog(PCK_GS_ToClient, Preaccumulator[0], LastResult);
-    thisTunel.EncDec.xorS.PreDecrypt(Preaccumulator, LastResult);
+    
+    if not thisTunel.EncDec.Settings.isNoProcessToClient then
+      thisTunel.EncDec.xorS.PreDecrypt(Preaccumulator, LastResult);
+      
     Move(PreAccumulator[0], StackAccumulator[AccumulatorLen], LastResult);
     FillChar(PreAccumulator[0],$ffff,0);
     inc(AccumulatorLen, LastResult);
@@ -462,6 +505,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   //ставим этому обьекту статус камикадзе если надо.
   if not thisTunel.noFreeAfterDisconnect then
     thisTunel.MustBeDestroyed := true;
+    
 end;
 end;
 
@@ -497,6 +541,7 @@ end;
 constructor TSocketEngine.create;
 begin
   isSocks5 := false;
+  donotdecryptnextconnection := false;
   isServerTerminating := false;
   tunels := TList.Create;
 end;
@@ -568,6 +613,7 @@ begin
     DeInitSocket(NewSocket,WSAGetLastError);
   end;
 end;
+
 function TSocketEngine.WaitForData(Socket: TSocket;  Timeout: Integer): Boolean;
 var
   FDSet: TFDSet;
@@ -650,7 +696,7 @@ function TSocketEngine.GetSocketData(Socket: TSocket; var Data;
 var
   Position: Word;
   Len: Integer;
-  DataB: array[0..$5000] of Byte absolute Data;
+  DataB: array[0..$FFFF] of Byte absolute Data;
 begin
   Result:=False;
   Position:=0;
@@ -705,6 +751,118 @@ begin
     SendMessage(fMainReplacer.Handle,WM_NewAction,integer(action),integer(caller));
 end;
 
+
+function AuthOnSocks5;
+type
+  TaPInAddr = array [0..255] of PInAddr;
+  PaPInAddr = ^TaPInAddr;
+var
+  PHe : PHostEnt;
+  Addr_in: sockaddr_in;
+  Buf : string;
+begin
+  result := 0;
+
+  PHe := gethostbyname(pchar(Sock5Host));
+
+  if PHe = nil then
+  begin
+    result := 1; //Имя хоста не распознано
+    exit;
+  end;
+
+  //Добалять Сообщение (Соединение с прокси сервером)  
+
+  Addr_in.sin_family:=AF_INET;
+  Addr_in.sin_addr.S_addr:=PInAddr(PHe.h_addr_list^)^.S_addr;
+  Addr_in.sin_port:=htons(Socks5Port);
+
+  if (connect(socket, Addr_in, sizeof(Addr_in))) <> 0 then
+        begin
+          result := 2; //Мы не смогли присоединиться ни к одному из ентри.
+          exit;
+        end;
+
+  //мы соедены с ентри.
+  //Шлем привет
+  if Socks5NeedAuth then
+    Buf := #5#1#2
+  else
+    Buf := #5#1#0;
+
+  Send(socket, Buf[1], 3, 0);
+  //Добалять Сообщение (авторизация на прокси сервере)
+  if recv(socket, Buf[1], 2, 0) = 2 then
+    begin
+
+      //Метод авторизации
+      case Buf[2] of
+      #$00: ; //authOK
+      #$02:
+        begin
+          //дисконнект если требуеться пароль и у нас его нет
+          if not Socks5NeedAuth then
+            begin
+              result := 4; //Авторизация требуется.
+              exit; 
+            end;
+          //шлем юзернейм и пасс.
+          Buf := #5 + chr(length(Socks5AuthUsername)) + Socks5AuthUsername + chr(length(Socks5AuthPwd)) + Socks5AuthPwd;
+          Send(socket, Buf[1], length(buf), 0);
+          //и ждем ответа
+          if recv(socket, Buf[1], 2, 0) = 2 then
+            case buf[2] of
+            #$00: ;//authOK
+            else
+              begin
+                result := 5; //Пароль и имя пользователя неверны.
+                exit;
+              end;
+            end
+          else
+              begin
+                result := 6; //результат атенфикации так и не пришел.
+                exit;
+              end;
+        end;
+      #$FF:beep; //Дисконнект. неподдерживаемый метод авторизации.
+      end;
+
+
+      //мы авторизированы на проксике. шлем коннект.
+       Buf := #05#01#00#01#$20#$20#$20#$20#$20#$20;
+       Move(RedirrectIP, buf[5], 4);
+       Move(RedirrectPort, buf[9], 2);
+       Send(socket, Buf[1], length(buf), 0);
+       
+       //и ждем ответа
+       if recv(socket, Buf[1], length(buf), 0) > 0 then
+       if buf[2] <> #00 then
+       begin
+         result := 7; //Неизвестная ошибка при попытке присоединиться через соцкс5
+         case buf[2] of
+         #$01:result := 8;//'ошибка SOCKS-сервера';
+         #$02:result := 9;//'соединение запрещено набором правил';
+         #$03:result := 10;//'сеть недоступна';
+         #$04:result := 11;//'хост недоступен';
+         #$05:result := 12;//'отказ в соединении';
+         #$06:result := 13;//'истечение TTL';
+         #$07:result := 14;//'команда не поддерживается';
+         #$08:result := 15;//'тип адреса не поддерживается';
+         end;
+         exit;
+       end;
+
+
+    end
+  else
+    begin
+      result := 3; //привет отклонен.
+      exit;
+    end;
+//Сообщение - подсоеденены к хххх через прокси ууу
+end;
+
 { Ttunel }
 
 constructor Ttunel.create;
@@ -726,6 +884,12 @@ begin
   EncDec.ParentTtunel := Self;
   EncDec.ParentLSP := nil;
   EncDec.Settings := GlobalSettings;
+  EncDec.Settings.isNoDecrypt := EncDec.Settings.isNoDecrypt or TSocketEngine(SockEngine).donotdecryptnextconnection;
+  EncDec.Settings.isprocesspackets := EncDec.Settings.isprocesspackets and not TSocketEngine(SockEngine).donotdecryptnextconnection;
+  EncDec.Settings.NoFreeAfterDisconnect := EncDec.Settings.NoFreeAfterDisconnect and TSocketEngine(SockEngine).donotdecryptnextconnection;
+  EncDec.Settings.isNoProcessToClient := EncDec.Settings.isNoProcessToClient or TSocketEngine(SockEngine).donotdecryptnextconnection;
+  EncDec.Settings.isNoProcessToServer := EncDec.Settings.isNoProcessToServer or TSocketEngine(SockEngine).donotdecryptnextconnection;
+
   EncDec.onNewPacket := NewPacket;
   EncDec.onNewAction := NewAction;
   tempfilename := 'RAW.'+IntToStr(round(random(1000000)*10000))+'.temp';

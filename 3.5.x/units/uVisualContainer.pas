@@ -180,10 +180,10 @@ begin
   Panel7.Width := 73;
   PacketView := TfPacketView.Create(self);
   PacketView.Parent := packetVievPanel;
-  ToolButton17.Down := GlobalSettings.HexViewOffset;
-  PacketView.HexViewOffset := GlobalSettings.HexViewOffset;
-  ToolButton5.Down := GlobalSettings.ShowLastPacket;
-  btnProcessPackets.Down := GlobalSettings.isprocesspackets;
+  ToolButton17.Down := Ttunel(currenttunel).EncDec.Settings.HexViewOffset;
+  PacketView.HexViewOffset := Ttunel(currenttunel).EncDec.Settings.HexViewOffset;
+  ToolButton5.Down := Ttunel(currenttunel).EncDec.Settings.ShowLastPacket;
+  btnProcessPackets.Down := Ttunel(currenttunel).EncDec.Settings.isprocesspackets;
 
   if assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
