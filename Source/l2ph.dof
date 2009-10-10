@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=3
 MinorVer=5
 Release=26
-Build=147
+Build=148
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1251
 [Version Info Keys]
 CompanyName=CoderX.ru Team
 FileDescription=
-FileVersion=3.5.26.147
+FileVersion=3.5.26.148
 InternalName=
 LegalCopyright=
 LegalTrademarks=
