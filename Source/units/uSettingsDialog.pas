@@ -615,32 +615,32 @@ var
 begin
  S:=socket(AF_INET,SOCK_STREAM,0);
  if S=INVALID_SOCKET then
-    Showmessage('Socket error');
+    BalloonHint(rsSocks5Check,'Socket error');
 
  res := AuthOnSocks5(s, edSocks5Host.Text, strtointdef(edSocks5Port.text,1080), inet_addr(pchar('207.46.232.182')){microsoft.com}, htons(80), chkSocks5NeedAuth.Checked, edSocks5AuthUsername.Text, edSocks5AuthPwd.Text);
  if res = 0 then 
         begin
-          ShowMessage(rsProxyServerOk);
+          BalloonHint(rsSocks5Check, rsProxyServerOk);
         end
       else
         begin
         //неуспешно
           case res of
-          1:ShowMessage(rs101);
-          2:ShowMessage(rs102);
-          3:ShowMessage(rs103);
-          4:ShowMessage(rs105);
-          5:ShowMessage(rs105);
-          6:ShowMessage(rs106);
-          7:ShowMessage(rs107);
-          8:ShowMessage(rs108);
-          9:ShowMessage(rs109);
-          10:ShowMessage(rs110);
-          11:ShowMessage(rs111);
-          12:ShowMessage(rs112);
-          13:ShowMessage(rs113);
-          14:ShowMessage(rs114);
-          15:ShowMessage(rs115);
+          1: BalloonHint(rsSocks5Check, rs101);
+          2: BalloonHint(rsSocks5Check, rs102);
+          3: BalloonHint(rsSocks5Check, rs103);
+          4: BalloonHint(rsSocks5Check, rs105);
+          5: BalloonHint(rsSocks5Check, rs105);
+          6: BalloonHint(rsSocks5Check, rs106);
+          7: BalloonHint(rsSocks5Check, rs107);
+          8: BalloonHint(rsSocks5Check, rs108);
+          9: BalloonHint(rsSocks5Check, rs109);
+          10: BalloonHint(rsSocks5Check, rs110);
+          11: BalloonHint(rsSocks5Check, rs111);
+          12: BalloonHint(rsSocks5Check, rs112);
+          13: BalloonHint(rsSocks5Check, rs113);
+          14: BalloonHint(rsSocks5Check, rs114);
+          15: BalloonHint(rsSocks5Check, rs115);
           end;
         end;
 end;

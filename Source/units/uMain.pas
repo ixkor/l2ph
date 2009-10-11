@@ -167,7 +167,6 @@ begin
   UpdateStrings;
   loadpos(self);
   Randomize;
-//  HookCode(@ShowMessage,@ShowMessageNew,@ShowMessageOld);
   DoubleBuffered := true;
   FillVersion_a;
   SysMsgIdList := TStringList.Create;
@@ -233,7 +232,6 @@ begin
       sockEngine := nil;
     end;
   savepos(self);
-//  UnhookCode(@ShowMessageOld);
 
   SysMsgIdList.Destroy;
   SysMsgIdList := nil;
@@ -429,10 +427,13 @@ begin
   rsInjectConnectInterceptedIgnoredPort := lang1.GetTextOrDefault('strrsInjectConnectInterceptedIgnoredPort');
   rsTunelTimeout := lang1.GetTextOrDefault('strrsTunelTimeout');
   rsTunelConnected := lang1.GetTextOrDefault('strrsTunelConnected');
+  rsTunelConnectedProxyUse := lang1.GetTextOrDefault('strrsTunelConnectedProxyUse');
   rsTunelConnecting := lang1.GetTextOrDefault('strrsTunelConnecting');
   rsTunelDestroy := lang1.GetTextOrDefault('strrsTunelDestroy');
   rsTunelRUN := lang1.GetTextOrDefault('strrsTunelRUN');
   rsTunelCreated := lang1.GetTextOrDefault('strrsTunelCreated');
+  rstunel := lang1.GetTextOrDefault('strrsTunel');
+  rsSocks5Check := lang1.GetTextOrDefault('strrsSocks5Check');
 
   rs100 := lang1.GetTextOrDefault('strrs100');
   rs101 := lang1.GetTextOrDefault('strrs101');
@@ -450,6 +451,7 @@ begin
   rs113 := lang1.GetTextOrDefault('strrs113');
   rs114 := lang1.GetTextOrDefault('strrs114');
   rs115 := lang1.GetTextOrDefault('strrs115');
+  rsLSPSOCKSMODE := lang1.GetTextOrDefault('strrsLSPSOCKSMODE');
   rsProxyServerOk := lang1.GetTextOrDefault('strrsProxyServerOk');
 end;
 
@@ -462,6 +464,7 @@ begin
       TfVisual(pcClientsConnection.ActivePage.Components[0]).Repaint;
       TfVisual(pcClientsConnection.ActivePage.Components[0]).Invalidate;
     end;
+
 end;
 
 procedure TfMain.Language1Click(Sender: TObject);

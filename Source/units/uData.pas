@@ -423,8 +423,8 @@ begin
   Visual.currenttunel := nil;
   Visual.CurrentTpacketLog := nil;
   Visual.Parent := AssignedTabSheet;
-  Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
-  noFreeAfterDisconnect := GlobalNoFreeAfterDisconnect;
+  Visual.setNofreeBtns(EncDec.Settings.NoFreeAfterDisconnect);
+  noFreeAfterDisconnect := EncDec.Settings.NoFreeAfterDisconnect;
   AssignedTabSheet.PageControl := fMain.pcClientsConnection;
   AssignedTabSheet.Caption := '[lsp]#'+inttostr(SocketNum);
   if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
@@ -869,6 +869,13 @@ begin
     if Params[0] <> null then
       AddToLog('Script: '+Params[0]);
   end else
+  if sMethodName = 'SHOWBALOONNHINT'  then
+  begin
+    if Params[0] <> null then
+      BalloonHint('Script:', VarAsType(Params[0], varString));
+  end else
+
+
 {/*by wanick*/}
   //for support DLL
   if sMethodName = 'CALLFUNCTION' then begin
@@ -1337,7 +1344,8 @@ begin
   MyFuncs.Add('function CallSF(ScriptName:String;FunctionName:String;Params:array of variant):variant');
   MyFuncs.Add('procedure sendMSG(msg:String)');
   MyFuncs.Add('procedure CanUseAltTab(FormCaption: string)');
-
+  MyFuncs.Add('procedure ShowBaloonnHint(Msg: string)');
+  
   PluginStruct.UserFuncs.clear;
   if assigned(Plugins) then
   begin
@@ -1412,7 +1420,7 @@ StandartFuncs.Add('function Pi: Extended');
 StandartFuncs.Add('procedure Inc(var i: Integer; incr: Integer = 1)');
 StandartFuncs.Add('procedure Dec(var i: Integer; decr: Integer = 1)');
 StandartFuncs.Add('procedure RaiseException(Param: String)');
-StandartFuncs.Add('procedure ShowMessage(Msg: Variant)');
+StandartFuncs.Add('procedure ShowMessage(Msg: string)');
 StandartFuncs.Add('procedure Randomize');
 StandartFuncs.Add('function Random: Extended');
 StandartFuncs.Add('function ValidInt(cInt: String): Boolean');
@@ -1466,14 +1474,12 @@ begin
   Visual.currenttunel := nil;
   Visual.currentLSP := nil;
   Visual.Parent := AssignedTabSheet;
-  Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
+  Visual.setNofreeBtns(false);
   AssignedTabSheet.Caption := '[log]#'+ExtractFileName(Filename);
   if not fMain.pcClientsConnection.Visible then fMain.pcClientsConnection.Visible  := true;
   Visual.CurrentTpacketLog := self;
   Visual.init;
   visual.Panel7.Width := 30;//там у нас только одна кнопка..
-
-  
 end;
 
 procedure TdmData.LSPControlConnect(var Struct: TConnectStruct;
@@ -1486,12 +1492,16 @@ var
 begin
   hook := false;
   needhook := (Pos(';'+IntToStr(Struct.port)+';',';'+sIgnorePorts+';')=0);
+
   if needhook then
     if fSettings.lspInterceptMethod.ItemIndex = 1 then
         str := rsLSPConnectionWillbeInterceptedAndRettirected
       else
         str := rsLSPConnectionWillbeIntercepted
     else
+  if GlobalSettings.UseSocks5Chain and (fSettings.lspInterceptMethod.ItemIndex = 0) then
+    str := rsLSPSOCKSMODE
+  else
       str := rsLSPConnectionWillbeIgnored;
     
   AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
@@ -1510,15 +1520,16 @@ begin
         if Assigned(OnConnect) then OnConnect(Struct.SockNum, true);
         if Assigned(OnConnect) then OnConnect(Struct.SockNum, false);
       end;
-    end
-  else
+    end;
+    
+  if (fSettings.lspInterceptMethod.ItemIndex = 0) and (needhook or (not needhook and GlobalSettings.UseSocks5Chain)) then
   begin
+    sockEngine.donotdecryptnextconnection := (not needhook and GlobalSettings.UseSocks5Chain);
     sockEngine.RedirrectIP := inet_addr(pchar(string(Struct.ip)));
     sockEngine.RedirrectPort := HToNS(Struct.port);//msg.LParamLo;
     Struct.port := LocalPort;
     Struct.reddirect := true;
   end;
-
 
 end;
 
