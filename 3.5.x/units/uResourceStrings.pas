@@ -9,6 +9,9 @@ var
 	rsTunelDestroy: string = ''; (* Тунель ($%d) уничтожен *)
 	rsTunelConnecting: string = ''; (* Тунель ($%d), Серверный сокет № %d / Клиентский сокет № %d, Соединение с %s:%d ..... *)
 	rsTunelConnected: string = ''; (* Тунель ($%d), Серверный сокет № %d / Клиентский сокет № %d, Соединение установлено с %s:%d *)
+  rsTunelConnectedProxyUse: string = '';
+  rsTunel: string = '';
+
 	rsTunelTimeout: string = ''; (* Тунель ($%d), клиент отсоединен по таймауту *)
 
 
@@ -29,6 +32,7 @@ var
 	rsConnectionName: string = ''; (* Имя соединения для тунеля ($%d): %s *)
 
   rsProxyServerOk : string = '';
+  rsSocks5Check : string = '';
 
 	rs100: string = ''; (* Соединение с %s:%d установлено через текущий прокси сервер*)
 	rs101: string = ''; (* Имя хоста прокси сервера не было распознано*)
@@ -46,6 +50,8 @@ var
 	rs113: string = ''; (* Прокси сервер: истечение TTL*)
 	rs114: string = ''; (* Прокси сервер: команда (connect) не поддерживается*)
 	rs115: string = ''; (* Прокси сервер: тип адреса (IPv4) не поддерживается*)
+
+  rsLSPSOCKSMODE : string = '';
 
 	rsClientPatched0: string = ''; (* Надёжно пропатчен новый клиент %S (%s) *)
 	rsClientPatched1: string = ''; (* Скрытно пропатчен новый клиент %S (%s) *)

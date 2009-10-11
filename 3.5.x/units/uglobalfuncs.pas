@@ -22,7 +22,9 @@ uses
   WM_AddLog = WM_APP + 108; //
   WM_NewPacket = WM_APP + 109; //
   WM_ProcessPacket = WM_APP + 110; //
-  WM_UpdAutoCompleate = WM_APP + 111; //  
+  WM_UpdAutoCompleate = WM_APP + 111; //
+  WM_BalloonHint = WM_APP + 112; //
+
   //TencDec вызывает такие
   TencDec_Action_LOG = 1; //Данные в sLastPacket;  обрабатчик - PacketSend
   TencDec_Action_MSG = 2; //дaнные в sLastMessage; обработчик - Log
@@ -91,7 +93,7 @@ uses
   filterS, filterC: string; //строка фильтров
 
   procedure AddToLog (msg: String); //добавляем запись в frmLogForm.log
-  procedure ShowMessageNew(const Msg: string);
+  procedure BalloonHint(title, msg : string);
   procedure loadpos(Control:TControl);
   procedure savepos(Control:TControl);
 
@@ -102,7 +104,6 @@ uses
   l2pxversion_array: array[0..3] of Byte; //теперь заполняется вызовом FillVersion_a
   l2pxversion: LongWord  absolute l2pxversion_array;
 
-  ShowMessageOld: procedure (const Msg: string);
   MaxLinesInLog : Integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
   MaxLinesInPktLog : Integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
   isDestroying : boolean = false;
@@ -115,11 +116,11 @@ uses
   AugmentList,
   SkillList : TStringList; //и до сель - используются fPacketFilter
   
-  GlobalRawAllowed, GlobalNoFreeAfterDisconnect : boolean; //глобальная установка не разрешающая освобожать фреймы при обрыве соединений
+  GlobalRawAllowed: boolean; //глобальная установка не разрешающая освобожать фреймы при обрыве соединений
   Options, PacketsINI : TMemIniFile;
   
 implementation
-uses uFilterForm, forms, udata, usocketengine, ulogform;
+uses uMainReplacer, uFilterForm, forms, udata, usocketengine, ulogform;
 
 function GetModifTime(const FileName: string): TDateTime;
 var
@@ -230,12 +231,6 @@ begin
   Move(tpck.id,Result[1],Length(Result));
 end;
 
-
-procedure ShowMessageNew(const Msg: string);
-begin
-  if Msg<>'Unregistered version of FastScript.' then
-    ShowMessageOld(Msg);
-end;
 
 Procedure Reload;
 begin
@@ -393,6 +388,12 @@ begin
     except
     end;
   end;
+end;
+
+procedure BalloonHint(title, msg : string);
+begin
+  if isDestroying then exit;
+    SendMessage(fMainReplacer.Handle, WM_BalloonHint,integer(msg),integer(title));
 end;
 
 

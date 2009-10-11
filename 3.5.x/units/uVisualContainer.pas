@@ -101,6 +101,8 @@ type
     GroupBox7: TGroupBox;
     Memo4: TJvRichEdit;
     btnProcessPackets: TToolButton;
+    splashpnl: TPanel;
+    Splash: TJvLabel;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -228,6 +230,25 @@ begin
     end;
   //
   TabSheet1.Show;
+  if assigned(currenttunel) then
+  if assigned(sockEngine) then
+  if sockEngine.donotdecryptnextconnection then
+  begin
+    Panel5.Parent := Self;
+    PageControl1.Visible := false;
+    packetVievPanel.Visible := false;
+    ToolBar1.Visible := false;
+    btnProcessPackets.Visible := false;
+    toolbutton37.Down := false;
+    toolbutton37.Visible := false;
+    Splitter3.Visible := false;
+    panel7.Width := 25;
+    ToolButton38.Left := 1;
+    splashpnl.Align := alClient;
+    splashpnl.Show;
+    splashpnl.BringToFront;
+  end;
+
 end;
 
 procedure TfVisual.deinit;
@@ -387,6 +408,13 @@ begin
 try
   if not assigned(dump) then exit;
 
+  if assigned(currenttunel) then
+    if Ttunel(currenttunel).EncDec.Settings.isNoDecrypt then exit;
+
+  if assigned(currentLSP) then
+    if TlspConnection(currentLSP).EncDec.Settings.isNoDecrypt then exit;
+
+
   if BtnAutoSavePckts.Down then
   begin
     AddToLog(rsSavingPacketLog);
@@ -400,8 +428,6 @@ try
 
   if BtnAutoSavePckts.Down then
   begin
-    if assigned(currenttunel) then
-    charname := '';
     if assigned(currenttunel) then
       charname := Ttunel(currenttunel).EncDec.CharName +' ';
 

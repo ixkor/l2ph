@@ -45,7 +45,8 @@ type
     procedure ProcessPacket(var msg: TMessage); Message WM_ProcessPacket;
     procedure NewAction(var msg: TMessage); Message WM_NewAction;
     procedure ReadMsg(var msg: TMessage); Message WM_Dll_Log;
-    procedure UpdAutoCompleate(var msg: TMessage); Message WM_UpdAutoCompleate;    
+    procedure UpdAutoCompleate(var msg: TMessage); Message WM_UpdAutoCompleate;
+    procedure BalonHint(var msg: TMessage); Message WM_BalloonHint;   
 
 
     { Public declarations }
@@ -127,7 +128,7 @@ begin
       tunel.Visual.init;
       Tunel.NeedDeinit := true;
 
-      Tunel.Visual.setNofreeBtns(GlobalNoFreeAfterDisconnect);
+      Tunel.Visual.setNofreeBtns(tunel.EncDec.Settings.NoFreeAfterDisconnect);
       Tunel.Visual.Parent := Tunel.AssignedTabSheet;
       Tunel.active := true;
 
@@ -358,6 +359,15 @@ begin
   ShowWindow(application.Handle,sw_hide);
   fMain.show;
 
+end;
+
+procedure TfMainReplacer.BalonHint(var msg: TMessage);
+var
+  smsg, stitle : String;
+begin
+  smsg := string(msg.WParam);
+  stitle := string(msg.LParam);
+  fMain.JvTrayIcon1.BalloonHint(stitle,smsg);
 end;
 
 end.

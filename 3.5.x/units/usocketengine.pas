@@ -196,7 +196,10 @@ begin
     CloseHandle(thisTunel.ConnectOrErrorEvent);
 
   ip := RedirrectIP;
-  AddToLog(Format(rsTunelConnected, [integer(pointer(thisTunel)), thisTunel.initserversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
+  if GlobalSettings.UseSocks5Chain then
+    AddToLog(Format(rsTunelConnectedProxyUse, [integer(pointer(thisTunel)), thisTunel.initserversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]))
+  else
+    AddToLog(Format(rsTunelConnected, [integer(pointer(thisTunel)), thisTunel.initserversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
   //////////////////////////////////////////////////////////////
   AccumulatorLen := 0;
   LastResult := 1;
@@ -336,35 +339,35 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     EndThread(0);
   end;
   ip := RedirrectIP;
-  AddToLog(Format(rsTunelConnecting, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)]));
 
   if GlobalSettings.UseSocks5Chain then //мы используем проксисервер 0_о!
     begin
+      AddToLog(Format(rsTunelConnecting, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, GlobalSettings.Socks5Host, GlobalSettings.Socks5Port]));
       res := AuthOnSocks5(thisTunel.clientsocket, GlobalSettings.Socks5Host, GlobalSettings.Socks5Port, RedirrectIP, RedirrectPort, GlobalSettings.Socks5NeedAuth, GlobalSettings.Socks5AuthUsername, GlobalSettings.Socks5AuthPwd);
 
       if res = 0 then
         begin
-          AddToLog(Format(rs100,[IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]),ntohs(RedirrectPort)]));
+          //AddToLog(Format(rs100,[IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]),ntohs(RedirrectPort)]));
         end
       else
         begin
         //неуспешно
           case res of
-          1:AddToLog(rs101);
-          2:AddToLog(rs102);
-          3:AddToLog(rs103);
-          4:AddToLog(rs105);
-          5:AddToLog(rs105);
-          6:AddToLog(rs106);
-          7:AddToLog(rs107);
-          8:AddToLog(rs108);
-          9:AddToLog(rs109);
-          10:AddToLog(rs110);
-          11:AddToLog(rs111);
-          12:AddToLog(rs112);
-          13:AddToLog(rs113);
-          14:AddToLog(rs114);
-          15:AddToLog(rs115);
+            1:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs101]));
+            2:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs102]));
+            3:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs103]));
+            4:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs104]));
+            5:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs105]));
+            6:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs106]));
+            7:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs107]));
+            8:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs108]));
+            9:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs109]));
+            10:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs110]));
+            11:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs111]));
+            12:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs112]));
+            13:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs113]));
+            14:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs114]));
+            15:AddToLog(format(rsTunel,[integer(pointer(thisTunel)), rs115]));
           end;
         DeInitSocket(thisTunel.clientsocket,WSAGetLastError);
         SetEvent(thisTunel.ConnectOrErrorEvent); //разрешаем сдвинутс€ с места в сервербоди
@@ -374,6 +377,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   else{} //ћы не используем прокси. коннект напр€мую.
   if not ConnectToServer(thisTunel.clientsocket, RedirrectPort, RedirrectIP) then
   begin
+    AddToLog(Format(rsTunelConnecting, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]), ntohs(RedirrectPort)])); 
     SetEvent(thisTunel.ConnectOrErrorEvent); //разрешаем сдвинутс€ с места в сервербоди
     EndThread(0);
   end;
@@ -875,7 +879,6 @@ begin
   CriticalSection := TCriticalSection.Create;
   AddToLog(Format(rsTunelCreated, [integer(pointer(Self))]));
   TunelWork := false;
-  noFreeAfterDisconnect := GlobalNoFreeAfterDisconnect;
   noFreeOnClientDisconnect := false;
   noFreeOnServerDisconnect := false;
   MustBeDestroyed := false;
@@ -886,14 +889,17 @@ begin
   EncDec.Settings := GlobalSettings;
   EncDec.Settings.isNoDecrypt := EncDec.Settings.isNoDecrypt or TSocketEngine(SockEngine).donotdecryptnextconnection;
   EncDec.Settings.isprocesspackets := EncDec.Settings.isprocesspackets and not TSocketEngine(SockEngine).donotdecryptnextconnection;
-  EncDec.Settings.NoFreeAfterDisconnect := EncDec.Settings.NoFreeAfterDisconnect and TSocketEngine(SockEngine).donotdecryptnextconnection;
+//  EncDec.Settings.NoFreeAfterDisconnect := EncDec.Settings.NoFreeAfterDisconnect and TSocketEngine(SockEngine).donotdecryptnextconnection;
   EncDec.Settings.isNoProcessToClient := EncDec.Settings.isNoProcessToClient or TSocketEngine(SockEngine).donotdecryptnextconnection;
   EncDec.Settings.isNoProcessToServer := EncDec.Settings.isNoProcessToServer or TSocketEngine(SockEngine).donotdecryptnextconnection;
+  EncDec.Settings.NoFreeAfterDisconnect := EncDec.Settings.NoFreeAfterDisconnect and not TSocketEngine(SockEngine).donotdecryptnextconnection;
 
   EncDec.onNewPacket := NewPacket;
   EncDec.onNewAction := NewAction;
   tempfilename := 'RAW.'+IntToStr(round(random(1000000)*10000))+'.temp';
   RawLog := TFileStream.Create(tempfilename,fmOpenWrite or fmCreate);
+  noFreeAfterDisconnect := EncDec.Settings.NoFreeAfterDisconnect;
+
 
 end;
 
