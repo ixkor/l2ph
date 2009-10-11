@@ -344,12 +344,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     begin
       AddToLog(Format(rsTunelConnecting, [integer(pointer(thisTunel)), thisTunel.serversocket, thisTunel.clientsocket, GlobalSettings.Socks5Host, GlobalSettings.Socks5Port]));
       res := AuthOnSocks5(thisTunel.clientsocket, GlobalSettings.Socks5Host, GlobalSettings.Socks5Port, RedirrectIP, RedirrectPort, GlobalSettings.Socks5NeedAuth, GlobalSettings.Socks5AuthUsername, GlobalSettings.Socks5AuthPwd);
-
-      if res = 0 then
-        begin
-          //AddToLog(Format(rs100,[IntToStr(IPb[0])+'.'+IntToStr(IPb[1])+'.'+IntToStr(IPb[2])+'.'+IntToStr(IPb[3]),ntohs(RedirrectPort)]));
-        end
-      else
+      if res > 0 then
         begin
         //неуспешно
           case res of
