@@ -294,7 +294,8 @@ begin
   mi.Checked := False;
   mi.OnClick := fScript.ScriptCheckClick;
   Editor.fsScript.Clear;
-  ListItem := fScript.ScriptsListVisual.Items.add
+  ListItem := fScript.ScriptsListVisual.Items.add;
+  Modified := false;
 end;
 
 Function TScript.delete;
@@ -322,9 +323,12 @@ begin
         fClassesDLG.fsTree1.Script := nil;
       end;
     end;
+    
   if Modified then
+    if editor.Source.Lines.Count > 1 then
     if MessageDlg(pchar(fScript.lang.GetTextOrDefault('IDS_4' (* 'Желаете сохранить изменения в скрипте ' *) )+scriptname+' ?'),mtConfirmation,[mbYes, mbNo],0)=mrYes then
       Save();
+      
   i := 0;
   while i < ScriptList.Count do
     begin
@@ -392,7 +396,7 @@ if isnew then
   if fullfilename <> '' then
     Editor.Source.Lines.LoadFromFile(fullfilename)
   else
-    Editor.Source.Lines.LoadFromFile(ExtractFilePath(ParamStr(0))+'Scripts\'+Filename);
+    Editor.Source.Lines.LoadFromFile(AppPath+'Scripts\'+Filename);
 
   Editor.fsScript.Lines.Assign(Editor.Source.Lines);
 
@@ -400,7 +404,6 @@ if isnew then
 //  Editor.Name := ScriptName;
   Tab.Caption := ScriptName;
   ListItem.Caption := ScriptName;
-  modified := false;
   Tab.ImageIndex := 0;
   Compilled := false;
   if isnew then
@@ -409,7 +412,8 @@ if isnew then
       Tab.Visible := true;
       Tab.Selected := true;
     end;
- changetime := getmodiftime(AppPath+'Scripts\'+Filename);  
+ changetime := getmodiftime(AppPath+'Scripts\'+Filename);
+ Modified := false;  
 end;
 
 procedure TfScript.DestroyAllScripts;
@@ -715,13 +719,14 @@ begin
     Tab.Caption := Filename;
     ScriptName := Filename;
   end;
-  Editor.Editor.Modified := false;;
   Editor.Editor.Invalidate;
   editor.Source.Lines.SaveToFile(AppPath+'Scripts\'+ScriptName+'.script');
-  Modified := false;
+  Editor.Editor.Modified := false;;
   Tab.ImageIndex := 0;
   fScript.StatusBar.SimpleText:=fScript.lang.GetTextOrDefault('script' (* 'Скрипт ' *) )+ScriptName+fScript.lang.GetTextOrDefault('IDS_29' (* ' сохранен' *) );
   changetime := getmodiftime(AppPath+'Scripts\'+ScriptName+'.script');
+  Modified := false;
+ 
 end;
 
 procedure TfScript.ListViewWindowProcEx(var Message: TMessage);

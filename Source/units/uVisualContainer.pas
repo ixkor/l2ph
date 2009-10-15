@@ -181,17 +181,19 @@ begin
   translate();
   Panel7.Width := 73;
   PacketView := TfPacketView.Create(self);
-  PacketView.Parent := packetVievPanel;
-  ToolButton17.Down := Ttunel(currenttunel).EncDec.Settings.HexViewOffset;
-  PacketView.HexViewOffset := Ttunel(currenttunel).EncDec.Settings.HexViewOffset;
-  ToolButton5.Down := Ttunel(currenttunel).EncDec.Settings.ShowLastPacket;
-  btnProcessPackets.Down := Ttunel(currenttunel).EncDec.Settings.isprocesspackets;
+  PacketView.Parent := packetVievPanel; 
+  ToolButton17.Down := GlobalSettings.HexViewOffset;
+  PacketView.HexViewOffset := GlobalSettings.HexViewOffset;
+  ToolButton5.Down := GlobalSettings.ShowLastPacket;
+  btnProcessPackets.Down := GlobalSettings.isprocesspackets;
 
-  if assigned(currenttunel) then
+
+  if Assigned(currenttunel) then
       btnSaveRaw.Visible := Ttunel(currenttunel).isRawAllowed;
-
+ 
   if Assigned(currentLSP) then
       btnSaveRaw.Visible := TlspConnection(currentLSP).isRawAllowed;
+
   edit := TfScriptEditor.Create(GroupBox8);
   Edit.init;
   Edit.Parent := GroupBox8;
@@ -541,10 +543,13 @@ begin
       dec(pm);
       //смотрим второй байт в каждом пакете
       str := dump.Strings[i];
-      FromServer := (str[2]='3');
-      Delete(str,1,18);
-      HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
-      ProcessPacket(Currentpacket, FromServer, nil, i);
+      if length(str) > 18 then
+      begin
+        FromServer := (str[2]='3');
+        Delete(str,1,18);
+        HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
+        ProcessPacket(Currentpacket, FromServer, nil, i);
+      end;
     end;
   finally
     ListView5.Items.EndUpdate;
