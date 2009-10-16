@@ -196,14 +196,16 @@ begin
   try
   temp := SendMessageParam(pointer(msg.WParam)^);
   fScript.ScryptProcessPacket(temp.packet, temp.FromServer, temp.Id);
+  
   if temp.Packet.Size > 2 then //плагины либо скрипты могли обнулить
   if assigned(Ttunel(temp.tunel)) then
     if not Ttunel(temp.tunel).MustBeDestroyed then
       if assigned(Ttunel(temp.tunel).Visual) then
+      if Ttunel(temp.tunel).Visual.btnProcessPackets.Down then
         begin
           Ttunel(temp.tunel).Visual.AddPacketToAcum(temp.Packet, temp.FromServer, Ttunel(temp.tunel).EncDec);
           if assigned(Ttunel(temp.tunel).Visual) then
-            PostMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
+            SendMessage(Handle,WM_ProcessPacket,integer(@Ttunel(temp.tunel).Visual), 0);
         end;
   finally
   end;
