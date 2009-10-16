@@ -916,25 +916,31 @@ var
   FromServer:boolean;
   Currentpacket : TPacket;
 begin
+  if not assigned(dumpacumulator) or not assigned(Dump) then exit;
   if not btnProcessPackets.Down then
   begin
     dumpacumulator.Clear;
     exit;
   end;
+
   while dumpacumulator.Count > 0 do
   begin
     if Dump.Count >= MaxLinesInPktLog then
       SavePacketLog;
     if dumpacumulator.Count = 0 then exit;
+
     PacketNumber := Dump.Count;
-    dump.Add(dumpacumulator.Strings[0]);
+    str := dumpacumulator.Strings[0];
     dumpacumulator.Delete(0);
-    //смотрим второй байт в каждом пакете
-    str := dump.Strings[PacketNumber];
-    FromServer := (str[2]='3');
-    Delete(str,1,18);
-    HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
-    ProcessPacket(Currentpacket, FromServer, nil, packetnumber);
+    if length(str) >= 18 then
+    begin
+      dump.Add(str);
+      //смотрим второй байт в каждом пакете
+      FromServer := (str[2]='3');
+      Delete(str,1,18);
+      HexToBin(@str[1], Currentpacket.PacketAsCharArray, round(Length(str)/2));
+      ProcessPacket(Currentpacket, FromServer, nil, packetnumber);
+    end;
   end;
 end;
 
