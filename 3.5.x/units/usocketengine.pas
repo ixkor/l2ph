@@ -30,7 +30,6 @@ type
   hServerThread, hClientThread  : integer;  //хендлы потоков
   idServerThread, idClientThread : LongWord;  //threadid потоков
   sLastMessage : String;
-  CriticalSection : TCriticalSection;
   tempfilename : string;
  private
  Public
@@ -161,6 +160,7 @@ var
   AccumulatorLen : Cardinal;
   BytesInStack : Longint;
   curPacket : TPacket;
+  RecvBytes : int64;
   PreSize, LastResult : Word;
   EventTimeout : boolean;
   IP: Integer;
@@ -213,15 +213,26 @@ begin
     if BytesInStack = 0 then
       BytesInStack := 1;
       
-    presize := recv(thisTunel.serversocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+    RecvBytes := recv(thisTunel.serversocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+    if RecvBytes = SOCKET_ERROR then
+      break
+    else
+      PreSize := RecvBytes;
+      
     LastResult := PreSize;
 
     if lastresult = 1 then
       begin
         ioctlsocket(thisTunel.serversocket, FIONREAD, BytesInStack);
         if BytesInStack > $FFFE then BytesInStack := $FFFE; //В прочитаном буффере - не более чем то что можем скушать за раз.
-        if BytesInStack > 0 then //Дочитываем
-          LastResult := LastResult + recv(thisTunel.serversocket, PreAccumulator[presize], BytesInStack, 0);
+        if BytesInStack > 0 then
+          begin//Дочитываем
+              RecvBytes := recv(thisTunel.serversocket, PreAccumulator[presize], BytesInStack, 0);
+              if RecvBytes = SOCKET_ERROR then
+                break
+              else
+                LastResult := LastResult + RecvBytes;
+          end;
       end;
 
     if LastResult > 0 then
@@ -240,7 +251,6 @@ begin
         if AccumulatorLen >= 2 then
           begin //В акумуляторе данных на 2+ байтикоф
             try
-            thisTunel.CriticalSection.enter;
             //читаем длину
             move(StackAccumulator[0],curPacket.PacketAsByteArray[0],$ffff);
             //Хватит ли в акамуляторе данных для пакета ?
@@ -278,7 +288,6 @@ begin
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
             finally
-            thisTunel.CriticalSection.Leave;
             end;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
@@ -331,6 +340,7 @@ var
   IP: Integer;
   IPb:array[0..3] of Byte absolute ip;
   res : integer;
+  recvbytes : int64;
 begin
 with TSocketEngine(thisTunel.curSockEngine) do
 begin
@@ -399,7 +409,13 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     if BytesInStack = 0 then
       BytesInStack := 1;
 
-    presize := recv(thisTunel.clientsocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+    RecvBytes := recv(thisTunel.clientsocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
+    if RecvBytes = SOCKET_ERROR then
+        break
+      else
+        LastResult := LastResult + presize;
+
+
     LastResult := PreSize;
 
     if lastresult = 1 then //Мы ждали данных. поэтому там 1 байт. дочитываем.
@@ -407,7 +423,13 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
         ioctlsocket(thisTunel.clientsocket, FIONREAD, BytesInStack);
         if BytesInStack > $FFFE then BytesInStack := $FFFE; //В прочитаном буффере - не более чем то что можем скушать за раз.
         if BytesInStack > 0 then //Дочитываем
-          LastResult := LastResult + recv(thisTunel.clientsocket, PreAccumulator[presize], BytesInStack, 0);
+          begin
+              RecvBytes := recv(thisTunel.clientsocket, PreAccumulator[presize], BytesInStack, 0);
+              if RecvBytes = SOCKET_ERROR then
+                break
+              else
+                LastResult := LastResult + RecvBytes;
+          end;
       end;
 
 
@@ -428,7 +450,6 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
         if AccumulatorLen >= 2 then
           begin //В акумуляторе данных на 2+ байтикоф
             try
-            thisTunel.CriticalSection.enter;
             //читаем длину
             move(StackAccumulator[0],curPacket.PacketAsByteArray[0],$ffff);
             if curPacket.Size=29754 then curPacket.Size:=267;
@@ -466,7 +487,6 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
                       FillChar(curPacket.PacketAsByteArray[0], $ffff, #0);
                 end;
               finally
-              thisTunel.CriticalSection.Leave;
               end;
           end; // if AccumulatorLen >= 2 then
       end //if not thisTunel.EncDec.Settings.isNoDecryptToServer then
@@ -770,7 +790,7 @@ begin
     exit;
   end;
 
-  //Добалять Сообщение (Соединение с прокси сервером)  
+  //Добалять Сообщение (Соединение с прокси сервером)
 
   Addr_in.sin_family:=AF_INET;
   Addr_in.sin_addr.S_addr:=PInAddr(PHe.h_addr_list^)^.S_addr;
@@ -871,7 +891,6 @@ begin
   NeedDeinit := false;
   TSocketEngine(SockEngine).tunels.Add(self);
   isRawAllowed := GlobalRawAllowed;
-  CriticalSection := TCriticalSection.Create;
   AddToLog(Format(rsTunelCreated, [integer(pointer(Self))]));
   TunelWork := false;
   noFreeOnClientDisconnect := false;
@@ -922,7 +941,6 @@ begin
   if hClientThread <> 0 then TerminateThread(hClientThread, 0);
   sendNewAction(Ttulel_action_tunel_destroyed);
   if Assigned(encdec) then EncDec.destroy;
-  CriticalSection.Destroy;
   RawLog.Destroy;
   DeleteFile(tempfilename);
   inherited;

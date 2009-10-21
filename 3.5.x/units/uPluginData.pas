@@ -135,7 +135,6 @@ if IsScriptIdValid(scriptid) then
       Result := TfsScript(scriptid).CallFunction(name,params);
     except
     end;
-    inherited;
 end;
 
 procedure TPluginStructClass.ChangeTimerThread(const timer: Pointer;
@@ -148,7 +147,6 @@ begin
     if usrParam<>$ffffffff then
       UserParam:=usrParam;
   end;
-  inherited;
 end;
 
 constructor TPluginStructClass.create;
@@ -171,7 +169,6 @@ begin
     UserParam:=usrParam;
     Resume;
   end;
-  inherited;
 end;
 
 function TPluginStructClass.DataPckToStrPck(var pck): string;
@@ -183,7 +180,6 @@ var
 begin
   SetLength(Result,tpck.size-2);
   Move(tpck.id,Result[1],Length(Result));
-  inherited;
 end;
 
 destructor TPluginStructClass.Destroy;
@@ -195,19 +191,16 @@ end;
 procedure TPluginStructClass.DestroyTimerThread(var timer: Pointer);
 begin
   FreeAndNil(TPlugThread(timer));
-  inherited;
 end;
 
 function TPluginStructClass.getConnectioidByName(name : string):integer;
 begin
   result := dmData.ConnectIdByName(name);
-  inherited;
 end;
 
 function TPluginStructClass.getConnectionName(id: integer): string;
 begin
   result := dmData.ConnectNameById(id);
-  inherited;
 end;
 
 function SymbolEntersCount(s: string): string;
@@ -250,7 +243,6 @@ begin
   except
     result := Null;
   end;
-  inherited;
 end;
 
 function TPluginStructClass.GoFirstConnection: boolean;
@@ -288,7 +280,6 @@ begin
       end;
     inc(i);
   end;
-  inherited;
 end;
 
 function TPluginStructClass.GoNextConnection: boolean;
@@ -330,7 +321,6 @@ begin
     if Ttunel(sockEngine.tunels.Items[i]).active then inc(index);
     inc(i);
   end;
-  inherited;
 end;
 
 function TPluginStructClass.HexToString(Hex: String): String;
@@ -350,12 +340,10 @@ begin
     buf:=buf+char(bt);
   end;
   Result:=buf;
-  inherited;
 end;
 
 procedure TPluginStructClass.HideUserForm;
 begin
-  inherited;
   UserForm.Hide;
   fMain.nUserFormShow.Enabled := false;
 end;
@@ -374,7 +362,6 @@ begin
   Result:=0;
   if index>Length(pck) then Exit;
   Result:=Byte(pck[index]);
-  inherited;
 end;
 
 function TPluginStructClass.ReadCEx;
@@ -382,7 +369,6 @@ begin
   Result:=0;
   if index>=PWord(@pck)^ then Exit;
   Result:=PByteArray(@pck)^[index];
-  inherited;
 end;
 
 function TPluginStructClass.ReadD(const pck:string;
@@ -391,7 +377,6 @@ begin
   Result:=0;
   if index+3>Length(pck) then Exit;
   Move(pck[index],Result,4);
-  inherited;
 end;
 
 function TPluginStructClass.ReadDEx;
@@ -399,7 +384,6 @@ begin
   Result:=0;
   if index+3>=PWord(@pck)^ then Exit;
   Move(PByteArray(@pck)^[index],Result,4);
-  inherited;
 end;
 
 function TPluginStructClass.ReadF(const pck:string;
@@ -408,7 +392,6 @@ begin
   Result:=0;
   if index+7>Length(pck) then Exit;
   Move(pck[index],Result,8);
-  inherited;
 end;
 
 function TPluginStructClass.ReadFEx;
@@ -416,7 +399,6 @@ begin
   Result:=0;
   if index+7>=PWord(@pck)^ then Exit;
   Move(PByteArray(@pck)^[index],Result,8);
-  inherited;
 end;
 
 function TPluginStructClass.ReadH;
@@ -424,7 +406,6 @@ begin
   Result:=0;
   if index+1>Length(pck) then Exit;
   Move(pck[index],Result,2);
-  inherited;
 end;
 
 function TPluginStructClass.ReadHEx;
@@ -432,7 +413,6 @@ begin
   Result:=0;
   if index+1>=PWord(@pck)^ then Exit;
   Move(PByteArray(@pck)^[index],Result,2);
-  inherited;
 end;
 
 function TPluginStructClass.ReadQ;
@@ -440,7 +420,6 @@ begin
   Result:=0;
   if index+7>Length(pck) then Exit;
   Move(pck[index],Result,8);
-  inherited;
 end;
 
 function TPluginStructClass.ReadQEx;
@@ -448,7 +427,6 @@ begin
   Result:=0;
   if index+7>=PWord(@pck)^ then Exit;
   Move(PByteArray(@pck)^[index],Result,8);
-  inherited;
 end;
 
 function TPluginStructClass.ReadS;
@@ -461,7 +439,6 @@ begin
   SetLength(temp,d div 2);
   if d>=2 then Move(pck[index],temp[1],d);
   Result:=temp;
-  inherited;
 end;
 
 function TPluginStructClass.ReadSEx;
@@ -476,7 +453,6 @@ begin
   SetLength(temp,d div 2);
   if d>=2 then Move(PByteArray(@pck)^[index], temp[1],d);
   Result:=temp;
-  inherited;
 end;
 
 procedure TPluginStructClass.SendPacket(Size: Word; pck: string;
@@ -488,7 +464,6 @@ begin
   packet.Size := size;
   Move(pck[1],packet.data[0], length(pck));
   dmData.SendPacket(packet, tid, ToServer);
-  inherited;
 end;
 
 procedure TPluginStructClass.SendPacketData(var pck; const tid: integer;
@@ -503,14 +478,12 @@ begin
   SetLength(spck,tpck.size-2);
   Move(tpck.id,spck[1],Length(spck));
   SendPacket(tpck.size, spck, tid, ToServer);
-  inherited;
 end;
 
 procedure TPluginStructClass.SendPacketStr(pck: string; const tid: integer;
   const ToServer: Boolean);
 begin
   SendPacket(Length(pck)+2, pck, tid, ToServer);
-  inherited;
 end;
 
 Function TPluginStructClass.SetScriptVariable(scriptid:integer; varname:string; varvalue:variant):boolean;
@@ -521,12 +494,10 @@ begin
   except
     result := false;
   end;
-  inherited;
 end;
 
 procedure TPluginStructClass.ShowUserForm(ActivateOnly: boolean);
 begin
-  inherited;
   if not ActivateOnly then
     UserForm.show;
   fMain.nUserFormShow.Enabled := true;
@@ -542,7 +513,6 @@ begin
     buf:=buf+IntToHex(Byte(str1[i]),2)+Separator;
   end;
   Result:=buf;
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteC(var pck: string; const v: byte;
@@ -553,7 +523,6 @@ begin
   if ind=-1 then ind:=Length(pck)+1;
   if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
   Move(v,pck[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteCEx(var pck; const v: byte; ind: integer);
@@ -563,7 +532,6 @@ begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
   Move(v,PByteArray(@pck)^[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteD(var pck: string; const v: integer;
@@ -574,7 +542,6 @@ begin
   if ind=-1 then ind:=Length(pck)+1;
   if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
   Move(v,pck[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteDEx(var pck; const v: integer;
@@ -585,7 +552,6 @@ begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
   Move(v,PByteArray(@pck)^[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteF(var pck: string; const v: double;
@@ -596,7 +562,6 @@ begin
   if ind=-1 then ind:=Length(pck)+1;
   if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
   Move(v,pck[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteFEx(var pck; const v: double;
@@ -607,7 +572,6 @@ begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
   Move(v,PByteArray(@pck)^[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteH(var pck: string; const v: word;
@@ -618,7 +582,6 @@ begin
   if ind=-1 then ind:=Length(pck)+1;
   if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
   Move(v,pck[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteHEx(var pck; const v: word; ind: integer);
@@ -628,7 +591,6 @@ begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
   Move(v,PByteArray(@pck)^[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteQ(var pck: string; const v: int64;
@@ -639,7 +601,6 @@ begin
   if ind=-1 then ind:=Length(pck)+1;
   if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
   Move(v,pck[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteQEx(var pck; const v: int64;
@@ -650,7 +611,6 @@ begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
   Move(v,PByteArray(@pck)^[ind],dt_size);
-  inherited;
 end;
 
 procedure TPluginStructClass.WriteS(var pck: string; const v: string;
@@ -664,8 +624,8 @@ begin
   if ind=-1 then ind:=Length(pck)+1;
   if ind+dt_size-1>Length(pck) then SetLength(pck,ind+dt_size-1);
   Move(temp[1],pck[ind],dt_size);
-  inherited;
 end;
+
 procedure TPluginStructClass.WriteSEx(var pck; const v: string;
   ind: integer);
 var
@@ -677,7 +637,6 @@ begin
   if ind=-1 then ind:=PWord(@pck)^;
   if ind+dt_size>PWord(@pck)^ then PWord(@pck)^:=ind+dt_size;
   Move(temp[1],PByteArray(@pck)^[ind],dt_size);
-  inherited;
 end;
 
 
