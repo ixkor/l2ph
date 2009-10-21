@@ -413,7 +413,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
     if RecvBytes = SOCKET_ERROR then
         break
       else
-        LastResult := LastResult + presize;
+        PreSize := RecvBytes;
 
 
     LastResult := PreSize;
