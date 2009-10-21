@@ -643,6 +643,8 @@ begin
           15: BalloonHint(rsSocks5Check, rs115);
           end;
         end;
+ if s >= 0 then
+ closesocket(s);
 end;
 
 end.
