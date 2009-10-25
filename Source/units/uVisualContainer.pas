@@ -103,6 +103,8 @@ type
     btnProcessPackets: TToolButton;
     splashpnl: TPanel;
     Splash: TJvLabel;
+    JvSpinEdit1: TJvSpinEdit;
+    Label1: TLabel;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -123,7 +125,6 @@ type
     procedure Memo4MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure SaveBntClick(Sender: TObject);
-    procedure JvSpinEdit2Change(Sender: TObject);
     procedure SendByTimerClick(Sender: TObject);
     procedure SendBtnClick(Sender: TObject);
     procedure ToolButton30Click(Sender: TObject);
@@ -139,6 +140,8 @@ type
     procedure TabSheet1Show(Sender: TObject);
     procedure TabSheet3Show(Sender: TObject);
     procedure OpenBtnClick(Sender: TObject);
+    procedure timerSendTimer(Sender: TObject);
+    procedure JvSpinEdit1Change(Sender: TObject);
   private
     { Private declarations }
     hScriptThread, idScriptThread: cardinal;
@@ -690,11 +693,6 @@ begin
   //ChDir(AppPath+'settings\');
 end;
 
-procedure TfVisual.JvSpinEdit2Change(Sender: TObject);
-begin
-  timerSend.Interval := round(JvSpinEdit2.Value*1000);
-end;
-
 procedure TfVisual.SendByTimerClick(Sender: TObject);
 begin
   timerSend.Enabled := SendByTimer.Down;
@@ -760,6 +758,7 @@ begin
   ToServer.Enabled := false;
   ToClient.Enabled := false;
   SendBtn.Enabled := false;
+  timerSend.Enabled := false;
   JvSpinEdit2.Enabled := false;
   SendByTimer.Enabled := false;
   SendByTimer.Down := false;
@@ -968,6 +967,22 @@ procedure TfVisual.TabSheet3Show(Sender: TObject);
 begin
   packetVievPanel.Hide;
   Splitter3.Hide;
+end;
+
+procedure TfVisual.timerSendTimer(Sender: TObject);
+begin
+if JvSpinEdit2.Value > 0 then
+  timerSend.Interval := round((JvSpinEdit1.Value - JvSpinEdit2.Value)*1000 + random(round(JvSpinEdit2.Value*2000))); 
+if timerSend.Interval <= 0 then timerSend.Interval := 100;
+
+SendBtnClick(self);
+end;
+
+procedure TfVisual.JvSpinEdit1Change(Sender: TObject);
+begin
+  timerSend.Interval := round(JvSpinEdit1.Value*1000);
+  JvSpinEdit2.MaxValue := timerSend.Interval - 0.1;
+  if timerSend.Interval <= 0 then timerSend.Interval := 100;
 end;
 
 end.
