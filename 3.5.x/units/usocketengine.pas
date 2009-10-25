@@ -302,7 +302,7 @@ begin
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //сюда попадаем когда отвалилс€ сервер
   //ѕишем в лог
-  AddToLog(Format(rsTunelServerDisconnect, [integer(pointer(thisTunel))]));
+  AddToLog(Format(rsTunelClientDisconnect, [integer(pointer(thisTunel))]));
 
   //уведомл€ем плугины
   thisTunel.sendNewAction(Ttunel_Action_disconnect_server);
@@ -314,7 +314,7 @@ begin
   DeinitSocket(thisTunel.serversocket,WSAGetLastError);
 
   //не разрываем св€зь c клиентом если отключен сервер и noFreeOnServerDisconnect
-  while thisTunel.noFreeOnServerDisconnect and (thisTunel.clientsocket <> -1) do sleep(1);
+  while thisTunel.noFreeOnClientDisconnect and (thisTunel.clientsocket <> -1) do sleep(1);
 
   //закрываем  клиент
   if thisTunel.clientsocket <> -1 then
@@ -501,7 +501,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   //сюда попадаем когда отвалилс€ клиент
     
   //ѕишем в лог
-  AddToLog(Format(rsTunelClientDisconnect, [integer(pointer(thisTunel))]));
+  AddToLog(Format(rsTunelServerDisconnect, [integer(pointer(thisTunel))]));
 
   //уведомл€ем плугины
   thisTunel.sendNewAction(Ttunel_Action_disconnect_client);
@@ -513,7 +513,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   DeinitSocket(thisTunel.clientsocket,WSAGetLastError);
 
   //не разрываем св€зь c сервером если отключен клиент и noFreeOnClientDisconnect
-  while (thisTunel.noFreeOnClientDisconnect) and (thisTunel.serversocket <> -1) do sleep(1);
+  while (thisTunel.noFreeOnServerDisconnect) and (thisTunel.serversocket <> -1) do sleep(1);
 
 
   //закрываем серверный сокет
