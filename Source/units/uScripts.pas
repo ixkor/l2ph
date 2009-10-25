@@ -905,11 +905,12 @@ begin
                   cScript.Editor.fsScript.Variables['FromClient']:=not FromServer;
                   try
                     cScript.Editor.fsScript.Execute;
-                     temp:=cScript.Editor.fsScript.Variables['pck'];
                   except
                     fMain.StatusBar1.SimpleText := cScript.ScriptName+': '+SysErrorMessage(GetLastError)+'; on line '+inttostr(cScript.Editor.Editor.CurrentLine);
                     StatusBar.SimpleText := fMain.StatusBar1.SimpleText;
+                    AddToLog(fMain.StatusBar1.SimpleText);                    
                   end;
+                  temp := cScript.Editor.fsScript.Variables['pck'];
 
                   //В момент когда скрипт не выполняеться - обнуляем эти переменные.
                   cScript.Editor.fsScript.Variables['pck'] := '';
