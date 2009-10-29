@@ -446,6 +446,7 @@ var
   value, tmp_value: string;
   oldpos:integer;
   isshow:boolean;
+  blockmask : string;
 begin
     //строка пакета, sid - номер пакета, cid - номер соединения
     PktStr := HexToString(packet);
@@ -530,11 +531,13 @@ begin
     //PosInPkt - смещение в пакете
 
     try
+    blockmask := '';
     while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<Size+10) do
     begin
       Param0:=GetType (StrIni,PosInIni);
       inc(PosInIni);
       typ:=GetTyp(Param0); //считываем тип значения
+      blockmask := blockmask + typ;      
       name:=GetName(Param0); //считываем имя значения в скобках (name:func.par)
       func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
       param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -569,6 +572,9 @@ begin
             inc(PosInIni);
           end;
         end else begin
+          rvDescryption.AddNL('Mask : ', 0, 0);
+          rvDescryption.AddNL(blockmask, 27, -1);
+          blockmask := '';
           for j:=1 to StrToInt(tmp_value) do
           begin
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
@@ -576,11 +582,13 @@ begin
             rvDescryption.AddNL(']', 0, -1);
 
             PosInIni:=ii;
+
             for jj:=1 to StrToInt(tmp_param) do
             begin
               Param0:=GetType(StrIni,PosInIni);
               inc(PosInIni);
               typ:=GetTyp(Param0); //считываем тип значения
+              blockmask := blockmask + typ;
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
               param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -597,6 +605,9 @@ begin
             end;
             
             if value = 'range error' then break;
+            rvDescryption.AddNL('Mask : ', 0, 0);
+            rvDescryption.AddNL(blockmask, 27, -1);
+            blockmask := '';
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
             rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
             rvDescryption.AddNL(']', 0, -1);
@@ -632,6 +643,7 @@ begin
               Param0:=GetType(StrIni,PosInIni);
               inc(PosInIni);
               typ:=GetTyp(Param0); //считываем тип значения
+              blockmask := blockmask + typ;
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
               param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -649,17 +661,21 @@ begin
             end;
           end;
           ii:=PosInIni;
+            rvDescryption.AddNL('Mask : ', 0, 0);
+            rvDescryption.AddNL(blockmask, 27, -1);
+            blockmask := '';            
           for j:=1 to StrToInt(tmp_value) do begin
 
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
             rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
             rvDescryption.AddNL(']', 0, -1);
-
             PosInIni:=ii;
             for jj:=1 to StrToInt(tmp_param) do begin
+
               Param0:=GetType(StrIni,PosInIni);
               inc(PosInIni);
               typ:=GetTyp(Param0); //считываем тип значения
+              blockmask := blockmask + typ;
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
               param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -693,7 +709,9 @@ begin
               //распечатываем
               addToDescr(offset, typ, name, value+hexvalue);
             end;
-
+            rvDescryption.AddNL('Mask : ', 0, 0);
+            rvDescryption.AddNL(blockmask, 27, -1);
+            blockmask := '';
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
             rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
             rvDescryption.AddNL(']', 0, -1);
@@ -713,6 +731,12 @@ begin
   PosInPkt := size + 10;
   if PosInPkt - oldpos > 0 then
     addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
+
+  if blockmask <> '' then
+  begin
+    rvDescryption.AddNL('Mask : ', 0, 0);
+    rvDescryption.AddNL(blockmask, 27, -1);
+  end;
 
   rvHEX.FormatTail;
   rvDescryption.FormatTail;

@@ -401,6 +401,7 @@ procedure AddToLog (msg: String);
 begin
   if isDestroying then exit;
   if assigned(fLog) then
+    if not isDestroying then
     if fLog.IsExists then
       SendMessage(fLog.Handle,WM_AddLog,integer(msg),0);
 end;

@@ -297,6 +297,7 @@ begin
       CanClose := false;
       exit;
     end;
+    isDestroying := true;
     isGlobalDestroying := true;
     fScript.DestroyAllScripts;    
     Application.Terminate;

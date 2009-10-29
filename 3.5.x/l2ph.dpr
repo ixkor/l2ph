@@ -4,8 +4,7 @@
 program l2ph;
 
 uses
-  FastMM4 in 'fastmm\FastMM4.pas',
-  uExcepDialog in 'units\uExcepDialog.pas' {ExceptionDialog},
+  ExceptionLog,
   Forms,
   windows,
   uMain in 'units\uMain.pas' {fMain},
@@ -24,7 +23,6 @@ uses
   uVisualContainer in 'units\uVisualContainer.pas' {fVisual: TFrame},
   advApiHook in 'units\advApiHook.pas',
   NativeAPI in 'units\NativeAPI.pas',
-  FastMM4Messages in 'fastmm\FastMM4Messages.pas',
   uUserForm in 'units\uUserForm.pas' {UserForm},
   uProcessRawLog in 'units\uProcessRawLog.pas' {fProcessRawLog},
   uPlugins in 'units\uPlugins.pas' {fPlugins},
