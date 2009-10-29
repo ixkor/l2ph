@@ -23,28 +23,28 @@ object dmData: TdmData
     Top = 72
   end
   object fsClassesRTTI1: TfsClassesRTTI
-    Left = 232
-    Top = 24
+    Left = 216
+    Top = 40
   end
   object fsFormsRTTI1: TfsFormsRTTI
     Left = 224
-    Top = 80
+    Top = 96
   end
   object fsExtCtrlsRTTI1: TfsExtCtrlsRTTI
     Left = 224
     Top = 144
   end
   object fsDialogsRTTI1: TfsDialogsRTTI
-    Left = 280
-    Top = 24
+    Left = 304
+    Top = 32
   end
   object fsMenusRTTI1: TfsMenusRTTI
-    Left = 280
+    Left = 304
     Top = 80
   end
   object fsIniRTTI1: TfsIniRTTI
-    Left = 328
-    Top = 120
+    Left = 296
+    Top = 152
   end
   object lang: TsiLang
     Version = '6.1.0.1'

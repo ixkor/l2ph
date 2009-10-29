@@ -1,21 +1,21 @@
 object fScriptEditor: TfScriptEditor
   Left = 0
   Top = 0
-  Width = 435
-  Height = 266
+  Width = 578
+  Height = 502
   Align = alClient
   TabOrder = 0
   object Splitter1: TSplitter
     Left = 233
     Top = 0
-    Height = 266
+    Height = 502
     Visible = False
   end
   object Editor: TSyntaxMemo
     Left = 236
     Top = 0
-    Width = 199
-    Height = 266
+    Width = 342
+    Height = 502
     SyntaxAnalyzer = fScript.SyntAnalyser
     TextSource = Source
     TabList.AsString = '4'
@@ -213,13 +213,13 @@ object fScriptEditor: TfScriptEditor
     Left = 0
     Top = 0
     Width = 233
-    Height = 266
+    Height = 502
     Align = alLeft
     TabOrder = 1
     Visible = False
     object CurLineLabel: TLabel
       Left = 1
-      Top = 252
+      Top = 488
       Width = 231
       Height = 13
       Align = alBottom
@@ -228,7 +228,7 @@ object fScriptEditor: TfScriptEditor
       Left = 1
       Top = 1
       Width = 231
-      Height = 251
+      Height = 487
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone

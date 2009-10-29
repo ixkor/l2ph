@@ -270,6 +270,11 @@ object fPacketView: TfPacketView
         BackColor = clRed
         HoverBackColor = clRed
         HoverColor = clWindowText
+      end
+      item
+        StyleName = 'Font Style'
+        FontName = 'Arial'
+        Color = clGreen
       end>
     ParaStyles = <
       item
