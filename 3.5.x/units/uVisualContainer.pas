@@ -274,6 +274,8 @@ begin
     end;
   if assigned(PacketView) then
     PacketView.Destroy;
+  currenttunel := nil;
+  currentLSP := nil;
   PacketView := nil;
 end;
 

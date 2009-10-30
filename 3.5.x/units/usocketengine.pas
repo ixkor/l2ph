@@ -936,7 +936,7 @@ begin
     end;
     inc(i);
   end;
-
+  Visual.currenttunel := nil;
   if hServerThread <> 0 then TerminateThread(hServerThread, 0);
   if hClientThread <> 0 then TerminateThread(hClientThread, 0);
   sendNewAction(Ttulel_action_tunel_destroyed);
