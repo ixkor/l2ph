@@ -961,8 +961,9 @@ procedure TfVisual.TabSheet1Show(Sender: TObject);
 begin
   if Splitter3 <> nil then
   Splitter3.Show;
-  if packetVievPanel <> nil then  
+  if packetVievPanel <> nil then
   packetVievPanel.Show;
+  Splitter3.Left := 1;  
 end;
 
 procedure TfVisual.TabSheet3Show(Sender: TObject);
