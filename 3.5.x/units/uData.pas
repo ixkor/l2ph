@@ -549,6 +549,7 @@ var
   buf,pct,tmp: string;
   temp: WideString;
   d: Integer;
+  dd: cardinal;
   i64:Int64;
   ConId:integer;
   b: byte;
@@ -558,7 +559,7 @@ var
   Count:Integer;
   Par:array of Pointer;
   List:variant;
-  i:integer;
+  i,i1:integer;
   ThisScriptId:integer;
   Res:Integer;
   //support DLL
@@ -592,12 +593,14 @@ begin
   // даём возможность плагинам обработать функции
   if (sMethodName <> 'READC')
   and (sMethodName <> 'READD')
+  and (sMethodName <> 'READI')
   and (sMethodName <> 'READQ')
   and (sMethodName <> 'READH')
   and (sMethodName <> 'READF')
   and (sMethodName <> 'READS')
   and (sMethodName <> 'WRITEC')
   and (sMethodName <> 'WRITED')
+  and (sMethodName <> 'WRITEI')
   and (sMethodName <> 'WRITEQ')
   and (sMethodName <> 'WRITEH')
   and (sMethodName <> 'WRITEF')
@@ -621,10 +624,17 @@ begin
   if sMethodName = 'READD' then begin
     pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct)-3 then
+      Move(pct[Integer(Params[0])],dd,4);
+    Params[0]:=Integer(Params[0])+4;
+    Result:=dd;
+  end else
+  if sMethodName = 'READI' then begin
+    pct := scripter.Variables['pck'];
+    if Integer(Params[0])<=Length(pct)-3 then
       Move(pct[Integer(Params[0])],d,4);
     Params[0]:=Integer(Params[0])+4;
     Result:=d;
-  end else
+  end else  
   if sMethodName = 'READQ' then begin
     pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct)-7 then Move(pct[Integer(Params[0])],i64,8);
@@ -660,6 +670,18 @@ begin
       else buf[Integer(Params[1])]:=Char(b);
     Scripter.Variables['buf']:=buf;
   end else
+  if sMethodName = 'WRITEI' then begin
+    buf := Scripter.Variables['buf'];
+    SetLength(tmp,4);
+    dd:=Params[0];
+    if Integer(Params[1])=0 then begin
+      Move(dd,tmp[1],4);
+      buf:=buf+tmp;
+    end else begin
+      Move(dd,buf[Integer(Params[1])],4);
+    end;
+    Scripter.Variables['buf'] := buf;
+  end else
   if sMethodName = 'WRITED' then begin
     buf := Scripter.Variables['buf'];
     SetLength(tmp,4);
@@ -671,7 +693,7 @@ begin
       Move(d,buf[Integer(Params[1])],4);
     end;
     Scripter.Variables['buf'] := buf;
-  end else
+  end else  
   if sMethodName = 'WRITEQ' then begin
     buf := Scripter.Variables['buf'];
     SetLength(tmp,8);
@@ -728,6 +750,7 @@ begin
       'S':CallMethod(Scripter, false, Instance,ClassType,'WRITES',arrtmp);
       'C':CallMethod(Scripter, false, Instance,ClassType,'WRITEC',arrtmp);
       'D':CallMethod(Scripter, false, Instance,ClassType,'WRITED',arrtmp);
+      'I':CallMethod(Scripter, false, Instance,ClassType,'WRITEI',arrtmp);
       'H':CallMethod(Scripter, false, Instance,ClassType,'WRITEH',arrtmp);
       'F':CallMethod(Scripter, false, Instance,ClassType,'WRITEF',arrtmp);
       'Q':CallMethod(Scripter, false, Instance,ClassType,'WRITEQ',arrtmp);
@@ -735,25 +758,46 @@ begin
       inc(i);
     end;
   end else
-  if sMethodName = 'READMASK' then begin
-    mask := UpperCase(Params[0]);
-    arrtmp := VarArrayOf([Params[1]]);
-    arr := Params[2];
-    i := 0;
-    while (i < length(mask)) do
-    begin
-      case mask[i+1] of
-      'S':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READS',arrtmp);
-      'C':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READC',arrtmp);
-      'D':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READD',arrtmp);
-      'H':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READH',arrtmp);
-      'F':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READF',arrtmp);
-      'Q':arr[i] := CallMethod(Scripter, false, Instance,ClassType,'READQ',arrtmp);
-      end;
-      inc(i);
-    end;
-    Params[2] := arr;
-    Params[1] := arrtmp[0];
+      if sMethodName = 'READMASK' then
+      begin
+        mask := UpperCase(Params[0]);
+        arrtmp := VarArrayOf([Params[1]]);
+        arr := Params[2];
+        i := 0;
+        i1 := 0;
+        while (i1 < length(mask)) do
+        begin
+          case mask[i1+1] of
+          'S':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READS', arrtmp);
+          'C':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READC', arrtmp);
+          'D':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READD', arrtmp);
+          'H':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READH', arrtmp);
+          'F':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READF', arrtmp);
+          'Q':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READQ', arrtmp);
+          'I':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READI', arrtmp);
+          '-':begin
+                d := 0;
+                inc(i1);
+                while i1 < length(mask) do
+                if pos(mask[i1+1], '1234567890') > 0 then
+                begin
+                  d := d * 10 + strtoint(mask[i1+1]);
+                  inc(i1);
+                end
+                else
+                  begin
+                    dec(i);
+                    dec(i1);
+                  break;
+                  end;
+                arrtmp[0] := Cardinal(arrtmp[0]) + d;
+              end;
+          end;
+          inc(i);
+          inc(i1);
+        end;
+        Params[2] := arr;
+        Params[1] := arrtmp[0];
   end else  
   if sMethodName = 'CANUSEALTTAB' then begin
     searchfor := VarAsType(Params[0],varString);
@@ -1321,14 +1365,16 @@ begin
   MyFuncs.Add('procedure HideForm()');
   MyFuncs.Add('procedure WriteS(v:string)');
   MyFuncs.Add('procedure WriteC(v:byte; ind:integer=0)');
-  MyFuncs.Add('procedure WriteD(v:integer; ind:integer=0)');
+  MyFuncs.Add('procedure WriteD(v:cardinal; ind:integer=0)');
+  MyFuncs.Add('procedure WriteI(v:integer; ind:integer=0)');
   MyFuncs.Add('procedure WriteH(v:word; ind:integer=0)');
   MyFuncs.Add('procedure WriteF(v:double; ind:integer=0)');
   MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0)');
   MyFuncs.Add('procedure WriteMask(Mask:string; parameters : array of variant)');
   MyFuncs.Add('function ReadS(var index:integer):string');
   MyFuncs.Add('function ReadC(var index:integer):byte');
-  MyFuncs.Add('function ReadD(var index:integer):integer');
+  MyFuncs.Add('function ReadD(var index:integer):cardinal');
+  MyFuncs.Add('function ReadI(var index:integer):Integer');
   MyFuncs.Add('function ReadH(var index:integer):word');
   MyFuncs.Add('function ReadF(var index:integer):double');
   MyFuncs.Add('function ReadQ(var index:integer):Int64');

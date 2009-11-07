@@ -14,7 +14,6 @@ uses
 type
   TfPacketView = class(TFrame)
     Splitter1: TSplitter;
-    RVStyle1: TRVStyle;
     rvHEX: TRichView;
     rvDescryption: TRichView;
     lang: TsiLang;
@@ -22,6 +21,7 @@ type
     Label2: TLabel;
     PopupMenu1: TPopupMenu;
     N1: TMenuItem;
+    RVStyle1: TRVStyle;
     procedure rvHEXMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure rvDescryptionMouseMove(Sender: TObject; Shift: TShiftState;
@@ -90,9 +90,16 @@ begin
   case typ[1] of
     'd':
     begin
-      value:=IntToStr(PInteger(@PktStr[PosInPkt])^);
+      value:=IntToStr(Pcardinal(@PktStr[PosInPkt])^);
       hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
       templateindex := 10;
+      Inc(PosInPkt,4);
+    end;  //dword (размер 4 байта)           d, h-hex
+    'i':
+    begin
+      value:=IntToStr(PInteger(@PktStr[PosInPkt])^);
+      hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
+      templateindex := 17;
       Inc(PosInPkt,4);
     end;  //integer (размер 4 байта)           d, h-hex
     'c':
@@ -502,8 +509,8 @@ begin
     //Memo2.Lines.BeginUpdate;
     
     //Добавляем тип
-    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ),0,0);
-    rvDescryption.AddNLTag('0x'+IntToHex(id,2),11,-1,1);
+    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ),11,0);
+    rvDescryption.AddNLTag('0x'+IntToHex(id,2),0,-1,1);
     rvDescryption.AddNL(' (',0,-1);
     rvDescryption.AddNL(PacketName,1,-1);
     rvDescryption.AddNL(')',0,-1);
@@ -573,7 +580,7 @@ begin
           end;
         end else begin
           rvDescryption.AddNL('Mask : ', 0, 0);
-          rvDescryption.AddNL(blockmask, 27, -1);
+          rvDescryption.AddNL(blockmask, 4, -1);
           blockmask := '';
           for j:=1 to StrToInt(tmp_value) do
           begin
@@ -606,7 +613,7 @@ begin
             
             if value = 'range error' then break;
             rvDescryption.AddNL('Mask : ', 0, 0);
-            rvDescryption.AddNL(blockmask, 27, -1);
+            rvDescryption.AddNL(blockmask, 4, -1);
             blockmask := '';
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
             rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
@@ -662,7 +669,7 @@ begin
           end;
           ii:=PosInIni;
             rvDescryption.AddNL('Mask : ', 0, 0);
-            rvDescryption.AddNL(blockmask, 27, -1);
+            rvDescryption.AddNL(blockmask, 4, -1);
             blockmask := '';            
           for j:=1 to StrToInt(tmp_value) do begin
 
@@ -710,7 +717,7 @@ begin
               addToDescr(offset, typ, name, value+hexvalue);
             end;
             rvDescryption.AddNL('Mask : ', 0, 0);
-            rvDescryption.AddNL(blockmask, 27, -1);
+            rvDescryption.AddNL(blockmask, 4, -1);
             blockmask := '';
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
             rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
@@ -735,7 +742,7 @@ begin
   if blockmask <> '' then
   begin
     rvDescryption.AddNL('Mask : ', 0, 0);
-    rvDescryption.AddNL(blockmask, 27, -1);
+    rvDescryption.AddNL(blockmask, 4, -1);
   end;
 
   rvHEX.FormatTail;
@@ -850,6 +857,7 @@ procedure TfPacketView.N1Click(Sender: TObject);
 begin
 N1.Checked := not N1.Checked;
 rvDescryption.WordWrap := N1.Checked;
+rvDescryption.Format;
 end;
 
 end.
