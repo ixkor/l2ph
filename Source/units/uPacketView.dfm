@@ -105,6 +105,7 @@ object fPacketView: TfPacketView
     RVFOptions = [rvfoSavePicturesBody, rvfoSaveControlsBody, rvfoConvUnknownStylesToZero, rvfoSaveBinary, rvfoSaveTextStyles, rvfoSaveParaStyles, rvfoSaveDocProperties, rvfoLoadDocProperties]
     Style = RVStyle1
     WordWrap = False
+    OnSelect = rvFuncsSelect
   end
   object lang: TsiLang
     Version = '6.1.0.1'

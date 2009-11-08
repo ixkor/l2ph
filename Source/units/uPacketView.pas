@@ -37,6 +37,7 @@ type
     procedure rvDescryptionSelect(Sender: TObject);
     procedure N1Click(Sender: TObject);
     procedure N2Click(Sender: TObject);
+    procedure rvFuncsSelect(Sender: TObject);
 
   private
     { Private declarations }
@@ -1007,6 +1008,17 @@ N2.Checked := not n2.Checked;
 Splitter2.Visible := N2.Checked;
 rvFuncs.Visible := n2.Checked;
 Splitter2.Top := 1;
+end;
+
+procedure TfPacketView.rvFuncsSelect(Sender: TObject);
+begin
+  if rvFuncs.SelectionExists then
+  begin
+    rvFuncs.CopyDef;
+    rvFuncs.Deselect;
+    rvFuncs.Invalidate;
+    rvFuncs.SetFocus;
+  end;
 end;
 
 end.
