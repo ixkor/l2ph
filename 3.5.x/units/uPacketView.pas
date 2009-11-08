@@ -22,6 +22,8 @@ type
     PopupMenu1: TPopupMenu;
     N1: TMenuItem;
     RVStyle1: TRVStyle;
+    Splitter2: TSplitter;
+    rvFuncs: TRichView;
     procedure rvHEXMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure rvDescryptionMouseMove(Sender: TObject; Shift: TShiftState;
@@ -42,7 +44,7 @@ type
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     HexViewOffset : boolean;
     itemTag, templateindex:integer;
-    function GetValue(typ, name, PktStr: string; var PosInPkt: integer; size:word): string;
+    function GetValue(var typ:string; name, PktStr: string; var PosInPkt: integer; size:word): string;
     function GetNpcID(const ar1 : cardinal) : string;
     procedure ParsePacket(PacketName, Packet:string; size : word = 0);
     procedure addtoHex(Str:string);
@@ -78,7 +80,7 @@ begin
 end;
 
 
-function TfPacketView.GetValue(typ, name, PktStr: string;
+function TfPacketView.GetValue(var typ:string; name, PktStr: string;
   var PosInPkt: integer; size: word): string;
 var
   value: string;
@@ -91,17 +93,25 @@ begin
     'd':
     begin
       value:=IntToStr(Pcardinal(@PktStr[PosInPkt])^);
+      try
       hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
+      except
+        ShowMessage(format('%s - INTEGER!',[name]));
+        typ := 's';
+        value:=IntToStr(PInteger(@PktStr[PosInPkt])^);
+        hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
+      end;
       templateindex := 10;
       Inc(PosInPkt,4);
     end;  //dword (размер 4 байта)           d, h-hex
-    'i':
+    {'i':
     begin
       value:=IntToStr(PInteger(@PktStr[PosInPkt])^);
       hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
       templateindex := 17;
       Inc(PosInPkt,4);
     end;  //integer (размер 4 байта)           d, h-hex
+    }
     'c':
     begin
       value:=IntToStr(PByte(@PktStr[PosInPkt])^);
@@ -414,6 +424,24 @@ begin
   end;
 end;
 
+
+function AllowedName(Name:string):boolean;
+var
+i:integer;
+begin
+  result := true;
+  i := 1;
+  while i <= length(name) do
+  begin
+    if not (lowercase(Name[i])[1] in ['a'..'z']) then
+      begin
+        result := false;
+        exit;
+      end;
+    inc(i);
+  end;
+end;
+
 procedure TfPacketView.ParsePacket;
   procedure addToDescr(offset:integer; typ, name, value:string);
   function prnoffset(offset:integer):string;
@@ -454,7 +482,71 @@ var
   oldpos:integer;
   isshow:boolean;
   blockmask : string;
+  FuncNames, FuncParamNames,FuncParamTypes:tstringlist;
+    function GetFuncParams : string;
+    var
+    i :integer;
+    begin
+    result := '';
+    i := 0;
+    while i < funcparamnames.Count do
+    begin
+      if (i < funcparamnames.Count - 1) and (FuncParamTypes.Strings[i] = FuncParamTypes.Strings[i+1]) then
+        result := format('%s%s, ',[result, FuncParamNames.Strings[i]])
+      else
+      begin
+      case typ[1] of
+        'd':
+            begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Cardinal']);
+            end;  //dword (размер 4 байта)           d, h-hex
+{        'i':
+            begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
+            end;  //integer (размер 4 байта)           d, h-hex
+            }
+        'c':
+            begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Byte']);
+            end;  //byte / char (размер 1 байт)        b
+        'f':
+            begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Real']);
+            end;  //double (размер 8 байт, float)      f
+        'h':
+            begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Word']);
+            end;  //word (размер 2 байта)              w
+        'q':
+            begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Int64']);
+            end;  //int64 (размер 8 байта)
+        's':begin
+              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'String']);
+            end;
+      end;
+      if i < funcparamnames.Count-1 then
+        result := result + ';';
+      end;
+    inc(i);
+    end;
+    FuncParamNames.Clear;
+    FuncParamTypes.Clear;
+    end;
+    
+    procedure PrintFuncsParams(sFuncName:string);
+    begin
+      if FuncNames.IndexOf(sFuncName) < 0 then
+      begin
+        rvFuncs.AddNL(format('%s(%s)',[sFuncName,GetFuncParams]),0,0);
+        FuncNames.Add(sFuncName);
+      end;
+    end;
 begin
+    FuncParamNames := TStringList.Create;
+    FuncParamTypes := TStringList.Create;
+    FuncNames := TStringList.Create;
+try
     //строка пакета, sid - номер пакета, cid - номер соединения
     PktStr := HexToString(packet);
     if Length(PktStr)<12 then Exit;
@@ -471,6 +563,7 @@ begin
 
     rvHEX.Clear;
     rvDescryption.Clear;
+    rvFuncs.Clear;
     
     if PacketName = '' then
       GetPacketName(id, subid, (PktStr[1]=#03), PacketName, isshow);
@@ -544,7 +637,6 @@ begin
       Param0:=GetType (StrIni,PosInIni);
       inc(PosInIni);
       typ:=GetTyp(Param0); //считываем тип значения
-      blockmask := blockmask + typ;      
       name:=GetName(Param0); //считываем имя значения в скобках (name:func.par)
       func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
       param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -552,8 +644,16 @@ begin
       offset:=PosinPkt-11;
       oldpos := PosInPkt;
       value:=GetValue(typ, name, PktStr, PosInPkt, size); //считываем значение, сдвигаем указатели в соответствии с типом значения
-      if PosInPkt - oldpos > 0 then 
+      blockmask := blockmask + typ;
+      if AllowedName(name) then
+      begin
+        FuncParamNames.Add(name);
+        FuncParamTypes.Add(typ);
+      end;
+
+      if PosInPkt - oldpos > 0 then
         addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
+
       if value = 'range error' then break;
       if uppercase(Func)='GET' then
       begin
@@ -595,7 +695,6 @@ begin
               Param0:=GetType(StrIni,PosInIni);
               inc(PosInIni);
               typ:=GetTyp(Param0); //считываем тип значения
-              blockmask := blockmask + typ;
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
               param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -603,6 +702,13 @@ begin
               offset:=PosinPkt-11;
               oldpos := PosInPkt;
               value:=GetValue(typ, name, PktStr, PosInPkt, size);
+              blockmask := blockmask + typ;
+              if AllowedName(name) then
+              begin
+                FuncParamNames.Add(name);
+                FuncParamTypes.Add(typ);
+              end;
+
               if PosInPkt - oldpos > 0 then
                 addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
@@ -628,6 +734,8 @@ begin
       if uppercase(Func)='LOOP' then begin
         //распечатываем                                                                              
         addToDescr(offset, typ, name, value+hexvalue);
+        PrintFuncsParams('Pck'+PacketName);
+
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
 
         tmp_param:=param2;
@@ -650,7 +758,6 @@ begin
               Param0:=GetType(StrIni,PosInIni);
               inc(PosInIni);
               typ:=GetTyp(Param0); //считываем тип значения
-              blockmask := blockmask + typ;
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
               param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -658,6 +765,12 @@ begin
               offset:=PosinPkt-11;
               oldpos := PosInPkt;
               value:=GetValue(typ, name, PktStr, PosInPkt, size);
+              blockmask := blockmask + typ;
+              if AllowedName(name) then
+              begin
+                FuncParamNames.Add(name);
+                FuncParamTypes.Add(typ);
+              end;
               if PosInPkt - oldpos > 0 then
                 addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
@@ -668,6 +781,7 @@ begin
             end;
           end;
           ii:=PosInIni;
+            PrintFuncsParams('LoopItem'+PacketName);
             rvDescryption.AddNL('Mask : ', 0, 0);
             rvDescryption.AddNL(blockmask, 4, -1);
             blockmask := '';            
@@ -682,7 +796,6 @@ begin
               Param0:=GetType(StrIni,PosInIni);
               inc(PosInIni);
               typ:=GetTyp(Param0); //считываем тип значения
-              blockmask := blockmask + typ;
               name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
               func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
               param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
@@ -691,6 +804,13 @@ begin
 
               oldpos := PosInPkt;
               value:=GetValue(typ, name, PktStr, PosInPkt, size);
+              blockmask := blockmask + typ;
+              if AllowedName(name) then
+              begin
+                FuncParamNames.Add(name);
+                FuncParamTypes.Add(typ);
+              end;
+
               if PosInPkt - oldpos > 0 then
                 addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
@@ -716,6 +836,7 @@ begin
               //распечатываем
               addToDescr(offset, typ, name, value+hexvalue);
             end;
+            PrintFuncsParams('Item'+PacketName);
             rvDescryption.AddNL('Mask : ', 0, 0);
             rvDescryption.AddNL(blockmask, 4, -1);
             blockmask := '';
@@ -743,10 +864,17 @@ begin
   begin
     rvDescryption.AddNL('Mask : ', 0, 0);
     rvDescryption.AddNL(blockmask, 4, -1);
+    PrintFuncsParams('FullPck'+PacketName);
   end;
 
   rvHEX.FormatTail;
+  rvFuncs.FormatTail;  
   rvDescryption.FormatTail;
+finally
+FuncParamNames.Destroy;
+FuncParamTypes.Destroy;
+FuncNames.Destroy;
+end;
 end;
 
 procedure TfPacketView.rvHEXMouseMove(Sender: TObject; Shift: TShiftState;

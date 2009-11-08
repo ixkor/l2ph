@@ -549,7 +549,6 @@ var
   buf,pct,tmp: string;
   temp: WideString;
   d: Integer;
-  dd: cardinal;
   i64:Int64;
   ConId:integer;
   b: byte;
@@ -593,14 +592,14 @@ begin
   // даём возможность плагинам обработать функции
   if (sMethodName <> 'READC')
   and (sMethodName <> 'READD')
-  and (sMethodName <> 'READI')
+//  and (sMethodName <> 'READI')
   and (sMethodName <> 'READQ')
   and (sMethodName <> 'READH')
   and (sMethodName <> 'READF')
   and (sMethodName <> 'READS')
   and (sMethodName <> 'WRITEC')
   and (sMethodName <> 'WRITED')
-  and (sMethodName <> 'WRITEI')
+//  and (sMethodName <> 'WRITEI')
   and (sMethodName <> 'WRITEQ')
   and (sMethodName <> 'WRITEH')
   and (sMethodName <> 'WRITEF')
@@ -624,17 +623,17 @@ begin
   if sMethodName = 'READD' then begin
     pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct)-3 then
-      Move(pct[Integer(Params[0])],dd,4);
+      Move(pct[Integer(Params[0])],d,4);
     Params[0]:=Integer(Params[0])+4;
-    Result:=dd;
+    Result:=d;
   end else
-  if sMethodName = 'READI' then begin
+{  if sMethodName = 'READI' then begin
     pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct)-3 then
       Move(pct[Integer(Params[0])],d,4);
     Params[0]:=Integer(Params[0])+4;
     Result:=d;
-  end else  
+  end else}  
   if sMethodName = 'READQ' then begin
     pct := scripter.Variables['pck'];
     if Integer(Params[0])<=Length(pct)-7 then Move(pct[Integer(Params[0])],i64,8);
@@ -670,7 +669,7 @@ begin
       else buf[Integer(Params[1])]:=Char(b);
     Scripter.Variables['buf']:=buf;
   end else
-  if sMethodName = 'WRITEI' then begin
+{  if sMethodName = 'WRITEI' then begin
     buf := Scripter.Variables['buf'];
     SetLength(tmp,4);
     dd:=Params[0];
@@ -681,7 +680,7 @@ begin
       Move(dd,buf[Integer(Params[1])],4);
     end;
     Scripter.Variables['buf'] := buf;
-  end else
+  end else}
   if sMethodName = 'WRITED' then begin
     buf := Scripter.Variables['buf'];
     SetLength(tmp,4);
@@ -750,7 +749,7 @@ begin
       'S':CallMethod(Scripter, false, Instance,ClassType,'WRITES',arrtmp);
       'C':CallMethod(Scripter, false, Instance,ClassType,'WRITEC',arrtmp);
       'D':CallMethod(Scripter, false, Instance,ClassType,'WRITED',arrtmp);
-      'I':CallMethod(Scripter, false, Instance,ClassType,'WRITEI',arrtmp);
+//      'I':CallMethod(Scripter, false, Instance,ClassType,'WRITEI',arrtmp);
       'H':CallMethod(Scripter, false, Instance,ClassType,'WRITEH',arrtmp);
       'F':CallMethod(Scripter, false, Instance,ClassType,'WRITEF',arrtmp);
       'Q':CallMethod(Scripter, false, Instance,ClassType,'WRITEQ',arrtmp);
@@ -774,7 +773,7 @@ begin
           'H':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READH', arrtmp);
           'F':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READF', arrtmp);
           'Q':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READQ', arrtmp);
-          'I':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READI', arrtmp);
+//          'I':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READI', arrtmp);
           '-':begin
                 d := 0;
                 inc(i1);
@@ -1366,7 +1365,7 @@ begin
   MyFuncs.Add('procedure WriteS(v:string)');
   MyFuncs.Add('procedure WriteC(v:byte; ind:integer=0)');
   MyFuncs.Add('procedure WriteD(v:cardinal; ind:integer=0)');
-  MyFuncs.Add('procedure WriteI(v:integer; ind:integer=0)');
+//  MyFuncs.Add('procedure WriteI(v:integer; ind:integer=0)');
   MyFuncs.Add('procedure WriteH(v:word; ind:integer=0)');
   MyFuncs.Add('procedure WriteF(v:double; ind:integer=0)');
   MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0)');
@@ -1374,7 +1373,7 @@ begin
   MyFuncs.Add('function ReadS(var index:integer):string');
   MyFuncs.Add('function ReadC(var index:integer):byte');
   MyFuncs.Add('function ReadD(var index:integer):cardinal');
-  MyFuncs.Add('function ReadI(var index:integer):Integer');
+//  MyFuncs.Add('function ReadI(var index:integer):Integer');
   MyFuncs.Add('function ReadH(var index:integer):word');
   MyFuncs.Add('function ReadF(var index:integer):double');
   MyFuncs.Add('function ReadQ(var index:integer):Int64');

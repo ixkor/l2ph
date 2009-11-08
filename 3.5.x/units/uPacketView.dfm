@@ -1,8 +1,8 @@
 object fPacketView: TfPacketView
   Left = 0
   Top = 0
-  Width = 435
-  Height = 266
+  Width = 460
+  Height = 761
   Align = alClient
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,7 +15,7 @@ object fPacketView: TfPacketView
   object Splitter1: TSplitter
     Left = 0
     Top = 185
-    Width = 435
+    Width = 460
     Height = 3
     Cursor = crVSplit
     Align = alTop
@@ -23,7 +23,7 @@ object fPacketView: TfPacketView
   object Label1: TLabel
     Left = 0
     Top = 0
-    Width = 435
+    Width = 460
     Height = 13
     Align = alTop
     Caption = #1055#1072#1082#1077#1090':'
@@ -31,15 +31,23 @@ object fPacketView: TfPacketView
   object Label2: TLabel
     Left = 0
     Top = 188
-    Width = 435
+    Width = 460
     Height = 13
     Align = alTop
     Caption = #1044#1077#1090#1072#1083#1100#1085#1072#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072':'
   end
+  object Splitter2: TSplitter
+    Left = 0
+    Top = 437
+    Width = 460
+    Height = 3
+    Cursor = crVSplit
+    Align = alBottom
+  end
   object rvHEX: TRichView
     Left = 0
     Top = 13
-    Width = 435
+    Width = 460
     Height = 172
     Align = alTop
     TabOrder = 0
@@ -59,11 +67,32 @@ object fPacketView: TfPacketView
   object rvDescryption: TRichView
     Left = 0
     Top = 201
-    Width = 435
-    Height = 65
+    Width = 460
+    Height = 236
     Align = alClient
     PopupMenu = PopupMenu1
     TabOrder = 1
+    OnMouseMove = rvDescryptionMouseMove
+    DocParameters.LeftMargin = 4.000000000000000000
+    DocParameters.RightMargin = 4.000000000000000000
+    DocParameters.TopMargin = 4.000000000000000000
+    DoInPaletteMode = rvpaCreateCopies
+    Options = [rvoAllowSelection, rvoShowPageBreaks, rvoAutoCopyText, rvoAutoCopyRVF, rvoAutoCopyImage, rvoAutoCopyRTF, rvoFormatInvalidate, rvoDblClickSelectsWord, rvoRClickDeselects, rvoFastFormatting]
+    RTFReadProperties.TextStyleMode = rvrsAddIfNeeded
+    RTFReadProperties.ParaStyleMode = rvrsAddIfNeeded
+    RVFOptions = [rvfoSavePicturesBody, rvfoSaveControlsBody, rvfoConvUnknownStylesToZero, rvfoSaveBinary, rvfoSaveTextStyles, rvfoSaveParaStyles, rvfoSaveDocProperties, rvfoLoadDocProperties]
+    Style = RVStyle1
+    OnRVMouseUp = rvDescryptionRVMouseUp
+    OnSelect = rvDescryptionSelect
+  end
+  object rvFuncs: TRichView
+    Left = 0
+    Top = 440
+    Width = 460
+    Height = 321
+    Align = alBottom
+    PopupMenu = PopupMenu1
+    TabOrder = 2
     OnMouseMove = rvDescryptionMouseMove
     DocParameters.LeftMargin = 4.000000000000000000
     DocParameters.RightMargin = 4.000000000000000000
