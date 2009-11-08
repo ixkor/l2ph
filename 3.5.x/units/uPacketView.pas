@@ -1006,7 +1006,7 @@ begin
 N2.Checked := not n2.Checked;
 Splitter2.Visible := N2.Checked;
 rvFuncs.Visible := n2.Checked;
-Splitter1.Top := 1;
+Splitter2.Top := 1;
 end;
 
 end.
