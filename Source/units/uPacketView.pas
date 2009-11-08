@@ -526,8 +526,6 @@ var
       end;
     inc(i);
     end;
-    FuncParamNames.Clear;
-    FuncParamTypes.Clear;
     end;
     
     procedure PrintFuncsParams(sFuncName:string);
@@ -553,12 +551,15 @@ var
         rvFuncs.AddNL(format('Calling : %s(%s);',[sFuncName,values]),0,0);
 
         FuncNames.Add(sFuncName);
-        FuncParamNumbers.clear;
         rvFuncs.AddNL('Mask : ', 0, 0);
         rvFuncs.AddNL(blockmask, 0, -1);
         rvFuncs.AddNL('', 0, 0);
-        
+        blockmask := '';
+
       end;
+      FuncParamNumbers.clear;      
+      FuncParamNames.Clear;
+      FuncParamTypes.Clear;
     end;
 begin
     FuncParamNames := TStringList.Create;
@@ -750,10 +751,10 @@ try
       (*в функции LOOP первый параметр может быть больше 1,
        значит его просто выводим, а остальное
        в цикле до параметр 2*)
-      if uppercase(Func)='LOOP' then begin
-        //распечатываем                                                                              
+      if uppercase(Func)='LOOP' then
+      begin
+        //распечатываем
         addToDescr(offset, typ, name, value+hexvalue);
-        PrintFuncsParams('Pck'+PacketName);
 
         //Memo2.SelStart:=d+length(inttostr(offset))+1;
 
@@ -801,7 +802,7 @@ try
             end;
           end;
           ii:=PosInIni;
-            PrintFuncsParams('LoopItem'+PacketName);
+            PrintFuncsParams('Pck'+PacketName);
 
           for j:=1 to StrToInt(tmp_value) do begin
 
@@ -855,11 +856,10 @@ try
               //распечатываем
               addToDescr(offset, typ, name, value+hexvalue);
             end;
-            PrintFuncsParams('Item'+PacketName);
-
             rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
             rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
             rvDescryption.AddNL(']', 0, -1);
+            PrintFuncsParams('Item'+PacketName);
           end;
         end;
       end else
@@ -878,7 +878,7 @@ try
     addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
   if blockmask <> '' then
-    PrintFuncsParams('FullPck'+PacketName);
+    PrintFuncsParams('Pck'+PacketName);
 
   rvHEX.FormatTail;
   rvFuncs.FormatTail;  
