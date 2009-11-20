@@ -28,6 +28,10 @@ type
     UseSocks5Chain, Socks5NeedAuth : boolean;
     Socks5Port : cardinal;
     Socks5Host, Socks5AuthUsername, Socks5AuthPwd : string;
+
+    isAION{,
+    ignoreServerToClient,
+    ignoreClientToServer}: boolean;
   end;
 
   {Используется плагинами}
@@ -36,7 +40,7 @@ type
   TCodingClass = class(TObject)
   public
     GKeyS,GKeyR:array[0..15] of Byte;
-    procedure InitKey(const XorKey; Interlude: Boolean = False); Virtual; Abstract;   
+    procedure InitKey(const XorKey; Interlude: Byte = 0); Virtual; Abstract;   
     procedure DecryptGP(var Data; var Size: Word); Virtual; Abstract;
     procedure EncryptGP(var Data; var Size: Word); Virtual; Abstract;
     procedure PreDecrypt(var Data; var Size: Word); Virtual; Abstract;

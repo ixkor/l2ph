@@ -78,6 +78,8 @@ type
     edSocks5AuthPwd: TEdit;
     Label7: TLabel;
     btnTestSocks5Chain: TButton;
+    chkIgnoseClientToServer: TCheckBox;
+    chkIgnoseServerToClient: TCheckBox;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -145,6 +147,8 @@ begin
 
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
   ChkChangeXor.Checked:=Options.ReadBool('General','AntiXORkey',False);
+  chkIgnoseClientToServer.Checked:=Options.ReadBool('General','IgnoseClientToServer',False);
+  chkIgnoseServerToClient.Checked:=Options.ReadBool('General','IgnoseServerToClient',False);
   ChkKamael.Checked:=Options.ReadBool('General','ChkKamael',False);
   ChkGraciaOff.Checked:=Options.ReadBool('General', 'ChkGraciaOff', False);
   isNewxor.Text:=Options.ReadString('General','isNewxor', AppPath+'newxor.dll');
@@ -229,6 +233,7 @@ begin
  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
  WriteSettings;
+ rgProtocolVersionClick(nil);
 end;
 
 procedure TfSettings.GenerateSettingsFromInterface;
@@ -239,11 +244,11 @@ with GlobalSettings do
     oldProto := GlobalProtocolVersion;
     isNoDecrypt := ChkNoDecrypt.Checked;
     isChangeXor := ChkChangeXor.Checked;
-    isChangeXor := ChkChangeXor.Checked;
     isGraciaOff := ChkGraciaOff.Checked;
     isKamael := ChkKamael.Checked;
-    isNoProcessToClient := False;
-    isNoProcessToServer := False;
+    isAION := rgProtocolVersion.ItemIndex=5;
+    isNoProcessToClient := chkIgnoseServerToClient.Checked;
+    isNoProcessToServer := chkIgnoseClientToServer.Checked;
     GlobalRawAllowed := chkRaw.Checked;
     HexViewOffset := ChkHexViewOffset.Checked;
     isSaveLog := chkAutoSavePlog.Checked;
@@ -255,6 +260,7 @@ with GlobalSettings do
       2: GlobalProtocolVersion := 737;  //Интерлюд
       3: GlobalProtocolVersion := 828;  //Грация
       4: GlobalProtocolVersion := 83;   //Грация Финал
+      5: GlobalProtocolVersion := -123;    //AION
       else
         GlobalProtocolVersion := 560;   //по умолчанию
     end;
@@ -299,6 +305,8 @@ begin
   Options.WriteString('General','IgnorPorts', isIgnorePorts.Text);
   Options.WriteBool('General','NoDecrypt', ChkNoDecrypt.Checked);
   Options.WriteBool('General','AntiXORkey', ChkChangeXor.Checked);
+  Options.WriteBool('General','IgnoseClientToServer', chkIgnoseClientToServer.Checked);
+  Options.WriteBool('General','IgnoseServerToClient', chkIgnoseServerToClient.Checked);
   Options.WriteBool('General','ChkKamael', ChkKamael.Checked);
   Options.WriteBool('General','ChkGraciaOff', ChkGraciaOff.Checked);
   Options.WriteString('General', 'isNewxor', isNewxor.Text);
@@ -532,8 +540,11 @@ end;
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);
 begin
   if not InterfaceEnabled then exit;
-  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 3);
+  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 3)and(rgProtocolVersion.ItemIndex < 5);
   GenerateSettingsFromInterface;
+  ChkKamael.Enabled:=rgProtocolVersion.ItemIndex <> 5;
+  ChkGraciaOff.Enabled:=ChkKamael.Enabled;
+  ChkChangeXor.Enabled:=ChkKamael.Enabled;
 
 end;
 
@@ -547,7 +558,8 @@ procedure TfSettings.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW;
-  Params.WndParent := fMain.Handle;
+  // чтоб окно настроек не пряталось за основным
+  Params.WndParent:=fMain.Handle;
 end;
 
 procedure TfSettings.BtnInjectClick(Sender: TObject);

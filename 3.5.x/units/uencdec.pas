@@ -10,6 +10,9 @@ uses
   forms,
   sysutils;
 
+const
+  KeyConst2: array[0..63] of Char = 'nKO/WctQ0AVLbpzfBkS6NevDYT8ourG5CRlmdjyJ72aswx4EPq1UgZhFMXH?3iI9';
+
 type
 
 
@@ -17,8 +20,9 @@ type
   private
     keyLen: Byte;
   public
+    isAion: Boolean;
     constructor Create;
-    procedure InitKey(const XorKey; Interlude: Boolean = False); override;
+    procedure InitKey(const XorKey; Interlude: Byte = 0); override;
     procedure DecryptGP(var Data; var Size: Word); override;
     procedure EncryptGP(var Data; var Size: Word); override;
     procedure PreDecrypt(var Data; var Size: Word); override;
@@ -133,8 +137,11 @@ begin
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
         else
           //вытягиваем имя соединения и прочее
-          if (not Settings.isNoDecrypt) then
+          if (not Settings.isNoDecrypt) then begin
+            if Settings.isAION and not InitXOR and (packet.Data[0]=$01) then packet.Data[0]:=$41;
+
             ProcessRecivedPacket(packet);
+          end;
 
         LastPacket := Packet;
         if Assigned(onNewPacket) then
@@ -352,6 +359,8 @@ begin
     else
       begin
         NeedEncrypt := (not Settings.isNoDecrypt) and InitXOR;
+        if Settings.isAION and not InitXOR and (packet.Data[0]=$41)and not Settings.isNoDecrypt then
+          packet.Data[0]:=$01;
         CurrentCoddingClass := xorS;
       end;
 
@@ -393,8 +402,8 @@ case pckCount of
       TempPacket.Size := temp + 2;
       Offset := $13 or ((TempPacket.size-7) div 295) shl 8;
       PInteger(@TempPacket.Data[0])^:=PInteger(@TempPacket.Data[0])^ xor Offset xor PInteger(@(xorS.GKeyS[0]))^;
-      xorS.InitKey(TempPacket.Data[0],isInterlude);
-      xorC.InitKey(TempPacket.Data[0],isInterlude);
+      xorS.InitKey(TempPacket.Data[0],Byte(isInterlude));
+      xorC.InitKey(TempPacket.Data[0],Byte(isInterlude));
       if (not Settings.isNoDecrypt) then
         begin
           temp := CorrectXorData.Size - 2;
@@ -417,21 +426,15 @@ var
   Offset: Word;
   WStr: WideString;
 begin
-  case Packet.Data[0] of
-  $00: begin
-    if not InitXOR then
-    begin
+  if not Settings.isAION then case Packet.Data[0] of
+    $00: if not InitXOR then begin
       isInterlude:=(Packet.Size>19);
-      xorC.InitKey(Packet.Data[2], isInterlude);
-      xorS.InitKey(Packet.Data[2], isInterlude);
+      xorC.InitKey(Packet.Data[2], Byte(isInterlude));
+      xorS.InitKey(Packet.Data[2], Byte(isInterlude));
       SetInitXORAfterEncode := true;
-      exit;
     end;
-  end;
 
-  $15: begin
-    if not Settings.isKamael then
-    begin //and (pckCount=7)
+    $15: if not Settings.isKamael then begin //and (pckCount=7)
         Offset := 1;
         while not ((Packet.Data[Offset]=0) and (Packet.Data[Offset+1]=0)) do Inc(Offset);
         SetLength(WStr, round((Offset+0.5)/2));
@@ -441,11 +444,8 @@ begin
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
     end;
-  end;
-  //CharSelected
-  $0B: begin
-    if Settings.isKamael then
-    begin // and (pckCount=6)
+    //CharSelected
+    $0B: if Settings.isKamael then begin // and (pckCount=6)
         Offset := 1;
         while not ((Packet.Data[Offset] = 0) and (Packet.Data[Offset + 1] = 0)) do Inc(Offset);
         SetLength(WStr, round((Offset+0.5)/2));
@@ -456,20 +456,32 @@ begin
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
     end;
-  end;
-  $2e: begin
-    if (not InitXOR) and Settings.isKamael then
-    begin
+    $2e: if (not InitXOR) and Settings.isKamael then begin
       isInterlude := True;
-      xorC.InitKey(Packet.Data[2], isInterlude);
-      xorS.InitKey(Packet.Data[2], isInterlude);
+      xorC.InitKey(Packet.Data[2], Byte(isInterlude));
+      xorS.InitKey(Packet.Data[2], Byte(isInterlude));
       if Settings.isGraciaOff then
         Corrector(Packet.Size,False,True); // инициализация корректора
       SetInitXORAfterEncode := true;
       exit;
     end;
+  end else case Packet.Data[0] of
+    $41: if not InitXOR then begin
+      xorC.InitKey(Packet.Data[3], 2);
+      xorS.InitKey(Packet.Data[3], 2);
+      SetInitXORAfterEncode := true;
+    end;
+    // CharInfo
+    $19: if CharName = '[unk]' then begin
+        CharName := WideStringToString(PWideChar(@Packet.Data[$2a]), 1251);
+        //Получено имя соединения
+        sendAction(TencDec_Action_GotName);
+    end;
+    // Character list
+    $c1: begin
+      CharName := '[unk]';
+    end;
   end;
-end;
 end;
 
 procedure TencDec.sendAction(act: integer);
@@ -485,6 +497,7 @@ begin
   FillChar(GKeyS[0],SizeOf(GKeyS),0);
   FillChar(GKeyR[0],SizeOf(GKeyR),0);
   keyLen := 0;
+  isAion:=False;
 end;
 
 procedure L2Xor.DecryptGP(var Data; var Size: Word);
@@ -497,10 +510,11 @@ begin
   for k:=0 to size-1 do
     begin
      t:=pck[k];
-     pck[k]:=t xor GKeyR[k and keyLen] xor i;
+     pck[k]:=t xor GKeyR[k and keyLen] xor i xor IfThen(isAion and(k>0),Byte(KeyConst2[k and 63]));
      i:=t;
     end;
   Inc(PCardinal(@GKeyR[keyLen-7])^,size);
+  if isAion and(Size>0)then pck[0]:=(pck[0] xor $EE) - $AE; // и нафига это...
 end;
 
 procedure L2Xor.EncryptGP(var Data; var Size: Word);
@@ -509,29 +523,40 @@ var
   k:byte;
   pck:array[0..$FFFD] of Byte absolute Data;
 begin
+  if isAion and(Size>0)then pck[0]:=(pck[0] + $AE) xor $EE; // и нафига это...
   k:=0;
   for i:=0 to size-1 do begin
-    pck[i]:=pck[i] xor GKeyS[i and keyLen] xor k;
+    pck[i]:=pck[i] xor GKeyS[i and keyLen] xor k xor IfThen(isAion and(i>0),Byte(KeyConst2[i and 63]));
     k:=pck[i];
   end;
   Inc(PCardinal(@GKeyS[keyLen-7])^,size);
 end;
 
-procedure L2Xor.InitKey(const XorKey; Interlude: Boolean);
+procedure L2Xor.InitKey(const XorKey; Interlude: Byte);
 const
   KeyConst: array[0..3] of Byte = ($A1,$6C,$54,$87);
   KeyConstInterlude: array[0..7] of Byte = ($C8,$27,$93,$01,$A1,$6C,$31,$97);
 var
   key2:array[0..15] of Byte;
 begin
-  if Interlude then begin
-    keyLen:=15;
-    Move(XorKey,key2,8);
-    Move(KeyConstInterlude,key2[8],8);
-  end else begin
-    keyLen:=7;
-    Move(XorKey,key2,4);
-    Move(KeyConst,key2[4],4);
+  case Interlude of
+    1:begin
+      keyLen:=15;
+      Move(XorKey,key2,8);
+      Move(KeyConstInterlude,key2[8],8);
+    end;
+    0:begin
+      keyLen:=7;
+      Move(XorKey,key2,4);
+      Move(KeyConst,key2[4],4);
+    end;
+    2:begin
+      keyLen:=7;
+      Move(XorKey,key2,4);
+      Move(KeyConst,key2[4],4);
+      PCardinal(@key2[0])^:=PCardinal(@key2[0])^ - $3ff2cc87 xor $cd92e451;
+      isAion:=True;
+    end;
   end;
   Move(key2,GKeyS,16);
   Move(key2,GKeyR,16);
