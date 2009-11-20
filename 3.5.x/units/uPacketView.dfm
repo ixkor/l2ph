@@ -1,8 +1,8 @@
 object fPacketView: TfPacketView
   Left = 0
   Top = 0
-  Width = 435
-  Height = 609
+  Width = 446
+  Height = 388
   Align = alClient
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,7 +15,7 @@ object fPacketView: TfPacketView
   object Splitter1: TSplitter
     Left = 0
     Top = 185
-    Width = 435
+    Width = 446
     Height = 3
     Cursor = crVSplit
     Align = alTop
@@ -23,7 +23,7 @@ object fPacketView: TfPacketView
   object Label1: TLabel
     Left = 0
     Top = 0
-    Width = 435
+    Width = 446
     Height = 13
     Align = alTop
     Caption = #1055#1072#1082#1077#1090':'
@@ -31,15 +31,15 @@ object fPacketView: TfPacketView
   object Label2: TLabel
     Left = 0
     Top = 188
-    Width = 435
+    Width = 446
     Height = 13
     Align = alTop
     Caption = #1044#1077#1090#1072#1083#1100#1085#1072#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072':'
   end
   object Splitter2: TSplitter
     Left = 0
-    Top = 501
-    Width = 435
+    Top = 280
+    Width = 446
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -48,7 +48,7 @@ object fPacketView: TfPacketView
   object rvHEX: TRichView
     Left = 0
     Top = 13
-    Width = 435
+    Width = 446
     Height = 172
     Align = alTop
     TabOrder = 0
@@ -68,8 +68,8 @@ object fPacketView: TfPacketView
   object rvDescryption: TRichView
     Left = 0
     Top = 201
-    Width = 435
-    Height = 300
+    Width = 446
+    Height = 79
     Align = alClient
     PopupMenu = PopupMenu1
     TabOrder = 1
@@ -88,8 +88,8 @@ object fPacketView: TfPacketView
   end
   object rvFuncs: TRichView
     Left = 0
-    Top = 504
-    Width = 435
+    Top = 283
+    Width = 446
     Height = 105
     Align = alBottom
     PopupMenu = PopupMenu1
