@@ -547,6 +547,7 @@ procedure TfSettings.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.ExStyle := Params.ExStyle OR WS_EX_APPWINDOW;
+  Params.WndParent := fMain.Handle;
 end;
 
 procedure TfSettings.BtnInjectClick(Sender: TObject);

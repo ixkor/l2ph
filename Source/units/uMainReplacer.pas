@@ -360,7 +360,6 @@ begin
   visible := false;
   ShowWindow(application.Handle,sw_hide);
   fMain.show;
-
 end;
 
 procedure TfMainReplacer.BalonHint(var msg: TMessage);
