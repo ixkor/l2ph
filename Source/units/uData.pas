@@ -554,6 +554,7 @@ var
   b: byte;
   h: Word;
   f: Double;
+  n: Single;
   LibHandle:Pointer;
   Count:Integer;
   Par:array of Pointer;
@@ -595,6 +596,7 @@ begin
 //  and (sMethodName <> 'READI')
   and (sMethodName <> 'READQ')
   and (sMethodName <> 'READH')
+  and (sMethodName <> 'READN')
   and (sMethodName <> 'READF')
   and (sMethodName <> 'READS')
   and (sMethodName <> 'WRITEC')
@@ -602,6 +604,7 @@ begin
 //  and (sMethodName <> 'WRITEI')
   and (sMethodName <> 'WRITEQ')
   and (sMethodName <> 'WRITEH')
+  and (sMethodName <> 'WRITEN')
   and (sMethodName <> 'WRITEF')
   and (sMethodName <> 'WRITES')
   and (sMethodName <> 'WRITEMASK')
@@ -651,6 +654,12 @@ begin
     if Integer(Params[0])<=Length(pct)-7 then Move(pct[Integer(Params[0])],f,8);
     Params[0]:=Integer(Params[0])+8;
     Result:=f;
+  end else
+  if sMethodName = 'READN' then begin
+    pct := scripter.Variables['pck'];
+    if Integer(Params[0])<=Length(pct)-3 then Move(pct[Integer(Params[0])],n,8);
+    Params[0]:=Integer(Params[0])+4;
+    Result:=n;
   end else
   if sMethodName = 'READS' then begin
     pct := Scripter.Variables['pck'];
@@ -702,6 +711,18 @@ begin
       buf:=buf+tmp;
     end else begin
       Move(i64,buf[Integer(Params[1])],8);
+    end;
+    Scripter.Variables['buf'] := buf;
+  end else
+  if sMethodName = 'WRITEN' then begin
+    buf := Scripter.Variables['buf'];
+    SetLength(tmp,4);
+    n:=Params[0];
+    if Integer(Params[1])=0 then begin
+      Move(n,tmp[1],4);
+      buf:=buf+tmp;
+    end else begin
+      Move(n,buf[Integer(Params[1])],4);
     end;
     Scripter.Variables['buf'] := buf;
   end else
@@ -772,6 +793,7 @@ begin
           'D':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READD', arrtmp);
           'H':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READH', arrtmp);
           'F':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READF', arrtmp);
+          'N':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READN', arrtmp);
           'Q':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READQ', arrtmp);
 //          'I':arr[i] := CallMethod(Scripter, false, Instance, ClassType, 'READI', arrtmp);
           '-':begin
@@ -1368,6 +1390,7 @@ begin
 //  MyFuncs.Add('procedure WriteI(v:integer; ind:integer=0)');
   MyFuncs.Add('procedure WriteH(v:word; ind:integer=0)');
   MyFuncs.Add('procedure WriteF(v:double; ind:integer=0)');
+  MyFuncs.Add('procedure WriteN(v:single; ind:integer=0)');
   MyFuncs.Add('procedure WriteQ(v:int64; ind:integer=0)');
   MyFuncs.Add('procedure WriteMask(Mask:string; parameters : array of variant)');
   MyFuncs.Add('function ReadS(var index:integer):string');
@@ -1376,6 +1399,7 @@ begin
 //  MyFuncs.Add('function ReadI(var index:integer):Integer');
   MyFuncs.Add('function ReadH(var index:integer):word');
   MyFuncs.Add('function ReadF(var index:integer):double');
+  MyFuncs.Add('function ReadN(var index:integer):single');
   MyFuncs.Add('function ReadQ(var index:integer):Int64');
   MyFuncs.Add('procedure ReadMask(Mask:string; var index:integer; var resultarray : array of variant)');
   MyFuncs.Add('function LoadLibrary(LibName:String):Integer');
@@ -1629,9 +1653,21 @@ begin
   if LspConnection = nil then
     begin
       OutStruct := inStruct;
+      OutStruct.exists := true;
+      CriticalSection.Leave;
       exit;
     end;
   LspConnection.AddToRawLog(PCK_GS_ToClient, inStruct.CurrentBuff, inStruct.CurrentSize);
+
+  //{AddToLog('ignoredServerToClient '+BoolToStr(LspConnection.EncDec.Settings.ignoreServerToClient,True));
+  if LspConnection.EncDec.Settings.isNoProcessToClient then begin
+    OutStruct := inStruct;
+    OutStruct.exists := true;
+    CriticalSection.Leave;
+    //AddToLog('innoredServerToClient');
+    Exit;
+  end;//}
+
   TmpInStruct := inStruct;
   LspConnection.EncDec.xorS.PreDecrypt(TmpInStruct.CurrentBuff, TmpInStruct.CurrentSize);
 
@@ -1694,10 +1730,22 @@ begin
   if LspConnection = nil then
     begin
       OutStruct := inStruct;    
+      OutStruct.exists := true;
+      CriticalSection.Leave;
       exit;
     end;
-    
+
   LspConnection.AddToRawLog(PCK_GS_ToServer, inStruct.CurrentBuff, inStruct.CurrentSize);
+
+  //{AddToLog('innoredClientToServer '+BoolToStr(LspConnection.EncDec.Settings.ignoreClientToServer,True));
+  if LspConnection.EncDec.Settings.isNoProcessToServer then begin
+    OutStruct := inStruct;
+    OutStruct.exists := true;
+    CriticalSection.Leave;
+    //AddToLog('innoredClientToServer');
+    Exit;
+  end;//}
+
   TmpInStruct := inStruct;
   LspConnection.EncDec.xorS.PreDecrypt(TmpInStruct.CurrentBuff, TmpInStruct.CurrentSize);
 

@@ -15,16 +15,17 @@ type
   TfPacketView = class(TFrame)
     Splitter1: TSplitter;
     rvHEX: TRichView;
-    rvDescryption: TRichView;
     lang: TsiLang;
     Label1: TLabel;
-    Label2: TLabel;
     PopupMenu1: TPopupMenu;
     N1: TMenuItem;
     RVStyle1: TRVStyle;
-    Splitter2: TSplitter;
-    rvFuncs: TRichView;
     N2: TMenuItem;
+    Panel1: TPanel;
+    rvFuncs: TRichView;
+    Label2: TLabel;
+    rvDescryption: TRichView;
+    Splitter2: TSplitter;
     procedure rvHEXMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure rvDescryptionMouseMove(Sender: TObject; Shift: TShiftState;
@@ -121,6 +122,12 @@ begin
       templateindex := 12;
       Inc(PosInPkt,8);
     end;  //double (размер 8 байт, float)      f
+    'n':
+    begin
+      value:=FloatToStr(PSingle(@PktStr[PosInPkt])^);
+      templateindex := 12;
+      Inc(PosInPkt,4);
+    end;  //Single (размер 4 байт, float)      n
     'h':
     begin
       value:=IntToStr(PWord(@PktStr[PosInPkt])^);
@@ -591,6 +598,9 @@ try
     //считываем строку из packets.ini дл€ парсинга
     if PktStr[1]=#04 then
     //client
+      if (GlobalProtocolVersion=-123)then
+        StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
+      else
       if (GlobalProtocolVersion>83) and (GlobalProtocolVersion<828) then
       //фиксим пакет 39 дл€ √раци€- амаель
         if (ID in [$39,$D0]) and (size>3) then
@@ -606,6 +616,9 @@ try
           StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
     else
       //server
+      if (GlobalProtocolVersion=-123)then
+        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknown:')
+      else
       if (Byte(PktStr[12]) in [$FE]) and (size>3) then
         StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknown:h(subID)')
       else
@@ -618,6 +631,7 @@ try
     PosInIni:=Pos(':',StrIni);
     //смещение в pkt
     PosInPkt:=13;
+
     Inc(PosInIni);
     //Memo2.Lines.BeginUpdate;
     
@@ -1005,9 +1019,9 @@ end;
 procedure TfPacketView.N2Click(Sender: TObject);
 begin
 N2.Checked := not n2.Checked;
-Splitter2.Visible := N2.Checked;
 rvFuncs.Visible := n2.Checked;
-Splitter2.Top := 1;
+Splitter2.Visible := N2.Checked;
+//Splitter2.Top := 1;
 end;
 
 procedure TfPacketView.rvFuncsSelect(Sender: TObject);

@@ -149,6 +149,9 @@ procedure TfPacketFilter.LoadPacketsIni;
 var
   i, j: Integer;
 begin
+  if (GlobalProtocolVersion=-123)then
+    LoadPktIni('packetAion.ini')   //пакеты для AION
+  else
   if (GlobalProtocolVersion>=12) and (GlobalProtocolVersion<=100) then
     LoadPktIni('packetst2.ini')   //пакеты для Грация Финал
   else begin

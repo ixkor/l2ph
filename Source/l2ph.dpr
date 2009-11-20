@@ -49,7 +49,7 @@ begin
    ReleaseMutex(hMutex);
    CloseHandle(hMutex);
    
-   hWindow := FindWindow('TfMain', nil);
+   hWindow := FindWindow(PChar(String(TfMain.ClassName)), nil);
    if hWindow > 0 then
    begin
      SetForegroundWindow(hWindow);
