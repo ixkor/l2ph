@@ -240,7 +240,11 @@ begin
     thisTunel.AddToRawLog(PCK_GS_ToServer, Preaccumulator[0], LastResult);
 
     if not thisTunel.EncDec.Settings.isNoProcessToServer then
-      thisTunel.EncDec.xorC.PreDecrypt(Preaccumulator, LastResult);
+      try
+        thisTunel.EncDec.xorC.PreDecrypt(Preaccumulator, LastResult);
+      except
+        break;
+      end;
       
     Move(PreAccumulator[0], StackAccumulator[AccumulatorLen], LastResult);
     FillChar(PreAccumulator[0],$ffff,0);
