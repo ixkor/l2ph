@@ -206,7 +206,7 @@ begin
   FillChar(PreAccumulator[0],$ffff,0);
   
   While (LastResult > 0) and (thisTunel.serversocket <> -1) do
-  begin //Читаем пока не отвалимся
+  try //Читаем пока не отвалимся
 
     //Сколько еще в буфере ?!
     ioctlsocket(thisTunel.serversocket, FIONREAD, BytesInStack);
@@ -240,12 +240,8 @@ begin
     thisTunel.AddToRawLog(PCK_GS_ToServer, Preaccumulator[0], LastResult);
 
     if not thisTunel.EncDec.Settings.isNoProcessToServer then
-      try
         thisTunel.EncDec.xorC.PreDecrypt(Preaccumulator, LastResult);
-      except
-        break;
-      end;
-      
+
     Move(PreAccumulator[0], StackAccumulator[AccumulatorLen], LastResult);
     FillChar(PreAccumulator[0],$ffff,0);
     inc(AccumulatorLen, LastResult);
@@ -301,8 +297,10 @@ begin
         AccumulatorLen := 0;
       end;
     end;
+  except
+  break;
   end;//While LastResult <> SOCKET_ERROR do
-
+  try
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //сюда попадаем когда отвалился сервер
   //Пишем в лог
@@ -328,6 +326,8 @@ begin
   //ставим этому обьекту статус камикадзе если надо.
   if not thisTunel.noFreeAfterDisconnect then
     thisTunel.MustBeDestroyed := true;
+  except
+  end;
 end;
 end;
 
