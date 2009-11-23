@@ -205,7 +205,7 @@ begin
   LastResult := 1;
   FillChar(PreAccumulator[0],$ffff,0);
   
-  While (LastResult > 0) and (thisTunel.serversocket <> -1) do
+  While (thisTunel.serversocket <> -1) do
   try //Читаем пока не отвалимся
 
     //Сколько еще в буфере ?!
@@ -405,7 +405,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
   AccumulatorLen := 0;
   LastResult := 1;
   
-  While (LastResult > 0) and (thisTunel.clientsocket <> -1) do
+  While (thisTunel.clientsocket <> -1) do
   begin //Читаем пока не отвалимся
 
     //Сколько еще в буфере ?!
