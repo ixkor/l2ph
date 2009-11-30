@@ -29,6 +29,8 @@ type
     Button5: TButton;
     StatusBar1: TStatusBar;
     lang: TsiLang;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
     procedure Button4Click(Sender: TObject);
     procedure Memo6Change(Sender: TObject);
     procedure Button5Click(Sender: TObject);
@@ -56,9 +58,28 @@ procedure TfConvert.Button4Click(Sender: TObject);
 var
   temp: string;
   i64: Int64;
+  s: Single;
+  d: Double;
 begin
 Memo7.OnChange := nil;
 try
+  if RadioButton1.Checked then // double
+  begin
+    SetLength(temp,8);
+    d:=StrToFloatDef(Memo6.Text,0);
+    Move(d,temp[1],8);
+    Memo7.Text:=StringToHex(temp,' ');
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
+  end;
+  if RadioButton2.Checked then // single
+  begin
+    SetLength(temp,4);
+    s:=StrToFloatDef(Memo6.Text,0);
+    Move(s,temp[1],4);
+    Memo7.Text:=StringToHex(temp,' ');
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
+  end;
+
   if RadioButton5.Checked then
   begin
     Memo7.Text:=StringToHex(Memo6.Text,' ');
@@ -110,10 +131,27 @@ procedure TfConvert.Button5Click(Sender: TObject);
 var
   temp: string;
   i64: Int64;
+  d: Double;
+  s: Single;
   wtemp: WideString;
 begin
 try
   Memo6.OnChange := nil;
+  if RadioButton1.Checked then // double
+  begin
+    d:=0;
+    Move((HexToString(Memo7.Text)+#0#0#0#0#0#0#0#0)[1],d,8);
+    Memo6.Text:=FloatToStr(d);
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
+  end;
+  if RadioButton2.Checked then // single
+  begin
+    s:=0;
+    Move((HexToString(Memo7.Text)+#0#0#0#0)[1],s,4);
+    Memo6.Text:=FloatToStr(s);
+    StatusBar1.SimpleText := lang.GetTextOrDefault('IDS_0' (* 'ѕоследнее преобразование прошло успешно' *) );
+  end;
+
   if RadioButton5.Checked then
   begin
     Memo6.Text:=HexToString(Memo7.Text);
