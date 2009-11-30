@@ -1,11 +1,11 @@
 object fConvert: TfConvert
   Left = 192
   Top = 114
-  Width = 737
-  Height = 231
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103
+  ClientHeight = 197
+  ClientWidth = 721
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,21 +22,22 @@ object fConvert: TfConvert
     Left = 0
     Top = 0
     Width = 721
-    Height = 193
+    Height = 197
     Align = alClient
     Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1080#1103':'
     TabOrder = 0
     object Splitter5: TSplitter
       Left = 356
       Top = 15
-      Height = 157
+      Height = 161
       ResizeStyle = rsUpdate
+      ExplicitHeight = 157
     end
     object Panel5: TPanel
       Left = 359
       Top = 15
       Width = 360
-      Height = 157
+      Height = 161
       Align = alClient
       BevelOuter = bvNone
       Caption = 'Panel5'
@@ -45,7 +46,7 @@ object fConvert: TfConvert
         Left = 23
         Top = 21
         Width = 337
-        Height = 136
+        Height = 140
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -61,7 +62,7 @@ object fConvert: TfConvert
         Left = 0
         Top = 21
         Width = 23
-        Height = 136
+        Height = 140
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 1
@@ -117,15 +118,15 @@ object fConvert: TfConvert
       Left = 2
       Top = 15
       Width = 354
-      Height = 157
+      Height = 161
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 1
       object Memo6: TMemo
         Left = 0
-        Top = 21
+        Top = 40
         Width = 354
-        Height = 136
+        Height = 121
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -136,12 +137,14 @@ object fConvert: TfConvert
         ScrollBars = ssVertical
         TabOrder = 0
         OnChange = Memo6Change
+        ExplicitTop = 21
+        ExplicitHeight = 140
       end
       object Panel1: TPanel
         Left = 0
         Top = 0
         Width = 354
-        Height = 21
+        Height = 40
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
@@ -187,11 +190,27 @@ object fConvert: TfConvert
           Caption = 'DWord'
           TabOrder = 4
         end
+        object RadioButton1: TRadioButton
+          Left = 5
+          Top = 24
+          Width = 61
+          Height = 15
+          Caption = 'Double'
+          TabOrder = 5
+        end
+        object RadioButton2: TRadioButton
+          Left = 72
+          Top = 24
+          Width = 61
+          Height = 15
+          Caption = 'Single'
+          TabOrder = 6
+        end
       end
     end
     object StatusBar1: TStatusBar
       Left = 2
-      Top = 172
+      Top = 176
       Width = 717
       Height = 19
       Panels = <>
