@@ -1,9 +1,9 @@
 object fProcessRawLog: TfProcessRawLog
-  Left = 22
-  Top = 66
+  Left = 74
+  Top = 88
+  Width = 582
+  Height = 537
   Caption = #1056#1072#1073#1086#1090#1072' '#1089' RAW '#1083#1086#1075#1086#1084' '#1090#1088#1072#1092#1080#1082#1072
-  ClientHeight = 499
-  ClientWidth = 566
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -27,7 +27,7 @@ object fProcessRawLog: TfProcessRawLog
     TabOrder = 0
     object btnOpenRaw: TToolButton
       Left = 0
-      Top = 0
+      Top = 2
       Hint = #1054#1090#1082#1088#1099#1090#1100' Raw '#1083#1086#1075
       ImageIndex = 0
       ParentShowHint = False
@@ -36,14 +36,14 @@ object fProcessRawLog: TfProcessRawLog
     end
     object ToolButton1: TToolButton
       Left = 23
-      Top = 0
+      Top = 2
       Width = 14
       ImageIndex = 5
       Style = tbsSeparator
     end
     object btnNoExplode: TToolButton
       Left = 37
-      Top = 0
+      Top = 2
       Hint = #1053#1077' '#1073#1091#1076#1077#1090' '#1088#1072#1089#1082#1083#1077#1080#1074#1072#1090#1100' '#1087#1072#1082#1077#1090#1099' '#1087#1088#1080#1096#1077#1076#1096#1080#1093' '#1086#1076#1085#1080#1084' '#1082#1091#1089#1082#1086#1084' '#1086#1090' '#1089#1077#1088#1074#1077#1088#1072
       ImageIndex = 1
       ParentShowHint = False
@@ -53,7 +53,7 @@ object fProcessRawLog: TfProcessRawLog
     end
     object btnExplode: TToolButton
       Left = 60
-      Top = 0
+      Top = 2
       Hint = #1041#1091#1076#1077#1090' '#1088#1072#1079#1073#1080#1074#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1085#1072' '#1087#1072#1082#1077#1090#1099' ('#1087#1099#1090#1072#1090#1089#1103')'
       Down = True
       ImageIndex = 2
@@ -64,7 +64,7 @@ object fProcessRawLog: TfProcessRawLog
     end
     object btnDecrypt: TToolButton
       Left = 83
-      Top = 0
+      Top = 2
       Hint = #1055#1086#1087#1099#1090#1072#1090#1100#1089#1103' '#1076#1077#1082#1088#1080#1087#1090#1086#1074#1072#1090#1100' '#1076#1072#1085#1085#1099#1081' Raw '#1083#1086#1075
       Down = True
       ImageIndex = 3
@@ -75,7 +75,7 @@ object fProcessRawLog: TfProcessRawLog
     end
     object ToolButton2: TToolButton
       Left = 106
-      Top = 0
+      Top = 2
       ImageIndex = 7
       ParentShowHint = False
       ShowHint = True
@@ -83,21 +83,21 @@ object fProcessRawLog: TfProcessRawLog
     end
     object ToolButton3: TToolButton
       Left = 129
-      Top = 0
+      Top = 2
       Width = 8
       ImageIndex = 4
       Style = tbsSeparator
     end
     object ToolButton6: TToolButton
       Left = 137
-      Top = 0
+      Top = 2
       Width = 18
       ImageIndex = 4
       Style = tbsSeparator
     end
     object btnShowDirrection: TToolButton
       Left = 155
-      Top = 0
+      Top = 2
       Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1085#1072#1087#1088#1072#1074#1083#1077#1085#1080#1077
       ImageIndex = 6
       ParentShowHint = False
@@ -107,7 +107,7 @@ object fProcessRawLog: TfProcessRawLog
     end
     object btnShowTimeStamp: TToolButton
       Left = 178
-      Top = 0
+      Top = 2
       Hint = #1055#1086#1082#1072#1079#1099#1074#1072#1090#1100' '#1074#1088#1077#1084#1103
       ImageIndex = 5
       ParentShowHint = False
@@ -117,14 +117,14 @@ object fProcessRawLog: TfProcessRawLog
     end
     object ToolButton15: TToolButton
       Left = 201
-      Top = 0
+      Top = 2
       Width = 11
       ImageIndex = 16
       Style = tbsSeparator
     end
     object btnUseLib: TToolButton
       Left = 212
-      Top = 0
+      Top = 2
       Hint = #1048#1089#1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1076#1088#1091#1075#1091#1102' '#1073#1080#1073#1083#1080#1086#1090#1077#1082#1091' '#1076#1083#1103' '#1076#1077#1082#1088#1080#1087#1090#1086#1074#1082#1080
       ImageIndex = 4
       ParentShowHint = False
@@ -144,10 +144,6 @@ object fProcessRawLog: TfProcessRawLog
     object TabSheet1: TTabSheet
       Caption = #1058#1077#1082#1091#1097#1077#1077' '#1089#1086#1089#1090#1086#1103#1085#1080#1077
       OnResize = TabSheet1Resize
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object memo1: TJvRichEdit
         Left = 0
         Top = 0
@@ -205,18 +201,10 @@ object fProcessRawLog: TfProcessRawLog
     object TabSheet3: TTabSheet
       Caption = #1056#1072#1079#1073#1086#1088
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object TabSheet2: TTabSheet
       Caption = #1051#1086#1075' '#1087#1088#1086#1074#1077#1088#1082#1080
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object JvRichEdit1: TJvRichEdit
         Left = 0
         Top = 0

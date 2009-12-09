@@ -3,7 +3,7 @@ object fSettings: TfSettings
   Top = 157
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
+  Caption = 'S'
   ClientHeight = 525
   ClientWidth = 371
   Color = clBtnFace
@@ -28,10 +28,6 @@ object fSettings: TfSettings
     TabOrder = 0
     object TabSheet8: TTabSheet
       Caption = #1054#1073#1097#1080#1077' '#1085#1072#1089#1090#1088#1086#1081#1082#1080
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object rgProtocolVersion: TRadioGroup
         Left = 0
         Top = 157
@@ -49,7 +45,6 @@ object fSettings: TfSettings
           'AION 1.0')
         TabOrder = 0
         OnClick = rgProtocolVersionClick
-        ExplicitTop = 126
       end
       object GroupBox1: TGroupBox
         Left = 0
@@ -226,7 +221,6 @@ object fSettings: TfSettings
         Font.Style = []
         ParentFont = False
         TabOrder = 2
-        ExplicitTop = 241
         object Label4: TLabel
           Left = 8
           Top = 37
@@ -321,10 +315,6 @@ object fSettings: TfSettings
     object TabSheet9: TTabSheet
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1087#1077#1088#1077#1093#1074#1072#1090#1072
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel1: TBevel
         Left = 5
         Top = 90
@@ -660,10 +650,6 @@ object fSettings: TfSettings
     object TabSheet1: TTabSheet
       Caption = #1044#1086#1087#1086#1083#1085#1080#1090#1077#1083#1100#1085#1086
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Bevel5: TBevel
         Left = 5
         Top = 178

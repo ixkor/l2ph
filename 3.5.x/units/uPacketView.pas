@@ -765,7 +765,7 @@ try
       (*в функции LOOP первый параметр может быть больше 1,
        значит его просто выводим, а остальное
        в цикле до параметр 2*)
-      if uppercase(Func)='LOOP' then
+      if (uppercase(Func)='LOOP') and (StrToInt(value)>0) then
       begin
         //распечатываем
         addToDescr(offset, typ, name, value+hexvalue);
