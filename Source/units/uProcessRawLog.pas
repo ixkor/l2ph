@@ -368,7 +368,7 @@ begin
    begin
    TabSheet2.Show;
    encdec.destroy;
-   visual.PacketListRefresh;
+   visual.PacketListRefresh(true);
    end;
 
 end;

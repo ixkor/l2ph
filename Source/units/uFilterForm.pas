@@ -5,20 +5,20 @@ interface
 uses
   inifiles, 
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, siComp;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, siComp, JvExComCtrls, JvListView;
 
 type
   TfPacketFilter = class(TForm)
     PageControl2: TPageControl;
     TabSheet1: TTabSheet;
-    ListView1: TListView;
     TabSheet7: TTabSheet;
-    ListView2: TListView;
     Panel17: TPanel;
     Button1: TButton;
     Button13: TButton;
     UpdateBtn: TButton;
     lang: TsiLang;
+    ListView1: TJvListView;
+    ListView2: TJvListView;
     procedure Button1Click(Sender: TObject);
     procedure Button13Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -147,7 +147,7 @@ end;
 
 procedure TfPacketFilter.LoadPacketsIni;
 var
-  i, j: Integer;
+  i: Integer;
 begin
   if (GlobalProtocolVersion=-123)then
     LoadPktIni('packetAion.ini')   //пакеты для AION
@@ -174,50 +174,49 @@ begin
         LoadPktIni('packetst1.ini');
     end;
   end;
-  filterS:=HexToString(Options.ReadString('Snifer','FilterS','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
-  filterC:=HexToString(Options.ReadString('Snifer','FilterC','FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'));
+  filterS:=Options.ReadString('Snifer','FS','notset');
+  filterC:=Options.ReadString('Snifer','FC','notset');
+  if filterS = 'notset' then
+  for i:=0 to (ListView1.Items.Count)-1 do
+    ListView1.Items.Item[i].Checked := true
+  else
+  for i:=0 to (ListView2.Items.Count)-1 do
+    ListView1.Items.Item[i].Checked := pos('/'+ListView1.Items.Item[i].Caption+'/',filterS)>0;
 
-  //обновляем чекбоксы пакетов
-  for i:=0 to (ListView2.Items.Count div 8)-1 do
-    for j:=0 to 7 do
-      ListView2.Items.Item[i*8+j].Checked:=Boolean((Byte(filterS[i+1])shr j) and 1);
-  for i:=0 to (ListView1.Items.Count div 8)-1 do
-    for j:=0 to 7 do
-      ListView1.Items.Item[i*8+j].Checked:=Boolean((Byte(filterC[i+1])shr j) and 1);
+  if filterC = 'notset' then
+  for i:=0 to (ListView2.Items.Count)-1 do
+    ListView2.Items.Item[i].Checked := true
+  else
+  for i:=0 to (ListView2.Items.Count)-1 do
+    ListView2.Items.Item[i].Checked := pos('/'+ListView2.Items.Item[i].Caption+'/',filterC)>0;
 end;
 
 procedure TfPacketFilter.UpdateBtnClick(Sender: TObject);
 var
-  i,j : integer;
-  data : array[0..255] of Byte;
-  temp : string;
+  i : integer;
 begin
-  //сохраняем фильтр в файл
-  for i:=0 to (ListView2.Items.Count div 8)-1 do begin
-    data[i]:=0;
-    for j := 0 to 7 do begin
-      Inc(data[i],Byte(ListView2.Items.Item[i*8+j].Checked) shl j);
-    end;
+  filterS := '/';
+  i := 0;
+  while i < ListView1.Items.Count do
+  begin
+    if ListView1.Items.Item[i].Checked then
+      begin
+      filterS := filterS + ListView1.Items.Item[i].Caption+'/';
+      end;
+    inc(i);
   end;
-  temp:=ByteArrayToHex(data,ListView2.Items.Count div 8);
-  //дописываем в конец FF
-  if length(temp)<128 then begin
-    for i:=0 to 128-Length(temp)-1 do temp:=temp+'F';
+  Options.WriteString('Snifer','FS',filterS);
+  filterC := '/';
+  i := 0;
+  while i < ListView2.Items.Count do
+  begin
+    if ListView2.Items.Item[i].Checked then
+      begin
+      filterC := filterC + ListView2.Items.Item[i].Caption+'/';
+      end;
+    inc(i);
   end;
-  Options.WriteString('Snifer','FilterS',temp);
-  //-------------
-  for i:=0 to (ListView1.Items.Count div 8)-1 do begin
-    data[i]:=0;
-    for j := 0 to 7 do begin
-      Inc(data[i],Byte(ListView1.Items.Item[i*8+j].Checked) shl j);
-    end;
-  end;
-  temp:=ByteArrayToHex(data,ListView1.Items.Count div 8);
-  if length(temp)<128 then begin
-    for i:=0 to 128-Length(temp)-1 do temp:=temp+'F';
-  end;
-
-  Options.WriteString('Snifer','FilterC',temp);
+  Options.WriteString('Snifer','FC',filterC);
   refreshexisting;
 end;
 
@@ -231,7 +230,7 @@ begin
     while i < LSPConnections.Count do
     begin
       if assigned(TlspConnection(LSPConnections.Items[i]).Visual) then
-          TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh;
+          TlspConnection(LSPConnections.Items[i]).Visual.PacketListRefresh(false);
       inc(i);
     end;
 
@@ -240,7 +239,7 @@ begin
     while i < sockEngine.tunels.Count do
     begin
       if assigned(Ttunel(sockEngine.tunels.Items[i]).Visual) then
-        Ttunel(sockEngine.tunels.Items[i]).Visual.PacketListRefresh;
+        Ttunel(sockEngine.tunels.Items[i]).Visual.PacketListRefresh(false);
       inc(i);
     end;
 
@@ -248,7 +247,7 @@ begin
     while i < PacketLogWievs.Count do
     begin
       if assigned(TpacketLogWiev(PacketLogWievs.Items[i]).Visual) then
-        TpacketLogWiev(PacketLogWievs.Items[i]).Visual.PacketListRefresh;
+        TpacketLogWiev(PacketLogWievs.Items[i]).Visual.PacketListRefresh(false);
       inc(i);
     end;
   except
