@@ -4,8 +4,6 @@
 library newxor;
 
 uses
-  FastMM4 in '..\fastmm\FastMM4.pas',
-  FastMM4Messages in '..\fastmm\FastMM4Messages.pas',
   usharedstructs in '..\units\usharedstructs.pas',
   Classes,
   windows,
@@ -21,7 +19,7 @@ type
     DecAccumulator, EncAccumulator : array [0..$ffff] of byte;
   public
     constructor Create;
-    procedure InitKey(const XorKey; Interlude: Boolean = False);override;
+    procedure InitKey(const XorKey; Interlude: Byte = 0);override;
     procedure DecryptGP(var Data; var Size: Word);override;
     procedure EncryptGP(var Data; var Size: Word);override;
     procedure PreDecrypt(var Data; var Size: Word); override;
@@ -35,7 +33,7 @@ type
     DecAccumulator, EncAccumulator : array [0..$ffff] of byte;
   public
     constructor Create;
-    procedure InitKey(const XorKey; Interlude: Boolean = False);override;
+    procedure InitKey(const XorKey; Interlude: Byte = 0);override;
     procedure DecryptGP(var Data; var Size: Word); override;
     procedure EncryptGP(var Data; var Size: Word); override;
     procedure PreDecrypt(var Data; var Size: Word); override;
@@ -103,13 +101,13 @@ begin
   Inc(PLongWord(@GKeyS[keyLen-7])^,size);
 end;
 
-procedure TXorCoding.InitKey(const XorKey; Interlude: Boolean = False);
+procedure TXorCoding.InitKey(const XorKey; Interlude: Byte = 0);
 const
   KeyConst: array[0..3] of Byte = ($A1,$6C,$54,$87);
   KeyIntrl: array[0..7] of Byte = ($C8,$27,$93,$01,$A1,$6C,$31,$97);
 var key2:array[0..15] of Byte;
 begin
-  if Interlude then begin
+  if Interlude <> 0 then begin
     keyLen:=15;
     Move(XorKey,key2,8);
     Move(KeyIntrl,key2[8],8);
@@ -266,13 +264,13 @@ begin
   Inc(PLongWord(@GKeyS[keyLen-7])^,size);
 end;
 
-procedure TXorCodingOut.InitKey(const XorKey; Interlude: Boolean);
+procedure TXorCodingOut.InitKey(const XorKey; Interlude: Byte = 0);
 const
   KeyConst: array[0..3] of Byte = ($A1,$6C,$54,$87);
   KeyIntrl: array[0..7] of Byte = ($C8,$27,$93,$01,$A1,$6C,$31,$97);
 var key2:array[0..15] of Byte;
 begin
-  if Interlude then begin
+  if Interlude <> 0 then begin
     keyLen:=15;
     Move(XorKey,key2,8);
     Move(KeyIntrl,key2[8],8);

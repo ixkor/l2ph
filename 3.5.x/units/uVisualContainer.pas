@@ -162,7 +162,7 @@ type
     procedure sendThis(str:string);
 
     Procedure SavePacketLog;                      //сохран€ет Dump в файл
-    Procedure PacketListRefresh;
+    Procedure PacketListRefresh(NeedLoadPackets:boolean);
     Procedure DisableBtns;
     Procedure EnableBtns;
     procedure disableControls;
@@ -230,7 +230,7 @@ begin
       btnProcessPackets.hide;
       ToolButton8.Show;
       dump.LoadFromFile(TpacketLogWiev(CurrentTpacketLog).sFileName);
-      PacketListRefresh;
+      PacketListRefresh(false);
       //в этом экземпл€ре нет соединени€!
     end;
   //
@@ -386,7 +386,7 @@ end;
 procedure TfVisual.ToolButton17Click(Sender: TObject);
 begin
   PacketView.HexViewOffset := ToolButton17.Down;
-  PacketListRefresh;
+  ListView5Click(self);
 end;
 
 procedure TfVisual.ToolButton6Click(Sender: TObject);
@@ -531,6 +531,7 @@ begin
   DisableBtns;
   ListView5.Items.BeginUpdate;
   try
+    if NeedLoadPackets then
     fPacketFilter.LoadPacketsIni;  //перечитываем packets.ini
     ListView5.Items.Clear;
     PacketView.rvDescryption.Clear;
@@ -592,12 +593,12 @@ begin
     Dump.Delete(k);
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;
-  PacketListRefresh;
+  PacketListRefresh(false);
 end;
 
 procedure TfVisual.ToolButton4Click(Sender: TObject);
 begin
-  PacketListRefresh;
+  PacketListRefresh(false);
 end;
 
 procedure TfVisual.Memo4Change(Sender: TObject);
@@ -954,7 +955,7 @@ end;
 procedure TfVisual.ReloadThisClick(Sender: TObject);
 begin
   Reload;
-  PacketListRefresh;
+  PacketListRefresh(true);
 end;
 
 procedure TfVisual.TabSheet1Show(Sender: TObject);

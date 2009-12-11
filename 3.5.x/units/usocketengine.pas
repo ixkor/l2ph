@@ -214,7 +214,7 @@ begin
       BytesInStack := 1;
       
     RecvBytes := recv(thisTunel.serversocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
-    if RecvBytes = SOCKET_ERROR then
+    if RecvBytes <= 0 then
       break
     else
       PreSize := RecvBytes;
@@ -228,7 +228,7 @@ begin
         if BytesInStack > 0 then
           begin//Дочитываем
               RecvBytes := recv(thisTunel.serversocket, PreAccumulator[presize], BytesInStack, 0);
-              if RecvBytes = SOCKET_ERROR then
+              if RecvBytes <= 0 then
                 break
               else
                 LastResult := LastResult + RecvBytes;
@@ -414,7 +414,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
       BytesInStack := 1;
 
     RecvBytes := recv(thisTunel.clientsocket, PreAccumulator[0], BytesInStack, 0);//Читаем 1 байт или весь буффер сразу
-    if RecvBytes = SOCKET_ERROR then
+    if RecvBytes <= 0 then
         break
       else
         PreSize := RecvBytes;
@@ -429,7 +429,7 @@ if not InitSocket(thisTunel.clientsocket,0,'0.0.0.0') then
         if BytesInStack > 0 then //Дочитываем
           begin
               RecvBytes := recv(thisTunel.clientsocket, PreAccumulator[presize], BytesInStack, 0);
-              if RecvBytes = SOCKET_ERROR then
+              if RecvBytes <= 0 then
                 break
               else
                 LastResult := LastResult + RecvBytes;

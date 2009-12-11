@@ -1,7 +1,7 @@
 object fVisual: TfVisual
   Left = 0
   Top = 0
-  Width = 435
+  Width = 844
   Height = 266
   Align = alClient
   Font.Charset = DEFAULT_CHARSET
@@ -14,7 +14,7 @@ object fVisual: TfVisual
   TabStop = True
   OnResize = FrameResize
   object Splitter3: TSplitter
-    Left = 82
+    Left = 491
     Top = 5
     Height = 261
     Align = alRight
@@ -23,9 +23,9 @@ object fVisual: TfVisual
   object PageControl1: TPageControl
     Left = 0
     Top = 5
-    Width = 82
+    Width = 491
     Height = 261
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -34,7 +34,7 @@ object fVisual: TfVisual
       object GroupBox12: TGroupBox
         Left = 0
         Top = 28
-        Width = 454
+        Width = 483
         Height = 205
         Align = alClient
         Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1086#1074':'
@@ -42,7 +42,7 @@ object fVisual: TfVisual
         object ListView5: TListView
           Left = 2
           Top = 15
-          Width = 450
+          Width = 479
           Height = 188
           Hint = #1057#1087#1080#1089#1086#1082' '#1087#1088#1080#1085#1103#1090#1099#1093' '#1080' '#1086#1090#1086#1089#1083#1072#1085#1085#1099#1093' '#1087#1072#1082#1077#1090#1086#1074
           Align = alClient
@@ -87,7 +87,7 @@ object fVisual: TfVisual
       object Panel5: TPanel
         Left = 0
         Top = 0
-        Width = 74
+        Width = 483
         Height = 28
         Align = alTop
         BevelOuter = bvNone
@@ -95,7 +95,7 @@ object fVisual: TfVisual
         object Panel4: TPanel
           Left = 0
           Top = 0
-          Width = 427
+          Width = 388
           Height = 28
           Align = alClient
           AutoSize = True
@@ -106,7 +106,7 @@ object fVisual: TfVisual
           object ToolBar1: TToolBar
             Left = 0
             Top = 0
-            Width = 427
+            Width = 388
             Height = 28
             Align = alClient
             ButtonHeight = 23
@@ -274,7 +274,7 @@ object fVisual: TfVisual
           end
         end
         object Panel7: TPanel
-          Left = 427
+          Left = 388
           Top = 0
           Width = 95
           Height = 28
@@ -342,7 +342,7 @@ object fVisual: TfVisual
       object Panel8: TPanel
         Left = 0
         Top = 0
-        Width = 74
+        Width = 483
         Height = 28
         Align = alTop
         BevelOuter = bvNone
@@ -350,7 +350,7 @@ object fVisual: TfVisual
         object Panel9: TPanel
           Left = 0
           Top = 0
-          Width = 28
+          Width = 437
           Height = 28
           Align = alClient
           AutoSize = True
@@ -359,7 +359,7 @@ object fVisual: TfVisual
           object ToolBar2: TToolBar
             Left = 0
             Top = 0
-            Width = 28
+            Width = 437
             Height = 28
             Align = alClient
             Images = imgBT
@@ -515,7 +515,7 @@ object fVisual: TfVisual
           end
         end
         object Panel11: TPanel
-          Left = 28
+          Left = 437
           Top = 0
           Width = 46
           Height = 28
@@ -558,7 +558,7 @@ object fVisual: TfVisual
       object GroupBox7: TGroupBox
         Left = 0
         Top = 28
-        Width = 74
+        Width = 483
         Height = 205
         Align = alClient
         Caption = #1055#1072#1082#1077#1090#1099' '#1085#1072' '#1086#1090#1087#1088#1072#1074#1082#1091':'
@@ -566,7 +566,7 @@ object fVisual: TfVisual
         object Memo4: TJvRichEdit
           Left = 2
           Top = 15
-          Width = 70
+          Width = 479
           Height = 188
           Align = alClient
           AutoSize = False
@@ -680,14 +680,14 @@ object fVisual: TfVisual
   object Panel14: TPanel
     Left = 0
     Top = 0
-    Width = 435
+    Width = 844
     Height = 5
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
   end
   object packetVievPanel: TPanel
-    Left = 85
+    Left = 494
     Top = 5
     Width = 350
     Height = 261
