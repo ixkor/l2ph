@@ -466,20 +466,25 @@ begin
       exit;
     end;
   end else case Packet.Data[0] of
-    $41: if not InitXOR then begin
+    { $41: if not InitXOR then begin
       xorC.InitKey(Packet.Data[3], 2);
       xorS.InitKey(Packet.Data[3], 2);
       SetInitXORAfterEncode := true;
-    end;
+    end;}
     // CharInfo
-    $19: if CharName = '[unk]' then begin
+    $18: if CharName = '[unk]' then begin
         CharName := WideStringToString(PWideChar(@Packet.Data[$2a]), 1251);
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
     end;
-    // Character list
+    {// Character list
     $c1: begin
       CharName := '[unk]';
+    end;}
+    else if not InitXOR then begin
+      xorC.InitKey(Packet.Data[3], 2);
+      xorS.InitKey(Packet.Data[3], 2);
+      SetInitXORAfterEncode := true;
     end;
   end;
 end;

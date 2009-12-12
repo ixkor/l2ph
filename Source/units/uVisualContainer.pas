@@ -15,7 +15,7 @@ uses
   Dialogs, ImgList, JvExControls, JvEditorCommon, JvEditor, JvHLEditor,
   StdCtrls, ComCtrls, ToolWin, JvExStdCtrls, JvRichEdit, ExtCtrls, Menus,
   JvExExtCtrls, Mask, JvExMask, JvSpin, JvLabel,
-  siComp;
+  siComp, PerlRegEx, Buttons;
 
 type
 
@@ -42,7 +42,6 @@ type
     tbtnDelete: TToolButton;
     ToolButton15: TToolButton;
     tbtnToSend: TToolButton;
-    ToolButton2: TToolButton;
     ToolButton4: TToolButton;
     ToolButton3: TToolButton;
     ToolButton5: TToolButton;
@@ -105,6 +104,12 @@ type
     Splash: TJvLabel;
     JvSpinEdit1: TJvSpinEdit;
     Label1: TLabel;
+    PerlRegEx: TPerlRegEx;
+    Panel1: TPanel;
+    edtRegRule: TEdit;
+    btnRegRuleUpdate: TSpeedButton;
+    chkRegRule: TCheckBox;
+    ToolButton2: TToolButton;
     procedure ListView5Click(Sender: TObject);
     procedure ListView5KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -142,13 +147,15 @@ type
     procedure OpenBtnClick(Sender: TObject);
     procedure timerSendTimer(Sender: TObject);
     procedure JvSpinEdit1Change(Sender: TObject);
+    procedure btnRegRuleUpdateClick(Sender: TObject);
+    procedure chkRegRuleClick(Sender: TObject);
   private
     { Private declarations }
     hScriptThread, idScriptThread: cardinal;
     Edit:tfscripteditor;
   public
     PacketView: tfPacketView;  
-    dump, dumpacumulator : TStringList;
+    dump, dumpacumulator, dumpRegBuf: TStringList;
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     currenttunel, currentLSP, CurrentTpacketLog : Tobject;
     procedure ProcessPacket(newpacket: tpacket; FromServer: boolean; Caller: TObject; PacketNumber:integer);
@@ -213,6 +220,7 @@ begin
 
   Dump := TStringList.Create;
   dumpacumulator := TStringList.Create;
+  dumpRegBuf := TStringList.Create;
   BtnAutoSavePckts.Down := GlobalSettings.isSaveLog;
   if CurrentTpacketLog <> nil then //просмотр логов, просто скрываем все ненужное
     begin
@@ -263,6 +271,7 @@ begin
   if assigned(Dump) then
     Dump.Destroy;
   dump := nil;
+  dumpRegBuf.Free;
   if assigned(dumpacumulator) then
   dumpacumulator.Destroy;
   dumpacumulator := nil;
@@ -329,7 +338,7 @@ procedure TfVisual.Processpacket;
 
         Caption :=str;
         Checked := ItemChecked;
-        SubItems.Add('Unknown');
+        SubItems.Add('Unknown'+str);
         currentpackedfrom.Append(str+'=Unknown:h(SubId)');
       end;
     end;
@@ -810,12 +819,47 @@ begin
     end;
 end;
 
+procedure TfVisual.btnRegRuleUpdateClick(Sender: TObject);
+var
+  i: Integer;
+  s: string;
+begin
+ PerlRegEx.RegEx:=edtRegRule.Text;
+ waitbar.Visible:=True;
+ ProgressBar1.Max:=dumpRegBuf.Count;
+ dump.BeginUpdate;
+ try
+  dump.Clear;
+  for i:=0 to dumpRegBuf.Count - 1 do begin
+    s:=dumpRegBuf[i];
+    PerlRegEx.Subject:=Copy(s,23,Length(s));
+    if PerlRegEx.Match then dump.Add(s);
+    if(i mod 50 = 0)then ProgressBar1.Position:=i;
+  end;
+ finally
+  dump.EndUpdate;
+  waitbar.Visible:=False;
+ end;
+ PacketListRefresh(False);
+end;
+
 procedure TfVisual.btnTerminateClick(Sender: TObject);
 begin
   Edit.fsScript.Terminate;
   TerminateThread(hScriptThread,0);
   btnTerminate.Enabled:=False;
   btnExecute.Enabled:=True;
+end;
+
+procedure TfVisual.chkRegRuleClick(Sender: TObject);
+begin
+  btnRegRuleUpdate.Enabled:=chkRegRule.Checked;
+  if chkRegRule.Checked then begin
+    dumpRegBuf.Assign(dump);
+  end else begin
+    dump.Assign(dumpRegBuf);
+    PacketListRefresh(False);
+  end;
 end;
 
 procedure TfVisual.ToolButton8Click(Sender: TObject);

@@ -574,7 +574,7 @@ if FromServer then
       if i=-1 then
       begin
         //неизвестный пакет от сервера
-        pname := 'Unknown';
+        pname := 'Unknown'+IntToHex(id,2)+IntToHex(subid,4);
         result := false;
       end
       else
@@ -590,7 +590,7 @@ if FromServer then
       i := PacketsFromS.IndexOfName(IntToHex(id,2));
       if i=-1 then
       begin
-        pname := 'Unknown';
+        pname := 'Unknown'+IntToHex(id,2);
         result := false;
       end
       else
