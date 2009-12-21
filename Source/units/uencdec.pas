@@ -138,7 +138,7 @@ begin
         else
           //вытягиваем имя соединения и прочее
           if (not Settings.isNoDecrypt) then begin
-            if Settings.isAION and not InitXOR and (packet.Data[0]=$01) then packet.Data[0]:=$41;
+            if Settings.isAION and not InitXOR then packet.Data[0]:=(packet.Data[0] xor $ee) - $ae;
 
             ProcessRecivedPacket(packet);
           end;
@@ -359,8 +359,8 @@ begin
     else
       begin
         NeedEncrypt := (not Settings.isNoDecrypt) and InitXOR;
-        if Settings.isAION and not InitXOR and (packet.Data[0]=$41)and not Settings.isNoDecrypt then
-          packet.Data[0]:=$01;
+        if Settings.isAION and not InitXOR and not Settings.isNoDecrypt then
+          packet.Data[0]:=(packet.Data[0] + $ae) xor $ee;
         CurrentCoddingClass := xorS;
       end;
 

@@ -824,7 +824,7 @@ var
   i: Integer;
   s: string;
 begin
- PerlRegEx.RegEx:=edtRegRule.Text;
+ PerlRegEx.RegEx:=StringReplace(edtRegRule.Text,' ','',[rfReplaceAll]);
  waitbar.Visible:=True;
  ProgressBar1.Max:=dumpRegBuf.Count;
  dump.BeginUpdate;
@@ -856,6 +856,7 @@ begin
   btnRegRuleUpdate.Enabled:=chkRegRule.Checked;
   if chkRegRule.Checked then begin
     dumpRegBuf.Assign(dump);
+    PerlRegEx.RegEx:=StringReplace(edtRegRule.Text,' ','',[rfReplaceAll]);
   end else begin
     dump.Assign(dumpRegBuf);
     PacketListRefresh(False);
@@ -978,6 +979,14 @@ begin
     PacketNumber := Dump.Count;
     str := dumpacumulator.Strings[0];
     dumpacumulator.Delete(0);
+
+    // регул€рные выражени€
+    if chkRegRule.Checked then begin
+      dumpRegBuf.Add(str);
+      PerlRegEx.Subject:=Copy(str,23,Length(str));
+      if not PerlRegEx.Match then str:='';
+    end;
+
     if length(str) >= 18 then
     begin
       dump.Add(str);
