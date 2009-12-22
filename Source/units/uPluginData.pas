@@ -692,28 +692,28 @@ begin
   hLib:=LoadLibrary(PChar(FileName));
   if hLib=0 then exit;
 
-  GetPluginInfo:=GetProcAddress(hLib,'GetPluginInfo');
+  @GetPluginInfo:=GetProcAddress(hLib,'GetPluginInfo');
 
-  if(not Assigned(GetPluginInfo))then Exit;
+  if(not Assigned(@GetPluginInfo))then Exit;
 
   Info:=String(GetPluginInfo(l2pxversion));
 
-  OnPacket:=GetProcAddress(hLib,'OnPacket');
-  OnConnect:=GetProcAddress(hLib,'OnConnect');
-  OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
-  OnLoad:=GetProcAddress(hLib,'OnLoad');
-  OnFree:=GetProcAddress(hLib,'OnFree');
-  OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
-  OnRefreshPrecompile:=GetProcAddress(hLib,'OnRefreshPrecompile');
+  @OnPacket:=GetProcAddress(hLib,'OnPacket');
+  @OnConnect:=GetProcAddress(hLib,'OnConnect');
+  @OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
+  @OnLoad:=GetProcAddress(hLib,'OnLoad');
+  @OnFree:=GetProcAddress(hLib,'OnFree');
+  @OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
+  @OnRefreshPrecompile:=GetProcAddress(hLib,'OnRefreshPrecompile');
 
   EnableFuncs:=[];
-  if Assigned(OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
-  if Assigned(OnConnect) then EnableFuncs:=EnableFuncs+[efOnConnect];
-  if Assigned(OnDisconnect) then EnableFuncs:=EnableFuncs+[efOnDisconnect];
-  if Assigned(OnLoad) then EnableFuncs:=EnableFuncs+[efOnLoad];
-  if Assigned(OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
-  if Assigned(OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
-  if Assigned(OnRefreshPrecompile) then EnableFuncs:=EnableFuncs+[efOnRefreshPrecompile];
+  if Assigned(@OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
+  if Assigned(@OnConnect) then EnableFuncs:=EnableFuncs+[efOnConnect];
+  if Assigned(@OnDisconnect) then EnableFuncs:=EnableFuncs+[efOnDisconnect];
+  if Assigned(@OnLoad) then EnableFuncs:=EnableFuncs+[efOnLoad];
+  if Assigned(@OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
+  if Assigned(@OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
+  if Assigned(@OnRefreshPrecompile) then EnableFuncs:=EnableFuncs+[efOnRefreshPrecompile];
 
   FreeLibrary(hLib);
 
