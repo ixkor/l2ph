@@ -728,8 +728,8 @@ begin
  try
   if not Loaded then exit;
 
-  GetPluginInfo:=GetProcAddress(hLib,'GetPluginInfo');
-  SetStruct:=GetProcAddress(hLib,'SetStruct');
+  @GetPluginInfo:=GetProcAddress(hLib,'GetPluginInfo');
+  @SetStruct:=GetProcAddress(hLib,'SetStruct');
 
   if(not Assigned(GetPluginInfo))
   or(not Assigned(SetStruct))
@@ -741,24 +741,24 @@ begin
   Info:=String(GetPluginInfo(l2pxversion));
   EnableFuncs:=[];
 
-  OnPacket:=GetProcAddress(hLib,'OnPacket');
-  OnConnect:=GetProcAddress(hLib,'OnConnect');
-  OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
-  OnLoad:=GetProcAddress(hLib,'OnLoad');
-  OnFree:=GetProcAddress(hLib,'OnFree');
-  OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
-  OnRefreshPrecompile := GetProcAddress(hLib,'OnRefreshPrecompile');
+  @OnPacket:=GetProcAddress(hLib,'OnPacket');
+  @OnConnect:=GetProcAddress(hLib,'OnConnect');
+  @OnDisconnect:=GetProcAddress(hLib,'OnDisconnect');
+  @OnLoad:=GetProcAddress(hLib,'OnLoad');
+  @OnFree:=GetProcAddress(hLib,'OnFree');
+  @OnCallMethod:=GetProcAddress(hLib,'OnCallMethod');
+  @OnRefreshPrecompile := GetProcAddress(hLib,'OnRefreshPrecompile');
 
-  if Assigned(OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
-  if Assigned(OnConnect) then EnableFuncs:=EnableFuncs+[efOnConnect];
-  if Assigned(OnDisconnect) then EnableFuncs:=EnableFuncs+[efOnDisconnect];
-  if Assigned(OnLoad) then begin
+  if Assigned(@OnPacket) then EnableFuncs:=EnableFuncs+[efOnPacket];
+  if Assigned(@OnConnect) then EnableFuncs:=EnableFuncs+[efOnConnect];
+  if Assigned(@OnDisconnect) then EnableFuncs:=EnableFuncs+[efOnDisconnect];
+  if Assigned(@OnLoad) then begin
     EnableFuncs:=EnableFuncs+[efOnLoad];
     OnLoad;
   end;
-  if Assigned(OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
-  if Assigned(OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
-  if Assigned(OnRefreshPrecompile) then EnableFuncs := EnableFuncs+[efOnRefreshPrecompile];
+  if Assigned(@OnFree) then EnableFuncs:=EnableFuncs+[efOnFree];
+  if Assigned(@OnCallMethod) then EnableFuncs:=EnableFuncs+[efOnCallMethod];
+  if Assigned(@OnRefreshPrecompile) then EnableFuncs := EnableFuncs+[efOnRefreshPrecompile];
 
   Result:=True;
  finally
