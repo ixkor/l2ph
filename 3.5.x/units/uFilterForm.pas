@@ -174,21 +174,14 @@ begin
         LoadPktIni('packetst1.ini');
     end;
   end;
-  filterS:=Options.ReadString('Snifer','FS','notset');
-  filterC:=Options.ReadString('Snifer','FC','notset');
-  if filterS = 'notset' then
-  for i:=0 to (ListView1.Items.Count)-1 do
-    ListView1.Items.Item[i].Checked := true
-  else
-  for i:=0 to (ListView2.Items.Count)-1 do
-    ListView1.Items.Item[i].Checked := pos('/'+ListView1.Items.Item[i].Caption+'/',filterS)>0;
+  filterS:=Options.ReadString('Snifer','notFS','');
+  filterC:=Options.ReadString('Snifer','notFC','');
 
-  if filterC = 'notset' then
   for i:=0 to (ListView2.Items.Count)-1 do
-    ListView2.Items.Item[i].Checked := true
-  else
+    ListView1.Items.Item[i].Checked := pos('/'+ListView1.Items.Item[i].Caption+'/',filterS)=0;
+
   for i:=0 to (ListView2.Items.Count)-1 do
-    ListView2.Items.Item[i].Checked := pos('/'+ListView2.Items.Item[i].Caption+'/',filterC)>0;
+    ListView2.Items.Item[i].Checked := pos('/'+ListView2.Items.Item[i].Caption+'/',filterC)=0;
 end;
 
 procedure TfPacketFilter.UpdateBtnClick(Sender: TObject);
@@ -199,24 +192,20 @@ begin
   i := 0;
   while i < ListView1.Items.Count do
   begin
-    if ListView1.Items.Item[i].Checked then
-      begin
+    if not ListView1.Items.Item[i].Checked then
       filterS := filterS + ListView1.Items.Item[i].Caption+'/';
-      end;
     inc(i);
   end;
-  Options.WriteString('Snifer','FS',filterS);
+  Options.WriteString('Snifer','notFS',filterS);
   filterC := '/';
   i := 0;
   while i < ListView2.Items.Count do
   begin
-    if ListView2.Items.Item[i].Checked then
-      begin
+    if not ListView2.Items.Item[i].Checked then
       filterC := filterC + ListView2.Items.Item[i].Caption+'/';
-      end;
     inc(i);
   end;
-  Options.WriteString('Snifer','FC',filterC);
+  Options.WriteString('Snifer','notFC',filterC);
   refreshexisting;
 end;
 
