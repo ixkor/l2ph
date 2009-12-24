@@ -1,6 +1,7 @@
 del *.rar
 md TEMP
 copy build\l2ph.exe TEMP\
+copy build\pcrelib.dll TEMP\
 copy build\inject.dll TEMP\
 copy build\LSPprovider.dll TEMP\
 
