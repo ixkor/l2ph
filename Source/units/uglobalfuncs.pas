@@ -17,34 +17,34 @@ uses
   uencdec;
 
   const
-  WM_Dll_Log = $04F0;               //получаем сообщение из inject.dll
-  WM_NewAction = WM_APP + 107; //
-  WM_AddLog = WM_APP + 108; //
-  WM_NewPacket = WM_APP + 109; //
-  WM_ProcessPacket = WM_APP + 110; //
-  WM_UpdAutoCompleate = WM_APP + 111; //
-  WM_BalloonHint = WM_APP + 112; //
+    WM_Dll_Log = $04F0;               //получаем сообщение из inject.dll
+    WM_NewAction = WM_APP + 107; //
+    WM_AddLog = WM_APP + 108; //
+    WM_NewPacket = WM_APP + 109; //
+    WM_ProcessPacket = WM_APP + 110; //
+    WM_UpdAutoCompleate = WM_APP + 111; //
+    WM_BalloonHint = WM_APP + 112; //
 
-  //TencDec вызывает такие
-  TencDec_Action_LOG = 1; //Данные в sLastPacket;  обрабатчик - PacketSend
-  TencDec_Action_MSG = 2; //дaнные в sLastMessage; обработчик - Log
-  TencDec_Action_GotName = 3; //данные в name; обработчик - UpdateComboBox1 (требует видоизменения)
-  TencDec_Action_ClearPacketLog = 4; //данные нет. просто акшин; обработчик ClearPacketsLog
-  //TSocketEngine вызывает эти
-  TSocketEngine_Action_MSG = 5; //данные в sLastMessage; обработчик - Log
-  Ttunel_Action_connect_server = 6; //
-  Ttunel_Action_disconnect_server = 7; //
-  Ttunel_Action_connect_client = 8; //
-  Ttunel_Action_disconnect_client = 9; //
-  Ttulel_action_tunel_created = 10; //
-  Ttulel_action_tunel_destroyed = 11; //
-                                //Reserved 100-115!!! 
+    //TencDec вызывает такие
+    TencDec_Action_LOG = 1; //Данные в sLastPacket;  обрабатчик - PacketSend
+    TencDec_Action_MSG = 2; //дaнные в sLastMessage; обработчик - Log
+    TencDec_Action_GotName = 3; //данные в name; обработчик - UpdateComboBox1 (требует видоизменения)
+    TencDec_Action_ClearPacketLog = 4; //данные нет. просто акшин; обработчик ClearPacketsLog
+    //TSocketEngine вызывает эти
+    TSocketEngine_Action_MSG = 5; //данные в sLastMessage; обработчик - Log
+    Ttunel_Action_connect_server = 6; //
+    Ttunel_Action_disconnect_server = 7; //
+    Ttunel_Action_connect_client = 8; //
+    Ttunel_Action_disconnect_client = 9; //
+    Ttulel_action_tunel_created = 10; //
+    Ttulel_action_tunel_destroyed = 11; //
+                                //Reserved 100-115!!!
   type
-  SendMessageParam = class
-  packet:tpacket;
-  FromServer:boolean;
-  Id:integer;
-  tunel:Tobject;
+    SendMessageParam = class
+    packet:tpacket;
+    FromServer:boolean;
+    Id:integer;
+    tunel:Tobject;
   end;
   //конвертации//
   function SymbolEntersCount(s: string): string;
@@ -69,28 +69,37 @@ uses
   procedure GetProcessList(var sl: TStrings); //получаем список процессов используется в dmData.timerSearchProcesses
 
   procedure Reload;
-  
+
   Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string; var isshow:boolean):boolean;
   function GetNamePacket(s:string):string; // вырезаем название пакета из строки
+
   var
-  AppPath:String;
-  isGlobalDestroying : boolean;
-  hXorLib:THandle; //хендл библиотеки невхор. устанавливается в SettingsDialog
-  pInjectDll : Pointer; //поинер к инжект.длл устанавливается в SettingsDialog
-  CreateXorIn: Function(Value:PCodingClass):HRESULT; stdcall; //сюда подключаем невхор (глобал)
-  CreateXorOut: Function(Value:PCodingClass):HRESULT; stdcall; //обе устанавливаются в устанавливается в SettingsDialog (глобал)
+    AppPath:String;
+    isGlobalDestroying : boolean;
+    hXorLib:THandle; //хендл библиотеки невхор. устанавливается в SettingsDialog
+    pInjectDll : Pointer; //поинер к инжект.длл устанавливается в SettingsDialog
+    CreateXorIn: Function(Value:PCodingClass):HRESULT; stdcall; //сюда подключаем невхор (глобал)
+    CreateXorOut: Function(Value:PCodingClass):HRESULT; stdcall; //обе устанавливаются в устанавливается в SettingsDialog (глобал)
 
-  sClientsList, //список процессов подлежащих перехвату устанавливается в SettingsDialog
-  sIgnorePorts, //перечень портов соединение по которым игнорируется устанавливается в SettingsDialog
-  sNewxor, //путь к невхор.длл устанавливается в SettingsDialog
-  sInject, //путь к инжект.длл устанавливается в SettingsDialog
-  sLSP : string; //путь к лсп модулю. устанавливается в SettingsDialog
-  LocalPort : word; //текущий порт. устанавливается в SettingsDialog.
-  AllowExit: boolean; //разрешать выход. устанавливается в SettingsDialog
+    sClientsList, //список процессов подлежащих перехвату устанавливается в SettingsDialog
+    sIgnorePorts, //перечень портов соединение по которым игнорируется устанавливается в SettingsDialog
+    sNewxor, //путь к невхор.длл устанавливается в SettingsDialog
+    sInject, //путь к инжект.длл устанавливается в SettingsDialog
+    sLSP : string; //путь к лсп модулю. устанавливается в SettingsDialog
+    LocalPort : word; //текущий порт. устанавливается в SettingsDialog.
+    AllowExit: boolean; //разрешать выход. устанавливается в SettingsDialog
 
-  GlobalSettings : TEncDecSettings; //текущие настройки для ЕнкДек устанавливается в SettingsDialog
-  GlobalProtocolVersion : integer = -1;
-  filterS, filterC: string; //строка фильтров
+    //коэфф преобразования NpcID, необходим для правильного определения имени НПЦ
+    kNpcID : Integer;
+
+    GlobalSettings : TEncDecSettings; //текущие настройки для ЕнкДек устанавливается в SettingsDialog
+    filterS, filterC: string; //строка фильтров
+
+    //протоколы (packets???.ini) поддерживаемых пакетхаком
+  type
+      TProtocolVersion = (AION, CHRONICLE4, CHRONICLE5, INTERLUDE, GRACIA, GRACIAFINAL, GRACIAEPILOG, FREYA);
+  var
+      GlobalProtocolVersion : TProtocolVersion = AION;
 
   procedure AddToLog (msg: String); //добавляем запись в frmLogForm.log
   procedure BalloonHint(title, msg : string);
@@ -98,7 +107,7 @@ uses
   procedure savepos(Control:TControl);
 
   function GetModifTime(const FileName: string): TDateTime;
-  
+
   function DataPckToStrPck(var pck): string; stdcall;
  var
   l2pxversion_array: array[0..3] of Byte; //теперь заполняется вызовом FillVersion_a
@@ -134,7 +143,7 @@ begin
   Bias   := 0;
   if not FileExists(FileName) then exit;
   h      := FileOpen(FileName, fmOpenRead or fmShareDenyNone);
-  if h > 0 then 
+  if h > 0 then
   begin
     try
       if GetTimeZoneInformation(TimeZoneInfo) <> $FFFFFFFF then
@@ -207,7 +216,6 @@ var
   SearchRec: TSearchRec;
   Mask: string;
 begin
-
   Mask := AppPath+'\*.temp';
   if FindFirst(Mask, faAnyFile, SearchRec) = 0 then
   begin
@@ -295,8 +303,6 @@ else
         -1, PWideChar(@Result[1]), l - 1);
   end;
 end;
-
-
 
 function StringToHex(str1,Separator:String):String;
 var
@@ -396,14 +402,13 @@ begin
     SendMessage(fMainReplacer.Handle, WM_BalloonHint,integer(msg),integer(title));
 end;
 
-
 procedure AddToLog (msg: String);
 begin
   if isDestroying then exit;
   if assigned(fLog) then
     if not isDestroying then
     if fLog.IsExists then
-      SendMessage(fLog.Handle,WM_AddLog,integer(msg),0);
+      SendMessage(fLog.Handle, WM_AddLog, integer(msg), 0);
 end;
 
 Function LoadLibraryInject(const name: string):boolean;
@@ -414,14 +419,14 @@ begin
   if pInjectDll <> nil then
   begin
     FreeMem(pInjectDll);
-    AddToLog(format(rsUnLoadDllSuccessfully,[name]));
+    AddToLog(format(rsUnLoadDllSuccessfully, [name]));
   end;
   
   tmp:=PChar(name);
   if fileExists (tmp) then begin
-    sFile := OpenFile(tmp,ee,OF_READ);
+    sFile := OpenFile(tmp, ee, OF_READ);
     Result := true;
-    AddToLog(format(rsLoadDllSuccessfully,[name]));
+    AddToLog(format(rsLoadDllSuccessfully, [name]));
     Size := GetFileSize(sFile, nil);
     GetMem(pInjectDll, Size);
     ReadFile(sFile, pInjectDll^, Size, Size, nil);
@@ -556,125 +561,98 @@ begin
  end;
 end;
 
-
 Function GetPacketName(var id : byte; var subid : word; FromServer:boolean; var pname:string; var isshow:boolean):boolean;
 var
   i: integer;
 begin
-isshow := true;
+  isshow := true;
   //------------------------------------------------------------------------
   //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
-if FromServer then
-  begin  //от сервера
-    if id=$FE then
-    begin
+  if FromServer then begin
+    //от сервера
+    if id=$FE then begin
       Id := 0;
       //находим индекс пакета
       i := PacketsFromS.IndexOfName(IntToHex(subid,4));
-      if i=-1 then
-      begin
+      if i=-1 then begin
         //неизвестный пакет от сервера
         pname := 'Unknown'+IntToHex(id,2)+IntToHex(subid,4);
         result := false;
-      end
-      else
-      begin
+      end else begin
         pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
-        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;        
+        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
         result := true;
       end;
-    end
-    else
-    begin
+    end else begin
       subid := 0;
       i := PacketsFromS.IndexOfName(IntToHex(id,2));
-      if i=-1 then
-      begin
+      if i=-1 then begin
         pname := 'Unknown'+IntToHex(id,2);
         result := false;
-      end
-      else
-      begin
+      end else begin
         pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
-        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;        
+        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
         result := true;
       end;
-    end;  
-  end
-else
-  begin  //от клиента
-    if (GlobalProtocolVersion>83) and (GlobalProtocolVersion<828) then
-    begin //фиксим пакет 39 в Камаель-Грация
-      if (id in [$39,$D0]) then
-      begin //для C4, C5, T0
+    end;
+  end else begin
+    //от клиента
+    if (GlobalProtocolVersion<GRACIA) then begin
+      //фиксим пакет 39 для хроник C4-C5-Interlude
+      if (id in [$39,$D0]) then begin
         id := 0;
         i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
-        if i=-1 then
-        begin
+        if i=-1 then begin
           //неизвестный пакет от сервера
           pname := 'Unknown';
           result := false;
-        end
-        else
-        begin
+        end else begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
           isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
-      end else
-      begin
+      end else begin
         i:=PacketsFromC.IndexOfName(IntToHex(id,2));
         subid := 0;
-        if i=-1 then
-        begin
+        if i=-1 then begin
           //неизвестный пакет от сервера
           pname := 'Unknown';
           result := false;
-        end
-        else
-        begin
+        end else begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
           isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
       end;
-    end else
-    begin
-      if (id=$D0) then
-      begin //для T1 и выше
+    end else begin
+      //для хроник Kamael - Hellbound - Gracia - Freya
+      if (id=$D0) then begin
         i:=PacketsFromC.IndexOfName(IntToHex(subid,4));
         id := 0;
-        if i=-1 then
-        begin
+        if i=-1 then begin
           //неизвестный пакет от сервера
           pname := 'Unknown';
           result := false;
-        end
-        else
-        begin
+        end else begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
           isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
-      end else
-      begin
+      end else begin
         i:=PacketsFromC.IndexOfName(IntToHex(id,2));
         subid := 0;
-        if i=-1 then
-        begin
+        if i=-1 then begin
           //неизвестный пакет от сервера
           pname := 'Unknown';
           result := false;
-        end
-        else
-        begin
+        end else begin
           pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
           isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
           result := true;
         end;
       end;
     end;
-  end;   
+  end;
 end;
 
 end.

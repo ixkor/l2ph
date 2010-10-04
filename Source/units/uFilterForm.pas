@@ -149,31 +149,18 @@ procedure TfPacketFilter.LoadPacketsIni;
 var
   i: Integer;
 begin
-  if (GlobalProtocolVersion=-123)then
-    LoadPktIni('packetAion.ini')   //пакеты для AION
-  else
-  if (GlobalProtocolVersion>=12) and (GlobalProtocolVersion<=100) then
-    LoadPktIni('packetst2.ini')   //пакеты для Грация Финал
-  else begin
-    //  ProtocolVersion:=560; //C4
-    if GlobalProtocolVersion<828 then begin
-      // С4/C5/CT0
-      if GlobalProtocolVersion<660 then begin
-        // C4 секция [GS_c4]
-        LoadPktIni('packetsc4.ini');
-      end;
-      if (GlobalProtocolVersion>=660) and (GlobalProtocolVersion<=736) then begin
-        // C5 секция [GS]
-        LoadPktIni('packetsc5.ini');
-      end;
-      if GlobalProtocolVersion>=737 then begin
-        // interlude T0  секция [GS_t0]
-        LoadPktIni('packetst0.ini');
-      end;
-    end else begin // >= 828 (какой там минимальный T1 протокол ?)
-        LoadPktIni('packetst1.ini');
-    end;
+  //для выбора соответствующего packets???.ini
+  case GlobalProtocolVersion of
+    AION: LoadPktIni('packetsAion.ini');       //пакеты для AION
+    CHRONICLE4: LoadPktIni('packetsC4.ini');   //пакеты для С4
+    CHRONICLE5: LoadPktIni('packetsC5.ini');   //пакеты для C5
+    INTERLUDE: LoadPktIni('packetsInterlude.ini');        //пакеты для Интерлюдии
+    GRACIA: LoadPktIni('packetsGracia.ini');              //пакеты для Грация
+    GRACIAFINAL: LoadPktIni('packetsGraciaFinal.ini');    //пакеты для Грация Финал
+    GRACIAEPILOG: LoadPktIni('packetsGraciaEpilog.ini');  //пакеты для Грация Эпилог
+    FREYA: LoadPktIni('packetsFreya.ini');                //пакеты для Freya
   end;
+
   filterS:=Options.ReadString('Snifer','notFS','');
   filterC:=Options.ReadString('Snifer','notFC','');
 

@@ -597,26 +597,26 @@ try
 
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then
-    //client
-      if (GlobalProtocolVersion=-123)then
+      //client
+      if (GlobalProtocolVersion=AION)then // для Айон
         StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
       else
-      if (GlobalProtocolVersion>83) and (GlobalProtocolVersion<828) then
-      //фиксим пакет 39 для Грация-Камаель
+      if (GlobalProtocolVersion<GRACIA) then
+        //фиксим пакет 39 для хроник C4-C5-Interlude
         if (ID in [$39,$D0]) and (size>3) then
-        //C4, C5, T0
+          //C4, C5, T0
           StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknown:h(subID)')
         else
           StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
       else
+        //для хроник Kamael - Hellbound - Gracia - Freya
         if (ID=$D0) and (size>3) then
-        //T1 и выше
           StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknown:h(subID)')
         else
           StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
     else
       //server
-      if (GlobalProtocolVersion=-123)then
+      if (GlobalProtocolVersion=AION)then
         StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknown:')
       else
       if (Byte(PktStr[12]) in [$FE]) and (size>3) then
@@ -634,7 +634,7 @@ try
 
     Inc(PosInIni);
     //Memo2.Lines.BeginUpdate;
-    
+
     //Добавляем тип
     rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ),11,0);
     rvDescryption.AddNLTag('0x'+IntToHex(id,2),0,-1,1);
@@ -649,7 +649,6 @@ try
 
     rvDescryption.AddNL(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) ),0,0);
     rvDescryption.AddNL(FormatDateTime('hh:nn:ss:zzz',ptime),1,-1);
-
 
     itemTag := 0;
     templateindex := 11;
