@@ -1,10 +1,10 @@
 object fPacketFilter: TfPacketFilter
   Left = 364
   Top = 258
-  Width = 334
-  Height = 484
   BorderStyle = bsSizeToolWin
   Caption = #1060#1080#1083#1100#1090#1088' '#1087#1072#1082#1077#1090#1086#1074
+  ClientHeight = 458
+  ClientWidth = 326
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,8 +19,8 @@ object fPacketFilter: TfPacketFilter
   object PageControl2: TPageControl
     Left = 0
     Top = 0
-    Width = 318
-    Height = 395
+    Width = 326
+    Height = 407
     ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
@@ -29,8 +29,8 @@ object fPacketFilter: TfPacketFilter
       object ListView1: TJvListView
         Left = 0
         Top = 0
-        Width = 310
-        Height = 367
+        Width = 318
+        Height = 379
         Align = alClient
         Checkboxes = True
         Columns = <
@@ -47,13 +47,15 @@ object fPacketFilter: TfPacketFilter
         RowSelect = True
         TabOrder = 0
         ViewStyle = vsReport
-        ColumnsOrder = '0=60,1=246'
+        ColumnsOrder = '0=60,1=254'
         Groups = <>
         ExtendedColumns = <
           item
           end
           item
           end>
+        ExplicitWidth = 310
+        ExplicitHeight = 367
       end
     end
     object TabSheet7: TTabSheet
@@ -62,8 +64,8 @@ object fPacketFilter: TfPacketFilter
       object ListView2: TJvListView
         Left = 0
         Top = 0
-        Width = 310
-        Height = 367
+        Width = 318
+        Height = 379
         Align = alClient
         Checkboxes = True
         Columns = <
@@ -80,20 +82,20 @@ object fPacketFilter: TfPacketFilter
         RowSelect = True
         TabOrder = 0
         ViewStyle = vsReport
-        ColumnsOrder = '0=60,1=246'
+        ColumnsOrder = '0=60,1=254'
         Groups = <>
         ExtendedColumns = <
           item
-          end
-          item
           end>
+        ExplicitWidth = 310
+        ExplicitHeight = 367
       end
     end
   end
   object Panel17: TPanel
     Left = 0
-    Top = 395
-    Width = 318
+    Top = 407
+    Width = 326
     Height = 51
     Align = alBottom
     BevelOuter = bvNone

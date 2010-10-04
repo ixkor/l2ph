@@ -811,7 +811,8 @@ begin
                     dec(i1);
                   break;
                   end;
-                arrtmp[0] := Cardinal(arrtmp[0]) + d;
+                //arrtmp[0] := Cardinal(arrtmp[0]) + d;
+                arrtmp[0] := Integer(arrtmp[0]) + d;
               end;
           end;
           inc(i);

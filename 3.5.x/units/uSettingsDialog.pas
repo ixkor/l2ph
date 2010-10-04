@@ -61,9 +61,7 @@ type
     dlgOpenDll: TOpenDialog;
     isNewXor: TLabeledEdit;
     ChkLSPDeinstallonclose: TCheckBox;
-    Label3: TLabel;
     isMainFormCaption: TEdit;
-    Bevel5: TBevel;
     lspInterceptMethod: TRadioGroup;
     chkProcessPackets: TCheckBox;
     PnlSocks5Chain: TGroupBox;
@@ -80,6 +78,9 @@ type
     btnTestSocks5Chain: TButton;
     chkIgnoseClientToServer: TCheckBox;
     chkIgnoseServerToClient: TCheckBox;
+    EditkNpcID: TEdit;
+    LabelkNpcID: TLabel;
+    GroupBox3: TGroupBox;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -141,6 +142,9 @@ begin
   MaxLinesInLog:=Options.ReadInteger('General','MaxLinesInLog',300);
   //максимальное количество строк в логе пакетов
   MaxLinesInPktLog:=Options.ReadInteger('General','MaxLinesInPktLog',3000);
+  //коэфф преобразования NpcID, необходим для правильного определения имени НПЦ
+  kNpcID:=Options.ReadInteger('General', 'kNpcID', 1000000);
+  EditkNpcId.Text:=inttostr(kNpcId);
 
   isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe;l2helper.exe;l2.bin;');
   isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','5001;5002;5003;5004;2222;2106;80;2593;');
@@ -229,7 +233,7 @@ begin
    end
  else
    Options.WriteInteger('General','dumb',0);
-   
+
  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
  WriteSettings;
@@ -237,16 +241,16 @@ begin
 end;
 
 procedure TfSettings.GenerateSettingsFromInterface;
-var oldProto:integer;
+var
+  oldProto : TProtocolVersion;
 begin
-with GlobalSettings do
-  begin
+  with GlobalSettings do begin
     oldProto := GlobalProtocolVersion;
     isNoDecrypt := ChkNoDecrypt.Checked;
     isChangeXor := ChkChangeXor.Checked;
     isGraciaOff := ChkGraciaOff.Checked;
     isKamael := ChkKamael.Checked;
-    isAION := rgProtocolVersion.ItemIndex=5;
+    isAION := rgProtocolVersion.ItemIndex=0;
     isNoProcessToClient := chkIgnoseServerToClient.Checked;
     isNoProcessToServer := chkIgnoseClientToServer.Checked;
     GlobalRawAllowed := chkRaw.Checked;
@@ -254,23 +258,23 @@ with GlobalSettings do
     isSaveLog := chkAutoSavePlog.Checked;
     ShowLastPacket := ChkShowLastPacket.Checked;
     isprocesspackets := chkProcessPackets.Checked;
+
+    //для выбора соответствующего packets.ini
     case rgProtocolVersion.ItemIndex of
-      0: GlobalProtocolVersion := 560;  //С4
-      1: GlobalProtocolVersion := 660;
-      2: GlobalProtocolVersion := 737;  //Интерлюд
-      3: GlobalProtocolVersion := 828;  //Грация
-      4: GlobalProtocolVersion := 83;   //Грация Финал
-      5: GlobalProtocolVersion := -123;    //AION
-      else
-        GlobalProtocolVersion := 560;   //по умолчанию
+      0: GlobalProtocolVersion := AION;          //AION
+      1: GlobalProtocolVersion := CHRONICLE4;    //С4
+      2: GlobalProtocolVersion := CHRONICLE5;    //C5
+      3: GlobalProtocolVersion := INTERLUDE;     //Интерлюд
+      4: GlobalProtocolVersion := GRACIA;        //Грация
+      5: GlobalProtocolVersion := GRACIAFINAL;   //Грация Финал
+      6: GlobalProtocolVersion := GRACIAEPILOG;  //Грация Эпилог
+      7: GlobalProtocolVersion := FREYA;         //Freya
     end;
 
-    if oldProto <> GlobalProtocolVersion then
-      begin
-        fPacketFilter.LoadPacketsIni;
-        if InterfaceEnabled then
-        fPacketFilter.UpdateBtnClick(nil);
-      end;
+    if oldProto <> GlobalProtocolVersion then begin
+      fPacketFilter.LoadPacketsIni;
+      if InterfaceEnabled then fPacketFilter.UpdateBtnClick(nil);
+    end;
 
     UseSocks5Chain := ChkUseSocks5Chain.Checked;
     Socks5NeedAuth := chkSocks5NeedAuth.Checked;
@@ -280,8 +284,6 @@ with GlobalSettings do
     Socks5AuthPwd := edSocks5AuthPwd.Text;
     NoFreeAfterDisconnect := chkNoFree.Checked;
   end;
-
-
 
   sClientsList := isClientsList.Text;
   sIgnorePorts := isIgnorePorts.Text;
@@ -293,14 +295,17 @@ with GlobalSettings do
 
   if assigned(sockEngine) then
     sockEngine.isSocks5 := ChkSocks5Mode.Checked;
-
 end;
 
 procedure TfSettings.WriteSettings;
 begin
   //максимальное количество строк в логе
   Options.WriteInteger('General','MaxLinesInLog',MaxLinesInLog);
+  //максимальное количество строк в логе пакетов
   Options.WriteInteger('General','MaxLinesInPktLog',MaxLinesInPktLog);
+  //коэфф преобразования NpcID, необходим для правильного определения имени НПЦ
+  Options.WriteString('general','kNpcID', EditkNpcID.Text);
+
   Options.WriteString('General','Clients', isClientsList.Text);
   Options.WriteString('General','IgnorPorts', isIgnorePorts.Text);
   Options.WriteBool('General','NoDecrypt', ChkNoDecrypt.Checked);
@@ -342,8 +347,6 @@ begin
   Options.WriteString('General','Socks5Port',edSocks5Port.Text);
   Options.WriteString('General','Socks5AuthUsername',edSocks5AuthUsername.Text);
   Options.WriteString('General','Socks5AuthPwd',edSocks5AuthPwd.Text);
-
-
 
   Options.UpdateFile;
 end;
@@ -540,12 +543,12 @@ end;
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);
 begin
   if not InterfaceEnabled then exit;
-  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 3)and(rgProtocolVersion.ItemIndex < 5);
+  //Kamael-Hellbound-Gracia-Freya
+  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 4) and (rgProtocolVersion.ItemIndex <= 7);
   GenerateSettingsFromInterface;
-  ChkKamael.Enabled:=rgProtocolVersion.ItemIndex <> 5;
+  ChkKamael.Enabled:=rgProtocolVersion.ItemIndex <> 0;   //AION
   ChkGraciaOff.Enabled:=ChkKamael.Enabled;
   ChkChangeXor.Enabled:=ChkKamael.Enabled;
-
 end;
 
 procedure TfSettings.FormCreate(Sender: TObject);
