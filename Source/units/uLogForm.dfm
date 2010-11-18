@@ -1,10 +1,10 @@
 object fLog: TfLog
   Left = 2
   Top = 3
-  Width = 684
-  Height = 212
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = #1051#1086#1075' '#1087#1072#1082#1077#1090#1093#1072#1082#1072
+  ClientHeight = 178
+  ClientWidth = 676
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object fLog: TfLog
   object Log: TMemo
     Left = 0
     Top = 0
-    Width = 668
-    Height = 151
+    Width = 676
+    Height = 155
     Align = alClient
     BevelInner = bvLowered
     BevelKind = bkSoft
@@ -33,8 +33,8 @@ object fLog: TfLog
   end
   object Panel1: TPanel
     Left = 0
-    Top = 151
-    Width = 668
+    Top = 155
+    Width = 676
     Height = 23
     Align = alBottom
     BevelOuter = bvNone
@@ -48,7 +48,7 @@ object fLog: TfLog
       Height = 13
     end
     object Panel3: TPanel
-      Left = 493
+      Left = 501
       Top = 0
       Width = 175
       Height = 23
