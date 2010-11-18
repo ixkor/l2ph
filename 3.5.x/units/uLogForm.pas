@@ -39,7 +39,7 @@ procedure TfLog.FormDestroy(Sender: TObject);
 begin
   IsExists := false;
   savepos(self);
-  if isDestroying then exit;
+  //if isDestroying then exit;
   //Log.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2ph'+' '+AddDateTime+'.log');
   Log.Lines.SaveToFile(AppPath+'\logs\l2ph'+' '+AddDateTime+'.log');
 end;
