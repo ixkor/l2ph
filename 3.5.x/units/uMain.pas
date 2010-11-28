@@ -299,7 +299,7 @@ begin
     end;
     isDestroying := true;
     isGlobalDestroying := true;
-    fScript.DestroyAllScripts;    
+    fScript.DestroyAllScripts;
     Application.Terminate;
 end;
 
