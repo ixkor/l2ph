@@ -136,6 +136,7 @@ begin
   fLangSelectDialog.siLangCombo1.ItemIndex := Options.ReadInteger('General', 'language', 0);
   fMain.lang.Language := fLangSelectDialog.siLangCombo1.Items.Strings[fLangSelectDialog.siLangCombo1.ItemIndex];
   Application.ProcessMessages;
+
   InterfaceEnabled := false;
 
   //максимальное количество строк в логе
@@ -198,6 +199,7 @@ begin
   dmData.LSPControl.PathToLspModule := isLSP.Text;
   InterfaceEnabled := true;
 
+  //вкл галочки в настройках
   if iNewxor.Checked and (fileexists(isNewxor.Text)) then
   if LoadLibraryXor(isNewxor.Text) then
   begin
@@ -205,10 +207,11 @@ begin
     btnNewXor.Enabled := false;
     iNewxor.Checked := true;
   end;
+  //
   if iInject.Checked and (fileexists(isInject.Text)) then
   begin
-    isInject.Enabled := false;
-    BtnInject.Enabled := false;
+    //isInject.Enabled := false;
+    //BtnInject.Enabled := false;
     iInject.Checked := true;
     ChkInterceptClick(nil);
   end
@@ -220,12 +223,12 @@ begin
   end;
   if dmData.LSPControl.isLspModuleInstalled then //+ чуть чуть по другому. буду смотреть реально ли установлена
   begin
-    isLSP.Enabled := false;
-    BtnLsp.Enabled := false;
+    //isLSP.Enabled := false;
+    //BtnLsp.Enabled := false;
     ChkLSPIntercept.Checked := true;
     ChkLSPInterceptClick(nil);
   end;
-
+ //
  if Options.ReadInteger('General','dumb',0) > 0 then
    begin
    Options.WriteInteger('General','dumb',Options.ReadInteger('General','dumb',1)+1);
@@ -233,9 +236,9 @@ begin
    end
  else
    Options.WriteInteger('General','dumb',0);
-
- PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
- PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
+ //
+ //PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+ //PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
  WriteSettings;
  rgProtocolVersionClick(nil);
 end;
@@ -365,43 +368,90 @@ begin
   GenerateSettingsFromInterface;
 end;
 
+procedure TfSettings.iInjectClick(Sender: TObject);
+begin
+  if not iInject.Checked then
+  begin
+    ChkIntercept.Checked := false;
+    FreeMem(pInjectDll);
+    pInjectDll := nil;
+    AddToLog(format(rsUnLoadDllSuccessfully,[isInject.Text]));
+  end
+  else
+    if ExtractFilePath(isInject.Text) = '' then iInject.Checked := false
+    else if not LoadLibraryInject (isInject.Text) then iInject.Checked := false;
+
+  isInject.Enabled := not iInject.Checked;
+  BtnInject.Enabled := not iInject.Checked;
+  HookMethod.Enabled := iInject.Checked;
+  ChkIntercept.Enabled := iInject.Checked;
+  JvSpinEdit1.Enabled := iInject.Checked;
+
+  //if InterfaceEnabled then GenerateSettingsFromInterface;
+end;
+
 procedure TfSettings.ChkInterceptClick(Sender: TObject);
 begin
   if not iInject.Checked then
-    ChkIntercept.Checked := false;
+    ChkIntercept.Checked := false; // проверка на подгрузку inject.dll
+  dmData.timerSearchProcesses.Enabled := ChkIntercept.Checked; //вкл таймер перехвата
+  //отключаем LSP
+  ChkLSPIntercept.Enabled := not ChkIntercept.Checked; // вкл/выкл
+  //ChkLSPIntercept.Checked := ChkIntercept.Checked; //сбрасываем галочку
+  ChkLSPDeinstallonclose.Enabled := not ChkIntercept.Checked; // вкл/выкл
+  isLSP.Enabled := not ChkIntercept.Checked; // вкл/выкл
+  BtnLsp.Enabled := not ChkIntercept.Checked; // вкл/выкл
+  lspInterceptMethod.Enabled := not ChkIntercept.Checked; // вкл/выкл
+  dmData.LSPControl.setlspstate(false);
+  //отключаем SOCKS5
+  ChkSocks5Mode.Enabled := not ChkIntercept.Checked; //вкл/выкл
+  if assigned(sockEngine) then sockEngine.isSocks5 := false; //откл энжин
+  // если включен inject, LSP или SOCKS5 сервер - разрешаем "сокцифицировать приложение через SOCK5 сервер"
+  PnlSocks5Chain.Enabled := ChkIntercept.Checked;
+  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
+  ChkUseSocks5Chain.Enabled := ChkIntercept.Checked; // вкл/выкл
+  if not ChkIntercept.Checked then ChkUseSocks5Chain.Checked := false; //сбрасываем галочку
+  chkSocks5NeedAuth.Enabled := ChkIntercept.Checked; // вкл/выкл
+  if not ChkIntercept.Checked then chkSocks5NeedAuth.Checked := false; //сбрасываем галочку
 
-  if ChkIntercept.Checked then
-    begin
-      ChkSocks5Mode.Checked:= False;
-      dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
-      isLSP.Enabled := true;
-      BtnLsp.Enabled := true;
-      ChkLSPIntercept.Checked := False;
-    end;
-
-  dmData.timerSearchProcesses.Enabled := ChkIntercept.Checked;
-  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
-  PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);  
+  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
 end;
 
 procedure TfSettings.ChkSocks5ModeClick(Sender: TObject);
 begin
-  if not InterfaceEnabled then exit;
-  if ChkSocks5Mode.Checked then
-  begin
-    ChkIntercept.Checked := False;
-    dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
-    isLSP.Enabled := true;
-    BtnLsp.Enabled := true;
-    ChkLSPIntercept.Checked := False;
-  end;
-  if Sender = nil then exit;
-  ChkInterceptClick(nil);
-  ChkLSPInterceptClick(nil);
-
-  GenerateSettingsFromInterface;
-  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+  //отключаем inject
+  ChkIntercept.Checked := false; //сбрасываем галочку
+  ChkIntercept.Enabled := false; //выкл и не включаем
+  JvSpinEdit1.Enabled := false; //выкл и не включаем
+  iInject.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  iInject.Checked := false; //сбрасываем галочку
+  isInject.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  HookMethod.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  BtnInject.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл кнопку просмотра места расположения dll
+  dmData.timerSearchProcesses.Enabled := not ChkSocks5Mode.Checked; //выкл таймер перехвата
+  //отключаем LSP
+  ChkLSPIntercept.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  ChkLSPIntercept.Checked := false; //сбрасываем галочку
+  ChkLSPDeinstallonclose.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  isLSP.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  BtnLsp.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  lspInterceptMethod.Enabled := not ChkSocks5Mode.Checked; // вкл/выкл
+  dmData.LSPControl.setlspstate(false); //откл
+  // если включен inject, LSP или SOCKS5 сервер - разрешаем "сокцифицировать приложение через SOCK5 сервер"
+  PnlSocks5Chain.Enabled := ChkSocks5Mode.Checked;
   PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
+  ChkUseSocks5Chain.Enabled := ChkSocks5Mode.Checked; // вкл/выкл
+  if not ChkSocks5Mode.Checked then ChkUseSocks5Chain.Checked := false; //сбрасываем галочку
+  chkSocks5NeedAuth.Enabled := ChkSocks5Mode.Checked; // вкл/выкл
+  if not ChkSocks5Mode.Checked then chkSocks5NeedAuth.Checked := false; //сбрасываем галочку
+  //включаем SOCKS5
+  if assigned(sockEngine) then sockEngine.isSocks5 := ChkSocks5Mode.Checked;
+  //if Sender = nil then exit; //если жал кнопки не пользователь, то выход
+  //if ChkIntercept.Checked then ChkInterceptClick(nil);
+  //if ChkLSPIntercept.Checked then ChkLSPInterceptClick(nil);
+  //if ChkSocks5Mode.Checked then ChkSocks5ModeClick(nil);
+
+  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
 end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
@@ -423,25 +473,38 @@ procedure TfSettings.ChkLSPInterceptClick(Sender: TObject);
 begin
 if (ExtractFilePath(isLSP.Text) = '') and ChkLSPIntercept.Checked then
   begin
-    ChkLSPIntercept.Checked := false;
+    ChkLSPIntercept.Checked := false;  //не ставим галочку если библиотека не найдена и не включен inject
     exit;
   end;
-
-  if ChkLSPIntercept.Checked then
-  begin
-    isLSP.Enabled := false;
-    BtnLsp.Enabled := false;
-    ChkSocks5Mode.Checked := false;
-    ChkIntercept.Checked := false;
-  end else
-  begin
-    isLSP.Enabled := true;
-    BtnLsp.Enabled := true;
-  end;
+  //отключаем inject
+  ChkIntercept.Enabled := false; //выкл и не включаем
+  JvSpinEdit1.Enabled := false; //выкл и не включаем
+  iInject.Enabled := not ChkLSPIntercept.Checked; // вкл/выкл
+  iInject.Checked := false; //сбрасываем галочку
+  isInject.Enabled := not ChkLSPIntercept.Checked; // вкл/выкл
+  HookMethod.Enabled := not ChkLSPIntercept.Checked; // вкл/выкл
+  BtnInject.Enabled := not ChkLSPIntercept.Checked; // вкл/выкл кнопку просмотра места расположения dll
+  dmData.timerSearchProcesses.Enabled := not ChkLSPIntercept.Checked; //выкл таймер перехвата
+  //включаем LSP
+  isLSP.Enabled := not ChkLSPIntercept.Checked; // вкл/выкл
+  BtnLsp.Enabled := not ChkLSPIntercept.Checked; // вкл/выкл
   dmData.LSPControl.setlspstate(ChkLSPIntercept.Checked);
-
-  PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
+  // если включен inject, LSP или SOCKS5 сервер - разрешаем "сокцифицировать приложение через SOCK5 сервер"
+  PnlSocks5Chain.Enabled := ChkLSPIntercept.Checked;
   PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
+  ChkUseSocks5Chain.Enabled := ChkLSPIntercept.Checked; // вкл/выкл
+  if not ChkLSPIntercept.Checked then ChkUseSocks5Chain.Checked := false; //сбрасываем галочку
+  chkSocks5NeedAuth.Enabled := ChkLSPIntercept.Checked; // вкл/выкл
+  if not ChkLSPIntercept.Checked then chkSocks5NeedAuth.Checked := false; //сбрасываем галочку
+  //отключаем SOCKS5
+  ChkSocks5Mode.Enabled := not ChkLSPIntercept.Checked; //вкл/выкл
+  if assigned(sockEngine) then sockEngine.isSocks5 := false;
+  //if Sender = nil then exit; //если жал кнопки не пользователь, то выход
+  //if ChkIntercept.Checked then ChkInterceptClick(nil);
+  //if ChkLSPIntercept.Checked then ChkLSPInterceptClick(nil);
+  //if ChkSocks5Mode.Checked then ChkSocks5ModeClick(nil);
+
+  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
 end;
 
 procedure TfSettings.iNewxorClick(Sender: TObject);
@@ -485,32 +548,6 @@ begin
   readsettings;
   GenerateSettingsFromInterface;
   Hide;
-end;
-
-procedure TfSettings.iInjectClick(Sender: TObject);
-begin      
-  if not iInject.Checked then
-  begin
-    ChkIntercept.Checked := false;
-    FreeMem(pInjectDll);
-    pInjectDll := nil;
-    AddToLog(format(rsUnLoadDllSuccessfully,[isInject.Text]));
-  end
-  else
-  if ExtractFilePath(isInject.Text) = '' then
-    iInject.Checked := false
-  else
-  if not LoadLibraryInject (isInject.Text) then
-    iInject.Checked := false;
-
-  isInject.Enabled := not iInject.Checked;
-  BtnInject.Enabled := not iInject.Checked;
-  HookMethod.Enabled := iInject.Checked;
-  ChkIntercept.Enabled := iInject.Checked;
-  JvSpinEdit1.Enabled := iInject.Checked;
-
-  if not InterfaceEnabled then exit;
-  GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.isLSPChange(Sender: TObject);
