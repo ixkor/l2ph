@@ -44,7 +44,7 @@ type
     { Private declarations }
   public
     currentpacket: string;
-    kId: cardinal; //коэфф преобразования NpcID
+    //kId: cardinal; //коэфф преобразования NpcID
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     HexViewOffset : boolean;
     itemTag, templateindex:integer;
@@ -77,7 +77,7 @@ function TfPacketView.GetNpcID(const ar1: cardinal): string;
 var
  _ar1: cardinal;
 begin
-  _ar1:=ar1-kId;
+  _ar1:=ar1-kNpcID;
   result:='0'; if ar1=0 then exit;
   result:=NpcIdList.Values[inttostr(_ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Npc ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
