@@ -446,6 +446,22 @@ begin
 end;
 
 procedure TfPacketView.ParsePacket;
+var
+  ii, j, jj : Integer;
+  id : Byte;
+  PktStr, StrIni, Param0 : string;
+  PosInIni, PosInPkt, offset : integer;
+  ptime : TDateTime;
+  SubID : word;
+  typ, name,func, tmp_param, param1, param2 : string;
+  value, tmp_value : string;
+  oldpos : integer;
+  isshow : boolean;
+  blockmask : string;
+  FuncNames, FuncParamNames, FuncParamTypes, FuncParamNumbers : tstringlist;
+//=======================================================================
+// локальные функции
+//=======================================================================
   procedure addToDescr(offset:integer; typ, name, value:string);
   function prnoffset(offset:integer):string;
   begin
@@ -473,68 +489,55 @@ procedure TfPacketView.ParsePacket;
     rvDescryption.AddNL(': ', 0, -1);
     rvDescryption.AddNL(value, 0, -1);
   end;
-var
-  ii, j, jj: Integer;
-  id: Byte;
-  PktStr, StrIni, Param0: string;
-  PosInIni, PosInPkt, offset: integer;
-  ptime: TDateTime;
-  SubID: word;
-  typ, name,func, tmp_param, param1, param2: string;
-  value, tmp_value: string;
-  oldpos:integer;
-  isshow:boolean;
-  blockmask : string;
-  FuncNames, FuncParamNames,FuncParamTypes, FuncParamNumbers:tstringlist;
     function GetFuncParams : string;
     var
     i :integer;
     begin
-    result := '';
-    i := 0;
-    while i < funcparamnames.Count do
-    begin
-      if (i < funcparamnames.Count - 1) and (FuncParamTypes.Strings[i] = FuncParamTypes.Strings[i+1]) then
-        result := format('%s%s, ',[result, FuncParamNames.Strings[i]])
-      else
+      result := '';
+      i := 0;
+      while i < funcparamnames.Count do
       begin
-      case FuncParamTypes.Strings[i][1] of
-        'd':
-            begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
-            end;  //dword (размер 4 байта)           d, h-hex
-{        'i':
-            begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
-            end;  //integer (размер 4 байта)           d, h-hex
-            }
-        'c':
-            begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Byte']);
-            end;  //byte / char (размер 1 байт)        b
-        'f':
-            begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Real']);
-            end;  //double (размер 8 байт, float)      f
-        'h':
-            begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Word']);
-            end;  //word (размер 2 байта)              w
-        'q':
-            begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Int64']);
-            end;  //int64 (размер 8 байта)
-        's':begin
-              result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'String']);
-            end;
+        if (i < funcparamnames.Count - 1) and (FuncParamTypes.Strings[i] = FuncParamTypes.Strings[i+1]) then
+          result := format('%s%s, ',[result, FuncParamNames.Strings[i]])
+        else
+        begin
+        case FuncParamTypes.Strings[i][1] of
+          'd':
+              begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
+              end;  //dword (размер 4 байта)           d, h-hex
+  {        'i':
+              begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
+              end;  //integer (размер 4 байта)           d, h-hex
+              }
+          'c':
+              begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Byte']);
+              end;  //byte / char (размер 1 байт)        b
+          'f':
+              begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Real']);
+              end;  //double (размер 8 байт, float)      f
+          'h':
+              begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Word']);
+              end;  //word (размер 2 байта)              w
+          'q':
+              begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Int64']);
+              end;  //int64 (размер 8 байта)
+          's':begin
+                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'String']);
+              end;
+        end;
+        if i < funcparamnames.Count-1 then
+          result := result + '; ';
+        end;
+        inc(i);
       end;
-      if i < funcparamnames.Count-1 then
-        result := result + '; ';
-      end;
-    inc(i);
     end;
-    end;
-    
+
     procedure PrintFuncsParams(sFuncName:string);
     var
     i:integer;
@@ -564,15 +567,17 @@ var
         blockmask := '';
 
       end;
-      FuncParamNumbers.clear;      
+      FuncParamNumbers.clear;
       FuncParamNames.Clear;
       FuncParamTypes.Clear;
     end;
+//=======================================================================
 begin
     FuncParamNames := TStringList.Create;
     FuncParamTypes := TStringList.Create;
     FuncParamNumbers := TStringList.Create;
     FuncNames := TStringList.Create;
+    //HexViewOffset := GlobalSettings.HexViewOffset;
 try
     //строка пакета, sid - номер пакета, cid - номер соединения
     PktStr := HexToString(packet);

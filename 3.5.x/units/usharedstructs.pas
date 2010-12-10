@@ -19,7 +19,8 @@ type
     isNoProcessToServer,
     isKamael,
     isGraciaOff,
-    isSaveLog,
+    isSavePLog,
+    isNoLog,
     ShowLastPacket,
     HexViewOffset,
     isprocesspackets : boolean;

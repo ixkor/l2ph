@@ -32,7 +32,7 @@ var
   fLog: TfLog;
 
 implementation
-uses umain;
+uses umain, uSettingsDialog, usharedstructs;
 {$R *.dfm}
 
 procedure TfLog.FormDestroy(Sender: TObject);
@@ -41,7 +41,9 @@ begin
   savepos(self);
   //if isDestroying then exit;
   //Log.Lines.SaveToFile(PChar(ExtractFilePath(Application.ExeName))+'\logs\l2ph'+' '+AddDateTime+'.log');
-  Log.Lines.SaveToFile(AppPath+'\logs\l2ph'+' '+AddDateTime+'.log');
+  //пишем лог в файл
+  if not GlobalSettings.isNoLog then
+    Log.Lines.SaveToFile(AppPath+'\logs\l2ph'+' '+AddDateTime+'.log');
 end;
 
 procedure TfLog.Button1Click(Sender: TObject);
@@ -53,6 +55,7 @@ procedure TfLog.AddLog(var msg: TMessage);
 var
   newmsg : String;
 begin
+  if fSettings.chkNoLog.Checked then exit; //не ведем лог
   newmsg := string(msg.WParam);
   try
     fLog.Log.Lines.Add(AddDateTimeNormal+' '+newmsg);

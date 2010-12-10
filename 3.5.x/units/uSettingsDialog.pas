@@ -81,6 +81,7 @@ type
     EditkNpcID: TEdit;
     LabelkNpcID: TLabel;
     GroupBox3: TGroupBox;
+    chkNoLog: TCheckBox;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -179,7 +180,8 @@ begin
   isMainFormCaption.Text := Options.ReadString('general','Caption', 'L2PacketHack v%s by CoderX.ru Team');
 
   ChkHexViewOffset.Checked := Options.ReadBool('General','HexViewOffset', True);
-  chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSaveLog', False);
+  chkAutoSavePlog.Checked := Options.ReadBool('General','AutoSavePLog', False);
+  chkNoLog.Checked := Options.ReadBool('General','NoLog', False);
   ChkShowLastPacket.Checked := Options.ReadBool('General','ShowLastPacket', True);
   ChkLSPDeinstallonclose.Checked := Options.ReadBool('General','LSPDeinstallonclose',true);
   LspInterceptMethod.ItemIndex := Options.ReadInteger('General','lspInterceptMethod',0);
@@ -258,7 +260,23 @@ begin
     isNoProcessToServer := chkIgnoseClientToServer.Checked;
     GlobalRawAllowed := chkRaw.Checked;
     HexViewOffset := ChkHexViewOffset.Checked;
-    isSaveLog := chkAutoSavePlog.Checked;
+    isSavePLog := chkAutoSavePlog.Checked;
+    isNoLog := chkNoLog.Checked;
+    if isNoLog then
+    begin
+      chkAutoSavePlog.Enabled:=false;
+      chkAutoSavePlog.Checked:=false;
+      chkShowLogWinOnStart.Enabled:=false;
+      chkShowLogWinOnStart.Checked:=false;
+      chkRaw.Enabled:=false;
+      chkRaw.Checked:=false;
+    end else
+    begin
+      chkAutoSavePlog.Enabled:=true;
+      chkShowLogWinOnStart.Enabled:=true;
+      chkRaw.Enabled:=true;
+    end;
+
     ShowLastPacket := ChkShowLastPacket.Checked;
     isprocesspackets := chkProcessPackets.Checked;
 
@@ -338,6 +356,7 @@ begin
   
   Options.WriteBool('General','HexViewOffset',ChkHexViewOffset.Checked);
   Options.WriteBool('General','AutoSaveLog',chkAutoSavePlog.Checked);
+  Options.WriteBool('General','NoLog',chkNoLog.Checked);
   Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
   Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
   Options.WriteInteger('General','lspInterceptMethod',lspInterceptMethod.ItemIndex);

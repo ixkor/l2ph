@@ -378,6 +378,10 @@ object fVisual: TfVisual
       Caption = #1055#1086#1089#1099#1083#1082#1072
       ImageIndex = 1
       OnShow = TabSheet1Show
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Panel8: TPanel
         Left = 0
         Top = 0

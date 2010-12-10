@@ -221,7 +221,7 @@ begin
   Dump := TStringList.Create;
   dumpacumulator := TStringList.Create;
   dumpRegBuf := TStringList.Create;
-  BtnAutoSavePckts.Down := GlobalSettings.isSaveLog;
+  BtnAutoSavePckts.Down := GlobalSettings.isSavePLog;
   if CurrentTpacketLog <> nil then //просмотр логов, просто скрываем все ненужное
     begin
       TabSheet2.TabVisible := false;
@@ -349,6 +349,9 @@ var
   isknown : boolean;
   IsShow : boolean;
 begin
+
+  if GlobalSettings.isNoLog then exit; //не ведем лог пакетов
+
   if PacketNumber < 0 then exit; //или -1 0_о
   if PacketNumber >= Dump.Count then exit; //или индекс оф боундс -)
   if newpacket.Size = 0 then exit; // если пустой пакет выходим

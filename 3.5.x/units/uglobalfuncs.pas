@@ -90,7 +90,7 @@ uses
     AllowExit: boolean; //разрешать выход. устанавливаетс€ в SettingsDialog
 
     //коэфф преобразовани€ NpcID, необходим дл€ правильного определени€ имени Ќѕ÷
-    kNpcID : Integer;
+    kNpcID : Cardinal;
 
     GlobalSettings : TEncDecSettings; //текущие настройки дл€ ≈нкƒек устанавливаетс€ в SettingsDialog
     filterS, filterC: string; //строка фильтров
@@ -129,7 +129,7 @@ uses
   Options, PacketsINI : TMemIniFile;
   
 implementation
-uses uMainReplacer, uFilterForm, forms, udata, usocketengine, ulogform;
+uses uMainReplacer, uMain, uFilterForm, forms, udata, usocketengine, ulogform;
 
 function GetModifTime(const FileName: string): TDateTime;
 var
@@ -242,24 +242,35 @@ end;
 
 Procedure Reload;
 begin
-  //считываем systemmsg.ini
   SysMsgIdList.Clear;
-  SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgid.ini');
-  //считываем itemname.ini
-  ItemsList.Clear;
-  ItemsList.LoadFromFile(AppPath+'settings\itemsid.ini');
-  //считываем npcname.ini
-  NpcIdList.Clear;
-  NpcIdList.LoadFromFile(AppPath+'settings\npcsid.ini');
-  //считываем ClassId.ini
-  ClassIdList.Clear;
-  ClassIdList.LoadFromFile(AppPath+'settings\classid.ini');
-  //считываем skillname.ini
-  SkillList.Clear;
-  SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
- //считываем augment.ini
   AugmentList.Clear;
-  AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
+  SkillList.Clear;
+  ClassIdList.Clear;
+  NpcIdList.Clear;
+  ItemsList.Clear;
+  if fMain.lang.Language='Eng' then
+  begin   //английские версии
+    //считываем systemmsg.ini
+    SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgideng.ini');
+    //считываем itemname.ini
+    ItemsList.LoadFromFile(AppPath+'settings\itemsideng.ini');
+    //считываем npcname.ini
+    NpcIdList.LoadFromFile(AppPath+'settings\npcsideng.ini');
+    //считываем ClassId.ini
+    ClassIdList.LoadFromFile(AppPath+'settings\classideng.ini');
+    //считываем skillname.ini
+    SkillList.LoadFromFile(AppPath+'settings\skillsideng.ini');
+   //считываем augment.ini
+    AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
+  end else
+  begin   //русские версии
+    SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgid.ini');
+    ItemsList.LoadFromFile(AppPath+'settings\itemsid.ini');
+    NpcIdList.LoadFromFile(AppPath+'settings\npcsid.ini');
+    ClassIdList.LoadFromFile(AppPath+'settings\classid.ini');
+    SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
+    AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
+  end;
 end;
 
 function TimeStepByteStr:string;
