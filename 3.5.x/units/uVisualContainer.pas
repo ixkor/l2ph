@@ -289,59 +289,55 @@ begin
 end;
 
 procedure TfVisual.Processpacket;
-    Procedure AddToListView5(ItemImageIndex:byte; ItemCaption:String; ItemPacketNumber: LongWord; ItemId, ItemSubId : word; Visible : boolean);
-    var
-      str : string;
-    begin
-    with ListView5.Items.Add do begin
-          //имя пакета
-          Caption := ItemCaption;
-          //код иконки
-          ImageIndex := ItemImageIndex;
-          //номер
-          SubItems.Add(IntToStr(ItemPacketNumber));
-          //код пакета
+//=========================================
+// локальные процедуры
+//=========================================
+Procedure AddToListView5(ItemImageIndex:byte; ItemCaption:String; ItemPacketNumber: LongWord; ItemId, ItemSubId : word; Visible : boolean);
+var
+  str : string;
+begin
+  with ListView5.Items.Add do begin
+    //имя пакета
+    Caption := ItemCaption;
+    //код иконки
+    ImageIndex := ItemImageIndex;
+    //номер
+    SubItems.Add(IntToStr(ItemPacketNumber));
+    //код пакета
+    if ItemSubId = 0 then
+      str := IntToHex(ItemId,2)
+    else
+      str := IntToHex(ItemSubId,4);
+    SubItems.Add(str);
+    if not Visible then MakeVisible(false);
+  end;
+end;
 
-          if ItemSubId = 0 then
-            str := IntToHex(ItemId,2)
-          else
-            str := IntToHex(ItemSubId,4);
-
-          SubItems.Add(str);
-          if not Visible then MakeVisible(false);
-        end;
-    end;
-
-    Procedure AddToPacketFilterUnknown(ItemFromServer : boolean; ItemId, ItemSubId:Word; ItemChecked:boolean);
-    var
-      CurrentList : TListView;
-      currentpackedfrom : TStringList;
-      str:string;
-    begin
-      if ItemFromServer then
-        begin
-        currentpackedfrom := PacketsFromS;
-        CurrentList := fPacketFilter.ListView1
-        end
-      else
-        begin
-        currentpackedfrom := PacketsFromC;
-        CurrentList := fPacketFilter.ListView2;
-        end;
-
-      with CurrentList.Items.Add do
-      begin
-        if ItemSubId = 0 then
-            str := IntToHex(ItemId, 2)
-          else
-            str := IntToHex(ItemSubId, 4);
-
-        Caption :=str;
-        Checked := ItemChecked;
-        SubItems.Add('Unknown'+str);
-        currentpackedfrom.Append(str+'=Unknown:h(SubId)');
-      end;
-    end;
+Procedure AddToPacketFilterUnknown(ItemFromServer : boolean; ItemId, ItemSubId:Word; ItemChecked:boolean);
+var
+  CurrentList : TListView;
+  currentpackedfrom : TStringList;
+  str:string;
+begin
+  if ItemFromServer then begin
+    currentpackedfrom := PacketsFromS;
+    CurrentList := fPacketFilter.ListView1
+  end else begin
+    currentpackedfrom := PacketsFromC;
+    CurrentList := fPacketFilter.ListView2;
+  end;
+  with CurrentList.Items.Add do begin
+    if ItemSubId = 0 then
+        str := IntToHex(ItemId, 2)
+    else
+        str := IntToHex(ItemSubId, 4);
+    Caption :=str;
+    Checked := ItemChecked;
+    SubItems.Add('Unknown'+str);
+    currentpackedfrom.Append(str+'=Unknown:h(SubId)');
+  end;
+end;
+//=========================================
 var
   id: Byte;
   subid: word;
@@ -349,7 +345,7 @@ var
   isknown : boolean;
   IsShow : boolean;
 begin
-
+  //а нужна ли она?!
   if GlobalSettings.isNoLog then exit; //не ведем лог пакетов
 
   if PacketNumber < 0 then exit; //или -1 0_о
@@ -380,12 +376,10 @@ begin
     end;
 end;
 
-
 procedure TfVisual.ListView5KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   ListView5Click(Sender);
 end;
-
 
 procedure TfVisual.tbtnToSendClick(Sender: TObject);
 begin
@@ -424,49 +418,49 @@ var
   charname:string;
   i:integer;
 begin
-try
-  if not assigned(dump) then exit;
+  try
+    if not assigned(dump) then exit;
 
-  if assigned(currenttunel) then
-    if Ttunel(currenttunel).EncDec.Settings.isNoDecrypt then exit;
-
-  if assigned(currentLSP) then
-    if TlspConnection(currentLSP).EncDec.Settings.isNoDecrypt then exit;
-
-
-  if BtnAutoSavePckts.Down then
-  begin
-    AddToLog(rsSavingPacketLog);
-    SaveThis := TStringList.Create;
-    SaveThis.Assign(dump);
-  end;
-  Dump.Clear;
-  ListView5.Items.BeginUpdate;
-  ListView5.Items.Clear;
-  ListView5.Items.EndUpdate;
-
-  if BtnAutoSavePckts.Down then
-  begin
     if assigned(currenttunel) then
-      charname := Ttunel(currenttunel).EncDec.CharName +' ';
+      if Ttunel(currenttunel).EncDec.Settings.isNoDecrypt then exit;
 
     if assigned(currentLSP) then
-      charname := TlspConnection(currentLSP).EncDec.CharName +' ';
+      if TlspConnection(currentLSP).EncDec.Settings.isNoDecrypt then exit;
 
-    i := 1;
-    while i <= Length(charname) do
-      begin
-        if pos(lowercase(charname[i]), 'qwertyuiopasdfghjklzxcvbnm1234567890.') > 0 then
-          inc(i)
-        else
-          delete(charname,i,1);
-      end;
 
-    SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].pLog');
-    SaveThis.Free;
+    if BtnAutoSavePckts.Down then
+    begin
+      AddToLog(rsSavingPacketLog);
+      SaveThis := TStringList.Create;
+      SaveThis.Assign(dump);
+    end;
+    Dump.Clear;
+    ListView5.Items.BeginUpdate;
+    ListView5.Items.Clear;
+    ListView5.Items.EndUpdate;
+
+    if BtnAutoSavePckts.Down then
+    begin
+      if assigned(currenttunel) then
+        charname := Ttunel(currenttunel).EncDec.CharName +' ';
+
+      if assigned(currentLSP) then
+        charname := TlspConnection(currentLSP).EncDec.CharName +' ';
+
+      i := 1;
+      while i <= Length(charname) do
+        begin
+          if pos(lowercase(charname[i]), 'qwertyuiopasdfghjklzxcvbnm1234567890.') > 0 then
+            inc(i)
+          else
+            delete(charname,i,1);
+        end;
+
+      SaveThis.SaveToFile(PChar(ExtractFilePath(ParamStr(0)))+'logs\'+charname+'['+AddDateTime+'].pLog');
+      SaveThis.Free;
+    end;
+  except
   end;
-except
-end;
 end;
 
 {$warnings on}
@@ -506,24 +500,34 @@ begin
     SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
     if from=4 then begin
       //от клиента
-      if (id in [$39,$D0]) then begin
-        //находим индекс пакета
-        indx:=PacketsFromC.IndexOfName(IntToHex(subid,4));
-        if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
-      end else begin
-        indx:=PacketsFromC.IndexOfName(IntToHex(id,2));
-        if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
-      end;
+      if (GlobalProtocolVersion=AION)then // для Айон
+      begin
+          indx:=PacketsFromC.IndexOfName(IntToHex(id,2));
+          if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
+      end else
+        if (id in [$39,$D0]) then begin
+          //находим индекс пакета
+          indx:=PacketsFromC.IndexOfName(IntToHex(subid,4));
+          if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
+        end else begin
+          indx:=PacketsFromC.IndexOfName(IntToHex(id,2));
+          if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
+        end;
     end else begin
       //от сервера
-      if id=$FE then begin
-        //находим индекс пакета
-        indx:=PacketsFromS.IndexOfName(IntToHex(subid,4));
-        if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
-      end else begin
-        indx:=PacketsFromS.IndexOfName(IntToHex(id,2));
-        if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
-      end;
+      if (GlobalProtocolVersion=AION)then
+      begin
+          indx:=PacketsFromS.IndexOfName(IntToHex(id,2));
+          if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
+      end else
+        if id=$FE then begin
+          //находим индекс пакета
+          indx:=PacketsFromS.IndexOfName(IntToHex(subid,4));
+          if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
+        end else begin
+          indx:=PacketsFromS.IndexOfName(IntToHex(id,2));
+          if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
+        end;
     end;
     tmpItm:=ListView5.GetNextItem(tmpItm,sdAll,[isSelected]);
   end;

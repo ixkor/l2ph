@@ -4,6 +4,7 @@ library inject;
 
 uses
   windows,
+  //IniFiles,
   advApiHook in 'units\advApiHook.pas',
   NativeAPI in 'units\NativeAPI.pas',
   usharedstructs in 'units\usharedstructs.pas';
@@ -142,6 +143,7 @@ type
 
 var
   ConnectNextHook : function (s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
+  //wcnL2PH :string;
 
 function FindWindow(lpClassName, lpWindowName: PChar): HWND; stdcall; external user32 name 'FindWindowA';
 //function FindWindow; external user32 name 'FindWindowA';
@@ -152,16 +154,28 @@ function inet_addr(cp: PChar): u_long; stdcall;  external    winsocket name 'ine
 
 function ConnectHookProc(s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
 var
-//  buf: array[0..5] of Byte;
+//  Options :TIniFile;
+//  buf: array[0..63] of Char;
+//  wcnL2PH : String;
   apph: HWND;
   x: packed record
     lo: Word;
     hi: Word;
   end absolute apph;
 begin
-  apph:=FindWindow('TfMainReplacer',nil);
+//  Options:=TIniFile.Create('.\\settings\\options.ini');
+//  wcnL2PH := Options.ReadString('general','WinClassName', 'TfMainReplacer');
+//  wcnL2PH:=wcnL2PH+#0;
+//  move(wcnL2PH[1], buf, length(wcnL2PH));
+//  Options.Destroy;
+  //if (length(wcnL2PH)<64) AND (length(wcnL2PH)<>0) then
+  //begin
+    //move(wcnL2PH[1], str, length(wcnL2PH));
+//    apph:=FindWindow(buf, nil);
+  //end else
+    apph:=FindWindow('TfMainReplacer', nil);
   if (apph>0)then begin
-    apph:=SendMessage(apph,$04F0,Name.sin_addr.S_addr,Name.sin_port);
+    apph:=SendMessage(apph, $04F0, Name.sin_addr.S_addr, Name.sin_port);
     if x.lo=1 then begin
       Name.sin_addr.S_addr:=inet_addr('127.0.0.1');
       Name.sin_port:=x.hi;
@@ -170,7 +184,7 @@ begin
   result:=ConnectNextHook(s, Name, namelen);
 end;
 
-function LowerCase(const S: string): string;
+function LowerCase(const S :string) :string;
 var
   i:Integer;
 begin
@@ -453,6 +467,7 @@ var
  hMutex : cardinal;
 begin
  result := false;
+ //hMutex := CreateMutex(nil, true, pchar('injected'+inttostr(GetCurrentProcessId)));
  hMutex := CreateMutex(nil, false, pchar('injected'+inttostr(GetCurrentProcessId)));
  if GetLastError = ERROR_ALREADY_EXISTS then
  begin

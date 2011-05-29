@@ -157,7 +157,7 @@ begin
     INTERLUDE: LoadPktIni('packetsInterlude.ini');        //пакеты дл€ »нтерлюдии
     GRACIA: LoadPktIni('packetsGracia.ini');              //пакеты дл€ √раци€
     GRACIAFINAL: LoadPktIni('packetsGraciaFinal.ini');    //пакеты дл€ √раци€ ‘инал
-    GRACIAEPILOG: LoadPktIni('packetsGraciaEpilog.ini');  //пакеты дл€ √раци€ Ёпилог
+    GRACIAEPILOGUE: LoadPktIni('packetsGraciaEpilogue.ini');  //пакеты дл€ √раци€ Ёпилог
     FREYA: LoadPktIni('packetsFreya.ini');                //пакеты дл€ Freya
   end;
 

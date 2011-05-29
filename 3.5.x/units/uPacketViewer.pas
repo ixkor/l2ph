@@ -69,7 +69,7 @@ var
   p: TPoint;
   b: Boolean;
   PktStr : string;
-  size : integer;
+  size : word;
 begin
 
   p:=Memo4.CaretPos;

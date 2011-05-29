@@ -1,9 +1,9 @@
 object fPacketViewer: TfPacketViewer
   Left = 0
   Top = 0
-  Width = 752
-  Height = 372
   Caption = #1057#1086#1089#1090#1072#1074#1083#1077#1085#1080#1077'/'#1087#1088#1086#1089#1084#1086#1090#1088' '#1087#1072#1082#1077#1090#1072
+  ClientHeight = 345
+  ClientWidth = 744
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,27 +16,33 @@ object fPacketViewer: TfPacketViewer
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter3: TSplitter
-    Left = 383
+    Left = 391
     Top = 0
-    Height = 334
+    Height = 345
     Align = alRight
+    ExplicitLeft = 383
+    ExplicitHeight = 334
   end
   object packetVievPanel: TPanel
-    Left = 386
+    Left = 394
     Top = 0
     Width = 350
-    Height = 334
+    Height = 345
     Align = alRight
     TabOrder = 0
+    ExplicitLeft = 386
+    ExplicitHeight = 334
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 383
-    Height = 334
+    Width = 391
+    Height = 345
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 383
+    ExplicitHeight = 334
     object ToolBar2: TToolBar
       Left = 0
       Top = 0
@@ -81,7 +87,6 @@ object fPacketViewer: TfPacketViewer
       Width = 383
       Height = 309
       Align = alClient
-      AutoSize = False
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -101,7 +106,7 @@ object fPacketViewer: TfPacketViewer
     Left = 48
     Top = 80
     Bitmap = {
-      494C010102000400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000800080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
