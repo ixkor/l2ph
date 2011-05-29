@@ -97,7 +97,7 @@ uses
 
     //протоколы (packets???.ini) поддерживаемых пакетхаком
   type
-      TProtocolVersion = (AION, CHRONICLE4, CHRONICLE5, INTERLUDE, GRACIA, GRACIAFINAL, GRACIAEPILOG, FREYA);
+      TProtocolVersion = (AION, CHRONICLE4, CHRONICLE5, INTERLUDE, GRACIA, GRACIAFINAL, GRACIAEPILOGUE, FREYA);
   var
       GlobalProtocolVersion : TProtocolVersion = AION;
 
@@ -109,25 +109,31 @@ uses
   function GetModifTime(const FileName: string): TDateTime;
 
   function DataPckToStrPck(var pck): string; stdcall;
- var
-  l2pxversion_array: array[0..3] of Byte; //теперь заполн€етс€ вызовом FillVersion_a
-  l2pxversion: LongWord  absolute l2pxversion_array;
+  var
+    l2pxversion_array: array[0..3] of Byte; //теперь заполн€етс€ вызовом FillVersion_a
+    l2pxversion: LongWord  absolute l2pxversion_array;
 
-  MaxLinesInLog : Integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
-  MaxLinesInPktLog : Integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
-  isDestroying : boolean = false;
-  PacketsNames, PacketsFromS, PacketsFromC : TStringList;
+    MaxLinesInLog : Integer; //максимальное количество строк в логе после которого надо скинутб в файл и очистить лог
+    MaxLinesInPktLog : Integer; //максимальное количество строк в логе пакетов после которого надо скинутб в файл и очистить лог
+    isDestroying : boolean = false;
+    PacketsNames, PacketsFromS, PacketsFromC : TStringList;
+    //дл€ Lineage II
+    SysMsgIdList,  //от сель
+    ItemsList,
+    NpcIdList,
+    ClassIdList,
+    AugmentList,
+    SkillList : TStringList;
+    //дл€ Aion
+    SysMsgIdListAion,
+    ItemsListAion,
+    ClassIdListAion,
+    ClientStringsAion,
+    SkillListAion : TStringList; //и до сель - используютс€ fPacketFilter
 
-  SysMsgIdList,  //от сель
-  ItemsList,
-  NpcIdList,
-  ClassIdList,
-  AugmentList,
-  SkillList : TStringList; //и до сель - используютс€ fPacketFilter
-  
-  GlobalRawAllowed: boolean; //глобальна€ установка не разрешающа€ освобожать фреймы при обрыве соединений
-  Options, PacketsINI : TMemIniFile;
-  
+    GlobalRawAllowed: boolean; //глобальна€ установка не разрешающа€ освобожать фреймы при обрыве соединений
+    Options, PacketsINI : TMemIniFile;
+
 implementation
 uses uMainReplacer, uMain, uFilterForm, forms, udata, usocketengine, ulogform;
 
@@ -187,7 +193,7 @@ if
   (ini.ReadInteger(Control.ClassName,'height', control.height) -
   ini.ReadInteger(Control.ClassName,'top', control.Top) >= Screen.WorkAreaHeight) then
   begin
-    //форма была максимизирована..
+    //форма была максимизирована...
     //не загружаем
     if TForm(Control).Visible then
       begin
@@ -198,7 +204,6 @@ if
         ShowWindow(TForm(Control).Handle, SW_MAXIMIZE);
         ShowWindow(TForm(Control).Handle, SW_HIDE);
       end;
-
   end
   else
   begin
@@ -239,37 +244,70 @@ begin
   Move(tpck.id,Result[1],Length(Result));
 end;
 
-
 Procedure Reload;
 begin
+  // дл€ Lineage II
   SysMsgIdList.Clear;
   AugmentList.Clear;
   SkillList.Clear;
   ClassIdList.Clear;
   NpcIdList.Clear;
   ItemsList.Clear;
-  if fMain.lang.Language='Eng' then
-  begin   //английские версии
-    //считываем systemmsg.ini
-    SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgideng.ini');
-    //считываем itemname.ini
-    ItemsList.LoadFromFile(AppPath+'settings\itemsideng.ini');
-    //считываем npcname.ini
-    NpcIdList.LoadFromFile(AppPath+'settings\npcsideng.ini');
-    //считываем ClassId.ini
-    ClassIdList.LoadFromFile(AppPath+'settings\classideng.ini');
-    //считываем skillname.ini
-    SkillList.LoadFromFile(AppPath+'settings\skillsideng.ini');
-   //считываем augment.ini
-    AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
-  end else
-  begin   //русские версии
-    SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgid.ini');
-    ItemsList.LoadFromFile(AppPath+'settings\itemsid.ini');
-    NpcIdList.LoadFromFile(AppPath+'settings\npcsid.ini');
-    ClassIdList.LoadFromFile(AppPath+'settings\classid.ini');
-    SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
-    AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
+  // дл€ јйон
+  SysMsgIdListAion.Clear;
+  SkillListAion.Clear;
+  ClassIdListAion.Clear;
+  ClientStringsAion.Clear;
+  ItemsListAion.Clear;
+  //загружаем только нужные файлы
+  if (GlobalProtocolVersion=AION)then // дл€ јйон
+  begin
+    if fMain.lang.Language='Eng' then
+    begin   //английские версии
+      //дл€ јйон
+      //считываем systemmsg.ini
+      SysMsgIdListAion.LoadFromFile(AppPath+'settings\sysmsgidaion.ini');
+      //считываем itemname.ini
+      ItemsListAion.LoadFromFile(AppPath+'settings\itemsidAion.ini');
+      //считываем ClassId.ini
+      ClassIdListAion.LoadFromFile(AppPath+'settings\classidAion.ini');
+      //считываем skillname.ini
+      SkillListAion.LoadFromFile(AppPath+'settings\skillsidAion.ini');
+      ClientStringsAion.LoadFromFile(AppPath+'settings\client_strings_ru.ini');
+    end else
+    begin   //русские версии
+      //дл€ јйон
+      SysMsgIdListAion.LoadFromFile(AppPath+'settings\sysmsgidaion.ini');
+      ItemsListAion.LoadFromFile(AppPath+'settings\itemsidAion.ini');
+      ClassIdListAion.LoadFromFile(AppPath+'settings\classidAion.ini');
+      SkillListAion.LoadFromFile(AppPath+'settings\skillsidAion.ini');
+      ClientStringsAion.LoadFromFile(AppPath+'settings\client_strings_ru.ini');
+    end;
+  end else  // дл€ Lineage II
+  begin
+    if fMain.lang.Language='Eng' then
+    begin   //английские версии
+      //считываем systemmsg.ini
+      SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgideng.ini');
+      //считываем itemname.ini
+      ItemsList.LoadFromFile(AppPath+'settings\itemsideng.ini');
+      //считываем npcname.ini
+      NpcIdList.LoadFromFile(AppPath+'settings\npcsideng.ini');
+      //считываем ClassId.ini
+      ClassIdList.LoadFromFile(AppPath+'settings\classideng.ini');
+      //считываем skillname.ini
+      SkillList.LoadFromFile(AppPath+'settings\skillsideng.ini');
+     //считываем augment.ini
+      AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
+    end else
+    begin   //русские версии
+      SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgid.ini');
+      ItemsList.LoadFromFile(AppPath+'settings\itemsid.ini');
+      NpcIdList.LoadFromFile(AppPath+'settings\npcsid.ini');
+      ClassIdList.LoadFromFile(AppPath+'settings\classid.ini');
+      SkillList.LoadFromFile(AppPath+'settings\skillsid.ini');
+      AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
+    end;
   end;
 end;
 
@@ -296,7 +334,6 @@ begin
   end;
   if (ik=Length(s))and(s[ik]<>':') then Result:=Result+s[ik];
 end;
-
 
 function StringToWideString(const s: AnsiString; codePage: Word): WideString;
 var
@@ -449,7 +486,6 @@ begin
     end;
 end;
 
-
 Function LoadLibraryXor(const name: string): boolean;
 begin
 // загружаем XOR dll
@@ -581,6 +617,19 @@ begin
   //расшифровываем коды пакетов и вносим неизвестные в списки пакетов
   if FromServer then begin
     //от сервера
+    if (GlobalProtocolVersion=AION)then // дл€ јйон
+    begin
+      subid := 0;
+      i := PacketsFromS.IndexOfName(IntToHex(id,2));
+      if i=-1 then begin
+        pname := 'Unknown'+IntToHex(id,2);
+        result := false;
+      end else begin
+        pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+        isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
+        result := true;
+      end
+    end else
     if id=$FE then begin
       Id := 0;
       //находим индекс пакета
@@ -608,6 +657,20 @@ begin
     end;
   end else begin
     //от клиента
+    if (GlobalProtocolVersion=AION)then // дл€ јйон
+    begin
+      i:=PacketsFromC.IndexOfName(IntToHex(id,2));
+      subid := 0;
+      if i=-1 then begin
+        //неизвестный пакет от сервера
+        pname := 'Unknown';
+        result := false;
+      end else begin
+        pname := fPacketFilter.ListView2.Items.Item[i].SubItems[0];
+        isshow := fPacketFilter.ListView2.Items.Item[i].Checked;
+        result := true;
+      end;
+    end else
     if (GlobalProtocolVersion<GRACIA) then begin
       //фиксим пакет 39 дл€ хроник C4-C5-Interlude
       if (id in [$39,$D0]) then begin

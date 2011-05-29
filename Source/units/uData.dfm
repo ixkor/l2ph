@@ -132,7 +132,6 @@ object dmData: TdmData
   end
   object dumbtimer: TTimer
     Interval = 10000
-    OnTimer = dumbtimerTimer
     Left = 40
     Top = 128
   end

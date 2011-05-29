@@ -7,9 +7,10 @@ uses
   ComCtrls,
   uGlobalFuncs,
   uResourceStrings,
-  advApiHook,  
+  IniFiles,
+  advApiHook,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ActnList, jpeg, ExtCtrls, StdCtrls;
+  Dialogs, ActnList, jpeg, ExtCtrls, StdCtrls, siComp;
 
 type
   TfMainReplacer = class(TForm)
@@ -26,6 +27,7 @@ type
     Image1: TImage;
     HideSplash: TTimer;
     Status: TLabel;
+    siLang1: TsiLang;
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Action2Execute(Sender: TObject);
@@ -41,15 +43,16 @@ type
   private
     { Private declarations }
   public
+    { Public declarations }
     procedure NewPacket(var msg: TMessage); Message WM_NewPacket;
     procedure ProcessPacket(var msg: TMessage); Message WM_ProcessPacket;
     procedure NewAction(var msg: TMessage); Message WM_NewAction;
     procedure ReadMsg(var msg: TMessage); Message WM_Dll_Log;
     procedure UpdAutoCompleate(var msg: TMessage); Message WM_UpdAutoCompleate;
     procedure BalonHint(var msg: TMessage); Message WM_BalloonHint;   
-
-
-    { Public declarations }
+  protected
+    { Protected declarations }
+//    procedure CreateParams(var Params: TCreateParams); override;
   end;
 
 var
@@ -215,11 +218,11 @@ procedure TfMainReplacer.ProcessPacket(var msg: TMessage);
 var
 visual:tfvisual;
 begin
-try
-  visual := TfVisual(pointer(msg.WParam)^);
-  visual.processpacketfromacum;
-except
-end;
+  try
+    visual := TfVisual(pointer(msg.WParam)^);
+    visual.processpacketfromacum;
+  except
+  end;
 end;
 
 procedure TfMainReplacer.ReadMsg(var msg: TMessage);
@@ -370,5 +373,22 @@ begin
   stitle := string(msg.LParam);
   fMain.JvTrayIcon1.BalloonHint(stitle,smsg);
 end;
+
+//procedure TfMainReplacer.CreateParams(var Params: TCreateParams);
+//var
+//  //str: array[0..63] of char;
+//  str :string;
+//  Options :TIniFile;
+//begin
+//  inherited CreateParams(Params);
+//  Options := TIniFile.Create('.\\settings\\options.ini');
+//  str := Options.ReadString('general','WinClassName', 'TfMainReplacer');
+//  str:=str+#0;
+//  //проверка чтобы str не превышала длину WinClassName
+//  if (length(str)<64) AND (length(str)<>0)
+//  then move(str[1], Params.WinClassName, length(str));
+//  //Params.WinClassName := 'hervam'; //любаярандомнаястрочка
+//  Options.Destroy;
+//end;
 
 end.

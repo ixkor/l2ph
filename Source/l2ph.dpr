@@ -7,6 +7,7 @@ uses
   ExceptionLog,
   Forms,
   windows,
+  //IniFiles,
   uMain in 'units\uMain.pas' {fMain},
   uAboutDialog in 'units\uAboutDialog.pas' {fAbout},
   uConvertForm in 'units\uConvertForm.pas' {fConvert},
@@ -40,10 +41,15 @@ uses
 Procedure Check2stInstance;
 var
  hMutex, hWindow : cardinal;
+ //str : String;
 
 begin
- //ћьютекс нужен дабы исключить проблеммы при активном дебаггере с открытым пх.
+ //ћьютекс нужен дабы исключить проблемы при активном дебаггере с открытым пх.
+  //считываем Options.ini в пам€ть
+ //Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
+ //str := Options.ReadString('general', 'mainMutex', 'L2PH');
  hMutex := CreateMutex(nil, false, 'L2PH');
+ //hMutex := CreateMutex(nil, false, addr(str));
  if GetLastError = ERROR_ALREADY_EXISTS then
  begin
    ReleaseMutex(hMutex);

@@ -41,6 +41,37 @@ type
     procedure rvFuncsSelect(Sender: TObject);
 
   private
+    procedure addToDescr(offset: integer; typ, name_, value: string);
+    function GetFuncParams(FuncParamNames, FuncParamTypes :TStringList): string;
+    procedure PrintFuncsParams(sFuncName :string);
+    procedure fParse;
+    procedure fGet;
+    procedure fSwitch;
+    procedure fLoop;
+    procedure fFor;
+    procedure fLoopM;
+    function GetName(s: string): string;
+    function GetTyp(s: string): string;
+    function GetType(const s: string; var i: Integer): string;
+    function GetFunc(s: string): string;
+    function GetParam(s: string): string;
+    function GetParam2(s: string): string;
+    function GetFunc01(const ar1: integer): string;
+    function GetFunc01Aion(const ar1: integer): string;
+    function GetFuncStrAion(const ar1: integer): string;
+    function GetFunc02(const ar1: integer): string;
+    function GetFunc09(id: byte; ar1: integer): string;
+    function GetSkill(const ar1: integer): string;
+    function GetSkillAion(const ar1: integer): string;
+    function GetAugment(const ar1: integer): string;
+    function GetMsgID(const ar1: integer): string;
+    function GetMsgIDA(const ar1: integer): string;
+    function GetClassID(const ar1: integer): string;
+    function GetClassIDAion(const ar1: integer): string;
+    function GetFSup(const ar1: integer): string;
+    function prnoffset(offset: integer): string;
+    function AllowedName(Name: string): boolean;
+
     { Private declarations }
   public
     currentpacket: string;
@@ -48,7 +79,7 @@ type
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     HexViewOffset : boolean;
     itemTag, templateindex:integer;
-    function GetValue(var typ:string; name, PktStr: string; var PosInPkt: integer; size:word): string;
+    function GetValue(var typ:string; name_, PktStr: string; var PosInPkt: integer): string;
     function GetNpcID(const ar1 : cardinal) : string;
     procedure ParsePacket(PacketName, Packet:string; size : word = 0);
     procedure addtoHex(Str:string);
@@ -62,7 +93,16 @@ implementation
 uses umain;
 
 {$R *.dfm}
-
+  var
+    id: Byte;
+    SubID, sizze: Word;
+    blockmask, PktStr, StrIni, Param0: String;
+    oldpos, ii, PosInIni, PosInPkt, offset: Integer;
+    ptime: TDateTime;
+    isshow: Boolean;
+    FuncNames, FuncParamNames, FuncParamTypes, FuncParamNumbers: TStringList;
+    value, tmp_value, typ, name_, func, tmp_param, param1, param2,
+    tmp_param1, tmp_param2, tmp_param12: String;
 
 procedure TfPacketView.addtoHex(Str: string);
 begin
@@ -83,9 +123,7 @@ begin
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Npc ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
 
-
-function TfPacketView.GetValue(var typ:string; name, PktStr: string;
-  var PosInPkt: integer; size: word): string;
+function TfPacketView.GetValue(var typ:string; name_, PktStr: string; var PosInPkt: integer): string;
 var
   value: string;
   d:integer;
@@ -101,14 +139,6 @@ begin
       templateindex := 10;
       Inc(PosInPkt,4);
     end;  //integer (размер 4 байта)           d, h-hex
-    {'i':
-    begin
-      value:=IntToStr(PInteger(@PktStr[PosInPkt])^);
-      hexvalue:=' (0x'+inttohex(Strtoint(value),8)+')';
-      templateindex := 17;
-      Inc(PosInPkt,4);
-    end;  //integer (размер 4 байта)           d, h-hex
-    }
     'c':
     begin
       value:=IntToStr(PByte(@PktStr[PosInPkt])^);
@@ -144,18 +174,18 @@ begin
     '-','z':
     begin
       templateindex := 15;
-      if Length(name)>4 then
+      if Length(name_)>4 then
       begin
-        if name[1]<>'S' then
+        if name_[1]<>'S' then
         begin
-          d:=strtoint(copy(name,1,4));
+          d:=strtoint(copy(name_,1,4));
           Inc(PosInPkt,d);
           value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
         end else
           value:=lang.GetTextOrDefault('skip script' (* 'Пропускаем скрипт' *) );
       end else
       begin
-        d:=strtoint(name);
+        d:=strtoint(name_);
         Inc(PosInPkt,d);
         value:=lang.GetTextOrDefault('skip' (* 'Пропускаем ' *) )+inttostr(d)+lang.GetTextOrDefault('byte' (* ' байт(а)' *) );
       end;
@@ -170,18 +200,20 @@ begin
 
      Inc(PosInPkt,d+2);
     end;
-    else value:= lang.GetTextOrDefault('unknownid' (* 'Неизвестный идентификатор -> ?(name)!' *) );
+    '_':begin //ничего не делаем, нужен для switch
+      templateindex := 17;
+      value:='0';
+    end;
+    else value:= lang.GetTextOrDefault('unknownid' (* 'Неизвестный идентификатор -> ?(name_)!' *) );
   end;
   Result:=value;
-  if PosInPkt>Size+10 then
+  if PosInPkt>sizze+10 then
     result:='range error';
 end;
 
-
 { TfPacketView }
-
 //-------------
-function GetType(const s:string; var i: Integer):string;
+function TfPacketView.GetType(const s:string; var i: Integer):string;
 begin
   Result:='';
   while (s[i]<>')')and(i<Length(s)) do begin
@@ -191,14 +223,14 @@ begin
   Result:=Result+s[i];
 end;
 //-------------
-function GetTyp(s:string):string;
+function TfPacketView.GetTyp(s:string):string;
 begin
   //d(Count:For.0001)
   //d(Count:Get.Func01)
   //-(40)
   Result:=s[1];
 end;
-function GetName(s:string):string;
+function TfPacketView.GetName(s:string):string;
 var
  k : integer;
 begin
@@ -211,7 +243,7 @@ begin
     Inc(k);
   end;
 end;
-function GetFunc(s:string):string;
+function TfPacketView.GetFunc(s:string):string;
 var
  k : integer;
 begin
@@ -225,7 +257,7 @@ begin
   end;
 end;
 //-------------
-function GetParam(s:string):string;
+function TfPacketView.GetParam(s:string):string;
 var
  k : integer;
 begin
@@ -240,7 +272,7 @@ begin
   end;
 end;
 //-------------
-function GetParam2(s:string):string;
+function TfPacketView.GetParam2(s:string):string;
 var
  k, l : integer;
  s2: string;
@@ -264,7 +296,7 @@ begin
   end;
 end;
 //-------------
-function GetFunc01(const ar1 : integer) : string;
+function TfPacketView.GetFunc01(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.Func01 - возвращает название Item'а по его ID из значения аргумента
 begin
@@ -272,9 +304,26 @@ begin
   result:=ItemsList.Values[IntTostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Items ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
-
+//AION -------------
+function TfPacketView.GetFunc01Aion(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.Func01 - возвращает название Item'а по его ID из значения аргумента
+begin
+  result:='0'; if ar1=0 then exit;
+  result:=ItemsListAion.Values[IntTostr(ar1)];
+  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Items ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
 //-------------
-function GetFunc02(const ar1 : integer) : string;
+function TfPacketView.GetFuncStrAion(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.StringA - возвращает строку по его ID из значения аргумента
+begin
+  result:='0'; if ar1=0 then exit;
+  result:=ClientStringsAion.Values[IntTostr(ar1)];
+  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown msgID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
+//-------------
+function TfPacketView.GetFunc02(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.Func02 - возвращает тип Say2
 begin
@@ -302,7 +351,7 @@ begin
   result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
 end;
 //-------------
-function GetFunc09(id: byte; ar1 : integer) : string;
+function TfPacketView.GetFunc09(id: byte; ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.Func09 - разное.
 begin
@@ -361,7 +410,7 @@ begin
   result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
 end;
 //-------------
-function GetSkill(const ar1 : integer) : string;
+function TfPacketView.GetSkill(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.Skill - возвращает название скила по его ID из значения аргумента
 begin
@@ -369,8 +418,17 @@ begin
   result:=SkillList.Values[inttostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Skill ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
-
-function GetAugment(const ar1 : integer) : string;
+//AION -------------
+function TfPacketView.GetSkillAion(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.Skill - возвращает название скила по его ID из значения аргумента
+begin
+  result:='0'; if ar1=0 then exit;
+  result:=SkillListAion.Values[inttostr(ar1)];
+  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Skill ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
+//-------------
+function TfPacketView.GetAugment(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.AugmentID - возвращает название скила по его ID из значения аргумента
 begin
@@ -379,7 +437,7 @@ begin
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Augment ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
 //-------------
-function GetMsgID(const ar1 : integer) : string;
+function TfPacketView.GetMsgID(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.MsgID - возвращает текст по его ID из значения аргумента
 begin
@@ -387,17 +445,33 @@ begin
   result:=SysMsgidList.Values[inttostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown SysMsg ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
+//AION -------------
+function TfPacketView.GetMsgIDA(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.MsgID - возвращает текст по его ID из значения аргумента
+begin
+  result:='0'; if ar1=0 then exit;
+  result:=SysMsgidListAion.Values[inttostr(ar1)];
+  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown SysMsg ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
 //-------------
-//-------------
-function GetClassID(const ar1 : integer) : string;
+function TfPacketView.GetClassID(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.ClassID - профа
 begin
   result:=ClassIdList.Values[inttostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Class ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
+//AION -------------
+function TfPacketView.GetClassIDAion(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.ClassID - профа
+begin
+  result:=ClassIdListAion.Values[inttostr(ar1)];
+  if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Class ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
 //-------------
-function GetFSup(const ar1 : integer) : string;
+function TfPacketView.GetFSup(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.FSup - Status Update ID
 begin
@@ -417,7 +491,7 @@ begin
   result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
 end;
 
-function prnoffset(offset:integer):string;
+function TfPacketView.prnoffset(offset:integer):string;
 begin
   result:=inttostr(offset);
   case Length(result) of
@@ -427,14 +501,13 @@ begin
   end;
 end;
 
-
-function AllowedName(Name:string):boolean;
+function TfPacketView.AllowedName(Name:string):boolean;
 var
 i:integer;
 begin
   result := true;
   i := 1;
-  while i <= length(name) do
+  while i <= length(Name) do
   begin
     if not (lowercase(Name[i])[1] in ['a'..'z']) then
       begin
@@ -444,141 +517,421 @@ begin
     inc(i);
   end;
 end;
-
-procedure TfPacketView.ParsePacket;
+//=======================================================================
+// извлекаю локальные функции
+//=======================================================================
+//  procedure addToDescr(offset:integer; typ, name_, value:string);
+//  procedure PrintFuncsParams(sFuncName:string);
+//  procedure fGet();
+//  procedure fFor();
+//  procedure fLoop();
+//  procedure fParse();
+//  procedure fSwitch();
+//=======================================================================
+procedure TfPacketView.addToDescr(offset :integer; typ, name_, value :string);
 var
-  ii, j, jj : Integer;
-  id : Byte;
-  PktStr, StrIni, Param0 : string;
-  PosInIni, PosInPkt, offset : integer;
-  ptime : TDateTime;
-  SubID : word;
-  typ, name,func, tmp_param, param1, param2 : string;
-  value, tmp_value : string;
-  oldpos : integer;
-  isshow : boolean;
-  blockmask : string;
-  FuncNames, FuncParamNames, FuncParamTypes, FuncParamNumbers : tstringlist;
-//=======================================================================
-// локальные функции
-//=======================================================================
-  procedure addToDescr(offset:integer; typ, name, value:string);
-  function prnoffset(offset:integer):string;
-  begin
-    result:=inttostr(offset);
-    case Length(result) of
-      1: result:='000'+result;
-      2: result:='00'+result;
-      3: result:='0'+result;
-    end;
-  end;
-  VAR
-  another:string;
-
-  begin
-    another := ' ' + typ + ' ';
-    if HexViewOffset
-      then
-        rvDescryption.AddNLTag(inttohex(offset,4)+another,templateindex, 0, itemTag)
-      else
-        rvDescryption.AddNLTag(prnoffset(offset)+another,templateindex, 0, itemTag);
-    rvDescryption.GetItem(rvDescryption.ItemCount-1).Tag := itemTag;
-
-    rvDescryption.AddNL(' ', 0, -1);
-    rvDescryption.AddNL(name, 1, -1);
-    rvDescryption.AddNL(': ', 0, -1);
-    rvDescryption.AddNL(value, 0, -1);
-  end;
-    function GetFuncParams : string;
-    var
-    i :integer;
-    begin
-      result := '';
-      i := 0;
-      while i < funcparamnames.Count do
-      begin
-        if (i < funcparamnames.Count - 1) and (FuncParamTypes.Strings[i] = FuncParamTypes.Strings[i+1]) then
-          result := format('%s%s, ',[result, FuncParamNames.Strings[i]])
-        else
-        begin
-        case FuncParamTypes.Strings[i][1] of
-          'd':
-              begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
-              end;  //dword (размер 4 байта)           d, h-hex
-  {        'i':
-              begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
-              end;  //integer (размер 4 байта)           d, h-hex
-              }
-          'c':
-              begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Byte']);
-              end;  //byte / char (размер 1 байт)        b
-          'f':
-              begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Real']);
-              end;  //double (размер 8 байт, float)      f
-          'h':
-              begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Word']);
-              end;  //word (размер 2 байта)              w
-          'q':
-              begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Int64']);
-              end;  //int64 (размер 8 байта)
-          's':begin
-                result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'String']);
-              end;
-        end;
-        if i < funcparamnames.Count-1 then
-          result := result + '; ';
-        end;
-        inc(i);
-      end;
-    end;
-
-    procedure PrintFuncsParams(sFuncName:string);
-    var
-    i:integer;
-    values:string;
-    begin
-      if FuncNames.IndexOf(sFuncName) < 0 then
-      begin
-         i := 0;
-         values := '';
-         while i < FuncParamNumbers.count do
-         begin
-          if (i < FuncParamNumbers.Count - 1) then
-            values := format('%sValues[%s], ',[values, FuncParamNumbers.Strings[i]])
-          else
-            values := format('%sValues[%s]',[values, FuncParamNumbers.Strings[i]]);
-
-         inc(i);
-         end;
-
-        rvFuncs.AddNL(format('Declaration : %s(%s);',[sFuncName,GetFuncParams]),0,0);
-        rvFuncs.AddNL(format('Calling : %s(%s);',[sFuncName,values]),0,0);
-
-        FuncNames.Add(sFuncName);
-        rvFuncs.AddNL('Mask : ', 0, 0);
-        rvFuncs.AddNL(blockmask, 0, -1);
-        rvFuncs.AddNL('', 0, 0);
-        blockmask := '';
-
-      end;
-      FuncParamNumbers.clear;
-      FuncParamNames.Clear;
-      FuncParamTypes.Clear;
-    end;
-//=======================================================================
+  another :string;
 begin
-    FuncParamNames := TStringList.Create;
-    FuncParamTypes := TStringList.Create;
-    FuncParamNumbers := TStringList.Create;
-    FuncNames := TStringList.Create;
-    //HexViewOffset := GlobalSettings.HexViewOffset;
-try
+  another := ' ' + typ + ' ';
+  if HexViewOffset
+    then
+      rvDescryption.AddNLTag(inttohex(offset, 4)+another, templateindex, 0, itemTag)
+    else
+      rvDescryption.AddNLTag(prnoffset(offset)+another, templateindex, 0, itemTag);
+
+  rvDescryption.GetItem(rvDescryption.ItemCount-1).Tag := itemTag;
+  rvDescryption.AddNL(' ', 0, -1);
+  rvDescryption.AddNL(name_, 1, -1);
+  rvDescryption.AddNL(': ', 0, -1);
+  rvDescryption.AddNL(value, 0, -1);
+end;
+//=======================================================================
+function TfPacketView.GetFuncParams(FuncParamNames, FuncParamTypes :TStringList) :string;
+var
+  i :integer;
+begin
+  result := '';
+  i := 0;
+  while i < funcparamnames.Count do
+  begin
+    if (i < funcparamnames.Count - 1) and (FuncParamTypes.Strings[i] = FuncParamTypes.Strings[i+1]) then
+      result := format('%s%s, ',[result, FuncParamNames.Strings[i]])
+    else
+    begin
+    case FuncParamTypes.Strings[i][1] of
+      'd':
+          begin
+            result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Integer']);
+          end;  //dword (размер 4 байта)           d, h-hex
+      'c':
+          begin
+            result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Byte']);
+          end;  //byte / char (размер 1 байт)        b
+      'f':
+          begin
+            result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Real']);
+          end;  //double (размер 8 байт, float)      f
+      'h':
+          begin
+            result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Word']);
+          end;  //word (размер 2 байта)              w
+      'q':
+          begin
+            result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'Int64']);
+          end;  //int64 (размер 8 байта)
+      's':begin
+            result := format('%s%s:%s',[result, FuncParamNames.Strings[i],'String']);
+          end;
+    end;
+    if i < funcparamnames.Count-1 then
+      result := result + '; ';
+    end;
+    inc(i);
+  end;
+end;
+//=======================================================================
+procedure TfPacketView.PrintFuncsParams(sFuncName :string);
+var
+  i :integer;
+  values :string;
+begin
+  if FuncNames.IndexOf(sFuncName) < 0 then
+  begin
+    i := 0;
+    values := '';
+    while i < FuncParamNumbers.count do
+    begin
+      if (i < FuncParamNumbers.Count - 1) then
+        values := format('%sValues[%s], ', [values, FuncParamNumbers.Strings[i]])
+      else
+        values := format('%sValues[%s]', [values, FuncParamNumbers.Strings[i]]);
+
+      inc(i);
+    end;
+    rvFuncs.AddNL(format('Declaration : %s(%s);', [sFuncName, GetFuncParams(FuncParamNames, FuncParamTypes)]), 0, 0);
+    rvFuncs.AddNL(format('Calling : %s(%s);', [sFuncName, values]), 0, 0);
+
+    FuncNames.Add(sFuncName);
+    rvFuncs.AddNL('Mask : ', 0, 0);
+    rvFuncs.AddNL(blockmask, 0, -1);
+    rvFuncs.AddNL('', 0, 0);
+    blockmask := '';
+  end;
+  FuncParamNumbers.clear;
+  FuncParamNames.Clear;
+  FuncParamTypes.Clear;
+end;
+//=======================================================================
+  procedure TfPacketView.fParse();
+  begin
+      //считали строку вида typ(name_:func.param1.param2)
+      Param0:=GetType (StrIni, PosInIni);
+      inc(PosInIni); //сместились на следующее значение
+      typ:=GetTyp(Param0); //считываем тип значения
+      name_:=GetName(Param0); //считываем имя значения в скобках typ(name_:func.param1.param2)
+      func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках typ(name_:func.param1.param2)
+      param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках typ(name_:func.param1.param2)
+      param2:=GetParam2(Param0); //считываем имя значения в скобках typ(name_:func.param1.param2)
+      offset:=PosinPkt-11;
+      oldpos := PosInPkt;
+      //где то тут проверять
+      // if (PosInIni<Length(StrIni))and(PosInPkt<sizze+10)
+
+      //считываем значение из пакета, сдвигаем указатели в соответствии с типом значения
+      value:=GetValue(typ, name_, PktStr, PosInPkt);
+      //игнорируем подчерк
+      if typ<>'_' then
+      begin
+        if AllowedName(name_) then
+        begin
+          FuncParamNames.Add(name_);
+          FuncParamTypes.Add(typ);
+          FuncParamNumbers.Add(inttostr(length(blockmask)));
+        end;
+        blockmask := blockmask + typ;
+      end;
+      if PosInPkt - oldpos > 0 then
+        addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
+  end;
+//=======================================================================
+  procedure TfPacketView.fGet();
+  begin
+    if not get(param1, id, value) then
+      exit
+    else
+      addToDescr(offset, typ, name_, value);        //распечатываем
+  end;
+//=======================================================================
+  procedure TfPacketView.fSwitch();
+  var
+    i, j :integer;
+    end_block :string;
+  begin
+      //распечатываем
+      addToDescr(offset, typ, name_, value+hexvalue);
+      tmp_param1:=param1;
+      tmp_param2:=param2;
+      tmp_value:=value;
+      end_block:=value;
+      if value = 'range error' then exit;
+      //проверка, что param1 > 0
+      if strtoint(param1)>0 then
+      begin
+        //распечатываем значения всех пропускаемых блоков
+        for i:=1 to StrToInt(tmp_param1) do
+        begin
+          fParse();
+          if Func='LOOPM' then  fLoopM()
+          else
+          if Func='LOOP' then  fLoop()
+          else
+          if Func='FOR' then  fFor()
+          else
+          if Func='SWITCH' then  fSwitch()
+          else
+          if Func='GET' then  fGet() //get(param1, id, value);
+          //распечатываем
+          else addToDescr(offset, typ, name_, value+hexvalue);
+        end;
+      end;
+      for i:=1 to StrToInt(tmp_param2) do  //пробегаем по всем case
+      begin
+          fParse();
+          tmp_param12:=param2;
+          if Func='CASE' then
+          begin
+            if tmp_value=param1 then  //id совпало
+            begin
+              //распечатываем значения
+              for j:=1 to StrToInt(tmp_param12) do
+              begin
+                fParse();
+                if Func='LOOPM' then  fLoopM()
+                else
+                if Func='LOOP' then  fLoop()
+                else
+                if Func='FOR' then  fFor()
+                else
+                if Func='SWITCH' then  fSwitch()
+                else
+                if Func='GET' then  fGet() //get(param1, id, value);
+                //распечатываем
+                else addToDescr(offset, typ, name_, value+hexvalue);
+              end;
+            end else
+              //пропускаем значения
+              for j:=1 to StrToInt(tmp_param12) do
+              begin
+                Param0:=GetType(StrIni, PosInIni);
+                inc(PosInIni);
+              end;
+          end;
+      end;
+  end;
+//=======================================================================
+  procedure TfPacketView.fLoop();
+  var
+    i, j, val :integer;
+    end_block :string;
+  begin
+      //распечатываем
+      addToDescr(offset, typ, name_, value+hexvalue);
+      tmp_param:=param2;
+      tmp_value:=value;
+      //end_block:=value;
+      if value='range error' then exit;
+      if StrToInt(value)=0 then
+      begin
+        //пропускаем данные входящие в Loop
+        for i:=1 to StrToInt(param2) do
+        begin
+          Param0:=GetType(StrIni, PosInIni);
+          inc(PosInIni);
+        end;
+      end else
+      begin
+        //проверка, что param1 > 1
+        if strtoint(param1)>1 then
+        begin
+          //распечатываем значения
+          for i:=1 to StrToInt(param1)-1 do
+          begin
+            fParse();
+            if Func='GET' then  fGet() //get(param1, id, value);
+            //распечатываем
+            else addToDescr(offset, typ, name_, value+hexvalue);
+          end;
+        end;
+        ii:=PosInIni;
+        if tmp_value = 'range error' then exit;
+        //PrintFuncsParams('Pck'+PacketName);
+        if StrToInt(tmp_value)>32767
+        then val:=(StrToInt(tmp_value) XOR $FFFF)+1
+        else val:=StrToInt(tmp_value);
+        end_block:=inttostr(val);
+//        for i:=1 to StrToInt(tmp_value) do
+        for i:=1 to val do
+        begin
+          rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
+          rvDescryption.AddNL(inttostr(i)+'/'+end_block, 1, -1);
+          rvDescryption.AddNL(']', 0, -1);
+          PosInIni:=ii;
+          for j:=1 to StrToInt(tmp_param) do
+          begin
+            fParse();
+            //здесь может быть SWITCH
+            if Func='LOOPM' then  fLoopM()
+            else
+            if Func='LOOP' then  fLoop()
+            else
+            if Func='FOR' then  fFor()
+            else
+            if Func='SWITCH' then  fSwitch()
+            else
+            if Func='GET' then  fGet() //get(param1, id, value);
+            //распечатываем
+            else addToDescr(offset, typ, name_, value+hexvalue);
+          end;
+          //if value = 'range error' then break;
+          rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
+          rvDescryption.AddNL(inttostr(i)+'/'+end_block, 1, -1);
+          rvDescryption.AddNL(']', 0, -1);
+          //PrintFuncsParams('Item'+PacketName);
+        end;
+      end;
+  end;
+//=======================================================================
+//цикл Loop для Айон с параметром в вдие маски
+  procedure TfPacketView.fLoopM();
+  var
+    i, j, val, k :integer;
+    end_block :string;
+  begin
+      //распечатываем
+      addToDescr(offset, typ, name_, value+hexvalue);
+      tmp_param:=param2;
+      tmp_value:=value;
+      //end_block:=value;
+      if value='range error' then exit;
+      if StrToInt(value)=0 then
+      begin
+        //пропускаем данные входящие в Loop
+        for i:=1 to StrToInt(param2) do
+        begin
+          Param0:=GetType(StrIni, PosInIni);
+          inc(PosInIni);
+        end;
+      end else
+      begin
+        //проверка, что param1 > 1
+        if strtoint(param1)>1 then
+        begin
+          //распечатываем значения
+          for i:=1 to StrToInt(param1)-1 do
+          begin
+            fParse();
+            if Func='GET' then  fGet() //get(param1, id, value);
+            //распечатываем
+            else addToDescr(offset, typ, name_, value+hexvalue);
+          end;
+        end;
+        ii:=PosInIni;
+        if tmp_value = 'range error' then exit;
+        //преобразуем параметр Маска в число
+        k:=StrToInt(tmp_value); // EquipmentMask
+        val:=0;
+        for i:=0 to 15 do val:=val+((k shr i)and 1);
+        end_block:=inttostr(val);
+        for i:=1 to val do
+        begin
+          rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
+          rvDescryption.AddNL(inttostr(i)+'/'+end_block, 1, -1);
+          rvDescryption.AddNL(']', 0, -1);
+          PosInIni:=ii;
+          for j:=1 to StrToInt(tmp_param) do
+          begin
+            fParse();
+            if Func='LOOPM' then  fLoopM()
+            else
+            if Func='LOOP' then  fLoop()
+            else
+            if Func='FOR' then  fFor()
+            else
+            if Func='SWITCH' then  fSwitch()
+            else
+            if Func='GET' then  fGet() //get(param1, id, value);
+            //распечатываем
+            else addToDescr(offset, typ, name_, value+hexvalue);
+          end;
+          //if value = 'range error' then break;
+          rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
+          rvDescryption.AddNL(inttostr(i)+'/'+end_block, 1, -1);
+          rvDescryption.AddNL(']', 0, -1);
+          //PrintFuncsParams('Item'+PacketName);
+        end;
+      end;
+  end;
+//=======================================================================
+  procedure TfPacketView.fFor();
+  var
+    i, j :integer;
+  begin
+      //распечатываем
+      addToDescr(offset, typ, name_, value+hexvalue);
+      tmp_param:=param1;
+      tmp_value:=value;
+      ii:=PosInIni;
+      if value='range error' then exit;
+      if StrToInt(value)=0 then
+      begin
+        //пропускаем пустые значения
+        for i:=1 to StrToInt(param1) do
+        begin
+      //где то тут проверять
+      // if (PosInIni<Length(StrIni))and(PosInPkt<sizze+10)
+
+          Param0:=GetType(StrIni, PosInIni);
+          inc(PosInIni);
+        end;
+      end else begin
+        //rvDescryption.AddNL('Mask : ', 0, 0);
+        //rvDescryption.AddNL(blockmask, 4, -1);
+        //blockmask := '';
+        for i:=1 to StrToInt(tmp_value) do
+        begin
+          rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
+          rvDescryption.AddNL(inttostr(i)+'/'+tmp_value, 1, -1);
+          rvDescryption.AddNL(']', 0, -1);
+          PosInIni:=ii;
+          for j:=1 to StrToInt(tmp_param) do
+          begin
+            fParse();
+            //здесь может быть SWITCH
+            if Func='LOOP' then  fLoop()
+            else
+            if Func='FOR' then  fFor()
+            else
+            if Func='SWITCH' then  fSwitch()
+            else
+            if Func='GET' then  fGet() //get(param1, id, value);
+            //распечатываем
+            else addToDescr(offset, typ, name_, value+hexvalue);
+          end;
+          rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
+          rvDescryption.AddNL(inttostr(i)+'/'+tmp_value, 1, -1);
+          rvDescryption.AddNL(']', 0, -1);
+        end;
+      end;
+  end;
+//=======================================================================
+procedure TfPacketView.ParsePacket(PacketName, Packet: string; size: word = 0);
+begin
+  FuncParamNames := TStringList.Create;
+  FuncParamTypes := TStringList.Create;
+  FuncParamNumbers := TStringList.Create;
+  FuncNames := TStringList.Create;
+  //HexViewOffset := GlobalSettings.HexViewOffset;
+  try
     //строка пакета, sid - номер пакета, cid - номер соединения
     PktStr := HexToString(packet);
     if Length(PktStr)<12 then Exit;
@@ -587,78 +940,79 @@ try
       Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10])
     else
       ptime := now;
+      //делаем видимой во внешних функциях
+      sizze:=size;
 
     id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
-    SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
+    if sizze=3 then
+        SubId:=0    //пакет закончился, пишем в subid 0
+    else
+      SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
 
     currentpacket := StringToHex(copy(PktStr, 12, length(PktStr)-11),' ');
 
     rvHEX.Clear;
     rvDescryption.Clear;
     rvFuncs.Clear;
-    
+
     if PacketName = '' then
       GetPacketName(id, subid, (PktStr[1]=#03), PacketName, isshow);
 
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then
-      //client
+      //client  04
       if (GlobalProtocolVersion=AION)then // для Айон
-        StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
+        StrIni:=PacketsINI.ReadString('client', IntToHex(id, 2), 'Unknown:')
       else
-      if (GlobalProtocolVersion<GRACIA) then
-        //фиксим пакет 39 для хроник C4-C5-Interlude
-        if (ID in [$39,$D0]) and (size>3) then
-          //C4, C5, T0
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknown:h(subID)')
+        if (GlobalProtocolVersion<GRACIA) then
+          //фиксим пакет 39 для хроник C4-C5-Interlude
+          if (ID in [$39, $D0]) and (sizze>3) then
+            //C4, C5, T0
+            StrIni:=PacketsINI.ReadString('client', IntToHex(subid, 4), 'Unknown:h(subID)')
+          else
+            StrIni:=PacketsINI.ReadString('client', IntToHex(id, 2), 'Unknown:')
         else
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
-      else
-        //для хроник Kamael - Hellbound - Gracia - Freya
-        if (ID=$D0) and (size>3) then
-          StrIni:=PacketsINI.ReadString('client',IntToHex(subid,4),'Unknown:h(subID)')
-        else
-          StrIni:=PacketsINI.ReadString('client',IntToHex(id,2),'Unknown:')
+          //для хроник Kamael - Hellbound - Gracia - Freya
+          if (ID=$D0) and (sizze>3) then
+            StrIni:=PacketsINI.ReadString('client', IntToHex(subid, 4), 'Unknown:h(subID)')
+          else
+            StrIni:=PacketsINI.ReadString('client', IntToHex(id, 2), 'Unknown:')
     else
-      //server
+      //server  03
       if (GlobalProtocolVersion=AION)then
-        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknown:')
+        StrIni:=PacketsINI.ReadString('server', IntToHex(id, 2), 'Unknown:')
       else
-      if (Byte(PktStr[12]) in [$FE]) and (size>3) then
-        StrIni:=PacketsINI.ReadString('server',IntToHex(subid,4),'Unknown:h(subID)')
-      else
-        StrIni:=PacketsINI.ReadString('server',IntToHex(id,2),'Unknown:');
+        if (Byte(PktStr[12]) in [$FE]) and (sizze>3) then
+          StrIni:=PacketsINI.ReadString('server', IntToHex(subid, 4), 'Unknown:h(subID)')
+        else
+          StrIni:=PacketsINI.ReadString('server', IntToHex(id, 2), 'Unknown:');
 
-    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id,2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(Size);
-
+    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id, 2)+', '+PacketName+lang.GetTextOrDefault('sizze' (* ', размер - ' *) )+IntToStr(sizze);
     //начинаем разбирать пакет по заданному в packets.ini формату
     //смещение в ini
     PosInIni:=Pos(':',StrIni);
     //смещение в pkt
     PosInPkt:=13;
-
     Inc(PosInIni);
     //Memo2.Lines.BeginUpdate;
-
     //Добавляем тип
-    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ),11,0);
-    rvDescryption.AddNLTag('0x'+IntToHex(id,2),0,-1,1);
-    rvDescryption.AddNL(' (',0,-1);
-    rvDescryption.AddNL(PacketName,1,-1);
-    rvDescryption.AddNL(')',0,-1);
-
+    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ), 11, 0);
+    rvDescryption.AddNLTag('0x'+IntToHex(id,2), 0, -1, 1);
+    rvDescryption.AddNL(' (', 0, -1);
+    rvDescryption.AddNL(PacketName, 1, -1);
+    rvDescryption.AddNL(')', 0, -1);
     //добавляем размер и время
     rvDescryption.AddNL(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) ), 0, 0);
-    rvDescryption.AddNL(IntToStr(Size-2),1,-1);
-    rvDescryption.AddNL('+2',2,-1);
+    rvDescryption.AddNL(IntToStr(sizze-2), 1, -1);
+    rvDescryption.AddNL('+2', 2, -1);
 
-    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) ),0,0);
-    rvDescryption.AddNL(FormatDateTime('hh:nn:ss:zzz',ptime),1,-1);
+    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) ), 0, 0);
+    rvDescryption.AddNL(FormatDateTime('hh:nn:ss:zzz',ptime), 1, -1);
 
     itemTag := 0;
     templateindex := 11;
     addtoHex(StringToHex(copy(pktstr, 12, 1),' '));
-    
+
     itemTag := 1;
 
     //GetType - возвращает строчку типа d(Count:For.0001) из packets.ini
@@ -667,246 +1021,59 @@ try
     //Param0 - строка d(Count:For.0001)
     //PosInIni - смещение в строчке из packets.ini по ID из пакета
     //PosInPkt - смещение в пакете
-
     try
-    blockmask := '';
-    while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<Size+10) do
-    begin
-      Param0:=GetType (StrIni,PosInIni);
-      inc(PosInIni);
-      typ:=GetTyp(Param0); //считываем тип значения
-      name:=GetName(Param0); //считываем имя значения в скобках (name:func.par)
-      func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-      param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-      param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-      offset:=PosinPkt-11;
-      oldpos := PosInPkt;
-      value:=GetValue(typ, name, PktStr, PosInPkt, size); //считываем значение, сдвигаем указатели в соответствии с типом значения
-      if AllowedName(name) then
+      blockmask := '';
+      while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<sizze+10) do
       begin
-        FuncParamNames.Add(name);
-        FuncParamTypes.Add(typ);
-        FuncParamNumbers.Add(inttostr(length(blockmask)));
-      end;
-      blockmask := blockmask + typ;
-      
-      if PosInPkt - oldpos > 0 then
-        addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
-
-      if value = 'range error' then break;
-      if uppercase(Func)='GET' then
-      begin
-        if not get(param1, id, value) then
-          exit
+        fParse();
+        if Func='GET' then fGet()
         else
-        addToDescr(offset, typ, name, value);        //распечатываем
-      end
-      else
-      //для С4, С5 и Т0-Интерлюдия
-      if uppercase(Func)='FOR' then begin
-        //распечатываем
-        addToDescr(offset, typ, name, value+hexvalue);
-
-        tmp_param:=param1;
-        tmp_value:=value;
-        ii:=PosInIni;
-        if value='range error' then break;
-        if StrToInt(value)=0 then begin
-          //пропускаем пустые значения
-          for jj:=1 to StrToInt(param1) do begin
-            Param0:=GetType(StrIni,PosInIni);
-            inc(PosInIni);
-          end;
-        end else begin
-          rvDescryption.AddNL('Mask : ', 0, 0);
-          rvDescryption.AddNL(blockmask, 4, -1);
-          blockmask := '';
-          for j:=1 to StrToInt(tmp_value) do
-          begin
-            rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
-            rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
-            rvDescryption.AddNL(']', 0, -1);
-
-            PosInIni:=ii;
-
-            for jj:=1 to StrToInt(tmp_param) do
-            begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              //param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1)
-              offset:=PosinPkt-11;
-              oldpos := PosInPkt;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size);
-              if AllowedName(name) then
-              begin
-                FuncParamNames.Add(name);
-                FuncParamTypes.Add(typ);
-                FuncParamNumbers.Add(inttostr(length(blockmask)));
-              end;
-              blockmask := blockmask + typ;
-
-              if PosInPkt - oldpos > 0 then
-                addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
-
-              if value = 'range error' then break;
-              if uppercase(Func)='GET' then  get(param1, id, value);
-              addToDescr(offset, typ, name, value); //печатаем
-            end;
-            
-            if value = 'range error' then break;
-
-            rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
-            rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
-            rvDescryption.AddNL(']', 0, -1);
-          end;
-        end;
-      end else
-      //для Т1 - Камаель-Хелбаунд-Грация
-      (*в функции LOOP первый параметр может быть больше 1,
-       значит его просто выводим, а остальное
-       в цикле до параметр 2*)
-      if (uppercase(Func)='LOOP') and (StrToInt(value)>0) then
-      begin
-        //распечатываем
-        addToDescr(offset, typ, name, value+hexvalue);
-
-        //Memo2.SelStart:=d+length(inttostr(offset))+1;
-
-        tmp_param:=param2;
-        tmp_value:=value;
-        if value='range error' then break;
-        if StrToInt(value)=0 then begin
-
-          //сделать проверку на то, что первый параметр может быть больше 1
-
-          //пропускаем пустые значения
-          for jj:=1 to StrToInt(param1) do begin
-            Param0:=GetType(StrIni,PosInIni);
-            inc(PosInIni);
-          end;
-        end else begin
-          //проверка, что param1 > 1
-          if strtoint(param1)>1 then begin
-            //распечатываем значения
-            for jj:=1 to StrToInt(param1)-1 do begin
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-              offset:=PosinPkt-11;
-              oldpos := PosInPkt;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size);
-              if AllowedName(name) then
-              begin
-                FuncParamNames.Add(name);
-                FuncParamTypes.Add(typ);
-                FuncParamNumbers.Add(inttostr(length(blockmask)));
-              end;
-              blockmask := blockmask + typ;
-              if PosInPkt - oldpos > 0 then
-                addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
-
-              if value = 'range error' then break;
-
-              //распечатываем
-              addToDescr(offset, typ, name, value+hexvalue);
-            end;
-          end;
-          ii:=PosInIni;
-            PrintFuncsParams('Pck'+PacketName);
-
-          for j:=1 to StrToInt(tmp_value) do begin
-
-            rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
-            rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
-            rvDescryption.AddNL(']', 0, -1);
-            PosInIni:=ii;
-            for jj:=1 to StrToInt(tmp_param) do begin
-
-              Param0:=GetType(StrIni,PosInIni);
-              inc(PosInIni);
-              typ:=GetTyp(Param0); //считываем тип значения
-              name:=GetName(Param0); //считываем имя значения в скобках (name:func.1.2)
-              func:=uppercase(GetFunc(Param0)); //считываем имя функции в скобках (name:func.par)
-              param1:=uppercase(GetParam(Param0)); //считываем имя значения в скобках (name:func.1.2)
-              param2:=GetParam2(Param0); //считываем имя значения в скобках (name:func.1.2)
-              offset:=PosinPkt-11;
-
-              oldpos := PosInPkt;
-              value:=GetValue(typ, name, PktStr, PosInPkt, size);
-              if AllowedName(name) then
-              begin
-                FuncParamNames.Add(name);
-                FuncParamTypes.Add(typ);
-                FuncParamNumbers.Add(inttostr(length(blockmask)));
-              end;
-              blockmask := blockmask + typ;
-
-              if PosInPkt - oldpos > 0 then
-                addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
-
-              if value = 'range error' then break;
-              try
-
-                if uppercase(Func)='GET' then
-                begin
-                  if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit;
-                  if param1='FUNC01' then   value:=GetFunc01(StrToInt(value)) else
-                  if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-                  if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-                  if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-                  if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-                  if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-                  if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-                  if param1='SKILL' then    value:=GetSkill(strtoint(value));
-                end;
-              except
-                //ShowMessage('ошибка при распознании пакета');
-                exit;
-              end;
-              //распечатываем
-              addToDescr(offset, typ, name, value+hexvalue);
-            end;
-            rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
-            rvDescryption.AddNL(inttostr(j)+'/'+tmp_value, 1, -1);
-            rvDescryption.AddNL(']', 0, -1);
-            PrintFuncsParams('Item'+PacketName);
-          end;
-        end;
-      end else
-      begin
-        //распечатываем
-        addToDescr(offset, typ, name, value+hexvalue);
-
+        //для С4, С5 и Т0-Интерлюдия
+        if Func='FOR' then fFor()
+        else
+        //для Т1 - Камаель-Хелбаунд-Грация
+        (*в функции LOOP первый параметр может быть больше 1,
+        значит его просто выводим, а остальное
+        в цикле до параметр 2*)
+        if (Func='LOOP') {and (StrToInt(value)>0)} then fLoop()
+        else
+        if (Func='LOOPM') {and (StrToInt(value)>0)} then fLoopM()
+        else
+        //========================================================================
+        //для Грации, Фрейи и AION
+        (*в функции SWITCH первый параметр может быть больше 0,
+        значит описания просто выводим, а остальное
+        в цикле до параметр 2*)
+        //d(id:switch.skip.count)
+        // _(id:case.param1.param2)
+        //d(number)
+        // _(id:case.param1.param2)
+        //d(number)
+        if Func='SWITCH' then fSwitch()
+        else
+          //распечатываем
+          addToDescr(offset, typ, name_, value+hexvalue);
       end;
-    end;
     except
       //ошибка при распознании пакета
     end;
-  oldpos := PosInPkt;
-  PosInPkt := size + 10;
-  if PosInPkt - oldpos > 0 then
-    addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
+    oldpos := PosInPkt;
+    PosInPkt := sizze + 10;
+    if PosInPkt - oldpos > 0 then
+      addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
-  if blockmask <> '' then
-    PrintFuncsParams('Pck'+PacketName);
+    if blockmask <> '' then
+      PrintFuncsParams('Pck'+PacketName);
 
-  rvHEX.FormatTail;
-  rvFuncs.FormatTail;  
-  rvDescryption.FormatTail;
-finally
-FuncParamNames.Destroy;
-FuncParamTypes.Destroy;
-FuncParamNumbers.Destroy;
-FuncNames.Destroy;
-end;
+    rvHEX.FormatTail;
+    rvFuncs.FormatTail;
+    rvDescryption.FormatTail;
+  finally
+    FuncParamNames.Destroy;
+    FuncParamTypes.Destroy;
+    FuncParamNumbers.Destroy;
+    FuncNames.Destroy;
+  end;
 end;
 
 procedure TfPacketView.rvHEXMouseMove(Sender: TObject; Shift: TShiftState;
@@ -1000,32 +1167,36 @@ Function TfPacketView.get(param1: string; id: byte; var value: string):boolean;
 begin
 result := false;
   if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit;
-  if param1='FUNC01' then   value:=GetFunc01(strtoint(value)) else
-  if param1='FUNC02' then   value:=GetFunc02(strtoint(value)) else
-  if param1='FUNC09' then   value:=GetFunc09(id, strtoint(value)) else
-  if param1='CLASSID' then  value:=GetClassID(strtoint(value)) else
-  if param1='FSUP' then     value:=GetFsup(strtoint(value)) else
-  if param1='NPCID' then    value:=GetNpcID(strtoint(value)) else
-  if param1='MSGID' then    value:=GetMsgID(strtoint(value)) else
-  if param1='SKILL' then    value:=GetSkill(strtoint(value)) else
-  if param1='AUGMENTID' then    value:=GetAugment(strtoint(value));
-
+  if param1='FUNC01' then    value:=GetFunc01(strtoint(value)) else
+  if param1='FUNC01A' then   value:=GetFunc01Aion(strtoint(value)) else
+  if param1='FUNC02' then    value:=GetFunc02(strtoint(value)) else
+  if param1='FUNC09' then    value:=GetFunc09(id, strtoint(value)) else
+  if param1='CLASSID' then   value:=GetClassID(strtoint(value)) else
+  if param1='CLASSIDA' then  value:=GetClassIDAion(strtoint(value)) else
+  if param1='FSUP' then      value:=GetFsup(strtoint(value)) else
+  if param1='NPCID' then     value:=GetNpcID(strtoint(value)) else
+  if param1='MSGID' then     value:=GetMsgID(strtoint(value)) else
+  if param1='MSGIDA' then    value:=GetMsgIDA(strtoint(value)) else
+  if param1='SKILL' then     value:=GetSkill(strtoint(value)) else
+  if param1='SKILLA' then    value:=GetSkillAion(strtoint(value)) else
+  if param1='STRINGA' then   value:=GetFuncStrAion(strtoint(value)) else
+  if param1='AUGMENTID' then value:=GetAugment(strtoint(value));
 result := true;
 end;
 
 procedure TfPacketView.N1Click(Sender: TObject);
 begin
-N1.Checked := not N1.Checked;
-rvDescryption.WordWrap := N1.Checked;
-rvDescryption.Format;
+  N1.Checked := not N1.Checked;
+  rvDescryption.WordWrap := N1.Checked;
+  rvDescryption.Format;
 end;
 
 procedure TfPacketView.N2Click(Sender: TObject);
 begin
-N2.Checked := not n2.Checked;
-rvFuncs.Visible := n2.Checked;
-Splitter2.Visible := N2.Checked;
-//Splitter2.Top := 1;
+  N2.Checked := not n2.Checked;
+  rvFuncs.Visible := n2.Checked;
+  Splitter2.Visible := N2.Checked;
+  //Splitter2.Top := 1;
 end;
 
 procedure TfPacketView.rvFuncsSelect(Sender: TObject);

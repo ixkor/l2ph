@@ -3,11 +3,11 @@ unit uSettingsDialog;
 interface
 
 uses
-  uResourceStrings, 
+  uResourceStrings,
   usharedstructs,
   uglobalfuncs,
   winsock,
-  math, 
+  math,
   IniFiles, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, Mask, JvExMask, JvSpin, ComCtrls, siComp,
   Buttons;
@@ -246,11 +246,11 @@ begin
 end;
 
 procedure TfSettings.GenerateSettingsFromInterface;
-var
-  oldProto : TProtocolVersion;
+//var
+//  oldProto : TProtocolVersion;
 begin
   with GlobalSettings do begin
-    oldProto := GlobalProtocolVersion;
+    //oldProto := GlobalProtocolVersion;
     isNoDecrypt := ChkNoDecrypt.Checked;
     isChangeXor := ChkChangeXor.Checked;
     isGraciaOff := ChkGraciaOff.Checked;
@@ -288,14 +288,12 @@ begin
       3: GlobalProtocolVersion := INTERLUDE;     //Интерлюд
       4: GlobalProtocolVersion := GRACIA;        //Грация
       5: GlobalProtocolVersion := GRACIAFINAL;   //Грация Финал
-      6: GlobalProtocolVersion := GRACIAEPILOG;  //Грация Эпилог
+      6: GlobalProtocolVersion := GRACIAEPILOGUE;  //Грация Эпилог
       7: GlobalProtocolVersion := FREYA;         //Freya
     end;
 
-    if oldProto <> GlobalProtocolVersion then begin
-      fPacketFilter.LoadPacketsIni;
-      if InterfaceEnabled then fPacketFilter.UpdateBtnClick(nil);
-    end;
+    fPacketFilter.LoadPacketsIni;
+    if InterfaceEnabled then fPacketFilter.UpdateBtnClick(nil);
 
     UseSocks5Chain := ChkUseSocks5Chain.Checked;
     Socks5NeedAuth := chkSocks5NeedAuth.Checked;
@@ -355,7 +353,7 @@ begin
   Options.WriteInteger('General','LocalPort',round(JvSpinEdit2.Value));
   
   Options.WriteBool('General','HexViewOffset',ChkHexViewOffset.Checked);
-  Options.WriteBool('General','AutoSaveLog',chkAutoSavePlog.Checked);
+  Options.WriteBool('General','AutoSavePLog',chkAutoSavePlog.Checked);
   Options.WriteBool('General','NoLog',chkNoLog.Checked);
   Options.WriteBool('General','ShowLastPacket',ChkShowLastPacket.Checked);
   Options.WriteBool('General','LSPDeinstallonclose',ChkLSPDeinstallonclose.Checked);
@@ -586,10 +584,10 @@ begin
   Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
 
   if not FileExists(AppPath+'settings\Options.ini') then
-    begin
-      fLangSelectDialog.ShowModal;
-      Show;
-    end;
+  begin
+    fLangSelectDialog.ShowModal;
+    Show;
+  end;
 
   readsettings;
   GenerateSettingsFromInterface;
