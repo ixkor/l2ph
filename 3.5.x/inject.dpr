@@ -1,13 +1,17 @@
 // JCL_DEBUG_EXPERT_GENERATEJDBG OFF
 // JCL_DEBUG_EXPERT_INSERTJDBG OFF
 library inject;
-
 uses
   windows,
-  //IniFiles,
   advApiHook in 'units\advApiHook.pas',
-  NativeAPI in 'units\NativeAPI.pas',
-  usharedstructs in 'units\usharedstructs.pas';
+  NativeAPI in 'units\NativeAPI.pas';
+
+//(* Исключаем из файла всякую ненужную хрень
+{$SETPEFlAGS IMAGE_FILE_DEBUG_STRIPPED or
+  IMAGE_FILE_LINE_NUMS_STRIPPED or IMAGE_FILE_LOCAL_SYMS_STRIPPED}
+{$WEAKLINKRTTI ON}
+{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
+//*)
 
 const
   user32    = 'user32.dll';
@@ -143,53 +147,32 @@ type
 
 var
   ConnectNextHook : function (s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
-  //wcnL2PH :string;
 
-function FindWindow(lpClassName, lpWindowName: PChar): HWND; stdcall; external user32 name 'FindWindowA';
+{function FindWindow(lpClassName, lpWindowName: PAnsiChar): HWND; stdcall; external user32 name 'FindWindowA';
 //function FindWindow; external user32 name 'FindWindowA';
 function SendMessage(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall; external user32 name 'SendMessageA';
-//function SendMessage; external user32 name 'SendMessageA';
-function inet_addr(cp: PChar): u_long; stdcall;  external    winsocket name 'inet_addr';
+//function SendMessage; external user32 name 'SendMessageA';}
+function inet_addr(cp: PAnsiChar): u_long; stdcall;  external    winsocket name 'inet_addr';
 //function inet_addr;         external    winsocket name 'inet_addr';
 
 function ConnectHookProc(s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
 var
-//  Options :TIniFile;
-//  buf: array[0..63] of Char;
-//  wcnL2PH : String;
+//  buf: array[0..5] of Byte;
   apph: HWND;
   x: packed record
     lo: Word;
     hi: Word;
   end absolute apph;
 begin
-//  Options:=TIniFile.Create('.\\settings\\options.ini');
-//  wcnL2PH := Options.ReadString('general','WinClassName', 'TfMainReplacer');
-//  wcnL2PH:=wcnL2PH+#0;
-//  move(wcnL2PH[1], buf, length(wcnL2PH));
-//  Options.Destroy;
-  //if (length(wcnL2PH)<64) AND (length(wcnL2PH)<>0) then
-  //begin
-    //move(wcnL2PH[1], str, length(wcnL2PH));
-//    apph:=FindWindow(buf, nil);
-  //end else
-    apph:=FindWindow('TfMainReplacer', nil);
+  apph:=FindWindow('TfMainReplacer',nil);
   if (apph>0)then begin
-    apph:=SendMessage(apph, $04F0, Name.sin_addr.S_addr, Name.sin_port);
+    apph:=SendMessage(apph,$04F0,Name.sin_addr.S_addr,Name.sin_port);
     if x.lo=1 then begin
       Name.sin_addr.S_addr:=inet_addr('127.0.0.1');
       Name.sin_port:=x.hi;
     end;
   end;
   result:=ConnectNextHook(s, Name, namelen);
-end;
-
-function LowerCase(const S :string) :string;
-var
-  i:Integer;
-begin
-  Result:=s;
-  for i:=Length(Result) downto 1 do if Result[i] in ['A'..'Z'] then Inc(Byte(Result[i]),32);
 end;
 
 {Получение полного размера машинной комманды по указателю на нее }
@@ -367,24 +350,24 @@ end;
  NewProc    - адрес функции замены,
  OldProc    - здесь будет сохранен адрес моста к старой функции.
  В случае отсутствия модуля в текущем АП, будет сделана попытка его загрузить.
-}
-function GetModuleHandle(lpModuleName: PChar): HMODULE; stdcall; external kernel32 name 'GetModuleHandleA';
+}{
+function GetModuleHandle(lpModuleName: PAnsiChar): HMODULE; stdcall; external kernel32 name 'GetModuleHandleA';
 //function GetModuleHandle; external kernel32 name 'GetModuleHandleA';
 function GetProcAddress(hModule: HMODULE; lpProcName: LPCSTR): FARPROC; stdcall; external kernel32 name 'GetProcAddress';
 //function GetProcAddress; external kernel32 name 'GetProcAddress';
-function LoadLibrary(lpLibFileName: PChar): HMODULE; stdcall; external kernel32 name 'LoadLibraryA';
+function LoadLibrary(lpLibFileName: PAnsiChar): HMODULE; stdcall; external kernel32 name 'LoadLibraryA';
 {$EXTERNALSYM LoadLibrary}
-//function LoadLibrary; external kernel32 name 'LoadLibraryA';
+//function LoadLibrary; external kernel32 name 'LoadLibraryA';}
 
-function HookProc(lpModuleName, lpProcName: PChar;
+function HookProc(lpModuleName, lpProcName: PAnsiChar;
                   NewProc: pointer; var OldProc: pointer): boolean;
 var
  hModule: dword;
  fnAdr: pointer;
 begin
  Result := false;
- hModule := GetModuleHandle(lpModuleName);
- if hModule = 0 then hModule := LoadLibrary(lpModuleName);
+ hModule := GetModuleHandleA(lpModuleName);
+ if hModule = 0 then hModule := LoadLibraryA(lpModuleName);
  if hModule = 0 then Exit;
  fnAdr := GetProcAddress(hModule, lpProcName);
  if fnAdr = nil then Exit;
@@ -444,10 +427,12 @@ asm
 @D5:
 end;
 
-
 function IntToStr(Value: Integer): string;
 //  FmtStr(Result, '%d', [Value]);
-asm
+begin
+  str(Value,Result);
+end;
+{asm
         PUSH    ESI
         MOV     ESI, ESP
         SUB     ESP, 16
@@ -460,15 +445,14 @@ asm
         CALL    System.@LStrFromPCharLen
         ADD     ESP, 16
         POP     ESI
-end;
+end;}
 
 Function MarkProcessInjected:boolean;
 var
  hMutex : cardinal;
 begin
  result := false;
- //hMutex := CreateMutex(nil, true, pchar('injected'+inttostr(GetCurrentProcessId)));
- hMutex := CreateMutex(nil, false, pchar('injected'+inttostr(GetCurrentProcessId)));
+ hMutex := CreateMutex(nil, false, PChar('injected'+inttostr(GetCurrentProcessId)));
  if GetLastError = ERROR_ALREADY_EXISTS then
  begin
    ReleaseMutex(hMutex);
