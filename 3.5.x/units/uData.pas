@@ -139,8 +139,6 @@ var
 
 { TdmData }
 
-
-
 procedure TdmData.LSPControlLspModuleState(state: Byte);
 begin
 if fSettings.InterfaceEnabled then
@@ -187,7 +185,6 @@ var
   cc: Cardinal;
   ListSearch: string; // список процессов которые будем искать
 begin
-
   if isDestroying then exit;
   try
   tmp:=TStringList.Create;
@@ -287,8 +284,6 @@ begin
   StandartFuncs.Destroy;
 end;
 
-
-
 { TlspVisual }
 
 procedure TlspConnection.AddToRawLog(dirrection: byte; data:tbuffer;
@@ -322,7 +317,7 @@ begin
   EncDec.Settings := GlobalSettings;
 end;
 
-destructor TlspConnection.destroy;
+destructor TlspConnection.Destroy;
 var
   i : integer;
 begin
@@ -342,7 +337,6 @@ begin
         end;
         inc(i);
     end;
-
 
   if Assigned(visual) then
     begin
@@ -368,46 +362,36 @@ var
   struct : TSendRecvStruct;
   PreSize : Word;
   PreAccumulator : TCharArray;
-    
 begin
   if assigned(Visual) then
   begin
     Visual.AddPacketToAcum(Packet, not ToServer, EncDec);
     Visual.processpacketfromacum;
   end;
-
   //кодируем
   if ToServer then
     Dirrection := PCK_GS_ToServer
   else
     Dirrection := PCK_GS_ToClient;
-
   EncDec.EncodePacket(packet, Dirrection);
   //Для постенкрипта
   FillChar(PreAccumulator[0],$ffff,0);
   move(packet, PreAccumulator[0], Packet.Size);
   PreSize := Packet.Size;
-
   if ToServer then
     EncDec.xorC.PostEncrypt(PreAccumulator, PreSize)
   else
     EncDec.xorS.PostEncrypt(PreAccumulator, PreSize);
-
   //Заполняем структуру
   struct.SockNum := SocketNum;
   FillChar(struct.CurrentBuff[0], $ffff, #0);
-
   Move(PreAccumulator[0], struct.CurrentBuff[0], PreSize);
   struct.CurrentSize := PreSize;
-
-
   if ToServer then
     dmData.LSPControl.SendToServer(struct)
   else
     dmData.LSPControl.SendToClient(struct);
-
 end;
-
 
 procedure TlspConnection.INIT;
 begin
@@ -449,7 +433,6 @@ case action of
       if assigned(LspConnection) then
         LspConnection.AssignedTabSheet.Caption := EncDec.CharName;
     end; //данные в name; обработчик - UpdateComboBox1 (требует видоизменения)
-
 end;
 
 end;
@@ -464,7 +447,6 @@ begin
     visual.processpacketfromacum;
   end;
 end;
-
 
 function TdmData.FindLspConnectionBySockNum(SockNum: integer): TlspConnection;
 var
@@ -488,7 +470,6 @@ var
   i: integer;
 begin
   if not Assigned(LSPConnections) then exit;
-
   i := 0;
   while i < LSPConnections.Count do
   begin
@@ -501,7 +482,6 @@ begin
     inc(i);
   end;
 end;
-
 
 procedure TdmData.RefreshPrecompile(var fsScript: TfsScript);
 var
@@ -528,7 +508,6 @@ begin
   fsScript.AddVariable('UseForConnectID','Integer',0);
 end;
 
-
 function EnumWinsProc(Wd: HWnd; Param: LongInt): Boolean; stdcall; 
 var
     buff: array[0..127] of Char;
@@ -542,7 +521,6 @@ Begin
     else
     result := true;
 end;
-
 
 function TdmData.CallMethod;
 var
@@ -923,11 +901,10 @@ begin
             AddToLog (lang.GetTextOrDefault('IDS_112' (* 'Скрипт к которому вы обращаетесь (' *) )+Params[0]+lang.GetTextOrDefault('IDS_113' (* ') не включен!' *) ))
           else
             try//все в порядке
-            Result := SelectedScript.Editor.fsScript.CallFunction(Params[1], Params[2]);
+              Result := SelectedScript.Editor.fsScript.CallFunction(Params[1], Params[2]);
             except
-            AddToLog (lang.GetTextOrDefault('IDS_114' (* 'При вызове ' *) )+Params[0]+lang.GetTextOrDefault('IDS_115' (* ' произошла ошибка в вызываемом методе! (' *) )+inttostr(GetLastError)+')')
+              AddToLog (lang.GetTextOrDefault('IDS_114' (* 'При вызове ' *) )+Params[0]+lang.GetTextOrDefault('IDS_115' (* ' произошла ошибка в вызываемом методе! (' *) )+inttostr(GetLastError)+')')
             end;
-
       end;
   end else
   if sMethodName = 'SENDMSG'  then
@@ -940,7 +917,6 @@ begin
     if Params[0] <> null then
       BalloonHint('Script:', VarAsType(Params[0], varString));
   end else
-
 
 {/*by wanick*/}
   //for support DLL
@@ -1018,7 +994,6 @@ begin
       UserForm.Hide;
       fMain.nUserFormShow.Enabled := false;
     end;
-
 end;
 
 procedure TdmData.SendPacket(Packet: Tpacket; tid: integer; ToServer: Boolean);
@@ -1038,7 +1013,6 @@ begin
       end;
     inc(i);
   end;
-
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
@@ -1079,7 +1053,6 @@ begin
       end;
     inc(i);
   end;
-
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
@@ -1110,7 +1083,6 @@ begin
       end;
     inc(i);
   end;
-
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
@@ -1140,7 +1112,6 @@ begin
       end;
     inc(i);
   end;
-
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
@@ -1174,7 +1145,6 @@ begin
   end;
 end;
 
-
 procedure TdmData.DoDisconnect(id: integer);
 var
 i : integer;
@@ -1189,7 +1159,6 @@ begin
       end;
     inc(i);
   end;
-
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
@@ -1201,7 +1170,6 @@ begin
     inc(i);
   end;
 end;
-
 
 function TdmData.Compile;
 var
@@ -1282,7 +1250,6 @@ begin
       end;
     inc(i);
   end;
-
   i := 0;
   while i < sockEngine.tunels.Count do
   begin
@@ -1303,7 +1270,6 @@ begin
   i := 0;
   AutoComplete.Items.Clear;
   AutoComplete.DisplayItems.Clear;
-  
   while i < MyFuncs.Count do
   begin
     orig := MyFuncs.Strings[i];
@@ -1318,7 +1284,6 @@ begin
     AutoComplete.Items.add(fname);
     inc(i);
   end;
-
   i := 0;
   while i < StandartFuncs.Count do
   begin
@@ -1334,7 +1299,6 @@ begin
     AutoComplete.Items.add(fname);
     inc(i);
   end;
-  
 
   AutoComplete.DisplayItems.add('var buf: string;');
   AutoComplete.Items.add('buf');
@@ -1359,7 +1323,6 @@ begin
 
   AutoComplete.DisplayItems.add('var UseForConnectID: Integer;');
   AutoComplete.Items.add('UseForConnectID');
-
 end;
 
 procedure TdmData.DO_reloadFuncs;
@@ -1429,7 +1392,6 @@ begin
         PluginStruct.UserFuncs.clear;
       end;
   end;
-  
 end;
 
 procedure TdmData.RefreshStandartFuncs;
@@ -1552,8 +1514,7 @@ begin
   visual.Panel7.Width := 30;//там у нас только одна кнопка..
 end;
 
-procedure TdmData.LSPControlConnect(var Struct: TConnectStruct;
-  var hook: Boolean);
+procedure TdmData.LSPControlConnect(var Struct: TConnectStruct; var hook: Boolean);
 var
   str : string;
   i : integer;
@@ -1561,23 +1522,25 @@ var
   needhook : boolean;
 begin
   hook := false;
-  needhook := (Pos(';'+IntToStr(Struct.port)+';',';'+sIgnorePorts+';')=0);
-
+  //+++  вместо неиспользуемых портов - используемые
+  needhook := (Pos(';'+IntToStr(Struct.port)+';',';'+sIgnorePorts+';')<>0);
   if needhook then
+  begin
     if fSettings.lspInterceptMethod.ItemIndex = 1 then
-        str := rsLSPConnectionWillbeInterceptedAndRettirected
-      else
-        str := rsLSPConnectionWillbeIntercepted
+      str := rsLSPConnectionWillbeInterceptedAndRettirected
     else
-  if GlobalSettings.UseSocks5Chain and (fSettings.lspInterceptMethod.ItemIndex = 0) then
-    str := rsLSPSOCKSMODE
-  else
+      str := rsLSPConnectionWillbeIntercepted
+  end else
+  begin
+    if GlobalSettings.UseSocks5Chain and (fSettings.lspInterceptMethod.ItemIndex = 0) then
+      str := rsLSPSOCKSMODE
+    else
       str := rsLSPConnectionWillbeIgnored;
-    
+  end;
   AddToLog(Format(rsLSPConnectionDetected, [Struct.SockNum, Struct.ip, Struct.port, str]));
-
   if needhook then
-  if fSettings.lspInterceptMethod.ItemIndex = 1 then
+  begin
+    if fSettings.lspInterceptMethod.ItemIndex = 1 then
     begin
       hook := true;
       newlspconnection := TlspConnection.create(Struct.SockNum);
@@ -1585,13 +1548,15 @@ begin
       Application.ProcessMessages;
       //Уведомляем плагины
       for i:=0 to Plugins.Count - 1 do with TPlugin(Plugins.Items[i]) do
-      if Loaded  then
       begin
-        if Assigned(OnConnect) then OnConnect(Struct.SockNum, true);
-        if Assigned(OnConnect) then OnConnect(Struct.SockNum, false);
+        if Loaded  then
+        begin
+          if Assigned(OnConnect) then OnConnect(Struct.SockNum, true);
+          if Assigned(OnConnect) then OnConnect(Struct.SockNum, false);
+        end;
       end;
     end;
-    
+  end;
   if (fSettings.lspInterceptMethod.ItemIndex = 0) and (needhook or (not needhook and GlobalSettings.UseSocks5Chain)) then
   begin
     sockEngine.donotdecryptnextconnection := (not needhook and GlobalSettings.UseSocks5Chain);
@@ -1600,7 +1565,6 @@ begin
     Struct.port := LocalPort;
     Struct.reddirect := true;
   end;
-
 end;
 
 procedure TdmData.LSPControlDisconnect(var Struct: TDisconnectStruct);

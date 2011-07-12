@@ -265,13 +265,9 @@ begin
     if fMain.lang.Language='Eng' then
     begin   //английские версии
       //для Айон
-      //считываем systemmsg.ini
       SysMsgIdListAion.LoadFromFile(AppPath+'settings\sysmsgidaion.ini');
-      //считываем itemname.ini
       ItemsListAion.LoadFromFile(AppPath+'settings\itemsidAion.ini');
-      //считываем ClassId.ini
       ClassIdListAion.LoadFromFile(AppPath+'settings\classidAion.ini');
-      //считываем skillname.ini
       SkillListAion.LoadFromFile(AppPath+'settings\skillsidAion.ini');
       ClientStringsAion.LoadFromFile(AppPath+'settings\client_strings_ru.ini');
     end else
@@ -287,17 +283,11 @@ begin
   begin
     if fMain.lang.Language='Eng' then
     begin   //английские версии
-      //считываем systemmsg.ini
       SysMsgIdList.LoadFromFile(AppPath+'settings\sysmsgideng.ini');
-      //считываем itemname.ini
       ItemsList.LoadFromFile(AppPath+'settings\itemsideng.ini');
-      //считываем npcname.ini
       NpcIdList.LoadFromFile(AppPath+'settings\npcsideng.ini');
-      //считываем ClassId.ini
       ClassIdList.LoadFromFile(AppPath+'settings\classideng.ini');
-      //считываем skillname.ini
       SkillList.LoadFromFile(AppPath+'settings\skillsideng.ini');
-     //считываем augment.ini
       AugmentList.LoadFromFile(AppPath+'settings\augmentsid.ini');
     end else
     begin   //русские версии

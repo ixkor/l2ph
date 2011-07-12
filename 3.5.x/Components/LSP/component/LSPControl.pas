@@ -64,7 +64,7 @@ type
     property onRecv:tOnSendOrRecv read fOnRecv write fOnRecv;
     property onSend:tOnSendOrRecv read fOnSend write fOnSend;
     constructor Create(AOwner: TComponent); override;
-    destructor destroy; override;
+    destructor Destroy; override;
   end;
 
 
