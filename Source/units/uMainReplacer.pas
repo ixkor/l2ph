@@ -235,7 +235,8 @@ begin
   NewReddirectIP := msg.WParam;
   sockEngine.RedirrectIP := NewReddirectIP;
   sockEngine.RedirrectPort := msg.LParamLo;
-  if Pos(IntToStr(ntohs(msg.LParamLo))+';',sIgnorePorts+';')=0 then begin
+  //+++  вместо неиспользуемых портов - используемые
+  if Pos(IntToStr(ntohs(msg.LParamLo))+';',sIgnorePorts+';')<>0 then begin
     if fSettings.ChkIntercept.Checked then
     begin
       msg.ResultLo:=1;

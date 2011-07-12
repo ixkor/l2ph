@@ -148,8 +148,8 @@ begin
   kNpcID:=Options.ReadInteger('General', 'kNpcID', 1000000);
   EditkNpcId.Text:=inttostr(kNpcId);
 
-  isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2walker.exe;l2helper.exe;l2.bin;');
-  isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','5001;5002;5003;5004;2222;2106;80;2593;');
+  isClientsList.Text:=Options.ReadString('General','Clients','l2.exe;l2.bin;l2walker.exe;l2helper.exe;');
+  isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','7777;');
 
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
   ChkChangeXor.Checked:=Options.ReadBool('General','AntiXORkey',False);
@@ -159,7 +159,7 @@ begin
   ChkGraciaOff.Checked:=Options.ReadBool('General', 'ChkGraciaOff', False);
   isNewxor.Text:=Options.ReadString('General','isNewxor', AppPath+'newxor.dll');
   isInject.Text:=Options.ReadString('General','isInject', AppPath+'inject.dll');
-  isLSP.Text := Options.ReadString('General','isLSP', ExtractFilePath(Application.ExeName)+'LSPprovider.dll'); //+ ПОЛНЫЙ путь. т.к. используется системой.
+  isLSP.Text := Options.ReadString('General','isLSP', ExtractFilePath(Application.ExeName)+'LSP.dll'); //+ ПОЛНЫЙ путь. т.к. используется системой.
 
   iNewxor.Checked:=Options.ReadBool('General', 'iNewxor', False);
   iInject.Checked:=Options.ReadBool('General', 'iInject', False);
@@ -282,15 +282,17 @@ begin
 
     //для выбора соответствующего packets.ini
     case rgProtocolVersion.ItemIndex of
-      0: GlobalProtocolVersion := AION;          //AION
-      1: GlobalProtocolVersion := CHRONICLE4;    //С4
-      2: GlobalProtocolVersion := CHRONICLE5;    //C5
-      3: GlobalProtocolVersion := INTERLUDE;     //Интерлюд
-      4: GlobalProtocolVersion := GRACIA;        //Грация
-      5: GlobalProtocolVersion := GRACIAFINAL;   //Грация Финал
+      0: GlobalProtocolVersion := AION;            //AION
+      1: GlobalProtocolVersion := CHRONICLE4;      //С4
+      2: GlobalProtocolVersion := CHRONICLE5;      //C5
+      3: GlobalProtocolVersion := INTERLUDE;       //Интерлюд
+      4: GlobalProtocolVersion := GRACIA;          //Грация
+      5: GlobalProtocolVersion := GRACIAFINAL;     //Грация Финал
       6: GlobalProtocolVersion := GRACIAEPILOGUE;  //Грация Эпилог
-      7: GlobalProtocolVersion := FREYA;         //Freya
+      7: GlobalProtocolVersion := FREYA;           //Freya
     end;
+
+    reload;     //перечитаем инишки
 
     fPacketFilter.LoadPacketsIni;
     if InterfaceEnabled then fPacketFilter.UpdateBtnClick(nil);
