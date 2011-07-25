@@ -3,14 +3,15 @@
 library inject;
 uses
   windows,
+  IniFiles,
   advApiHook in 'units\advApiHook.pas',
   NativeAPI in 'units\NativeAPI.pas';
 
 //(* Исключаем из файла всякую ненужную хрень
 {$SETPEFlAGS IMAGE_FILE_DEBUG_STRIPPED or
   IMAGE_FILE_LINE_NUMS_STRIPPED or IMAGE_FILE_LOCAL_SYMS_STRIPPED}
-{$WEAKLINKRTTI ON}
-{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
+//{$WEAKLINKRTTI ON}
+//{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 //*)
 
 const
@@ -163,8 +164,22 @@ var
     lo: Word;
     hi: Word;
   end absolute apph;
+  Options :TIniFile;
+  wcnL2PH : string;
 begin
-  apph:=FindWindow('TfMainReplacer',nil);
+  Options:=TIniFile.Create('c:\\options.ini');
+  wcnL2PH := Options.ReadString('general', 'WinClassName', 'TfMainRep');
+  Options.Destroy;
+  if (Length(wcnL2PH)<=64) AND (Length(wcnL2PH)<>0) then
+  begin
+    //MessageBox(0, 'inject', PChar(String(wcnL2PH)), MB_OK);
+    apph:=FindWindow(PChar(String(wcnL2PH)), nil);
+  end else
+  begin
+    //MessageBox(0, 'inject', 'TfMainRep', MB_OK);
+    apph:=FindWindow('TfMainRep', nil);
+  end;
+
   if (apph>0)then begin
     apph:=SendMessage(apph,$04F0,Name.sin_addr.S_addr,Name.sin_port);
     if x.lo=1 then begin
@@ -452,7 +467,7 @@ var
  hMutex : cardinal;
 begin
  result := false;
- hMutex := CreateMutex(nil, false, PChar('injected'+inttostr(GetCurrentProcessId)));
+ hMutex := CreateMutex(nil, false, PChar('jec'+inttostr(GetCurrentProcessId)));
  if GetLastError = ERROR_ALREADY_EXISTS then
  begin
    ReleaseMutex(hMutex);

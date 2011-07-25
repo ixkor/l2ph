@@ -172,7 +172,7 @@ Function IsProcessInjected(Pid : string) : boolean;
 var
   hMutex : cardinal;
 begin
-  hMutex := CreateMutex(nil, false, pchar('injected'+pid));
+  hMutex := CreateMutex(nil, false, pchar(fSettings.edMainMutex.Text+pid));
   result := (GetLastError = ERROR_ALREADY_EXISTS);
   ReleaseMutex(hMutex);
   CloseHandle(hMutex);

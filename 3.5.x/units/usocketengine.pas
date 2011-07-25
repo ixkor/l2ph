@@ -78,7 +78,7 @@ type
    function  ConnectToServer(var hSocket: TSocket; Port: Word; IP: Integer): Boolean;
 
  public
-   //Установать перед Init
+   //Установить перед Init
    ServerPort : Word;
    donotdecryptnextconnection : boolean;
    //можно менять в момент работы

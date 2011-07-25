@@ -1,4 +1,4 @@
-unit uencdec;
+ unit uencdec;
 
 interface
 
@@ -14,8 +14,6 @@ const
   KeyConst2: array[0..63] of Char = 'nKO/WctQ0AVLbpzfBkS6NevDYT8ourG5CRlmdjyJ72aswx4EPq1UgZhFMXH?3iI9';
 
 type
-
-
   L2Xor = class(TCodingClass)
   private
     keyLen: Byte;
