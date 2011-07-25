@@ -82,6 +82,12 @@ type
     LabelkNpcID: TLabel;
     GroupBox3: TGroupBox;
     chkNoLog: TCheckBox;
+    GroupBox4: TGroupBox;
+    edWinClassName: TEdit;
+    GroupBox5: TGroupBox;
+    edMainMutex: TEdit;
+    Label3: TLabel;
+    Label8: TLabel;
     procedure ChkKamaelClick(Sender: TObject);
     procedure ChkGraciaOffClick(Sender: TObject);
     procedure ChkInterceptClick(Sender: TObject);
@@ -196,6 +202,8 @@ begin
   edSocks5AuthUsername.Text := Options.ReadString('General','Socks5AuthUsername','');
   edSocks5AuthPwd.Text := Options.ReadString('General','Socks5AuthPwd','');
 
+  edWinClassName.Text:=Options.ReadString('General','WinClassName','TfMainRep');
+  edMainMutex.Text:=Options.ReadString('General','MainMutex','MainMutex');
 
   dmData.LSPControl.LookFor := isClientsList.Text;
   dmData.LSPControl.PathToLspModule := isLSP.Text;
@@ -353,7 +361,7 @@ begin
   Options.WriteBool('General','NoFreeAfterDisconnect',chkNoFree.Checked);
   Options.WriteBool('General','RAWdatarememberallowed',chkRaw.Checked);
   Options.WriteInteger('General','LocalPort',round(JvSpinEdit2.Value));
-  
+
   Options.WriteBool('General','HexViewOffset',ChkHexViewOffset.Checked);
   Options.WriteBool('General','AutoSavePLog',chkAutoSavePlog.Checked);
   Options.WriteBool('General','NoLog',chkNoLog.Checked);
@@ -370,21 +378,30 @@ begin
   Options.WriteString('General','Socks5AuthUsername',edSocks5AuthUsername.Text);
   Options.WriteString('General','Socks5AuthPwd',edSocks5AuthPwd.Text);
 
+  Options.WriteString('General','WinClassName',edWinClassName.Text);
+  Options.WriteString('General','MainMutex',edMainMutex.Text);
+
   Options.UpdateFile;
+  //копируем опции на диск C:\, дл€ работы inject.dll
+  CopyFile(Pchar(AppPath+'settings\\Options.ini'), Pchar('C:\\Options.ini'), false)
 end;
 
 procedure TfSettings.ChkKamaelClick(Sender: TObject);
 begin
-  if not ChkKamael.Checked then ChkGraciaOff.Checked:=False;
-  if not InterfaceEnabled then exit;
-  GenerateSettingsFromInterface;
+  if  not ChkKamael.Checked then
+  begin
+    ChkGraciaOff.Checked:=False;
+//    rgProtocolVersion.ItemIndex := 3;     //Interlude
+  end  else
+    rgProtocolVersion.ItemIndex := 4;     //Kamael-Hellbound-Gracia
+
+  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.ChkGraciaOffClick(Sender: TObject);
 begin
   if ChkGraciaOff.Checked then ChkKamael.Checked := True;
-  if not InterfaceEnabled then exit;
-  GenerateSettingsFromInterface;
+  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.iInjectClick(Sender: TObject);
@@ -406,7 +423,7 @@ begin
   ChkIntercept.Enabled := iInject.Checked;
   JvSpinEdit1.Enabled := iInject.Checked;
 
-  //if InterfaceEnabled then GenerateSettingsFromInterface;
+  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.ChkInterceptClick(Sender: TObject);
@@ -584,6 +601,7 @@ procedure TfSettings.init;
 begin
   //считываем Options.ini в пам€ть
   Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
+  //Options:=TMemIniFile.Create('.\\settings\\options.ini');
 
   if not FileExists(AppPath+'settings\Options.ini') then
   begin
@@ -598,13 +616,14 @@ end;
 
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);
 begin
-  if not InterfaceEnabled then exit;
   //Kamael-Hellbound-Gracia-Freya
-  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 4) and (rgProtocolVersion.ItemIndex <= 7);
-  GenerateSettingsFromInterface;
+  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 4); // and (rgProtocolVersion.ItemIndex <= 7);
+  //если јйон, то отключаем
   ChkKamael.Enabled:=rgProtocolVersion.ItemIndex <> 0;   //AION
   ChkGraciaOff.Enabled:=ChkKamael.Enabled;
   ChkChangeXor.Enabled:=ChkKamael.Enabled;
+  //
+  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.FormCreate(Sender: TObject);

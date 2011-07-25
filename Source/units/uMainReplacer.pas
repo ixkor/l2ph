@@ -52,7 +52,7 @@ type
     procedure BalonHint(var msg: TMessage); Message WM_BalloonHint;   
   protected
     { Protected declarations }
-//    procedure CreateParams(var Params: TCreateParams); override;
+    procedure CreateParams(var Params: TCreateParams); override;
   end;
 
 var
@@ -375,21 +375,26 @@ begin
   fMain.JvTrayIcon1.BalloonHint(stitle,smsg);
 end;
 
-//procedure TfMainReplacer.CreateParams(var Params: TCreateParams);
-//var
-//  //str: array[0..63] of char;
-//  str :string;
-//  Options :TIniFile;
-//begin
+procedure TfMainReplacer.CreateParams(var Params: TCreateParams);
+var
+  wcnL2PH :string;
+begin
 //  inherited CreateParams(Params);
-//  Options := TIniFile.Create('.\\settings\\options.ini');
-//  str := Options.ReadString('general','WinClassName', 'TfMainReplacer');
-//  str:=str+#0;
-//  //проверка чтобы str не превышала длину WinClassName
-//  if (length(str)<64) AND (length(str)<>0)
-//  then move(str[1], Params.WinClassName, length(str));
-//  //Params.WinClassName := 'hervam'; //любаярандомнаястрочка
-//  Options.Destroy;
-//end;
+  inherited;
+  Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
+  wcnL2PH := Options.ReadString('general','WinClassName', 'TfMainRep');
+  wcnL2PH:=wcnL2PH+#0;   //добавим терминатор строки
+  Options.Destroy;
+//  проверка чтобы str не превышала длину WinClassName
+  if (Length(wcnL2PH)<=64) AND (Length(wcnL2PH)<>0) then
+  begin
+    move(wcnL2PH[1], Params.WinClassName, Length(wcnL2PH));
+    //MessageBox(0, 'TfMainReplacer', PChar(String(wcnL2PH)), MB_OK);
+  end else
+  begin
+    Params.WinClassName := 'TfMainRep';
+    //MessageBox(0, 'TfMainReplacer', 'TfMainReplacer', MB_OK);
+  end;
+end;
 
 end.

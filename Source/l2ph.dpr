@@ -1,13 +1,14 @@
 // JCL_DEBUG_EXPERT_INSERTJDBG ON
 // JCL_DEBUG_EXPERT_GENERATEJDBG ON
 // JCL_DEBUG_EXPERT_DELETEMAPFILE ON
+
 program l2ph;
 
 uses
   ExceptionLog,
   Forms,
   windows,
-  //IniFiles,
+  IniFiles,
   uMain in 'units\uMain.pas' {fMain},
   uAboutDialog in 'units\uAboutDialog.pas' {fAbout},
   uConvertForm in 'units\uConvertForm.pas' {fConvert},
@@ -40,28 +41,28 @@ uses
 {$R *.res}
 Procedure Check2stInstance;
 var
- hMutex, hWindow : cardinal;
- //str : String;
-
+  hMutex, hWindow : cardinal;
+  str : String;
 begin
  //ћьютекс нужен дабы исключить проблемы при активном дебаггере с открытым пх.
   //считываем Options.ini в пам€ть
- //Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
- //str := Options.ReadString('general', 'mainMutex', 'L2PH');
- hMutex := CreateMutex(nil, false, 'L2PH');
- //hMutex := CreateMutex(nil, false, addr(str));
- if GetLastError = ERROR_ALREADY_EXISTS then
- begin
-   ReleaseMutex(hMutex);
-   CloseHandle(hMutex);
-   
-   hWindow := FindWindow(PChar(String(TfMain.ClassName)), nil);
-   if hWindow > 0 then
-   begin
-     SetForegroundWindow(hWindow);
-     ExitProcess(0);
-   end;
- end;
+  Options:=TMemIniFile.Create('.\\settings\\options.ini');
+  str := Options.ReadString('general', 'mainMutex', 'L2PH');
+  Options.Destroy;
+  //hMutex := CreateMutex(nil, false, 'L2PH');
+  hMutex := CreateMutex(nil, false, PChar(String(str)));
+  if GetLastError = ERROR_ALREADY_EXISTS then
+  begin
+    ReleaseMutex(hMutex);
+    CloseHandle(hMutex);
+
+    hWindow := FindWindow(PChar(String(TfMain.ClassName)), nil);
+    if hWindow > 0 then
+    begin
+      SetForegroundWindow(hWindow);
+      ExitProcess(0);
+    end;
+  end;
 end;
 
 begin
