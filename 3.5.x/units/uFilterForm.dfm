@@ -26,10 +26,6 @@ object fPacketFilter: TfPacketFilter
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1054#1090' '#1089#1077#1088#1074#1077#1088#1072
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListView1: TJvListView
         Left = 0
         Top = 0
@@ -40,7 +36,7 @@ object fPacketFilter: TfPacketFilter
         Columns = <
           item
             Caption = 'Id'
-            Width = 60
+            Width = 80
           end
           item
             AutoSize = True
@@ -51,24 +47,18 @@ object fPacketFilter: TfPacketFilter
         RowSelect = True
         TabOrder = 0
         ViewStyle = vsReport
-        ColumnsOrder = '0=60,1=254'
+        ColumnsOrder = '0=80,1=234'
         Groups = <>
         ExtendedColumns = <
           item
           end
           item
           end>
-        ExplicitWidth = 310
-        ExplicitHeight = 367
       end
     end
     object TabSheet7: TTabSheet
       Caption = #1054#1090' '#1082#1083#1080#1077#1085#1090#1072
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ListView2: TJvListView
         Left = 0
         Top = 0
@@ -79,24 +69,22 @@ object fPacketFilter: TfPacketFilter
         Columns = <
           item
             Caption = 'Id'
-            Width = 60
+            Width = 80
           end
           item
-            AutoSize = True
             Caption = 'Name'
+            Width = 260
           end>
         GridLines = True
         ReadOnly = True
         RowSelect = True
         TabOrder = 0
         ViewStyle = vsReport
-        ColumnsOrder = '0=60,1=254'
+        ColumnsOrder = '0=80,1=260'
         Groups = <>
         ExtendedColumns = <
           item
           end>
-        ExplicitWidth = 310
-        ExplicitHeight = 367
       end
     end
   end
@@ -184,8 +172,8 @@ object fPacketFilter: TfPacketFilter
       'DatabaseName'
       'IndexName'
       'MasterFields')
-    Left = 141
-    Top = 12
+    Left = 149
+    Top = 220
     TranslationData = {
       737443617074696F6E730D0A54665061636B657446696C74657201D4E8EBFCF2
       F020EFE0EAE5F2EEE2015061636B65742066696C746572010D0A546162536865

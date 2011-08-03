@@ -34,6 +34,7 @@ begin
   if siLangCombo1.ItemIndex = -1 then exit;
   fMain.lang.Language := siLangCombo1.Items.Strings[siLangCombo1.ItemIndex];
   Options.WriteInteger('General', 'language', fLangSelectDialog.siLangCombo1.ItemIndex);
+  reload;
   Options.UpdateFile;
 end;
 

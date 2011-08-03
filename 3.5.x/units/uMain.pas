@@ -114,13 +114,13 @@ begin
   deltemps; //׃האכÿול *.temp פאיכû
   ver := uGlobalFuncs.getversion;
 
-  Splash.Caption := 'Version'+ ver;
+  Splash.Caption := 'Version '+ ver;
 
   fMainReplacer.Status.Caption := Splash.Caption;
   fMainReplacer.Repaint;
   Application.ProcessMessages;
 
-  fAbout.AboutMemo.Lines.Add('Version' + ver);
+  fAbout.AboutMemo.Lines.Add('Version ' + ver);
   fAbout.AboutMemo.Lines.Add('');
   fAbout.AboutMemo.Lines.Add(lang1.GetTextOrDefault('IDS_6'));
   fAbout.AboutMemo.Lines.Add('xkor,');
