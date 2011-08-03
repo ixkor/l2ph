@@ -4,6 +4,7 @@ library inject;
 uses
   windows,
   IniFiles,
+  SysUtils,
   advApiHook in 'units\advApiHook.pas',
   NativeAPI in 'units\NativeAPI.pas';
 
@@ -156,6 +157,17 @@ function SendMessage(hWnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRE
 function inet_addr(cp: PAnsiChar): u_long; stdcall;  external    winsocket name 'inet_addr';
 //function inet_addr;         external    winsocket name 'inet_addr';
 
+//by xkor
+function GetCurrentModuleImagePath: string;
+var
+  mbi: MEMORY_BASIC_INFORMATION;
+  pBuf: array[0..MAX_PATH] of char;
+begin
+  VirtualQuery(@GetCurrentModuleImagePath, mbi, sizeof(mbi));
+  GetModuleFileName(Cardinal(mbi.AllocationBase), pBuf, MAX_PATH);
+  result:=pBuf;
+end;
+
 function ConnectHookProc(s: Integer; var Name: sockaddr_in; namelen: Integer): Integer; stdcall;
 var
 //  buf: array[0..5] of Byte;
@@ -167,7 +179,7 @@ var
   Options :TIniFile;
   wcnL2PH : string;
 begin
-  Options:=TIniFile.Create('c:\\options.ini');
+  Options:=TIniFile.Create(ExtractFilePath(GetCurrentModuleImagePath)+'settings\Options.ini');
   wcnL2PH := Options.ReadString('general', 'WinClassName', 'TfMainRep');
   Options.Destroy;
   if (Length(wcnL2PH)<=64) AND (Length(wcnL2PH)<>0) then
@@ -477,7 +489,6 @@ begin
  result := true;
 end;
 
-
 begin
   if MarkProcessInjected then
   begin
@@ -487,3 +498,10 @@ begin
     RunProcess(GetCurrentProcessId);
   end;
 end.
+
+//
+//begin
+//...
+//  dllPath:=  ExtractFilePath(GetCurrentModuleImagePath);
+//...
+//end.

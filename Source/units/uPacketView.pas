@@ -71,6 +71,12 @@ type
     function GetFSup(const ar1: integer): string;
     function prnoffset(offset: integer): string;
     function AllowedName(Name: string): boolean;
+    //для совместимости с WPF 669f
+    function GetFSay2(const ar1: integer): string;
+    function GetF0(const ar1: integer): string;
+    function GetF1(const ar1: integer): string;
+    function GetF9(ar1: integer): string;
+    function GetF3(const ar1: integer): string;
 
     { Private declarations }
   public
@@ -90,12 +96,13 @@ type
   end;
 
 implementation
+
 uses umain;
 
 {$R *.dfm}
   var
-    id: Byte;
-    SubID, sizze: Word;
+    cID: Byte;
+    wSubID, wSize, wSub2ID : word;
     blockmask, PktStr, StrIni, Param0: String;
     oldpos, ii, PosInIni, PosInPkt, offset: Integer;
     ptime: TDateTime;
@@ -200,14 +207,14 @@ begin
 
      Inc(PosInPkt,d+2);
     end;
-    '_':begin //ничего не делаем, нужен для switch
+    '_':begin //(подчерк) ничего не делаем, нужен для switch
       templateindex := 17;
       value:='0';
     end;
     else value:= lang.GetTextOrDefault('unknownid' (* 'Неизвестный идентификатор -> ?(name_)!' *) );
   end;
   Result:=value;
-  if PosInPkt>sizze+10 then
+  if PosInPkt>wSize+10 then
     result:='range error';
 end;
 
@@ -295,6 +302,19 @@ begin
     Inc(k);
   end;
 end;
+//для совместимости с WPF 669f
+function TfPacketView.GetF0(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.F0 - возвращает название Item'а по его ID из значения аргумента
+begin
+  result:=GetFunc01(ar1);
+end;
+function TfPacketView.GetF3(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.F3 - возвращает название рецепта по его ID из значения аргумента
+begin
+  result:=GetFunc01(ar1);
+end;
 //-------------
 function TfPacketView.GetFunc01(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
@@ -307,7 +327,7 @@ end;
 //AION -------------
 function TfPacketView.GetFunc01Aion(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.Func01 - возвращает название Item'а по его ID из значения аргумента
+// :Get.Func01A - возвращает название Item'а по его ID из значения аргумента
 begin
   result:='0'; if ar1=0 then exit;
   result:=ItemsListAion.Values[IntTostr(ar1)];
@@ -322,7 +342,14 @@ begin
   result:=ClientStringsAion.Values[IntTostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown msgID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
 end;
-//-------------
+//для совместимости с WPF 669f
+function TfPacketView.GetFSay2(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.FSay2 - возвращает тип Say2
+begin
+  result:=GetFunc02(ar1);
+end;
+
 function TfPacketView.GetFunc02(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
 // :Get.Func02 - возвращает тип Say2
@@ -339,13 +366,45 @@ begin
     8: result := '+ TRADE';
     9: result := '$ ALLIANCE';
     10: result := 'ANNOUNCEMENT';
-    11: result := 'WILLCRASHCLIENT';
-    12: result := 'FAKEALL?';
-    13: result := 'FAKEALL?';
-    14: result := 'FAKEALL?';
-    15: result := 'PARTYROOM_ALL';
-    16: result := 'PARTYROOM_COMMANDER';
+    11: result := 'BOAT (WILLCRASHCLIENT?)';
+    12: result := 'L2FRIEND';
+    13: result := 'MSNCHAT';
+    14: result := 'PARTYMATCH_ROOM';
+    15: result := 'PARTYROOM_COMMANDER (yellow)';
+    16: result := 'PARTYROOM_ALL (red)';
     17: result := 'HERO_VOICE';
+    18: result := 'CRITICAL_ANNOUNCE';
+    19: result := 'SCREEN_ANNOUNCE';
+    20: result := 'BATTLEFIELD';
+    21: result := 'MPCC_ROOM';
+    else result := '?';
+  end;
+  result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
+end;
+//-------------
+function TfPacketView.GetF9(ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.F9 - SocialAction
+begin
+  result := '';
+  case ar1 of // [C] 1B - RequestSocialAction,  [S] 2D - SocialAction
+              // CT1: [S] 27 - SocialAction
+     02: result := 'Greeting';
+     03: result := 'Victory';
+     04: result := 'Advance';
+     05: result := 'No';
+     06: result := 'Yes';
+     07: result := 'Bow';
+     08: result := 'Unaware';
+     09: result := 'Social Waiting';
+    $0A: result := 'Laugh';
+    $0B: result := 'Applaud';
+    $0C: result := 'Dance';
+    $0D: result := 'Sorrow';
+    $0E: result := 'Charm';
+    $0F: result := 'Shyness';
+    $10: result := 'Hero light';
+    $084A: result := 'LVL-UP';
     else result := '?';
   end;
   result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')';
@@ -371,9 +430,10 @@ begin
       $0B: result := 'Applaud';
       $0C: result := 'Dance';
       $0D: result := 'Sorrow';
-      $0E: result := 'Sorrow';
-      $0F: result := 'lvl-up light';
+      $0E: result := 'Charm';
+      $0F: result := 'Shyness';
       $10: result := 'Hero light';
+      $084A: result := 'LVL-UP';
       else result := '?';
     end;
   end else if (id=$6D) then begin
@@ -421,11 +481,18 @@ end;
 //AION -------------
 function TfPacketView.GetSkillAion(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.Skill - возвращает название скила по его ID из значения аргумента
+// :Get.SkillA - возвращает название скила по его ID из значения аргумента
 begin
   result:='0'; if ar1=0 then exit;
   result:=SkillListAion.Values[inttostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Skill ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
+end;
+//для совместимости с WPF 669f
+function TfPacketView.GetF1(const ar1 : integer) : string;
+// внешняя ф-ция, вызывается не из скрипта, а по аргументу
+// :Get.F1 - возвращает название скила по его ID из значения аргумента
+begin
+  result:=GetAugment(ar1);
 end;
 //-------------
 function TfPacketView.GetAugment(const ar1 : integer) : string;
@@ -448,7 +515,7 @@ end;
 //AION -------------
 function TfPacketView.GetMsgIDA(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.MsgID - возвращает текст по его ID из значения аргумента
+// :Get.MsgIDA - возвращает текст по его ID из значения аргумента
 begin
   result:='0'; if ar1=0 then exit;
   result:=SysMsgidListAion.Values[inttostr(ar1)];
@@ -465,7 +532,7 @@ end;
 //AION -------------
 function TfPacketView.GetClassIDAion(const ar1 : integer) : string;
 // внешняя ф-ция, вызывается не из скрипта, а по аргументу
-// :Get.ClassID - профа
+// :Get.ClassIDA - профа
 begin
   result:=ClassIdListAion.Values[inttostr(ar1)];
   if length(result)>0 then result:=result+' ID:'+inttostr(ar1)+' (0x'+inttohex(ar1,4)+')' else result:='Unknown Class ID:'+inttostr(ar1)+'('+inttohex(ar1,4)+')';
@@ -500,7 +567,7 @@ begin
     3: result:='0'+result;
   end;
 end;
-
+//проверка на то, что строка только из символов
 function TfPacketView.AllowedName(Name:string):boolean;
 var
 i:integer;
@@ -656,11 +723,44 @@ end;
 //=======================================================================
   procedure TfPacketView.fGet();
   begin
-    if not get(param1, id, value) then
+    if not get(param1, cID, value) then
       exit
     else
       addToDescr(offset, typ, name_, value);        //распечатываем
   end;
+//=======================================================================
+//Оператор выбора switch в java имеет следующий вид:
+//Код:
+//switch (выражение) { case
+//значение1:
+//// последовательность операторов
+//break;
+//case значение2:
+//// последовательность операторов
+//break;
+//...
+//case значениеN:
+//// последовательность операторов
+//break;
+//default:
+//// последовательность операторов, выполняемая по умолчанию
+//У нас оператор выбора выглядит так, пример:
+//Код:
+//17=SM_MESSAGE:h(id2)c(chatType:switch.0002.0003)c(RaceId)d(ObjectId)_(id:case.0.2)h(unk)s(message)_(id:case.1.3)h(unk)d(unk)s(message)_(id:case.2.4)h(unk)d(unk)d(unk)s(message)s(Name)s(message)
+//Код:
+//здесь в куске c(chatType:switch.0002.0003)
+//chatType  - выражение, тип чата (1 байт)
+// switch  - ключевое слово оператора выбора
+//0002 - сколько элементов после switch пропускать, т.е. элементы c(RaceId)d(ObjectId) просто выводятся в расшифровке на экран
+//0003 - сколько элементов _(id:case присутствует в switch
+//
+//в куске _(id:case.0000.0002)h(unk)s(message)
+//_ - пропускается
+//id - пропускается, сюда можно вписать имя идентификатора
+//case - ключевое слово для элемента выбора со значением 0000
+//0002 – количество элементов в блоке case, т.е. элементы h(unk)s(message)
+//Последние элементы s(Name)s(message) попадают под выбор default, т.е. если chatType не соответствует ни одному case, то в расшифровку попадают элементы s(Name)s(message).
+//Не значащие нули везде можно опускать, т.е. вместо 0001 пишем 1.
 //=======================================================================
   procedure TfPacketView.fSwitch();
   var
@@ -940,14 +1040,49 @@ begin
       Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10])
     else
       ptime := now;
-      //делаем видимой во внешних функциях
-      sizze:=size;
-
-    id:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
-    if sizze=3 then
-        SubId:=0    //пакет закончился, пишем в subid 0
-    else
-      SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
+    //делаем видимой во внешних функциях
+    wSize:=size;
+    if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // для Айон
+    begin
+      cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+      wSubID:=0;   //не требуется
+      wSub2ID:=0;   //не требуется
+    end
+    else //для Lineage II
+    begin
+      if wSize=3 then
+      begin
+        cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+        wSubID:=0;    //пакет закончился, пишем в subid 0
+        wSub2ID:=0;   //не требуется
+      end
+      else
+      begin
+        if PktStr[1]=#04 then
+        begin      //client  04,
+          cID:=Byte(PktStr[13]); //учитываем трех байтное ID в wSub2ID
+          wSub2ID:=Word(cID shl 8+Byte(PktStr[14]));
+          cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+          wSubID:=Word(cID shl 8+Byte(PktStr[13])); //учитываем двух байтное ID в wSubID
+        end
+        else  //сервер  03, учитываем двух и четырех байтное ID
+        begin
+          cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+          if wSize=3 then
+          begin
+              wSubID:=0;    //пакет закончился, пишем в subid 0
+              wSub2ID:=0;    //пакет закончился, пишем в subid 0
+          end
+          else
+          begin
+            cID:=Byte(PktStr[14]); //фактическое начало SUB2ID
+            wSub2ID:=Word(cID shl 8+Byte(PktStr[15])); //считываем Sub2Id
+            cID:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
+            wSubID:=Word(cID shl 8+Byte(PktStr[13])); //считываем SubId
+          end;
+        end;
+      end;
+    end;
 
     currentpacket := StringToHex(copy(PktStr, 12, length(PktStr)-11),' ');
 
@@ -956,38 +1091,61 @@ begin
     rvFuncs.Clear;
 
     if PacketName = '' then
-      GetPacketName(id, subid, (PktStr[1]=#03), PacketName, isshow);
-
+      GetPacketName(cID, wSubID, wSub2ID, (PktStr[1]=#03), PacketName, isshow);
     //считываем строку из packets.ini для парсинга
     if PktStr[1]=#04 then
+    begin
       //client  04
-      if (GlobalProtocolVersion=AION)then // для Айон
-        StrIni:=PacketsINI.ReadString('client', IntToHex(id, 2), 'Unknown:')
+      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // для Айон
+        StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:')
       else
+      begin
         if (GlobalProtocolVersion<GRACIA) then
+        begin
           //фиксим пакет 39 для хроник C4-C5-Interlude
-          if (ID in [$39, $D0]) and (sizze>3) then
+          if (cID in [$39, $D0]) and (wSize>3) then
             //C4, C5, T0
-            StrIni:=PacketsINI.ReadString('client', IntToHex(subid, 4), 'Unknown:h(subID)')
+            StrIni:=PacketsINI.ReadString('client', IntToHex(wSubID, 4), 'Unknown:h(subID)')
           else
-            StrIni:=PacketsINI.ReadString('client', IntToHex(id, 2), 'Unknown:')
+            StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');
+        end
         else
+        begin
           //для хроник Kamael - Hellbound - Gracia - Freya
-          if (ID=$D0) and (sizze>3) then
-            StrIni:=PacketsINI.ReadString('client', IntToHex(subid, 4), 'Unknown:h(subID)')
+         //client three ID packets: c(ID)h(sub2ID)
+         if (cID=$D0) and (((wsub2id>=$5100) and (wsub2id<=$5105)) or (wsub2id=$5A00)) and (wSize>3) then
+            StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2)+IntToHex(wSub2ID, 4), 'Unknown:c(ID)h(subID)')
           else
-            StrIni:=PacketsINI.ReadString('client', IntToHex(id, 2), 'Unknown:')
+          begin
+            if (cID=$D0) and (wSize>3) then
+              StrIni:=PacketsINI.ReadString('client',IntToHex(wSubID, 4), 'Unknown:h(subID)')
+            else
+              StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');
+          end;
+        end;
+      end;
+    end
     else
+    begin
       //server  03
-      if (GlobalProtocolVersion=AION)then
-        StrIni:=PacketsINI.ReadString('server', IntToHex(id, 2), 'Unknown:')
+      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // для Айон
+          StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:')
       else
-        if (Byte(PktStr[12]) in [$FE]) and (sizze>3) then
-          StrIni:=PacketsINI.ReadString('server', IntToHex(subid, 4), 'Unknown:h(subID)')
+      begin
+        //server four ID packets: c(ID)h(subID)h(sub2ID)
+        if ((wsubid=$FE97) or (wsubid=$FE98) or (wsubid=$FEB7)) and (wSize>3) then
+            StrIni:=PacketsINI.ReadString('server', IntToHex(wSubID, 4)+IntToHex(wSub2ID, 4), 'Unknown:h(subID)h(sub2ID)')
         else
-          StrIni:=PacketsINI.ReadString('server', IntToHex(id, 2), 'Unknown:');
+        begin
+          if (cID=$FE) and (wSize>3) then
+            StrIni:=PacketsINI.ReadString('server', IntToHex(wSubID, 4), 'Unknown:h(subID)')
+          else
+            StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:');
+        end;
+      end;
+    end;
 
-    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(id, 2)+', '+PacketName+lang.GetTextOrDefault('sizze' (* ', размер - ' *) )+IntToStr(sizze);
+    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(cID, 2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(wSize);
     //начинаем разбирать пакет по заданному в packets.ini формату
     //смещение в ini
     PosInIni:=Pos(':',StrIni);
@@ -997,13 +1155,13 @@ begin
     //Memo2.Lines.BeginUpdate;
     //Добавляем тип
     rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ), 11, 0);
-    rvDescryption.AddNLTag('0x'+IntToHex(id,2), 0, -1, 1);
+    rvDescryption.AddNLTag('0x'+IntToHex(cID, 2), 0, -1, 1);
     rvDescryption.AddNL(' (', 0, -1);
     rvDescryption.AddNL(PacketName, 1, -1);
     rvDescryption.AddNL(')', 0, -1);
     //добавляем размер и время
     rvDescryption.AddNL(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) ), 0, 0);
-    rvDescryption.AddNL(IntToStr(sizze-2), 1, -1);
+    rvDescryption.AddNL(IntToStr(wSize-2), 1, -1);
     rvDescryption.AddNL('+2', 2, -1);
 
     rvDescryption.AddNL(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) ), 0, 0);
@@ -1023,7 +1181,7 @@ begin
     //PosInPkt - смещение в пакете
     try
       blockmask := '';
-      while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<sizze+10) do
+      while (PosInIni>1)and(PosInIni<Length(StrIni))and(PosInPkt<wSize+10) do
       begin
         fParse();
         if Func='GET' then fGet()
@@ -1058,7 +1216,7 @@ begin
       //ошибка при распознании пакета
     end;
     oldpos := PosInPkt;
-    PosInPkt := sizze + 10;
+    PosInPkt := wSize + 10;
     if PosInPkt - oldpos > 0 then
       addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
 
@@ -1165,7 +1323,7 @@ end;
 
 Function TfPacketView.get(param1: string; id: byte; var value: string):boolean;
 begin
-result := false;
+  result := false;
   if StrToIntDef(value, 0) <> StrToIntDef(value, 1) then exit;
   if param1='FUNC01' then    value:=GetFunc01(strtoint(value)) else
   if param1='FUNC01A' then   value:=GetFunc01Aion(strtoint(value)) else
@@ -1180,8 +1338,13 @@ result := false;
   if param1='SKILL' then     value:=GetSkill(strtoint(value)) else
   if param1='SKILLA' then    value:=GetSkillAion(strtoint(value)) else
   if param1='STRINGA' then   value:=GetFuncStrAion(strtoint(value)) else
+  if param1='F0' then        value:=GetF0(strtoint(value)) else
+  if param1='F1' then        value:=GetF1(strtoint(value)) else
+  if param1='F3' then        value:=GetF3(strtoint(value)) else
+  if param1='F9' then        value:=GetF9(strtoint(value)) else
+  if param1='FSAY2' then     value:=GetFSay2(strtoint(value)) else
   if param1='AUGMENTID' then value:=GetAugment(strtoint(value));
-result := true;
+  result := true;
 end;
 
 procedure TfPacketView.N1Click(Sender: TObject);

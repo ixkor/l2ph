@@ -80,7 +80,7 @@ type
     fsMenusRTTI1: TfsMenusRTTI;
     fsIniRTTI1: TfsIniRTTI;
     lang: TsiLang;
-    dumbtimer: TTimer;
+//    dumbtimer: TTimer;
     procedure LSPControlLspModuleState(state: Byte);
     procedure timerSearchProcessesTimer(Sender: TObject);
     procedure DataModuleCreate(Sender: TObject);

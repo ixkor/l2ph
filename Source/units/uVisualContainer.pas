@@ -261,7 +261,6 @@ begin
     splashpnl.Show;
     splashpnl.BringToFront;
   end;
-
 end;
 
 procedure TfVisual.deinit;
@@ -292,7 +291,7 @@ procedure TfVisual.Processpacket;
 //=========================================
 // локальные процедуры
 //=========================================
-Procedure AddToListView5(ItemImageIndex:byte; ItemCaption:String; ItemPacketNumber: LongWord; ItemId, ItemSubId : word; Visible : boolean);
+Procedure AddToListView5(ItemImageIndex : byte; ItemCaption : String; ItemPacketNumber : LongWord; ItemId : byte; ItemSubId, ItemSub2Id : word; Visible : boolean);
 var
   str : string;
 begin
@@ -304,16 +303,58 @@ begin
     //номер
     SubItems.Add(IntToStr(ItemPacketNumber));
     //код пакета
-    if ItemSubId = 0 then
-      str := IntToHex(ItemId,2)
-    else
-      str := IntToHex(ItemSubId,4);
+
+    if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
+      //client/server one ID packets: c(ID)
+      str := IntToHex(ItemId, 2)
+    else //дл€ Lineage II
+    begin
+      if (GlobalProtocolVersion<GRACIA) then
+      begin
+        //фиксим пакет 39 дл€ хроник C4-C5-Interlude
+        //client two ID packets: (subID)
+        if (ItemId in [$39, $D0]) then
+          str := IntToHex(ItemSubId, 4)
+        else
+          str := IntToHex(ItemId, 2)
+      end
+      else
+      begin
+        //client three ID packets: c(ID)h(subID)
+        if (Itemid=$D0) and (((Itemsub2id>=$5100) and (Itemsub2id<=$5105)) or (Itemsub2id=$5A00)) then
+          str := IntToHex(ItemId, 2)+IntToHex(ItemSub2Id, 4)
+        else
+        begin
+          //client two ID packets: h(subID)
+          if (Itemid=$D0) then
+            str := IntToHex(ItemSubId, 4)
+          else
+          begin
+            //server four ID packets: c(ID)h(subID)h(sub2ID)
+            if (ItemSubId=$FE97) or (ItemSubId=$FE98) or (ItemSubId=$FEB7) then
+              str := IntToHex(ItemSubId, 4)+IntToHex(ItemSub2Id, 4)
+            else
+            begin
+              if ItemSubId = 0 then
+                //client/server one ID packets: c(ID)
+                str := IntToHex(ItemId, 2)
+              else
+              begin
+                //client/server two ID packets: c(ID)h(subID)
+                str := IntToHex(ItemSubId, 4);
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+
     SubItems.Add(str);
     if not Visible then MakeVisible(false);
   end;
 end;
 
-Procedure AddToPacketFilterUnknown(ItemFromServer : boolean; ItemId, ItemSubId:Word; ItemChecked:boolean);
+Procedure AddToPacketFilterUnknown(ItemFromServer : boolean; ItemId : byte; ItemSubId, ItemSub2Id : Word; ItemChecked : boolean);
 var
   CurrentList : TListView;
   currentpackedfrom : TStringList;
@@ -330,17 +371,57 @@ begin
     if ItemSubId = 0 then
         str := IntToHex(ItemId, 2)
     else
-        str := IntToHex(ItemSubId, 4);
+    begin
+      str := IntToHex(ItemSubId, 4);
+    end;
     Caption :=str;
     Checked := ItemChecked;
     SubItems.Add('Unknown'+str);
-    currentpackedfrom.Append(str+'=Unknown:h(SubId)');
+    if length(str)=2 then
+      currentpackedfrom.Append(str+'=Unknown:')
+    else
+      currentpackedfrom.Append(str+'=Unknown:h(SubId)');
+
+//    if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
+//    begin
+//      //client/server one ID packets: c(ID)
+//      str := IntToHex(ItemId, 2)
+//    end
+//    else //дл€ Lineage II
+//    begin
+//      //client three ID packets: c(ID)h(subID)
+//      if (Itemid=$D0) and (((Itemsubid>=$5100) and (Itemsubid<=$5105)) or (Itemsubid=$5A00)) then
+//        str := IntToHex(ItemId, 2)+IntToHex(ItemSubId, 4)
+//      else
+//      begin
+//        if ItemSubId = 0 then
+//          //client/server one ID packets: c(ID)
+//          str := IntToHex(ItemId, 2)
+//        else
+//        begin
+//          //client/server two ID packets: c(ID)h(subID)
+//          str := IntToHex(ItemSubId, 4);
+//          //server four ID packets: c(ID)h(subID)h(sub2ID)
+//          if (ItemSubId=$FE97) or (ItemSubId=$FE98) or (ItemSubId=$FEB7) then
+//            str := str+IntToHex(ItemSub2Id, 4);
+//        end;
+//      end;
+//    end;
+//    Caption :=str;
+//    Checked := ItemChecked;
+//    SubItems.Add('Unknown'+str);
+//    if length(str)=2 then
+//      currentpackedfrom.Append(str+'=Unknown:')
+//    else
+//      currentpackedfrom.Append(str+'=Unknown:h(SubId)');
+
   end;
+
 end;
 //=========================================
 var
   id: Byte;
-  subid: word;
+  subid, sub2id: word;
   pname : string;
   isknown : boolean;
   IsShow : boolean;
@@ -354,14 +435,52 @@ begin
   if (FromServer and not ToolButton4.Down)
     or (not FromServer and not ToolButton3.Down) then exit;
 
-  id := newpacket.Data[0];
-  SubId := Word(id shl 8+Byte(newpacket.Data[1]));
-
-  isknown := GetPacketName(id, subid, FromServer, pname, IsShow);
+  if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
+  begin
+    //client/server one ID packets: c(ID)
+    //это насто€щий ID
+    id := newpacket.Data[0];
+    SubID:=0;    //пакет закончилс€, пишем в subid 0
+    Sub2ID:=0;   //пакет закончилс€, пишем в sub2id 0
+  end
+  else
+  begin
+    if newpacket.Size=3 then
+    begin
+      id := newpacket.Data[0];
+      SubID:=0;    //пакет закончилс€, пишем в subid 0
+      Sub2ID:=0;   //пакет закончилс€, пишем в sub2id 0
+    end
+    else
+    begin
+      if not FromServer then //от клиента
+      begin //дл€ двух и трехбайтных ID
+        //client three ID packets: c(ID)h(subID)
+        //готовим sub2id дл€ трехбайтного пакета - содержит 2 и 3 байт
+        //надо разворачивать младшие байты числа в младшие позиции
+        id := newpacket.Data[1];
+        Sub2Id := Word(id shl 8+Byte(newpacket.Data[2]));
+        //готовим subid дл€ двухбайтного пакета - содержит 1 и 2 байт
+        //это насто€щий ID
+        id := newpacket.Data[0];
+        SubId := Word(id shl 8+Byte(newpacket.Data[1]));
+      end
+      else //от сервера
+      begin  //дл€ двух и четырехбайтных ID
+        //готовим дл€ sub2id
+        id := newpacket.Data[2];
+        Sub2Id := Word(id shl 8+Byte(newpacket.Data[3]));
+        //это насто€щий ID
+        id := newpacket.Data[0];
+        SubId := Word(id shl 8+Byte(newpacket.Data[1]));
+      end;
+    end;
+  end;
+  isknown := GetPacketName(id, subid, sub2id, FromServer, pname, IsShow);
   if not isknown then
-    AddToPacketFilterUnknown(FromServer, id, subid, True);
+    AddToPacketFilterUnknown(FromServer, id, subid, sub2id,  True);
   if IsShow then
-    AddToListView5(math.ifthen(FromServer, 0, 1), Pname, PacketNumber, Id, subid, not ToolButton5.Down);
+    AddToListView5(math.ifthen(FromServer, 0, 1), Pname, PacketNumber, Id, subid, sub2id, not ToolButton5.Down);
 end;
 
 procedure TfVisual.ListView5Click(Sender: TObject);
@@ -388,13 +507,13 @@ begin
 
   Memo4.Lines.Add(PacketView.currentpacket);
 end;
-
 procedure TfVisual.ToolButton17Click(Sender: TObject);
 begin
   PacketView.HexViewOffset := ToolButton17.Down;
   ListView5Click(self);
 end;
 
+// показать/спр€тать фильтр
 procedure TfVisual.ToolButton6Click(Sender: TObject);
 begin
   if fPacketFilter.Visible then
@@ -500,7 +619,7 @@ begin
     SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
     if from=4 then begin
       //от клиента
-      if (GlobalProtocolVersion=AION)then // дл€ јйон
+      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
       begin
           indx:=PacketsFromC.IndexOfName(IntToHex(id,2));
           if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
@@ -515,7 +634,7 @@ begin
         end;
     end else begin
       //от сервера
-      if (GlobalProtocolVersion=AION)then
+      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
       begin
           indx:=PacketsFromS.IndexOfName(IntToHex(id,2));
           if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
@@ -547,8 +666,7 @@ begin
   DisableBtns;
   ListView5.Items.BeginUpdate;
   try
-    if NeedLoadPackets then
-    fPacketFilter.LoadPacketsIni;  //перечитываем packets.ini
+    if NeedLoadPackets then fPacketFilter.LoadPacketsIni;  //перечитываем packets.ini
     ListView5.Items.Clear;
     PacketView.rvDescryption.Clear;
     PacketView.rvHEX.Clear;

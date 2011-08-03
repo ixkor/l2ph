@@ -193,7 +193,6 @@ begin
   LspInterceptMethod.ItemIndex := Options.ReadInteger('General','lspInterceptMethod',0);
   chkProcessPackets.Checked := Options.ReadBool('General','chkProcessPackets',true);
 
-
   ChkUseSocks5Chain.Checked := Options.ReadBool('General','ChkUseSocks5Chain',false);
   chkSocks5NeedAuth.Checked := Options.ReadBool('General','ChkSocks5NeedAuth',false);
 
@@ -239,13 +238,13 @@ begin
     ChkLSPInterceptClick(nil);
   end;
  //
- if Options.ReadInteger('General','dumb',0) > 0 then
-   begin
-   Options.WriteInteger('General','dumb',Options.ReadInteger('General','dumb',1)+1);
-   dmData.dumbtimer.Enabled := false;
-   end
- else
-   Options.WriteInteger('General','dumb',0);
+// if Options.ReadInteger('General','dumb',0) > 0 then
+//   begin
+//   Options.WriteInteger('General','dumb',Options.ReadInteger('General','dumb',1)+1);
+////   dmData.dumbtimer.Enabled := false;
+//   end
+// else
+//   Options.WriteInteger('General','dumb',0);
  //
  //PnlSocks5Chain.Enabled := ChkIntercept.Checked or (ChkLSPIntercept.Checked and (lspInterceptMethod.ItemIndex = 0) or ChkSocks5Mode.Checked);
  //PnlSocks5Chain.Font.Color := ifthen(PnlSocks5Chain.Enabled, clBlack, clGrayText);
@@ -290,16 +289,17 @@ begin
 
     //для выбора соответствующего packets.ini
     case rgProtocolVersion.ItemIndex of
-      0: GlobalProtocolVersion := AION;            //AION
-      1: GlobalProtocolVersion := CHRONICLE4;      //С4
-      2: GlobalProtocolVersion := CHRONICLE5;      //C5
-      3: GlobalProtocolVersion := INTERLUDE;       //Интерлюд
-      4: GlobalProtocolVersion := GRACIA;          //Грация
-      5: GlobalProtocolVersion := GRACIAFINAL;     //Грация Финал
-      6: GlobalProtocolVersion := GRACIAEPILOGUE;  //Грация Эпилог
-      7: GlobalProtocolVersion := FREYA;           //Freya
+      0: GlobalProtocolVersion := AION;            //AION v 2.1
+      1: GlobalProtocolVersion := AION25;          //AION v 2.5
+      2: GlobalProtocolVersion := CHRONICLE4;      //С4
+      3: GlobalProtocolVersion := CHRONICLE5;      //C5
+      4: GlobalProtocolVersion := INTERLUDE;       //Интерлюд
+      5: GlobalProtocolVersion := GRACIA;          //Грация
+      6: GlobalProtocolVersion := GRACIAFINAL;     //Грация Финал
+      7: GlobalProtocolVersion := GRACIAEPILOGUE;  //Грация Эпилог
+      8: GlobalProtocolVersion := FREYA;           //Freya
+      9: GlobalProtocolVersion := GOD;             //Goddess of Destruction (в интерфейсе ещё нет)
     end;
-
     reload;     //перечитаем инишки
 
     fPacketFilter.LoadPacketsIni;
@@ -382,26 +382,18 @@ begin
   Options.WriteString('General','MainMutex',edMainMutex.Text);
 
   Options.UpdateFile;
-  //копируем опции на диск C:\, для работы inject.dll
-  CopyFile(Pchar(AppPath+'settings\\Options.ini'), Pchar('C:\\Options.ini'), false)
 end;
 
 procedure TfSettings.ChkKamaelClick(Sender: TObject);
 begin
-  if  not ChkKamael.Checked then
-  begin
-    ChkGraciaOff.Checked:=False;
-//    rgProtocolVersion.ItemIndex := 3;     //Interlude
-  end  else
-    rgProtocolVersion.ItemIndex := 4;     //Kamael-Hellbound-Gracia
-
-  if InterfaceEnabled then GenerateSettingsFromInterface;
+  if  not ChkKamael.Checked then ChkGraciaOff.Checked:=False;
+//  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.ChkGraciaOffClick(Sender: TObject);
 begin
   if ChkGraciaOff.Checked then ChkKamael.Checked := True;
-  if InterfaceEnabled then GenerateSettingsFromInterface;
+//  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.iInjectClick(Sender: TObject);
@@ -423,7 +415,7 @@ begin
   ChkIntercept.Enabled := iInject.Checked;
   JvSpinEdit1.Enabled := iInject.Checked;
 
-  if InterfaceEnabled then GenerateSettingsFromInterface;
+//  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.ChkInterceptClick(Sender: TObject);
@@ -450,7 +442,7 @@ begin
   chkSocks5NeedAuth.Enabled := ChkIntercept.Checked; // вкл/выкл
   if not ChkIntercept.Checked then chkSocks5NeedAuth.Checked := false; //сбрасываем галочку
 
-  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
+//  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
 end;
 
 procedure TfSettings.ChkSocks5ModeClick(Sender: TObject);
@@ -487,7 +479,7 @@ begin
   //if ChkLSPIntercept.Checked then ChkLSPInterceptClick(nil);
   //if ChkSocks5Mode.Checked then ChkSocks5ModeClick(nil);
 
-  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
+//  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
 end;
 
 procedure TfSettings.FormDestroy(Sender: TObject);
@@ -540,7 +532,7 @@ if (ExtractFilePath(isLSP.Text) = '') and ChkLSPIntercept.Checked then
   //if ChkLSPIntercept.Checked then ChkLSPInterceptClick(nil);
   //if ChkSocks5Mode.Checked then ChkSocks5ModeClick(nil);
 
-  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
+//  if InterfaceEnabled then GenerateSettingsFromInterface; //вкл глобальные настройки
 end;
 
 procedure TfSettings.iNewxorClick(Sender: TObject);
@@ -569,21 +561,21 @@ begin
         btnNewXor.Enabled := true;
       end;
     end;
-  GenerateSettingsFromInterface;
+//  GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.Button1Click(Sender: TObject);
 begin
+  Hide;
   WriteSettings;
   GenerateSettingsFromInterface;
-  Hide;
 end;
 
 procedure TfSettings.Button2Click(Sender: TObject);
 begin
+  Hide;
   readsettings;
   GenerateSettingsFromInterface;
-  Hide;
 end;
 
 procedure TfSettings.isLSPChange(Sender: TObject);
@@ -594,21 +586,18 @@ end;
 procedure TfSettings.ChkNoDecryptClick(Sender: TObject);
 begin
   if not InterfaceEnabled then exit;
-  GenerateSettingsFromInterface;
+//  GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.init;
 begin
   //считываем Options.ini в память
   Options:=TMemIniFile.Create(AppPath+'settings\Options.ini');
-  //Options:=TMemIniFile.Create('.\\settings\\options.ini');
-
   if not FileExists(AppPath+'settings\Options.ini') then
   begin
     fLangSelectDialog.ShowModal;
     Show;
   end;
-
   readsettings;
   GenerateSettingsFromInterface;
   if ChkShowLogWinOnStart.Checked then fLog.show;
@@ -616,14 +605,15 @@ end;
 
 procedure TfSettings.rgProtocolVersionClick(Sender: TObject);
 begin
-  //Kamael-Hellbound-Gracia-Freya
-  ChkKamael.Checked := (rgProtocolVersion.ItemIndex >= 4); // and (rgProtocolVersion.ItemIndex <= 7);
-  //если Айон, то отключаем
-  ChkKamael.Enabled:=rgProtocolVersion.ItemIndex <> 0;   //AION
+  //если больше чем Gracia = 5
+  ChkKamael.Checked := rgProtocolVersion.ItemIndex >= 5; // and (rgProtocolVersion.ItemIndex <= 7);
+  //если Айон 2.1 или Айон 2.5, то отключаем
+  ChkKamael.Enabled:=((rgProtocolVersion.ItemIndex <> 0) and (rgProtocolVersion.ItemIndex <> 1)); //AION
   ChkGraciaOff.Enabled:=ChkKamael.Enabled;
-  ChkChangeXor.Enabled:=ChkKamael.Enabled;
+  //всегда выкл
+  ChkChangeXor.Enabled:=false;
   //
-  if InterfaceEnabled then GenerateSettingsFromInterface;
+//  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;
 
 procedure TfSettings.FormCreate(Sender: TObject);
