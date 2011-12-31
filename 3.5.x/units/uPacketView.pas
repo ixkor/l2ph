@@ -901,7 +901,7 @@ end;
       end;
   end;
 //=======================================================================
-//цикл Loop для Айон с параметром в вдие маски
+//цикл Loop для Айон с параметром в виде маски
   procedure TfPacketView.fLoopM();
   var
     i, j, val, k :integer;
@@ -1037,15 +1037,22 @@ begin
     if Length(PktStr)<12 then Exit;
     Move(PktStr[2],ptime,8);
     if size = 0 then
-      Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10])
+      Size:=Word(Byte(PktStr[11]) shl 8 + Byte(PktStr[10]))
     else
       ptime := now;
     //делаем видимой во внешних функциях
     wSize:=size;
-    if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // для Айон
+    if (GlobalProtocolVersion=AION)then // для Айон 2.1 - 2.6
     begin
       cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
       wSubID:=0;   //не требуется
+      wSub2ID:=0;   //не требуется
+    end
+    else
+    if (GlobalProtocolVersion=AION27)then // для Айон 2.7 двухбайтные ID
+    begin
+      cID:=Byte(PktStr[12]);                    //в cID - ID пакета при однобайтном ID
+      wSubID:=Word(Byte(PktStr[13]) shl 8 + cID); //в wSubId - ID пакета при двухбайтном ID
       wSub2ID:=0;   //не требуется
     end
     else //для Lineage II
@@ -1096,31 +1103,48 @@ begin
     if PktStr[1]=#04 then
     begin
       //client  04
-      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // для Айон
-        StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:')
+      if (GlobalProtocolVersion=AION)then // для Айон 2.1 - 2.6
+      begin
+        StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');
+      end
       else
       begin
-        if (GlobalProtocolVersion<GRACIA) then
+        if (GlobalProtocolVersion=AION27)then // для Айон 2.7 двухбайтные ID
         begin
-          //фиксим пакет 39 для хроник C4-C5-Interlude
-          if (cID in [$39, $D0]) and (wSize>3) then
-            //C4, C5, T0
-            StrIni:=PacketsINI.ReadString('client', IntToHex(wSubID, 4), 'Unknown:h(subID)')
-          else
-            StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');
+          //0081=cm_time_check:c(static)h(id2)d(nanoTime)
+          //32=cm_group_response:h(id2)d(unk1)c(unk2)
+          StrIni:=PacketsINI.ReadString('client', IntToHex(wSubId, 4), 'Unknown:');
+          //если не нашли двухбайтное ID, значит у нас ID однобайтное
+          if (StrIni = 'Unknown:') then
+          begin
+            StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');   //если и такого не нашли, то имя пакета - Unknown:
+            wSubId:=0;   //сигнал, что однобайтное ID
+          end;
         end
         else
         begin
-          //для хроник Kamael - Hellbound - Gracia - Freya
-         //client three ID packets: c(ID)h(sub2ID)
-         if (cID=$D0) and (((wsub2id>=$5100) and (wsub2id<=$5105)) or (wsub2id=$5A00)) and (wSize>3) then
-            StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2)+IntToHex(wSub2ID, 4), 'Unknown:c(ID)h(subID)')
-          else
+          if (GlobalProtocolVersion<GRACIA) then
           begin
-            if (cID=$D0) and (wSize>3) then
-              StrIni:=PacketsINI.ReadString('client',IntToHex(wSubID, 4), 'Unknown:h(subID)')
+            //фиксим пакет 39 для хроник C4-C5-Interlude
+            if (cID in [$39, $D0]) and (wSize>3) then
+              //C4, C5, T0
+              StrIni:=PacketsINI.ReadString('client', IntToHex(wSubID, 4), 'Unknown:h(subID)')
             else
               StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');
+          end
+          else
+          begin
+            //для хроник Kamael - Hellbound - Gracia - Freya
+           //client three ID packets: c(ID)h(sub2ID)
+           if (cID=$D0) and (((wsub2id>=$5100) and (wsub2id<=$5105)) or (wsub2id=$5A00)) and (wSize>3) then
+              StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2)+IntToHex(wSub2ID, 4), 'Unknown:c(ID)h(subID)')
+            else
+            begin
+              if (cID=$D0) and (wSize>3) then
+                StrIni:=PacketsINI.ReadString('client',IntToHex(wSubID, 4), 'Unknown:h(subID)')
+              else
+                StrIni:=PacketsINI.ReadString('client', IntToHex(cID, 2), 'Unknown:');
+            end;
           end;
         end;
       end;
@@ -1128,34 +1152,56 @@ begin
     else
     begin
       //server  03
-      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // для Айон
-          StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:')
+      if (GlobalProtocolVersion=AION)then // для Айон 2.1 - 2.6
+      begin
+        StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:');
+      end
       else
       begin
-        //server four ID packets: c(ID)h(subID)h(sub2ID)
-        if ((wsubid=$FE97) or (wsubid=$FE98) or (wsubid=$FEB7)) and (wSize>3) then
-            StrIni:=PacketsINI.ReadString('server', IntToHex(wSubID, 4)+IntToHex(wSub2ID, 4), 'Unknown:h(subID)h(sub2ID)')
+        if (GlobalProtocolVersion=AION27)then // для Айон 2.7 двухбайтные ID
+        begin
+          //0081=cm_time_check:c(static)h(id2)d(nanoTime)
+          //32=cm_group_response:h(id2)d(unk1)c(unk2)
+          StrIni:=PacketsINI.ReadString('server', IntToHex(wSubId, 4), 'Unknown:');
+          //если не нашли двухбайтное ID, значит у нас ID однобайтное
+          if (StrIni = 'Unknown:') then
+          begin
+            StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:');   //если и такого не нашли, то имя пакета - Unknown:
+            wSubId:=0;   //сигнал, что однобайтное ID
+          end;
+        end
         else
         begin
-          if (cID=$FE) and (wSize>3) then
-            StrIni:=PacketsINI.ReadString('server', IntToHex(wSubID, 4), 'Unknown:h(subID)')
+          //server four ID packets: c(ID)h(subID)h(sub2ID)
+          if ((wsubid=$FE97) or (wsubid=$FE98) or (wsubid=$FEB7)) and (wSize>3) then
+              StrIni:=PacketsINI.ReadString('server', IntToHex(wSubID, 4)+IntToHex(wSub2ID, 4), 'Unknown:h(subID)h(sub2ID)')
           else
-            StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:');
+          begin
+            if (cID=$FE) and (wSize>3) then
+              StrIni:=PacketsINI.ReadString('server', IntToHex(wSubID, 4), 'Unknown:h(subID)')
+            else
+              StrIni:=PacketsINI.ReadString('server', IntToHex(cID, 2), 'Unknown:');
+          end;
         end;
       end;
     end;
 
-    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(cID, 2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(wSize);
+    if ((GlobalProtocolVersion=AION27) and (wSubId<>0))then // для Айон 2.7 двухбайтные ID
+      Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(wSubId, 4)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(wSize)
+    else
+      Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(cID, 2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(wSize);
     //начинаем разбирать пакет по заданному в packets.ini формату
     //смещение в ini
     PosInIni:=Pos(':',StrIni);
     //смещение в pkt
     PosInPkt:=13;
     Inc(PosInIni);
-    //Memo2.Lines.BeginUpdate;
     //Добавляем тип
     rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ), 11, 0);
-    rvDescryption.AddNLTag('0x'+IntToHex(cID, 2), 0, -1, 1);
+    if ((GlobalProtocolVersion=AION27) and (wSubId<>0))then // для Айон 2.7 двухбайтные ID
+      rvDescryption.AddNLTag('0x'+IntToHex(wSubId, 4), 0, -1, 1)
+    else
+      rvDescryption.AddNLTag('0x'+IntToHex(cID, 2), 0, -1, 1);
     rvDescryption.AddNL(' (', 0, -1);
     rvDescryption.AddNL(PacketName, 1, -1);
     rvDescryption.AddNL(')', 0, -1);
@@ -1169,7 +1215,14 @@ begin
 
     itemTag := 0;
     templateindex := 11;
-    addtoHex(StringToHex(copy(pktstr, 12, 1),' '));
+
+    if ((GlobalProtocolVersion=AION27) and (wSubId<>0))then // для Айон 2.7 двухбайтные ID
+    begin
+      addtoHex(StringToHex(copy(pktstr, 12, 2),' '));
+      inc(PosInPkt);
+    end
+    else
+      addtoHex(StringToHex(copy(pktstr, 12, 1),' '));
 
     itemTag := 1;
 

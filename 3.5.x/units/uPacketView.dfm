@@ -61,11 +61,10 @@ object fPacketView: TfPacketView
     object Label2: TLabel
       Left = 0
       Top = 0
-      Width = 451
+      Width = 132
       Height = 13
       Align = alTop
       Caption = #1044#1077#1090#1072#1083#1100#1085#1072#1103' '#1088#1072#1089#1096#1080#1092#1088#1086#1074#1082#1072':'
-      ExplicitWidth = 132
     end
     object Splitter2: TSplitter
       Left = 0
