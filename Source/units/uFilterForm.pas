@@ -148,8 +148,8 @@ var
 begin
   //для выбора соответствующего packets???.ini
   case GlobalProtocolVersion of
-    AION: LoadPktIni('packetsAion21.ini');       //пакеты для AION v 2.1
-    AION25: LoadPktIni('packetsAion25.ini');   //пакеты для AION v 2.5
+    AION: LoadPktIni('packetsAion21.ini');       //пакеты для AION v 2.1 - 2.6
+    AION27: LoadPktIni('packetsAion27.ini');   //пакеты для AION v 2.7 - двух байтные ID
     CHRONICLE4: LoadPktIni('packetsC4.ini');   //пакеты для С4
     CHRONICLE5: LoadPktIni('packetsC5.ini');   //пакеты для C5
     INTERLUDE: LoadPktIni('packetsInterlude.ini');        //пакеты для Интерлюдии
@@ -157,7 +157,7 @@ begin
     GRACIAFINAL: LoadPktIni('packetsGraciaFinal.ini');    //пакеты для Грация Финал
     GRACIAEPILOGUE: LoadPktIni('packetsGraciaEpilogue.ini');  //пакеты для Грация Эпилог
     FREYA: LoadPktIni('packetsFreya.ini');                    //пакеты для Freya
-    HighFive: LoadPktIni('packetsHighFive.ini');              //пакеты для High Five
+    HIGHFIVE: LoadPktIni('packetsHighFive.ini');              //пакеты для High Five
     GOD: LoadPktIni('packetsGOD.ini');                        //пакеты для Goddess of Destruction
   end;
 

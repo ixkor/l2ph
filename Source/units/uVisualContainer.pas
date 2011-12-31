@@ -288,136 +288,109 @@ begin
 end;
 
 procedure TfVisual.Processpacket;
-//=========================================
-// локальные процедуры
-//=========================================
-Procedure AddToListView5(ItemImageIndex : byte; ItemCaption : String; ItemPacketNumber : LongWord; ItemId : byte; ItemSubId, ItemSub2Id : word; Visible : boolean);
-var
-  str : string;
-begin
-  with ListView5.Items.Add do begin
-    //им€ пакета
-    Caption := ItemCaption;
-    //код иконки
-    ImageIndex := ItemImageIndex;
-    //номер
-    SubItems.Add(IntToStr(ItemPacketNumber));
-    //код пакета
+  //=========================================
+  // локальные процедуры
+  //=========================================
+  Procedure AddToListView5(ItemImageIndex : byte; ItemCaption : String; ItemPacketNumber : LongWord; ItemId : byte; ItemSubId, ItemSub2Id : word; Visible : boolean);
+  var
+    str : string;
+  begin
+    with ListView5.Items.Add do begin
+      //им€ пакета
+      Caption := ItemCaption;
+      //код иконки
+      ImageIndex := ItemImageIndex;
+      //номер
+      SubItems.Add(IntToStr(ItemPacketNumber));
+      //код пакета
 
-    if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
-      //client/server one ID packets: c(ID)
-      str := IntToHex(ItemId, 2)
-    else //дл€ Lineage II
-    begin
-      if (GlobalProtocolVersion<GRACIA) then
+      if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
+        //client/server one ID packets: c(ID)
+        str := IntToHex(ItemId, 2)
+      else //дл€ Lineage II
       begin
-        //фиксим пакет 39 дл€ хроник C4-C5-Interlude
-        //client two ID packets: (subID)
-        if (ItemId in [$39, $D0]) then
-          str := IntToHex(ItemSubId, 4)
-        else
-          str := IntToHex(ItemId, 2)
-      end
-      else
-      begin
-        //client three ID packets: c(ID)h(subID)
-        if (Itemid=$D0) and (((Itemsub2id>=$5100) and (Itemsub2id<=$5105)) or (Itemsub2id=$5A00)) then
-          str := IntToHex(ItemId, 2)+IntToHex(ItemSub2Id, 4)
-        else
-        begin
-          //client two ID packets: h(subID)
-          if (Itemid=$D0) then
+        if (GlobalProtocolVersion=AION27)then // дл€ јйон 2.7
+          //client/server mybe two ID packets: c(ID)
+          if (ItemSubId=0) then
+            str := IntToHex(ItemId, 2)
+          else
             str := IntToHex(ItemSubId, 4)
+        else //дл€ Lineage II
+        begin
+          if (GlobalProtocolVersion<GRACIA) then
+          begin
+            //фиксим пакет 39 дл€ хроник C4-C5-Interlude
+            //client two ID packets: (subID)
+            if (ItemId in [$39, $D0]) then
+              str := IntToHex(ItemSubId, 4)
+            else
+              str := IntToHex(ItemId, 2)
+          end
           else
           begin
-            //server four ID packets: c(ID)h(subID)h(sub2ID)
-            if (ItemSubId=$FE97) or (ItemSubId=$FE98) or (ItemSubId=$FEB7) then
-              str := IntToHex(ItemSubId, 4)+IntToHex(ItemSub2Id, 4)
+            //client three ID packets: c(ID)h(subID)
+            if (Itemid=$D0) and (((Itemsub2id>=$5100) and (Itemsub2id<=$5105)) or (Itemsub2id=$5A00)) then
+              str := IntToHex(ItemId, 2)+IntToHex(ItemSub2Id, 4)
             else
             begin
-              if ItemSubId = 0 then
-                //client/server one ID packets: c(ID)
-                str := IntToHex(ItemId, 2)
+              //client two ID packets: h(subID)
+              if (Itemid=$D0) then
+                str := IntToHex(ItemSubId, 4)
               else
               begin
-                //client/server two ID packets: c(ID)h(subID)
-                str := IntToHex(ItemSubId, 4);
+                //server four ID packets: c(ID)h(subID)h(sub2ID)
+                if (ItemSubId=$FE97) or (ItemSubId=$FE98) or (ItemSubId=$FEB7) then
+                  str := IntToHex(ItemSubId, 4)+IntToHex(ItemSub2Id, 4)
+                else
+                begin
+                  if ItemSubId = 0 then
+                    //client/server one ID packets: c(ID)
+                    str := IntToHex(ItemId, 2)
+                  else
+                  begin
+                    //client/server two ID packets: c(ID)h(subID)
+                    str := IntToHex(ItemSubId, 4);
+                  end;
+                end;
               end;
             end;
           end;
         end;
       end;
+      SubItems.Add(str);
+      if not Visible then MakeVisible(false);
     end;
-
-    SubItems.Add(str);
-    if not Visible then MakeVisible(false);
   end;
-end;
 
-Procedure AddToPacketFilterUnknown(ItemFromServer : boolean; ItemId : byte; ItemSubId, ItemSub2Id : Word; ItemChecked : boolean);
-var
-  CurrentList : TListView;
-  currentpackedfrom : TStringList;
-  str:string;
-begin
-  if ItemFromServer then begin
-    currentpackedfrom := PacketsFromS;
-    CurrentList := fPacketFilter.ListView1
-  end else begin
-    currentpackedfrom := PacketsFromC;
-    CurrentList := fPacketFilter.ListView2;
-  end;
-  with CurrentList.Items.Add do begin
-    if ItemSubId = 0 then
-        str := IntToHex(ItemId, 2)
-    else
-    begin
-      str := IntToHex(ItemSubId, 4);
+  Procedure AddToPacketFilterUnknown(ItemFromServer : boolean; ItemId : byte; ItemSubId, ItemSub2Id : Word; ItemChecked : boolean);
+  var
+    CurrentList : TListView;
+    currentpackedfrom : TStringList;
+    str:string;
+  begin
+    if ItemFromServer then begin
+      currentpackedfrom := PacketsFromS;
+      CurrentList := fPacketFilter.ListView1
+    end else begin
+      currentpackedfrom := PacketsFromC;
+      CurrentList := fPacketFilter.ListView2;
     end;
-    Caption :=str;
-    Checked := ItemChecked;
-    SubItems.Add('Unknown'+str);
-    if length(str)=2 then
-      currentpackedfrom.Append(str+'=Unknown:')
-    else
-      currentpackedfrom.Append(str+'=Unknown:h(SubId)');
-
-//    if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
-//    begin
-//      //client/server one ID packets: c(ID)
-//      str := IntToHex(ItemId, 2)
-//    end
-//    else //дл€ Lineage II
-//    begin
-//      //client three ID packets: c(ID)h(subID)
-//      if (Itemid=$D0) and (((Itemsubid>=$5100) and (Itemsubid<=$5105)) or (Itemsubid=$5A00)) then
-//        str := IntToHex(ItemId, 2)+IntToHex(ItemSubId, 4)
-//      else
-//      begin
-//        if ItemSubId = 0 then
-//          //client/server one ID packets: c(ID)
-//          str := IntToHex(ItemId, 2)
-//        else
-//        begin
-//          //client/server two ID packets: c(ID)h(subID)
-//          str := IntToHex(ItemSubId, 4);
-//          //server four ID packets: c(ID)h(subID)h(sub2ID)
-//          if (ItemSubId=$FE97) or (ItemSubId=$FE98) or (ItemSubId=$FEB7) then
-//            str := str+IntToHex(ItemSub2Id, 4);
-//        end;
-//      end;
-//    end;
-//    Caption :=str;
-//    Checked := ItemChecked;
-//    SubItems.Add('Unknown'+str);
-//    if length(str)=2 then
-//      currentpackedfrom.Append(str+'=Unknown:')
-//    else
-//      currentpackedfrom.Append(str+'=Unknown:h(SubId)');
-
+    with CurrentList.Items.Add do begin
+      if ItemSubId = 0 then
+          str := IntToHex(ItemId, 2)
+      else
+      begin
+        str := IntToHex(ItemSubId, 4);
+      end;
+      Caption :=str;
+      Checked := ItemChecked;
+      SubItems.Add('Unknown'+str);
+      if length(str)=2 then
+        currentpackedfrom.Append(str+'=Unknown:')
+      else
+        currentpackedfrom.Append(str+'=Unknown:h(SubId)');
+    end;
   end;
-
-end;
 //=========================================
 var
   id: Byte;
@@ -435,12 +408,20 @@ begin
   if (FromServer and not ToolButton4.Down)
     or (not FromServer and not ToolButton3.Down) then exit;
 
-  if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
+//  if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
+//  begin
+//    //client/server one ID packets: c(ID)
+//    //это насто€щий ID
+//    id := newpacket.Data[0];
+//    SubID:=0;    //пакет закончилс€, пишем в subid 0
+//    Sub2ID:=0;   //пакет закончилс€, пишем в sub2id 0
+//  end
+//  else
+  if (GlobalProtocolVersion<=AION27)then // дл€ јйон 2.7 двухбайтное ID
   begin
-    //client/server one ID packets: c(ID)
-    //это насто€щий ID
+    //client/server maybe two ID packets: c(ID)
     id := newpacket.Data[0];
-    SubID:=0;    //пакет закончилс€, пишем в subid 0
+    SubId := Word(Byte(newpacket.Data[1]) shl 8 + id);
     Sub2ID:=0;   //пакет закончилс€, пишем в sub2id 0
   end
   else
@@ -619,7 +600,7 @@ begin
     SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
     if from=4 then begin
       //от клиента
-      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
+      if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
       begin
           indx:=PacketsFromC.IndexOfName(IntToHex(id,2));
           if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
@@ -634,7 +615,7 @@ begin
         end;
     end else begin
       //от сервера
-      if ((GlobalProtocolVersion=AION) or (GlobalProtocolVersion=AION25))then // дл€ јйон
+      if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
       begin
           indx:=PacketsFromS.IndexOfName(IntToHex(id,2));
           if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;

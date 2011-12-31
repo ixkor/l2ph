@@ -47,7 +47,7 @@ type
     Procedure Corrector(var data; const enc: Boolean = False; const FromServer: Boolean = False);
 
     //Детект нового ключа
-    Procedure CorrectXor(Packet:Tpacket);
+    //Procedure CorrectXor(Packet:Tpacket);
     //////////////////////////////////////////////////////////////////////////////////////////////
     
     //опять стандартное
@@ -111,71 +111,62 @@ begin
   Inc(pckCount);
   
   //корректор.
-  if Settings.isChangeXor then
-    CorrectXor(Packet);
+//  if Settings.isAionTwoId then
+//    CorrectXor(Packet);
 
    case Dirrection of
       PCK_GS_ToClient, PCK_LS_ToClient:
       begin                       //от ГС
-
         //запоминание 3го пакета (на сервер)
         //Обход смены XOR ключа. в 4м пакете (на клиент)
         //может изменить флаг InitXOR поэтому у нас есть InitXOR_copy.
-        if Settings.isChangeXor then CorrectXor(packet);
+//        if Settings.isAionTwoId then CorrectXor(packet);
 
         //собственно декрипт, если есть ключ и не стоит галочка "не декриптовать".
-        if InitXOR_copy and (not Settings.isNoDecrypt) then
-          begin
+        if (InitXOR_copy and (not Settings.isNoDecrypt)) then
+        begin
           temp := Packet.Size - 2;
           xorS.DecryptGP(packet.data, temp);
           Packet.Size := temp + 2
-          end;
-
-        if Packet.Size <= 2 then
+        end;
+        if (Packet.Size <= 2) then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0) //авдруг!
         else
           //вытягиваем имя соединения и прочее
-          if (not Settings.isNoDecrypt) then begin
-            if Settings.isAION and not InitXOR then packet.Data[0]:=(packet.Data[0] xor $ee) - $ae;
-
+          if (not Settings.isNoDecrypt) then
+          begin
+            if (Settings.isAION and (not InitXOR)) then
+              packet.Data[0]:=(packet.Data[0] xor $EE) - $AE; //obfuscate packet id
             ProcessRecivedPacket(packet);
           end;
 
         LastPacket := Packet;
-        if Assigned(onNewPacket) then
+        if (Assigned(onNewPacket)) then
           if Packet.Size > 2 then //не отправляем скриптам пакеты длинной 2 байта (физически)
             onNewPacket(Packet, true, self);
 
-        if Packet.Size <= 2 then
+        if (Packet.Size <= 2) then
             FillChar(Packet.PacketAsCharArray, $FFFF, #0); //авдруг!
-
       end;
 
       PCK_GS_ToServer, PCK_LS_ToServer:
       begin
         if Packet.Size=29754 then Packet.Size:=267;
         //Декодирование
-        if InitXOR and (not Settings.isNoDecrypt) then
-          begin
+        if (InitXOR and (not Settings.isNoDecrypt)) then
+        begin
           temp := Packet.Size - 2;
           xorC.DecryptGP(Packet.Data, temp);
           Packet.Size := temp + 2;
-          end;
-
-
+        end;
         //корректор для грации
-        if Settings.isGraciaOff and (not Settings.isNoDecrypt) then
+        if (Settings.isGraciaOff and (not Settings.isNoDecrypt)) then
           Corrector(Packet.Size);
-
-
         //отправка скриптам
         if Assigned(onNewPacket) then
           onNewPacket(packet, false, self);
-
-
         if Packet.Size = 0 then
-            FillChar(Packet.PacketAsCharArray, $FFFF, #0); 
-
+            FillChar(Packet.PacketAsCharArray, $FFFF, #0);
       end;
     end;
   end;      
@@ -254,16 +245,45 @@ var
         PWord(@_2_byte_table[cur_pos])^:=x2;
         cur_pos := cur_pos + 2;
       end;
+      // nlobp по подсказке alexteam
+      if GlobalProtocolVersion<FREYA then  //ниже Фрейи
+      begin
+        cur_pos := Pos(#$12, _1_byte_table);
+        x := _1_byte_table[$13];
+        _1_byte_table[$13] := #$12;
+        _1_byte_table[cur_pos]:=x;
 
-      cur_pos := Pos(#$12, _1_byte_table);
-      x := _1_byte_table[$13];
-      _1_byte_table[$13] := #$12;
-      _1_byte_table[cur_pos]:=x;
+        cur_pos := Pos(#$B1, _1_byte_table);
+        x := _1_byte_table[$B2];
+        _1_byte_table[$B2] := #$B1;
+        _1_byte_table[cur_pos]:=x;
+      end
+      else
+      if GlobalProtocolVersion<GOD then  //Фрейя и HighFive
+      begin
+        cur_pos := Pos(#$11, _1_byte_table);
+        x := _1_byte_table[$12];
+        _1_byte_table[$12] := #$11;
+        _1_byte_table[cur_pos]:=x;
 
-      cur_pos := Pos(#$B1, _1_byte_table);
-      x := _1_byte_table[$B2];
-      _1_byte_table[$B2] := #$B1;
-      _1_byte_table[cur_pos]:=x;
+        cur_pos := Pos(#$D0, _1_byte_table);
+        x := _1_byte_table[$D1];
+        _1_byte_table[$D1] := #$D0;
+        _1_byte_table[cur_pos]:=x;
+      end
+      else
+      if GlobalProtocolVersion=GOD then  //GoD
+      begin
+        cur_pos := Pos(#$73, _1_byte_table);
+        x := _1_byte_table[$74];
+        _1_byte_table[$74] := #$73;
+        _1_byte_table[cur_pos]:=x;
+
+        cur_pos := Pos(#$74, _1_byte_table);
+        x := _1_byte_table[$75];
+        _1_byte_table[$75] := #$74;
+        _1_byte_table[cur_pos]:=x;
+      end;
 
       _id_mix := true;
     end;
@@ -303,10 +323,12 @@ begin
       _init_tables(temp_seed,_2_byte_table_size);
     end;
     if(buff[3]=#$2e)then begin
-      //if(Protocol = 871)or(Protocol = 12)then _init_tables(PInteger(@buff[$16])^, $58); // CT2.2
-      //if(Protocol = 851)or(Protocol = 19)then _init_tables(PInteger(@buff[$16])^, $55); // CT2
-      //if Protocol = 831 then _init_tables(PInteger(@buff[$16])^, $4E); // CT1.5+
-      _init_tables(PInteger(@buff[$16])^, $80);
+      // nlobp по подсказке alexteam
+      if GlobalProtocolVersion<FREYA then _init_tables(PInteger(@buff[$16])^, $80) //ниже Фрейи
+      else
+      if GlobalProtocolVersion<GOD then _init_tables(PInteger(@buff[$16])^, $86) //Фрейя, HighFive
+      else
+      if GlobalProtocolVersion=GOD then _init_tables(PInteger(@buff[$16])^, $C5) //GoD
     end;
   end else begin
     if not _id_mix and(buff[3]=#$0e)then Protocol:=PInteger(@buff[4])^;
@@ -320,23 +342,21 @@ begin
   //newxor
   if @CreateXorOut = nil then
     CreateXorOut := CreateXorIn;
-
   //xorS, xorC - init
-    if Assigned(CreateXorIn) then
-      begin
-      CreateXorIn(@xorS);
-      innerXor := true;
-      end
-    else
-      xorS := L2Xor.Create;
-
-    if Assigned(CreateXorOut) then
-    begin
-      CreateXorOut(@xorC);
-      innerXor := true;      
-    end
-    else
-      xorC := L2Xor.Create;
+  if Assigned(CreateXorIn) then
+  begin
+    CreateXorIn(@xorS);
+    innerXor := true;
+  end
+  else
+    xorS := L2Xor.Create;
+  if Assigned(CreateXorOut) then
+  begin
+    CreateXorOut(@xorC);
+    innerXor := true;
+  end
+  else
+    xorC := L2Xor.Create;
 end;
 
 procedure TencDec.EncodePacket;
@@ -347,92 +367,104 @@ var
   temp : word;
 begin
   isToServer := (Dirrection = PCK_GS_ToServer) or (Dirrection = PCK_LS_ToServer); //пакет идет на сервер ?
-
-
-  if isToServer then //в зависимости от направления выбираем кодирующий класс
-    begin
-      NeedEncrypt := (not Settings.isNoDecrypt) and InitXOR;
-      CurrentCoddingClass := xorC;
-    end
-    else
-      begin
-        NeedEncrypt := (not Settings.isNoDecrypt) and InitXOR;
-        if Settings.isAION and not InitXOR and not Settings.isNoDecrypt then
-          packet.Data[0]:=(packet.Data[0] + $ae) xor $ee;
-        CurrentCoddingClass := xorS;
-      end;
-
-  if NeedEncrypt then
-    begin
-      if isToServer and Settings.isGraciaOff then
-        Corrector(Packet.Size, True);
-
-      temp := Packet.Size - 2;
-      CurrentCoddingClass.EncryptGP(Packet.data, temp); //кодируем
-      Packet.Size := temp + 2;
-
-    end;
-
+  if (isToServer) then //в зависимости от направления выбираем кодирующий класс
+  begin
+    NeedEncrypt := (not Settings.isNoDecrypt) and InitXOR;
+    CurrentCoddingClass := xorC;
+  end
+  else
+  begin
+    NeedEncrypt := (not Settings.isNoDecrypt) and InitXOR;
+    if (Settings.isAION and not InitXOR and not Settings.isNoDecrypt) then
+      packet.Data[0]:=(packet.Data[0] + $AE) xor $EE; //obfuscate packet id
+    CurrentCoddingClass := xorS;
+  end;
+  if (NeedEncrypt) then
+  begin
+    if (isToServer and Settings.isGraciaOff) then
+      Corrector(Packet.Size, True);
+    temp := Packet.Size - 2;
+    CurrentCoddingClass.EncryptGP(Packet.data, temp); //кодируем
+    Packet.Size := temp + 2;
+  end;
   if SetInitXORAfterEncode then
-    begin
-      InitXOR := true;
-      SetInitXORAfterEncode := false;
-    end;
+  begin
+    InitXOR := true;
+    SetInitXORAfterEncode := false;
+  end;
   LastPacket := Packet;
 end;
 
-procedure TencDec.CorrectXor;
-var
-//  tmp: string;
-  Offset: Word;
-  TempPacket : Tpacket;
-  temp : word;
-begin
-//Обход смены XOR ключа.
-case pckCount of
-3:  CorrectXorData := Packet;
-4:  begin
-      TempPacket := Packet;
-//      SetLength(tmp, TempPacket.Size);
-//      Move(TempPacket, tmp[1], TempPacket.Size);
-      temp := TempPacket.Size-2;
-      xorS.DecryptGP(TempPacket.Data, temp);
-      TempPacket.Size := temp + 2;
-      Offset := $13 or ((TempPacket.size-7) div 295) shl 8;
-      PInteger(@TempPacket.Data[0])^:=PInteger(@TempPacket.Data[0])^ xor Offset xor PInteger(@(xorS.GKeyS[0]))^;
-      xorS.InitKey(TempPacket.Data[0],Byte(isInterlude));
-      xorC.InitKey(TempPacket.Data[0],Byte(isInterlude));
-      if (not Settings.isNoDecrypt) then
-        begin
-          temp := CorrectXorData.Size - 2;
-          xorC.DecryptGP(CorrectXorData.Data, temp);
-          CorrectXorData.Size := temp + 2;
-        end;
-      if (not Settings.isNoDecrypt) then
-        begin
-          temp := CorrectXorData.Size - 2;
-          xorC.EncryptGP(CorrectXorData.Data, temp);
-          CorrectXorData.Size := temp + 2;
-        end;
-      InitXOR:=True;
-    end;
-end;
-end;
+//procedure TencDec.CorrectXor;
+//var
+////  tmp: string;
+//  Offset: Word;
+//  TempPacket : Tpacket;
+//  temp : word;
+//begin
+////Обход смены XOR ключа.
+//case pckCount of
+//3:  CorrectXorData := Packet;
+//4:  begin
+//      TempPacket := Packet;
+////      SetLength(tmp, TempPacket.Size);
+////      Move(TempPacket, tmp[1], TempPacket.Size);
+//      temp := TempPacket.Size-2;
+//      xorS.DecryptGP(TempPacket.Data, temp);
+//      TempPacket.Size := temp + 2;
+//      Offset := $13 or ((TempPacket.size-7) div 295) shl 8;
+//      PInteger(@TempPacket.Data[0])^:=PInteger(@TempPacket.Data[0])^ xor Offset xor PInteger(@(xorS.GKeyS[0]))^;
+//      xorS.InitKey(TempPacket.Data[0],Byte(isInterlude));
+//      xorC.InitKey(TempPacket.Data[0],Byte(isInterlude));
+//      if (not Settings.isNoDecrypt) then
+//        begin
+//          temp := CorrectXorData.Size - 2;
+//          xorC.DecryptGP(CorrectXorData.Data, temp);
+//          CorrectXorData.Size := temp + 2;
+//        end;
+//      if (not Settings.isNoDecrypt) then
+//        begin
+//          temp := CorrectXorData.Size - 2;
+//          xorC.EncryptGP(CorrectXorData.Data, temp);
+//          CorrectXorData.Size := temp + 2;
+//        end;
+//      InitXOR:=True;
+//    end;
+//end;
+//end;
 
 procedure TencDec.ProcessRecivedPacket;
 var
   Offset: Word;
   WStr: WideString;
 begin
-  if not Settings.isAION then case Packet.Data[0] of
-    $00: if not InitXOR then begin
-      isInterlude:=(Packet.Size>19);
-      xorC.InitKey(Packet.Data[2], Byte(isInterlude));
-      xorS.InitKey(Packet.Data[2], Byte(isInterlude));
-      SetInitXORAfterEncode := true;
-    end;
-
-    $15: if not Settings.isKamael then begin //and (pckCount=7)
+  if (not Settings.isAION) then
+  begin  //LineageII
+    case Packet.Data[0] of
+      //KeyInit до Интерлюда включительно
+      $00: if ((not InitXOR) and (not Settings.isKamael)) then
+      begin
+        isInterlude:=(Packet.Size>19);
+        xorC.InitKey(Packet.Data[2], Byte(isInterlude));
+        xorS.InitKey(Packet.Data[2], Byte(isInterlude));
+        SetInitXORAfterEncode := true;
+      end;
+      //CharSelected начиная с Камаеля по ГоД
+      $0B: if (Settings.isKamael) then
+      begin
+          Offset := 1;
+          while not ((Packet.Data[Offset] = 0) and (Packet.Data[Offset + 1] = 0)) do Inc(Offset);
+          SetLength(WStr, round((Offset+0.5)/2));
+          Move(Packet.Data[1], WStr[1], Offset);
+          CharName := WideStringToString(WStr, 1251);
+          if (Settings.isGraciaOff) then
+            Corrector(Packet.Size, False, True); // инициализация корректора
+          //Получено имя соединения
+          sendAction(TencDec_Action_GotName);
+      end;
+      //CharSelected до Интерлюда включительно
+      $15: if (not Settings.isKamael) then
+      begin //and (pckCount=7)
         Offset := 1;
         while not ((Packet.Data[Offset]=0) and (Packet.Data[Offset+1]=0)) do Inc(Offset);
         SetLength(WStr, round((Offset+0.5)/2));
@@ -441,48 +473,58 @@ begin
         CharName := WideStringToString(WStr, 1251);
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
-    end;
-    //CharSelected
-    $0B: if Settings.isKamael then begin // and (pckCount=6)
-        Offset := 1;
-        while not ((Packet.Data[Offset] = 0) and (Packet.Data[Offset + 1] = 0)) do Inc(Offset);
-        SetLength(WStr, round((Offset+0.5)/2));
-        Move(Packet.Data[1], WStr[1], Offset);
-        CharName := WideStringToString(WStr, 1251);
+      end;
+      //KeyInit начиная с Камаеля по ГоД
+      $2e: if ((not InitXOR) and Settings.isKamael) then
+      begin
+        isInterlude := True;
+        xorC.InitKey(Packet.Data[2], Byte(isInterlude));
+        xorS.InitKey(Packet.Data[2], Byte(isInterlude));
         if Settings.isGraciaOff then
-          Corrector(Packet.Size,False, True); // инициализация корректора
+          Corrector(Packet.Size,False,True); // инициализация корректора
+        SetInitXORAfterEncode := true;
+        exit;
+      end;
+    end;
+  end
+  else
+  begin  //Aion
+    case Packet.Data[0] of
+      // $0166=SM_KEY AION 2.7
+      $66: if not InitXOR then
+      begin
+        xorC.InitKey(Packet.Data[5], 2);
+        xorS.InitKey(Packet.Data[5], 2);
+        SetInitXORAfterEncode := true;
+      end;
+      // $67=SM_KEY AION 2.1
+      $67: if not InitXOR then
+      begin
+        xorC.InitKey(Packet.Data[3], 2);
+        xorS.InitKey(Packet.Data[3], 2);
+        SetInitXORAfterEncode := true;
+      end;
+      // E4=sm_l2auth_login_check Aion 2.1
+      $E4:
+      begin
+        CharName := WideStringToString(PWideChar(@Packet.Data[7]), 1251);
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
-    end;
-    $2e: if (not InitXOR) and Settings.isKamael then begin
-      isInterlude := True;
-      xorC.InitKey(Packet.Data[2], Byte(isInterlude));
-      xorS.InitKey(Packet.Data[2], Byte(isInterlude));
-      if Settings.isGraciaOff then
-        Corrector(Packet.Size,False,True); // инициализация корректора
-      SetInitXORAfterEncode := true;
-      exit;
-    end;
-  end else case Packet.Data[0] of
-    { $41: if not InitXOR then begin
-      xorC.InitKey(Packet.Data[3], 2);
-      xorS.InitKey(Packet.Data[3], 2);
-      SetInitXORAfterEncode := true;
-    end;}
-    // CharInfo
-    $18: if CharName = '[unk]' then begin
-        CharName := WideStringToString(PWideChar(@Packet.Data[$2a]), 1251);
+      end;
+      $E7:// 01E7=sm_l2auth_login_check Aion 2.7
+      begin
+        CharName := WideStringToString(PWideChar(@Packet.Data[9]), 1251);
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
-    end;
-    {// Character list
-    $c1: begin
-      CharName := '[unk]';
-    end;}
-    else if not InitXOR then begin
-      xorC.InitKey(Packet.Data[3], 2);
-      xorS.InitKey(Packet.Data[3], 2);
-      SetInitXORAfterEncode := true;
+      end;
+    //если нет подходящих пакетов
+    else
+      if (not InitXOR) then
+      begin
+        xorC.InitKey(Packet.Data[3], 2);
+        xorS.InitKey(Packet.Data[3], 2);
+        SetInitXORAfterEncode := true;
+      end;
     end;
   end;
 end;
@@ -494,11 +536,10 @@ begin
 end;
 
 { L2Xor }
-
 constructor L2Xor.Create;
 begin
-  FillChar(GKeyS[0],SizeOf(GKeyS),0);
-  FillChar(GKeyR[0],SizeOf(GKeyR),0);
+  FillChar(GKeyS[0], SizeOf(GKeyS), 0);
+  FillChar(GKeyR[0], SizeOf(GKeyR), 0);
   keyLen := 0;
   isAion:=False;
 end;
@@ -511,13 +552,13 @@ var
 begin
   i:=0;
   for k:=0 to size-1 do
-    begin
-     t:=pck[k];
-     pck[k]:=t xor GKeyR[k and keyLen] xor i xor IfThen(isAion and(k>0),Byte(KeyConst2[k and 63]));
-     i:=t;
-    end;
-  Inc(PCardinal(@GKeyR[keyLen-7])^,size);
-  if isAion and(Size>0)then pck[0]:=(pck[0] xor $EE) - $AE; // и нафига это...
+  begin
+    t:=pck[k];
+    pck[k]:=t xor GKeyR[k and keyLen] xor i xor IfThen(isAion and(k>0), Byte(KeyConst2[k and 63]));
+    i:=t;
+  end;
+  Inc(PCardinal(@GKeyR[keyLen-7])^, size);
+  if (isAion and (Size>0)) then pck[0]:=(pck[0] xor $EE) - $AE; //obfuscate packet id
 end;
 
 procedure L2Xor.EncryptGP(var Data; var Size: Word);
@@ -526,13 +567,14 @@ var
   k:byte;
   pck:array[0..$FFFD] of Byte absolute Data;
 begin
-  if isAion and(Size>0)then pck[0]:=(pck[0] + $AE) xor $EE; // и нафига это...
+  if (isAion and (Size>0)) then pck[0]:=(pck[0] + $AE) xor $EE; //obfuscate packet id
   k:=0;
-  for i:=0 to size-1 do begin
-    pck[i]:=pck[i] xor GKeyS[i and keyLen] xor k xor IfThen(isAion and(i>0),Byte(KeyConst2[i and 63]));
+  for i:=0 to size-1 do
+  begin
+    pck[i]:=pck[i] xor GKeyS[i and keyLen] xor k xor IfThen(isAion and (i>0), Byte(KeyConst2[i and 63]));
     k:=pck[i];
   end;
-  Inc(PCardinal(@GKeyS[keyLen-7])^,size);
+  Inc(PCardinal(@GKeyS[keyLen-7])^, size);
 end;
 
 procedure L2Xor.InitKey(const XorKey; Interlude: Byte);
@@ -543,26 +585,26 @@ var
   key2:array[0..15] of Byte;
 begin
   case Interlude of
-    1:begin
+    0:begin   //C4
+      keyLen:=7;
+      Move(XorKey, key2, 4);
+      Move(KeyConst, key2[4], 4);
+    end;
+    1:begin   //Interlude - Gracia - GoD
       keyLen:=15;
-      Move(XorKey,key2,8);
-      Move(KeyConstInterlude,key2[8],8);
+      Move(XorKey, key2, 8);
+      Move(KeyConstInterlude, key2[8], 8);
     end;
-    0:begin
+    2:begin   //Aion
       keyLen:=7;
-      Move(XorKey,key2,4);
-      Move(KeyConst,key2[4],4);
-    end;
-    2:begin
-      keyLen:=7;
-      Move(XorKey,key2,4);
-      Move(KeyConst,key2[4],4);
+      Move(XorKey, key2, 4);
+      Move(KeyConst, key2[4], 4);
       PCardinal(@key2[0])^:=PCardinal(@key2[0])^ - $3ff2cc87 xor $cd92e451;
       isAion:=True;
     end;
   end;
-  Move(key2,GKeyS,16);
-  Move(key2,GKeyR,16);
+  Move(key2, GKeyS, 16);
+  Move(key2, GKeyR, 16);
   inherited;          
 end;
 
