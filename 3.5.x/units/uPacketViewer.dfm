@@ -20,8 +20,6 @@ object fPacketViewer: TfPacketViewer
     Top = 0
     Height = 345
     Align = alRight
-    ExplicitLeft = 383
-    ExplicitHeight = 334
   end
   object packetVievPanel: TPanel
     Left = 394
@@ -30,8 +28,6 @@ object fPacketViewer: TfPacketViewer
     Height = 345
     Align = alRight
     TabOrder = 0
-    ExplicitLeft = 386
-    ExplicitHeight = 334
   end
   object Panel1: TPanel
     Left = 0
@@ -41,8 +37,6 @@ object fPacketViewer: TfPacketViewer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 383
-    ExplicitHeight = 334
     object ToolBar2: TToolBar
       Left = 0
       Top = 0

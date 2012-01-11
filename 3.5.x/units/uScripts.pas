@@ -108,12 +108,12 @@ type
     procedure ListViewWindowProcEx(var Message: TMessage) ;
     procedure CreateParams (var Params : TCreateParams); override;
   public
+    { Public declarations }
     procedure ScryptProcessPacket(var newpacket: tpacket; FromServer: boolean; Id:integer);
     procedure ScriptCheckClick(Sender: TObject);
     procedure DestroyAllScripts;
     Function FindScriptByName(name:string):Tscript;
     procedure RefreshScripts;
-    { Public declarations }
     procedure savescryptorder;
     procedure init;
   end;

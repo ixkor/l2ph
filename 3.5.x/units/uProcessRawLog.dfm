@@ -186,7 +186,6 @@ object fProcessRawLog: TfProcessRawLog
           Height = 13
           Align = alTop
           Caption = #1063#1080#1090#1072#1077#1090#1089#1103' '#1080' '#1092#1086#1088#1084#1072#1090#1080#1088#1091#1077#1090#1089#1103' RAW '#1083#1086#1075'..'
-          ExplicitWidth = 194
         end
         object ProgressBar1: TProgressBar
           Left = 1

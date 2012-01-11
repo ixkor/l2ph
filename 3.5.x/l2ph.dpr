@@ -1,7 +1,3 @@
-// JCL_DEBUG_EXPERT_INSERTJDBG ON
-// JCL_DEBUG_EXPERT_GENERATEJDBG ON
-// JCL_DEBUG_EXPERT_DELETEMAPFILE ON
-
 program l2ph;
 
 uses
@@ -36,9 +32,11 @@ uses
   uMainReplacer in 'units\uMainReplacer.pas' {fMainReplacer},
   uPacketViewer in 'units\uPacketViewer.pas' {fPacketViewer},
   uLangSelectDialog in 'units\uLangSelectDialog.pas' {fLangSelectDialog},
-  uCompilling in 'units\uCompilling.pas' {fCompilling};
+  uCompilling in 'units\uCompilling.pas' {fCompilling},
+  uJavaParser in 'units\uJavaParser.pas';
 
 {$R *.res}
+
 Procedure Check2stInstance;
 var
   hMutex, hWindow : cardinal;

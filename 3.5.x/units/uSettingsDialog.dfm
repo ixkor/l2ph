@@ -809,6 +809,18 @@ object fSettings: TfSettings
         TabOrder = 0
         OnClick = ChkAionClick
       end
+      object ChkChangeParser: TCheckBox
+        Left = 10
+        Top = 128
+        Width = 340
+        Height = 17
+        Hint = #1042#1082#1083#1102#1095#1080#1090#1100' '#1088#1072#1079#1073#1086#1088' '#1087#1072#1082#1077#1090#1086#1074' '#1087#1086' java '#1080#1089#1093#1086#1076#1085#1080#1082#1072#1084
+        Caption = #1040#1083#1100#1090#1077#1088#1085#1072#1090#1080#1074#1085#1099#1081' '#1088#1072#1079#1073#1086#1088' '#1087#1072#1082#1077#1090#1086#1074
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+        OnClick = ChkAionClick
+      end
       object GroupBox4: TGroupBox
         Left = 5
         Top = 287

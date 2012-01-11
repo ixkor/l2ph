@@ -19,7 +19,6 @@ object fPacketView: TfPacketView
     Height = 3
     Cursor = crVSplit
     Align = alTop
-    ExplicitWidth = 435
   end
   object Label1: TLabel
     Left = 0
@@ -74,8 +73,6 @@ object fPacketView: TfPacketView
       Cursor = crVSplit
       Align = alBottom
       Visible = False
-      ExplicitTop = 23
-      ExplicitWidth = 435
     end
     object rvFuncs: TRichView
       Left = 0

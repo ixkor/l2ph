@@ -19,8 +19,6 @@ object fVisual: TfVisual
     Height = 299
     Align = alRight
     Visible = False
-    ExplicitLeft = 523
-    ExplicitHeight = 261
   end
   object PageControl1: TPageControl
     Left = 0
@@ -745,7 +743,6 @@ object fVisual: TfVisual
       Height = 13
       Align = alTop
       Caption = #1055#1077#1088#1077#1089#1090#1088#1072#1080#1074#1072#1077#1090#1089#1103' '#1089#1087#1080#1089#1086#1082' '#1087#1072#1082#1077#1090#1086#1074'...'
-      ExplicitWidth = 182
     end
     object ProgressBar1: TProgressBar
       Left = 1

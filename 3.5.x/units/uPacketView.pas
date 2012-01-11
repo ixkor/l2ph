@@ -7,6 +7,7 @@ uses
   SysUtils,
   StrUtils,
   uGlobalFuncs,
+  uJavaParser,
   Windows,
   Messages, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, RVScroll, RichView, RVStyle, ExtCtrls, siComp, StdCtrls, Menus;
@@ -41,9 +42,7 @@ type
     procedure rvFuncsSelect(Sender: TObject);
 
   private
-    procedure addToDescr(offset: integer; typ, name_, value: string);
-    function GetFuncParams(FuncParamNames, FuncParamTypes :TStringList): string;
-    procedure PrintFuncsParams(sFuncName :string);
+    { Private declarations }
     procedure fParse;
     procedure fGet;
     procedure fSwitch;
@@ -71,28 +70,32 @@ type
     function GetFSup(const ar1: integer): string;
     function prnoffset(offset: integer): string;
     function AllowedName(Name: string): boolean;
+    function GetValue(var typ:string; name_, PktStr: string; var PosInPkt: integer): string;
+    function GetNpcID(const ar1 : cardinal) : string;
+    procedure addtoHex(Str:string);
+    procedure selectitemwithtag (Itemtag:integer);
+    function get(param1:string;id: byte; var value:string):boolean;
+    procedure addToDescr(offset: integer; typ, name_, value: string);
+    function GetFuncParams(FuncParamNames, FuncParamTypes :TStringList): string;
+    procedure PrintFuncsParams(sFuncName :string);
     //для совместимости с WPF 669f
     function GetFSay2(const ar1: integer): string;
     function GetF0(const ar1: integer): string;
     function GetF1(const ar1: integer): string;
     function GetF9(ar1: integer): string;
     function GetF3(const ar1: integer): string;
-
-    { Private declarations }
+    //yet another parser
+    procedure fParseJ;
   public
+    { Public declarations }
     currentpacket: string;
-    //kId: cardinal; //коэфф преобразования NpcID
     hexvalue: string; //для вывода HEX в расшифровке пакетов
     HexViewOffset : boolean;
     itemTag, templateindex:integer;
-    function GetValue(var typ:string; name_, PktStr: string; var PosInPkt: integer): string;
-    function GetNpcID(const ar1 : cardinal) : string;
+    //yet another parser
     procedure ParsePacket(PacketName, Packet:string; size : word = 0);
-    procedure addtoHex(Str:string);
-    procedure selectitemwithtag (Itemtag:integer);
-    function get(param1:string;id: byte; var value:string):boolean;
-
-    { Public declarations }
+    procedure InterpretatorJava(PacketName, Packet: string; size: word = 0);
+    procedure InterpretJava(PacketJava : TJavaParser; SkipID: boolean; PktStr: string; var PosInPkt: integer; var typ, name_, value, hexvalue: string; size: word);
   end;
 
 implementation
@@ -1023,6 +1026,743 @@ end;
         end;
       end;
   end;
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+ //=======================================================================
+procedure TfPacketView.fParseJ();
+begin
+  offset:=PosinPkt-11;
+  oldpos := PosInPkt;
+  //считываем значение из пакета, сдвигаем указатели в соответствии с типом значения
+  value:=GetValue(typ, name_, PktStr, PosInPkt);
+//игнорируем подчерк
+  if AllowedName(name_) then
+  begin
+    FuncParamNames.Add(name_);
+    FuncParamTypes.Add(typ);
+    FuncParamNumbers.Add(inttostr(length(blockmask)));
+  end;
+  blockmask := blockmask + typ;
+  if PosInPkt - oldpos > 0 then
+    addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
+end;
+//=======================================================================
+procedure TfPacketView.InterpretJava(PacketJava : TJavaParser; SkipID: boolean; PktStr: string; var PosInPkt: integer; var typ, name_, value, hexvalue: string; size: word);
+var
+  strIndex, tmp : integer;
+  brkLeft, brkRigth, count, index, depth : integer;
+  text: string;
+  i: integer;
+  isFind, isEnd: boolean;
+  s, ss: string;
+begin
+  PacketJava.fFindProc();    //ищем процедуры в исходнике пакетов
+  isFind:=false;
+  isEnd:=false;
+  strIndex:=PacketJava.GetStrIndex;
+  brkLeft:=0;
+  brkRigth:=0;
+  count:=0;
+  index:=0;
+  depth:=0; //глубина FOR, Switch, IF
+  s:='body=0';
+  //складываем на стек
+  PacketJava.fPush(brkLeft, brkRigth, count, index);
+  PacketJava.fPush1(s);
+  //главный цикл трансляции
+  while (PacketJava.GetStrIndex < PacketJava.Count-1) and (PosInPkt<size+10) do
+  begin
+    strIndex:=PacketJava.GetStrIndex;
+    text:=PacketJava.GetString(PacketJava.GetStrIndex);
+    PacketJava.ParseString;
+    if PacketJava.CountToken()>0 then
+    begin
+      //обрабатываем byte[]
+      if PacketJava.FindToken('byte') <> -1 then
+        PacketJava.fByte();
+      s:=PacketJava.GetString(strIndex);
+      if (Pos('=',s)>0) then
+      begin
+        PacketJava.fMove();
+      end;
+      //ищем место где расположена расшифровка пакета
+      if (PacketJava.FindToken('writeimpl') <> -1) OR
+         (PacketJava.FindToken('readimpl') <> -1) then
+      begin
+        s:='impl=0';
+        //складываем на стек
+        PacketJava.fPush(brkLeft, brkRigth, count, index);
+        PacketJava.fPush1(s);
+        while (PacketJava.GetStrIndex < PacketJava.Count-1) and (not isEnd) do // and (PosInPkt<size+10) do
+        begin
+          brkLeft:=0;
+          brkRigth:=0;
+          count:=0;
+          index:=0;
+          depth:=0; //глубина FOR, Switch, IF
+          if PacketJava.CountToken()>0 then
+          begin
+            typ:='';
+            tmp:=PosInPkt;
+            //обрабатываем runImpl - выход
+            if PacketJava.FindToken('runimpl') <> -1 then
+                isEnd:=true;
+            //обрабатываем byte[]
+            if PacketJava.FindToken('byte') <> -1 then
+              PacketJava.fByte();
+            //WRITEQ
+            if PacketJava.FindToken('writeq') <> -1 then
+            begin
+              typ:='q';
+              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //WRITED
+            if PacketJava.FindToken('writed') <> -1 then
+            begin
+              typ:='d';
+              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //WRITEH
+            if PacketJava.FindToken('writeh') <> -1 then
+            begin
+              typ:='h';
+              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //WRITED
+            if PacketJava.FindToken('writes') <> -1 then
+            begin
+              typ:='s';
+              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //WRITEC
+            if PacketJava.FindToken('writec') <> -1 then
+            begin
+              //пропустим WriteC
+              if SkipID then
+              begin
+                SkipID:=false;
+              end
+              else
+              begin
+                typ:='c';
+                PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end;
+            end else
+            //WRITEB
+            if PacketJava.FindToken('writeb') <> -1 then
+            begin
+              typ:='-';
+              PacketJava.fWriteB(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //WRITEF
+            if PacketJava.FindToken('writef') <> -1 then
+            begin
+              if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                typ:='n'
+              else
+                typ:='f';
+              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //==============================================================
+            //READQ
+            if PacketJava.FindToken('readq') <> -1 then
+            begin
+              typ:='q';
+              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //READD
+            if PacketJava.FindToken('readd') <> -1 then
+            begin
+              typ:='d';
+              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //READH
+            if PacketJava.FindToken('readh') <> -1 then
+            begin
+              typ:='h';
+              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //READC
+            if PacketJava.FindToken('readc') <> -1 then
+            begin
+              typ:='c';
+              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //READS
+            if PacketJava.FindToken('reads') <> -1 then
+            begin
+              typ:='s';
+              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //READB
+            if PacketJava.FindToken('readb') <> -1 then
+            begin
+              typ:='-';
+              PacketJava.fReadB(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+            //READF
+            if PacketJava.FindToken('readf') <> -1 then
+            begin
+              if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                typ:='n'
+              else
+                typ:='f';
+              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+            end else
+//-->
+            //IF
+            if PacketJava.FindToken('if') <> -1 then
+            begin
+              brkLeft:=PacketJava.GetStrIndex; //начало тела
+              brkRigth:=brkLeft;           //конец тела
+              if PacketJava.fIf(brkLeft, brkRigth, count) then   //что то надо делать
+              begin
+                PacketJava.SetStrIndex(brkLeft); //начнем с начала
+                strIndex:=PacketJava.GetStrIndex;
+                text:=PacketJava.GetString(strIndex);
+                //внутри IF
+                inc(depth);
+                s:='if='+inttostr(depth);
+                //складываем на стек
+                PacketJava.fPush(brkLeft, brkRigth, count, index);
+                PacketJava.fPush1(s);
+              end
+              else //ничего не делаем
+              begin
+                PacketJava.SetStrIndex(brkRigth); //пропускаем
+                strIndex:=PacketJava.GetStrIndex;
+                text:=PacketJava.GetString(strIndex);
+              end;
+            end else
+//-->
+            //если вдруг нашли ELSE, то пропускаем всю ветку
+            if PacketJava.FindToken('else') <> -1 then
+            begin
+              brkLeft:=PacketJava.GetStrIndex; //начало тела
+              brkRigth:=brkLeft;           //конец тела
+//              isIf:=PacketJava.fElse(brkLeft, brkRigth, count);
+              PacketJava.SetStrIndex(brkRigth); //пропускаем
+              strIndex:=PacketJava.GetStrIndex;
+              text:=PacketJava.GetString(strIndex);
+            end else
+//-->
+            //SWITCH
+            if PacketJava.FindToken('switch') <> -1 then
+            begin
+              brkLeft:=PacketJava.GetStrIndex; //начало тела
+              brkRigth:=brkLeft;           //конец тела
+              PacketJava.fSwitch(brkLeft, brkRigth, count);
+              PacketJava.SetStrIndex(brkLeft); //начнем с начала
+              strIndex:=PacketJava.GetStrIndex;
+              text:=PacketJava.GetString(strIndex);
+              //внутри switch
+              inc(depth);
+              s:='switch='+inttostr(depth);
+              //складываем на стек
+              PacketJava.fPush(brkLeft, brkRigth, count, index);
+              PacketJava.fPush1(s);
+            end else
+            //CASE
+            if PacketJava.FindToken('case') <> -1 then
+            begin
+              //сняли со стека
+              PacketJava.fPop1(s);
+              PacketJava.fPop(brkLeft, brkRigth, count, index);
+              PacketJava.fCase(brkLeft, brkRigth, count);
+              //складываем на стек
+              PacketJava.fPush(brkLeft, brkRigth, count, index);
+              PacketJava.fPush1(s);
+            end else
+            //break
+            if PacketJava.FindToken('break') <> -1 then
+            begin
+              //сняли со стека
+              PacketJava.fPop1(s);
+              PacketJava.fPop(brkLeft, brkRigth, count, index);
+              PacketJava.SetStrIndex(brkRigth); //в конец switch
+            end else
+//-->
+            //FOR
+            if PacketJava.FindToken('for') <> -1 then
+            begin
+              brkLeft:=PacketJava.GetStrIndex; //начало тела
+              brkRigth:=brkLeft;           //конец тела
+              PacketJava.fFor(brkLeft, brkRigth, count);
+              //mask
+              if count>32767 then
+//                count:=(count XOR $FFFF)+1;
+                count:=(-1*count) AND $FFFF;
+
+              if (count>0) and (not PacketJava.fEmptyFor(brkLeft, brkRigth)) then
+              begin
+                PacketJava.SetStrIndex(brkLeft); //начнем цикл с начала
+                //внутри цикла
+                inc(depth);
+                s:='for='+inttostr(depth);
+                index:=1;
+                //складываем на стек
+                PacketJava.fPush(brkLeft, brkRigth, count, index);
+                PacketJava.fPush1(s);
+              end;
+              strIndex:=PacketJava.GetStrIndex;
+              text:=PacketJava.GetString(strIndex);
+              //иначе продолжим после цикла
+              //PacketJava.ClearKeywords; //почистим
+            end else
+            //{
+            if PacketJava.FindToken('{') <> -1 then
+            begin
+              //сняли со стека
+              PacketJava.fPop1(s);
+              //сняли со стека
+              PacketJava.fPop(brkLeft, brkRigth, count, index);
+              if (Pos('for',s)>0) then
+              begin
+                rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Начало повторяющегося блока ' *) ), 0, 0);
+                rvDescryption.AddNL(inttostr(index)+'/'+inttostr(count), 1, -1);
+                rvDescryption.AddNL(']', 0, -1);
+              end;
+//              if (Pos('if',s)>0) then
+//              if (Pos('switch', s)>0) then
+              //складываем на стек
+              PacketJava.fPush(brkLeft, brkRigth, count, index);
+              PacketJava.fPush1(s);
+            end else
+            //}
+            if PacketJava.FindToken('}') <> -1 then
+            begin
+              //сняли со стека
+              PacketJava.fPop1(s);
+              i:=Pos('=',s)+1;
+              ss:=copy(s,i,length(s)-Pos('=',s));
+              depth:=strtoint(ss);
+              //сняли со стека
+              PacketJava.fPop(brkLeft, brkRigth, count, index);
+              //============
+              //FOR
+              if (Pos('for',s)>0) then
+              begin
+                rvDescryption.AddNL('              '+lang.GetTextOrDefault('endb' (* '[Конец повторяющегося блока ' *) ), 0, 0);
+                rvDescryption.AddNL(inttostr(index)+'/'+inttostr(count), 1, -1);
+                rvDescryption.AddNL(']', 0, -1);
+                if index<count then
+                begin
+                  inc(index); //:=index+1;
+                  PacketJava.SetStrIndex(brkLeft); //начнем цикл с начала
+                end else
+                  dec(depth);
+                s:='for='+inttostr(depth);
+                if depth>0 then
+                begin
+                  //складываем на стек
+                  PacketJava.fPush(brkLeft, brkRigth, count, index);
+                  PacketJava.fPush1(s);
+                end;
+              end else
+              //============
+              //IF
+              if (Pos('if',s)>0) then
+              begin
+                dec(depth);
+                s:='if='+inttostr(depth);
+                if depth>0 then
+                begin
+                  //складываем на стек
+                  PacketJava.fPush(brkLeft, brkRigth, count, index);
+                  PacketJava.fPush1(s);
+                end;
+              end else
+              //============
+              //SWITCH
+              if (Pos('switch',s)>0) then
+              begin
+                dec(depth);
+                s:='switch='+inttostr(depth);
+                if depth>0 then
+                begin
+                  //складываем на стек
+                  PacketJava.fPush(brkLeft, brkRigth, count, index);
+                  PacketJava.fPush1(s);
+                end;
+              end else
+              //============
+              //Proc
+              if (Pos('proc',s)>0) then
+              begin
+                PacketJava.SetStrIndex(brkRigth); //RETURN
+              end;
+            end else
+            begin
+//-->
+              //проверка на процедуру
+              brkLeft:=PacketJava.GetStrIndex; //начало тела
+              brkRigth:=brkLeft;           //конец тела
+              isFind:=PacketJava.fProcExec(brkLeft, brkRigth);
+              if isFind then   //что то надо делать
+              begin
+                PacketJava.SetStrIndex(brkLeft); //начнем с начала
+                strIndex:=PacketJava.GetStrIndex;
+                text:=PacketJava.GetString(strIndex);
+                s:='proc=0';
+                //складываем на стек
+                PacketJava.fPush(brkLeft, brkRigth, count, index);
+                PacketJava.fPush1(s);
+              end;
+//-->
+              //создаем переменные
+              s:=PacketJava.GetString(strIndex);
+              if (Pos('=',s)>0) then
+              begin
+                PacketJava.fMove();
+              end;
+            end;
+//-->
+            if typ<>'' then
+            begin
+//              if (tmp>size+10) then //проверка на выход за конец пакета
+//              begin
+//                PosInPkt:=size; //печатаем до конца пакета и на выход
+//                fParseJ();
+//                isEnd:=true;
+//                PosInPkt:=tmp;
+//              end else
+              begin
+                PosInPkt:=tmp; //печатаем в обычном порядке
+                fParseJ();
+              end;
+              //здесь вызывать Get.ItemID  и т.д. value:=GetSkill(strtoint(value))
+              //...
+              if (PacketJava.FindToken('skillid') <> -1)
+                  OR (PacketJava.FindToken('spellid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                  value:=GetSkillAion(strtoint(value))
+                else
+                  value:=GetSkill(strtoint(value));
+              end else
+              if (PacketJava.FindToken('msgid') <> -1)
+                  OR (PacketJava.FindToken('messageid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                begin
+                  text:=GetMsgIDA(strtoint(value));
+                  if (Pos('Unkn', text)>0) then
+                    text:=GetFuncStrAion(strtoint(value));
+                  value:=text;
+                end
+                else
+                  value:=GetMsgID(strtoint(value));
+              end else
+              if (PacketJava.FindToken('classid') <> -1)
+                  OR (PacketJava.FindToken('racesex') <> -1)
+                  OR (PacketJava.FindToken('mapid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                  value:=GetClassIDAion(strtoint(value))
+                else
+                  value:=GetClassID(strtoint(value));
+              end else
+              if (PacketJava.FindToken('templateid') <> -1)
+                  OR (PacketJava.FindToken('recipeid') <> -1)
+                  OR (PacketJava.FindToken('itemid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                  value:=GetFunc01Aion(strtoint(value))
+                else
+                  value:=GetFunc01(strtoint(value));
+              end else
+              if (PacketJava.FindToken('npcid') <> -1)
+                  //OR (PacketJava.FindToken('_npcid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                  //value:=GetNpcIDA(strtoint(value))
+                else
+                  value:=GetNpcID(strtoint(value))
+              end else
+              if (PacketJava.FindToken('actionid') <> -1)
+                  //OR (PacketJava.FindToken('actionid') <> -1)
+                  //OR (PacketJava.FindToken('getactionid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                  //value:=GetF9(strtoint(value))
+                else
+                  value:=GetF9(strtoint(value))
+              end else
+              if (PacketJava.FindToken('attrid') <> -1)
+                  //OR (PacketJava.FindToken('_attrid') <> -1)
+                  //OR (PacketJava.FindToken('getattrid') <> -1)
+                  then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+                  //value:=GetFsup(strtoint(value))
+                else
+                  value:=GetFsup(strtoint(value))
+              end;
+              //
+//              if (PosInPkt<size+10) then
+                addToDescr(offset, typ, name_, value+hexvalue);
+            end;
+          end;
+          strIndex:=PacketJava.GetStrIndex;
+          text:=PacketJava.GetString(PacketJava.GetStrIndex);
+          PacketJava.ParseString;
+          if (PosInPkt>size+10) then
+            isEnd:=true;
+        end;
+      end;
+    end;
+  end;
+end;
+//=======================================================================
+procedure TfPacketView.InterpretatorJava(PacketName, Packet: string; size: word = 0);
+var
+  PacketJava : TJavaParser;
+  FromServer, SkipID: boolean;
+begin
+  //считываем packets.ini
+  //по opcode находим PacketName
+  PacketJava := TJavaParser.Create;
+
+  FuncParamNames := TStringList.Create;
+  FuncParamTypes := TStringList.Create;
+  FuncParamNumbers := TStringList.Create;
+  FuncNames := TStringList.Create;
+  SkipId:=false; //ID не пропускаем
+  try
+    //строка пакета
+    PktStr := HexToString(Packet);
+    if Length(PktStr)<12 then Exit;
+    FromServer:=(PktStr[1] = #03);
+
+    Move(PktStr[2],ptime,8);
+    if size = 0 then
+      Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10])
+    else
+      ptime := now;
+    //делаем видимой во внешних функциях
+    wSize:=size;
+    if (GlobalProtocolVersion=AION)then // для Айон 2.1 - 2.6
+    begin
+      cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+      wSubID:=0;   //не требуется
+      wSub2ID:=0;   //не требуется
+    end
+    else
+    if (GlobalProtocolVersion=AION27)then // для Айон 2.7 двухбайтные ID
+    begin
+      cID:=Byte(PktStr[12]);                    //в cID - ID пакета при однобайтном ID
+      wSubID:=Word(Byte(PktStr[13]) shl 8 + cID); //в wSubId - ID пакета при двухбайтном ID
+      wSub2ID:=0;   //не требуется
+    end
+    else //для Lineage II
+    begin
+      if wSize=3 then
+      begin
+        cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+        wSubID:=0;    //пакет закончился, пишем в subid 0
+        wSub2ID:=0;   //не требуется
+      end
+      else
+      begin
+        if FromServer {PktStr[1]=#04} then
+        begin      //client  04,
+          cID:=Byte(PktStr[13]); //учитываем трех байтное ID в wSub2ID
+          wSub2ID:=Word(cID shl 8+Byte(PktStr[14]));
+          cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+          wSubID:=Word(cID shl 8+Byte(PktStr[13])); //учитываем двух байтное ID в wSubID
+        end
+        else  //сервер  03, учитываем двух и четырех байтное ID
+        begin
+          cID:=Byte(PktStr[12]); //фактическое начало пакета, ID
+          if wSize=3 then
+          begin
+              wSubID:=0;    //пакет закончился, пишем в subid 0
+              wSub2ID:=0;    //пакет закончился, пишем в subid 0
+          end
+          else
+          begin
+            cID:=Byte(PktStr[14]); //фактическое начало SUB2ID
+            wSub2ID:=Word(cID shl 8+Byte(PktStr[15])); //считываем Sub2Id
+            cID:=Byte(PktStr[12]);                   //фактическое начало пакета, ID
+            wSubID:=Word(cID shl 8+Byte(PktStr[13])); //считываем SubId
+          end;
+        end;
+      end;
+    end;
+
+    currentpacket := StringToHex(copy(PktStr, 12, length(PktStr)-11),' ');
+
+    rvHEX.Clear;
+    rvDescryption.Clear;
+    rvFuncs.Clear;
+
+    GetPacketName(cID, wSubID, wSub2ID, (PktStr[1]=#03), PacketName, isshow);
+    //считываем описание пакета
+    if (GlobalProtocolVersion=AION) then // для Айон 2.1 - 2.6
+    begin
+      if PktStr[1]=#03 then //server
+        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion\serverpackets\'+LowerCase(PacketName)+'.java')
+      else    //client
+        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=AION27) then // для Айон 2.7
+    begin
+      if PktStr[1]=#03 then //server
+        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion27\serverpackets\'+LowerCase(PacketName)+'.java')
+      else    //client
+        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion27\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion>Aion27) AND  (GlobalProtocolVersion<interlude) then // для C4, C5
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\c4\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\c4\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=interlude) then // для Interlude
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\interlude\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\interlude\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=Gracia) then // для Gracia
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\gracia\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\gracia\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=GraciaFinal) then // для GraciaFinal
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\graciafinal\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\graciafinal\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=GraciaEpilogue) then // для GraciaEpilogue
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\graciaepilogue\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\graciaepilogue\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=HighFive) then // для HighFive
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\HighFive\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\HighFive\clientpackets\'+LowerCase(PacketName)+'.java');
+    end else
+    if (GlobalProtocolVersion=GoD) then // для GoD
+    begin
+      if PktStr[1]=#03 then   //server
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\god\serverpackets\'+LowerCase(PacketName)+'.java')
+      else   //client
+        PacketJava.LoadFromFile(AppPath+'.\settings\packets.ini\god\clientpackets\'+LowerCase(PacketName)+'.java');
+    end;
+
+    Label1.Caption:=lang.GetTextOrDefault('IDS_109' (* 'Выделенный пакет: тип - 0x' *) )+IntToHex(cID, 2)+', '+PacketName+lang.GetTextOrDefault('size' (* ', размер - ' *) )+IntToStr(wSize);
+    //смещение в pkt
+    PosInPkt:=13;
+    //начинаем разбирать пакет по заданному в packets.ini формату
+    //Добавляем тип
+    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_121' (* 'Tип: ' *) ), 11, 0);
+    if ((GlobalProtocolVersion=AION27) and (wSubId<>0))then // для Айон 2.7 двухбайтные ID
+      rvDescryption.AddNLTag('0x'+IntToHex(wSubId, 4), 0, -1, 1)
+    else
+      rvDescryption.AddNLTag('0x'+IntToHex(cID, 2), 0, -1, 1);
+    rvDescryption.AddNL(' (', 0, -1);
+    rvDescryption.AddNL(PacketName, 1, -1);
+    rvDescryption.AddNL(')', 0, -1);
+    //добавляем размер и время
+    rvDescryption.AddNL(lang.GetTextOrDefault('size2' (* 'Pазмер: ' *) ), 0, 0);
+    rvDescryption.AddNL(IntToStr(wSize-2), 1, -1);
+    rvDescryption.AddNL('+2', 2, -1);
+
+    rvDescryption.AddNL(lang.GetTextOrDefault('IDS_126' (* 'Время прихода: ' *) ), 0, 0);
+    rvDescryption.AddNL(FormatDateTime('hh:nn:ss:zzz',ptime), 1, -1);
+
+    itemTag := 0;
+    templateindex := 11;
+    if ((GlobalProtocolVersion=AION27) and (wSubId<>0))then // для Айон 2.7 двухбайтные ID
+    begin
+      addtoHex(StringToHex(copy(pktstr, 12, 2),' '));
+      inc(PosInPkt);
+    end
+    else
+      addtoHex(StringToHex(copy(pktstr, 12, 1),' '));
+    itemTag := 1;
+
+    //PktStr - пакет
+    //PosInPkt - смещение в пакете
+    try
+      blockmask := '';
+      //в Айоне во всех пакетах идет h(id2), которого в исходниках нет, поэтому добавим это сами
+//      if ((GlobalProtocolVersion<CHRONICLE4))then // для Айон
+      if ((GlobalProtocolVersion<CHRONICLE4) and (wSubID=0))then // для Айон и однобайтный ID
+      begin
+        typ:='h';
+        name_:='id2';
+        fParseJ();  //печатаем HEX строку
+        addToDescr(offset, typ, name_, value+hexvalue); //подробная расшифровка
+        typ:='';
+        name_:='';
+      end
+      else // двухбайтный ID
+      begin
+        typ:='c';
+        name_:='static';
+        fParseJ();  //печатаем HEX строку
+        addToDescr(offset, typ, name_, value+hexvalue); //подробная расшифровка
+        typ:='h';
+        name_:='id2';
+        fParseJ();  //печатаем HEX строку
+        addToDescr(offset, typ, name_, value+hexvalue); //подробная расшифровка
+        typ:='';
+        name_:='';
+      end;
+      //LineageII в серверных пакетах в исходнике есть сведения об c(ID) его надо игнорировать
+      if (GlobalProtocolVersion>Aion27) and FromServer then // для LineageII
+      begin
+        //смещение в pkt
+        SkipID:=true;
+      end;
+//-->>
+      InterpretJava(PacketJava, SkipID, PktStr, PosInPkt, typ, name_, value, hexvalue, size);
+//-->>
+      oldpos := PosInPkt;
+      PosInPkt := wSize + 10;
+      if PosInPkt - oldpos > 0 then    //допечатываем остаток не разобранного кода
+        addtoHex(StringToHex(copy(pktstr, oldpos, PosInPkt - oldpos),' '));
+
+      if blockmask <> '' then
+        PrintFuncsParams('Pck'+PacketName);
+
+      rvHEX.FormatTail;
+      rvFuncs.FormatTail;
+      rvDescryption.FormatTail;
+    except
+        //ошибка при распознании пакета
+    end;
+  finally
+    FuncParamNames.Destroy;
+    FuncParamTypes.Destroy;
+    FuncParamNumbers.Destroy;
+    FuncNames.Destroy;
+    ////////////////////////////////////////////////////////
+    PacketJava.Destroy;
+  end;
+end;
+//******************************************************************************
+//******************************************************************************
 //=======================================================================
 procedure TfPacketView.ParsePacket(PacketName, Packet: string; size: word = 0);
 begin
@@ -1037,7 +1777,7 @@ begin
     if Length(PktStr)<12 then Exit;
     Move(PktStr[2],ptime,8);
     if size = 0 then
-      Size:=Word(Byte(PktStr[11]) shl 8 + Byte(PktStr[10]))
+      Size:=Word(Byte(PktStr[11]) shl 8)+Byte(PktStr[10])
     else
       ptime := now;
     //делаем видимой во внешних функциях
@@ -1286,7 +2026,7 @@ begin
     FuncNames.Destroy;
   end;
 end;
-
+//==============================================================================
 procedure TfPacketView.rvHEXMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin

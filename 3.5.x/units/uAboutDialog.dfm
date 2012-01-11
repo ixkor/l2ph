@@ -409,8 +409,6 @@ object fAbout: TfAbout
     ParentFont = False
     WordWrap = True
     OnClick = Label3Click
-    ExplicitLeft = 194
-    ExplicitWidth = 135
   end
   object AboutMemo: TMemo
     Left = 100

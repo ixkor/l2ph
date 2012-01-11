@@ -22,8 +22,6 @@ object fScript: TfScript
     Width = 5
     Height = 416
     Align = alRight
-    ExplicitLeft = 547
-    ExplicitHeight = 412
   end
   object Instruction: TJvLabel
     Left = 0
@@ -53,8 +51,6 @@ object fScript: TfScript
     HotTrackFont.Height = -13
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
-    ExplicitWidth = 547
-    ExplicitHeight = 412
   end
   object StatusBar: TStatusBar
     Left = 0
@@ -64,8 +60,6 @@ object fScript: TfScript
     Panels = <>
     SimplePanel = True
     OnClick = ScriptsListVisualClick
-    ExplicitTop = 460
-    ExplicitWidth = 721
   end
   object JvTabBar1: TJvTabBar
     Left = 0
@@ -80,8 +74,6 @@ object fScript: TfScript
     OnTabClosed = JvTabBar1TabClosed
     OnTabSelected = JvTabBar1TabSelected
     OnClick = ScriptsListVisualClick
-    ExplicitTop = 437
-    ExplicitWidth = 721
   end
   object ToolBar2: TToolBar
     Left = 0
@@ -91,7 +83,6 @@ object fScript: TfScript
     EdgeBorders = [ebBottom]
     Images = imgBT
     TabOrder = 2
-    ExplicitWidth = 721
     object btnNew: TToolButton
       Left = 0
       Top = 2
@@ -265,8 +256,6 @@ object fScript: TfScript
     Height = 416
     Align = alRight
     TabOrder = 3
-    ExplicitLeft = 552
-    ExplicitHeight = 412
     object Panel9: TPanel
       Left = 1
       Top = 1
