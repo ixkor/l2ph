@@ -262,8 +262,8 @@ begin
   ClientStringsAion.Clear;
   ItemsListAion.Clear;
   //загружаем только нужные файлы
-  if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
-  begin
+  if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон 2.1 - 2.7
+  begin  //дл€ јйон
     if fMain.lang.Language='Eng' then
     begin   //английские версии
       SysMsgIdListAion.LoadFromFile(AppPath+'settings\en\SysMsgidAion.ini');
@@ -363,6 +363,7 @@ begin
   end;
 end;
 
+//превращаем HEX строку символов в набор цифр
 function HexToString(Hex : String) : String;
 var
   buf : String;
@@ -655,9 +656,9 @@ begin
           result := true;
         end;
       end
-      else   // дл€ LineageII
+      else
       begin
-        if (GlobalProtocolVersion>AION27)then
+        if (GlobalProtocolVersion>AION27)then // дл€ LineageII
         begin  //server four ID packets: c(ID)h(subID)h(sub2ID)
           if (subid=$FE97) or (subid=$FE98) or (subid=$FEB7) then
           begin
@@ -674,37 +675,37 @@ begin
               isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
               result := true;
             end;
-          end
-          else
+          end;
+        end
+        else
+        begin
+          if id=$FE then //server two ID packets: c(ID)h(subID)
           begin
-            if id=$FE then //server two ID packets: c(ID)h(subID)
+            //находим индекс пакета
+            i := PacketsFromS.IndexOfName(IntToHex(subid, 4));
+            if i=-1 then
             begin
-              //находим индекс пакета
-              i := PacketsFromS.IndexOfName(IntToHex(subid, 4));
-              if i=-1 then
-              begin
-                //неизвестный пакет от сервера
-                pname := 'Unknown'+IntToHex(subid, 4);
-              end
-              else
-              begin
-                pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
-                isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
-                result := true;
-              end;
+              //неизвестный пакет от сервера
+              pname := 'Unknown'+IntToHex(subid, 4);
             end
-            else  //server one ID packets: c(ID)
+            else
             begin
-              subid := 0;
-              i := PacketsFromS.IndexOfName(IntToHex(id, 2));
-              if i=-1 then
-                pname := 'Unknown'+IntToHex(id, 2)
-              else
-              begin
-                pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
-                isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
-                result := true;
-              end;
+              pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+              isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
+              result := true;
+            end;
+          end
+          else  //server one ID packets: c(ID)
+          begin
+            subid := 0;
+            i := PacketsFromS.IndexOfName(IntToHex(id, 2));
+            if i=-1 then
+              pname := 'Unknown'+IntToHex(id, 2)
+            else
+            begin
+              pname := fPacketFilter.ListView1.Items.Item[i].SubItems[0];
+              isshow := fPacketFilter.ListView1.Items.Item[i].Checked;
+              result := true;
             end;
           end;
         end;

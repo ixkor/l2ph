@@ -588,6 +588,7 @@ begin
   and (sMethodName <> 'WRITEMASK')
   and (sMethodName <> 'READMASK')
   then
+  // даём возможность плагинам обработать функции
   for i:=0 to Plugins.Count - 1 do
     with TPlugin(Plugins.Items[i]) do
       if Loaded and Assigned(OnCallMethod) then

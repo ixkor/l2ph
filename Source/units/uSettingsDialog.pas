@@ -35,6 +35,7 @@ type
     rgProtocolVersion: TRadioGroup;
     GroupBox1: TGroupBox;
     ChkNoDecrypt: TCheckBox;
+    ChkChangeParser: TCheckBox;
     ChkAion: TCheckBox;
     ChkKamael: TCheckBox;
     ChkGraciaOff: TCheckBox;
@@ -99,6 +100,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure iInjectClick(Sender: TObject);
     procedure isLSPChange(Sender: TObject);
+    procedure ChkNoDecryptClick(Sender: TObject);
     procedure ChkAionClick(Sender: TObject);
     procedure rgProtocolVersionClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -158,6 +160,7 @@ begin
   isIgnorePorts.Text:=Options.ReadString('General','IgnorPorts','7777;');
 
   ChkNoDecrypt.Checked:=Options.ReadBool('General','NoDecrypt',False);
+  ChkChangeParser.Checked:=Options.ReadBool('General','ChangeParser',False);
   ChkAion.Checked:=Options.ReadBool('General','ChkAion',False);
   chkIgnoseClientToServer.Checked:=Options.ReadBool('General','IgnoseClientToServer',False);
   chkIgnoseServerToClient.Checked:=Options.ReadBool('General','IgnoseServerToClient',False);
@@ -259,11 +262,12 @@ begin
   with GlobalSettings do begin
     //oldProto := GlobalProtocolVersion;
     isNoDecrypt := ChkNoDecrypt.Checked;
+    isChangeParser := ChkChangeParser.Checked;
 //    isAionTwoId := ChkAion.Checked;
     isGraciaOff := ChkGraciaOff.Checked;
     isKamael := ChkKamael.Checked;
     // isAION=true, если выбрали AION 2.1-2.6 или AION 2.7
-    isAION := ChkAion.Checked;;
+    isAION := ChkAion.Checked;
 //    isAION := (rgProtocolVersion.ItemIndex=0) or (rgProtocolVersion.ItemIndex=1);
     isNoProcessToClient := chkIgnoseServerToClient.Checked;
     isNoProcessToServer := chkIgnoseClientToServer.Checked;
@@ -341,6 +345,7 @@ begin
   Options.WriteString('General','Clients', isClientsList.Text);
   Options.WriteString('General','IgnorPorts', isIgnorePorts.Text);
   Options.WriteBool('General','NoDecrypt', ChkNoDecrypt.Checked);
+  Options.WriteBool('General','ChangeParser', ChkChangeParser.Checked);
   Options.WriteBool('General','ChkAion', ChkAion.Checked);
   Options.WriteBool('General','IgnoseClientToServer', chkIgnoseClientToServer.Checked);
   Options.WriteBool('General','IgnoseServerToClient', chkIgnoseServerToClient.Checked);
@@ -586,6 +591,12 @@ begin
   dmData.LSPControl.PathToLspModule := isLSP.Text;
 end;
 
+procedure TfSettings.ChkNoDecryptClick(Sender: TObject);
+begin
+  if not InterfaceEnabled then exit;
+//  GenerateSettingsFromInterface;
+end;
+
 procedure TfSettings.ChkAionClick(Sender: TObject);
 begin
   if not InterfaceEnabled then exit;
@@ -613,9 +624,10 @@ begin
   //если Айон 2.1 или Айон 2.5, то отключаем
   ChkKamael.Enabled:=((rgProtocolVersion.ItemIndex <> 0) and (rgProtocolVersion.ItemIndex <> 1)); //AION
   ChkGraciaOff.Enabled:=ChkKamael.Enabled;
+  ChkChangeParser.Enabled:=true;
   //
-  ChkAion.Enabled:=((rgProtocolVersion.ItemIndex = 0) or (rgProtocolVersion.ItemIndex = 1)); //AION v2.7
-  ChkAion.Checked:=((rgProtocolVersion.ItemIndex = 0) or (rgProtocolVersion.ItemIndex = 1)); //AION v2.7
+  ChkAion.Enabled:=((rgProtocolVersion.ItemIndex = 0) or (rgProtocolVersion.ItemIndex = 1)); //AION
+  ChkAion.Checked:=((rgProtocolVersion.ItemIndex = 0) or (rgProtocolVersion.ItemIndex = 1)); //AION
   //
 //  if InterfaceEnabled then GenerateSettingsFromInterface;
 end;

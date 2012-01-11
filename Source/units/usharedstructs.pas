@@ -13,7 +13,7 @@ type
 
   TEncDecSettings =
   record
-    //isAionTwoId,
+    isChangeParser,
     isNoDecrypt,
     isNoProcessToClient,
     isNoProcessToServer,

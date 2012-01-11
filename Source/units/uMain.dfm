@@ -40,8 +40,6 @@ object fMain: TfMain
     HotTrackFont.Height = -19
     HotTrackFont.Name = 'MS Sans Serif'
     HotTrackFont.Style = []
-    ExplicitWidth = 792
-    ExplicitHeight = 585
   end
   object StatusBar1: TStatusBar
     Left = 0

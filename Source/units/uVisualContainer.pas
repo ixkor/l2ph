@@ -154,7 +154,7 @@ type
     hScriptThread, idScriptThread: cardinal;
     Edit:tfscripteditor;
   public
-    PacketView: tfPacketView;  
+    PacketView: tfPacketView;
     dump, dumpacumulator, dumpRegBuf: TStringList;
     hexvalue: string; //дл€ вывода HEX в расшифровке пакетов
     currenttunel, currentLSP, CurrentTpacketLog : Tobject;
@@ -472,7 +472,11 @@ begin
     begin
       EnableBtns;
       sid := StrToIntDef(ListView5.Selected.SubItems.strings[0],0);
-      PacketView.ParsePacket(ListView5.Selected.Caption, Dump.Strings[sid]);
+      if GlobalSettings.isChangeParser then
+        //java
+        PacketView.InterpretatorJava(ListView5.Selected.Caption, Dump.Strings[sid])
+      else
+        PacketView.ParsePacket(ListView5.Selected.Caption, Dump.Strings[sid]);
     end;
 end;
 
@@ -600,7 +604,7 @@ begin
     SubId:=Word(id shl 8+Byte(PktStr[13])); //считываем SubId
     if from=4 then begin
       //от клиента
-      if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
+      if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
       begin
           indx:=PacketsFromC.IndexOfName(IntToHex(id,2));
           if indx>-1 then fPacketFilter.ListView2.Items.Item[indx].Checked:=False;
@@ -615,7 +619,7 @@ begin
         end;
     end else begin
       //от сервера
-      if (GlobalProtocolVersion=AION)then // дл€ јйон 2.1 - 2.6
+      if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
       begin
           indx:=PacketsFromS.IndexOfName(IntToHex(id,2));
           if indx>-1 then fPacketFilter.ListView1.Items.Item[indx].Checked:=False;
@@ -778,13 +782,17 @@ begin
     PktStr:='0400000000000000000000'+PktStr
     else
     PktStr:='0300000000000000000000'+PktStr;
-  PacketView.ParsePacket('', PktStr, size);
+    if GlobalSettings.isChangeParser then
+    //java
+      PacketView.InterpretatorJava('', PktStr, size)
+    else
+      PacketView.ParsePacket('', PktStr, size);
 end;
 
 procedure TfVisual.Memo4KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-IDontknowHowToNameThis;
+  IDontknowHowToNameThis;
 end;
 
 procedure TfVisual.Memo4MouseUp(Sender: TObject; Button: TMouseButton;

@@ -1671,7 +1671,6 @@ object fMainReplacer: TfMainReplacer
     Height = 13
     Align = alBottom
     Caption = 'Starting'
-    ExplicitWidth = 36
   end
   object ActionList1: TActionList
     Left = 48
