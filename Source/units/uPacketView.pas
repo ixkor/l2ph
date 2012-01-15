@@ -1608,9 +1608,9 @@ begin
     if (GlobalProtocolVersion=AION) then // הכÿ ְימם 2.1 - 2.6
     begin
       if PktStr[1]=#03 then //server
-        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion\serverpackets\'+LowerCase(PacketName)+'.java')
+        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion21\serverpackets\'+LowerCase(PacketName)+'.java')
       else    //client
-        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion\clientpackets\'+LowerCase(PacketName)+'.java');
+        PacketJava.LoadFromFile(AppPath+'settings\packets.ini\aion21\clientpackets\'+LowerCase(PacketName)+'.java');
     end else
     if (GlobalProtocolVersion=AION27) then // הכÿ ְימם 2.7
     begin
