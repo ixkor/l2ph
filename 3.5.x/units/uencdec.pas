@@ -505,13 +505,14 @@ begin
         SetInitXORAfterEncode := true;
       end;
       // E4=sm_l2auth_login_check Aion 2.1
-      $E4:
+      $E4: if (GlobalProtocolVersion=AION) then
       begin
         CharName := WideStringToString(PWideChar(@Packet.Data[7]), 1251);
         //Получено имя соединения
         sendAction(TencDec_Action_GotName);
       end;
-      $E7:// 01E7=sm_l2auth_login_check Aion 2.7
+      // 01E7=sm_l2auth_login_check Aion 2.7
+      $E7: if (GlobalProtocolVersion=AION27) then
       begin
         CharName := WideStringToString(PWideChar(@Packet.Data[9]), 1251);
         //Получено имя соединения
