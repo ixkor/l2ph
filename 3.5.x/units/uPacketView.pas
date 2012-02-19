@@ -1052,7 +1052,7 @@ procedure TfPacketView.InterpretJava(PacketJava : TJavaParser; SkipID: boolean; 
 var
   strIndex, tmp : integer;
   brkLeft, brkRigth, count, index, depth : integer;
-  text: string;
+//  text: string;
   i: integer;
   isFind, isEnd: boolean;
   s, ss: string;
@@ -1071,21 +1071,23 @@ begin
   PacketJava.fPush(brkLeft, brkRigth, count, index);
   PacketJava.fPush1(s);
   //главный цикл трансл€ции
-  while (PacketJava.GetStrIndex < PacketJava.Count-1) and (PosInPkt<size+10) do
+  while (PacketJava.GetStrIndex < PacketJava.Count) and (PosInPkt<size+11) do
   begin
     strIndex:=PacketJava.GetStrIndex;
-    text:=PacketJava.GetString(PacketJava.GetStrIndex);
+//    text:=PacketJava.GetString(PacketJava.GetStrIndex);
     PacketJava.ParseString;
     if PacketJava.CountToken()>0 then
     begin
+      s:=PacketJava.GetString(strIndex);
       //обрабатываем byte[]
       if PacketJava.FindToken('byte') <> -1 then
-        PacketJava.fByte();
-      s:=PacketJava.GetString(strIndex);
+        PacketJava.fByte()
+      else
+      //обрабатываем присвоение в формуле
       if (Pos('=',s)>0) then
       begin
         PacketJava.fMove();
-      end;
+      end else
       //ищем место где расположена расшифровка пакета
       if (PacketJava.FindToken('writeimpl') <> -1) OR
          (PacketJava.FindToken('readimpl') <> -1) then
@@ -1094,8 +1096,9 @@ begin
         //складываем на стек
         PacketJava.fPush(brkLeft, brkRigth, count, index);
         PacketJava.fPush1(s);
-        while (PacketJava.GetStrIndex < PacketJava.Count-1) and (not isEnd) do // and (PosInPkt<size+10) do
+        while (PacketJava.GetStrIndex < PacketJava.Count) and (not isEnd) do // and (PosInPkt<size+10) do
         begin
+          s:=PacketJava.GetString(strIndex);
           brkLeft:=0;
           brkRigth:=0;
           count:=0;
@@ -1107,108 +1110,123 @@ begin
             tmp:=PosInPkt;
             //обрабатываем runImpl - выход
             if PacketJava.FindToken('runimpl') <> -1 then
-                isEnd:=true;
+                isEnd:=true
+            else
             //обрабатываем byte[]
             if PacketJava.FindToken('byte') <> -1 then
-              PacketJava.fByte();
-            //WRITEQ
-            if PacketJava.FindToken('writeq') <> -1 then
+              PacketJava.fByte()
+            else
+
+            //==============================================================
+            //обрабатываем WRITE
+            if (Pos('write', s)>0) then
             begin
-              typ:='q';
-              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //WRITED
-            if PacketJava.FindToken('writed') <> -1 then
-            begin
-              typ:='d';
-              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //WRITEH
-            if PacketJava.FindToken('writeh') <> -1 then
-            begin
-              typ:='h';
-              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //WRITED
-            if PacketJava.FindToken('writes') <> -1 then
-            begin
-              typ:='s';
-              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //WRITEC
-            if PacketJava.FindToken('writec') <> -1 then
-            begin
-              //пропустим WriteC
-              if SkipID then
+              //WRITEQ
+              if PacketJava.FindToken('writeq') <> -1 then
               begin
-                SkipID:=false;
-              end
-              else
+                typ:='q';
+                PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //WRITED
+              if PacketJava.FindToken('writed') <> -1 then
               begin
-                typ:='c';
+                typ:='d';
+                PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //WRITEH
+              if PacketJava.FindToken('writeh') <> -1 then
+              begin
+                typ:='h';
+                PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //WRITED
+              if PacketJava.FindToken('writes') <> -1 then
+              begin
+                typ:='s';
+                PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //WRITEC
+              if PacketJava.FindToken('writec') <> -1 then
+              begin
+                //пропустим WriteC
+                if SkipID then
+                begin
+                  SkipID:=false;
+                end
+                else
+                begin
+                  typ:='c';
+                  PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+                end;
+              end else
+              //WRITEB
+              if PacketJava.FindToken('writeb') <> -1 then
+              begin
+                typ:='-';
+                PacketJava.fWriteB(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //WRITEF
+              if PacketJava.FindToken('writef') <> -1 then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
+                  typ:='n'
+                else
+                  typ:='f';
                 PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
               end;
+//            end;
             end else
-            //WRITEB
-            if PacketJava.FindToken('writeb') <> -1 then
-            begin
-              typ:='-';
-              PacketJava.fWriteB(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //WRITEF
-            if PacketJava.FindToken('writef') <> -1 then
-            begin
-              if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
-                typ:='n'
-              else
-                typ:='f';
-              PacketJava.fWriteD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
+
             //==============================================================
-            //READQ
-            if PacketJava.FindToken('readq') <> -1 then
+            //обрабатываем READ
+            if (Pos('read', s)>0) then
             begin
-              typ:='q';
-              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //READD
-            if PacketJava.FindToken('readd') <> -1 then
-            begin
-              typ:='d';
-              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //READH
-            if PacketJava.FindToken('readh') <> -1 then
-            begin
-              typ:='h';
-              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //READC
-            if PacketJava.FindToken('readc') <> -1 then
-            begin
-              typ:='c';
-              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //READS
-            if PacketJava.FindToken('reads') <> -1 then
-            begin
-              typ:='s';
-              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //READB
-            if PacketJava.FindToken('readb') <> -1 then
-            begin
-              typ:='-';
-              PacketJava.fReadB(PktStr, PosInPkt, typ, name_, value, hexvalue);
-            end else
-            //READF
-            if PacketJava.FindToken('readf') <> -1 then
-            begin
-              if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
-                typ:='n'
-              else
-                typ:='f';
-              PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              //READQ
+              if PacketJava.FindToken('readq') <> -1 then
+              begin
+                typ:='q';
+                PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //READD
+              if PacketJava.FindToken('readd') <> -1 then
+              begin
+                typ:='d';
+                PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //READH
+              if PacketJava.FindToken('readh') <> -1 then
+              begin
+                typ:='h';
+                PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //READC
+              if PacketJava.FindToken('readc') <> -1 then
+              begin
+                typ:='c';
+                PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //READS
+              if PacketJava.FindToken('reads') <> -1 then
+              begin
+                typ:='s';
+                PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //READB
+              if PacketJava.FindToken('readb') <> -1 then
+              begin
+                typ:='-';
+                PacketJava.fReadB(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end else
+              //READF
+              if PacketJava.FindToken('readf') <> -1 then
+              begin
+                if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
+                  typ:='n'
+                else
+                  typ:='f';
+                PacketJava.fReadD(PktStr, PosInPkt, typ, name_, value, hexvalue);
+              end;
+//            end;
             end else
 //-->
             //IF
@@ -1220,7 +1238,7 @@ begin
               begin
                 PacketJava.SetStrIndex(brkLeft); //начнем с начала
                 strIndex:=PacketJava.GetStrIndex;
-                text:=PacketJava.GetString(strIndex);
+//                text:=PacketJava.GetString(strIndex);
                 //внутри IF
                 inc(depth);
                 s:='if='+inttostr(depth);
@@ -1232,7 +1250,7 @@ begin
               begin
                 PacketJava.SetStrIndex(brkRigth); //пропускаем
                 strIndex:=PacketJava.GetStrIndex;
-                text:=PacketJava.GetString(strIndex);
+//                text:=PacketJava.GetString(strIndex);
               end;
             end else
 //-->
@@ -1244,7 +1262,7 @@ begin
 //              isIf:=PacketJava.fElse(brkLeft, brkRigth, count);
               PacketJava.SetStrIndex(brkRigth); //пропускаем
               strIndex:=PacketJava.GetStrIndex;
-              text:=PacketJava.GetString(strIndex);
+//              text:=PacketJava.GetString(strIndex);
             end else
 //-->
             //SWITCH
@@ -1255,7 +1273,7 @@ begin
               PacketJava.fSwitch(brkLeft, brkRigth, count);
               PacketJava.SetStrIndex(brkLeft); //начнем с начала
               strIndex:=PacketJava.GetStrIndex;
-              text:=PacketJava.GetString(strIndex);
+//              text:=PacketJava.GetString(strIndex);
               //внутри switch
               inc(depth);
               s:='switch='+inttostr(depth);
@@ -1304,9 +1322,13 @@ begin
                 //складываем на стек
                 PacketJava.fPush(brkLeft, brkRigth, count, index);
                 PacketJava.fPush1(s);
+
+                rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Ќачало повтор€ющегос€ блока ' *) ), 0, 0);
+                rvDescryption.AddNL(inttostr(index)+'/'+inttostr(count), 1, -1);
+                rvDescryption.AddNL(']', 0, -1);
               end;
               strIndex:=PacketJava.GetStrIndex;
-              text:=PacketJava.GetString(strIndex);
+//              text:=PacketJava.GetString(strIndex);
               //иначе продолжим после цикла
               //PacketJava.ClearKeywords; //почистим
             end else
@@ -1317,14 +1339,14 @@ begin
               PacketJava.fPop1(s);
               //сн€ли со стека
               PacketJava.fPop(brkLeft, brkRigth, count, index);
-              if (Pos('for',s)>0) then
-              begin
-                rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Ќачало повтор€ющегос€ блока ' *) ), 0, 0);
-                rvDescryption.AddNL(inttostr(index)+'/'+inttostr(count), 1, -1);
-                rvDescryption.AddNL(']', 0, -1);
-              end;
-//              if (Pos('if',s)>0) then
-//              if (Pos('switch', s)>0) then
+//              if (Pos('for',s)>0) then
+//              begin
+//                rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Ќачало повтор€ющегос€ блока ' *) ), 0, 0);
+//                rvDescryption.AddNL(inttostr(index)+'/'+inttostr(count), 1, -1);
+//                rvDescryption.AddNL(']', 0, -1);
+//              end;
+///              if (Pos('if',s)>0) then
+///              if (Pos('switch', s)>0) then
               //складываем на стек
               PacketJava.fPush(brkLeft, brkRigth, count, index);
               PacketJava.fPush1(s);
@@ -1350,6 +1372,11 @@ begin
                 begin
                   inc(index); //:=index+1;
                   PacketJava.SetStrIndex(brkLeft); //начнем цикл с начала
+
+                  rvDescryption.AddNL('              '+lang.GetTextOrDefault('startb' (* '[Ќачало повтор€ющегос€ блока ' *) ), 0, 0);
+                  rvDescryption.AddNL(inttostr(index)+'/'+inttostr(count), 1, -1);
+                  rvDescryption.AddNL(']', 0, -1);
+
                 end else
                   dec(depth);
                 s:='for='+inttostr(depth);
@@ -1403,7 +1430,7 @@ begin
               begin
                 PacketJava.SetStrIndex(brkLeft); //начнем с начала
                 strIndex:=PacketJava.GetStrIndex;
-                text:=PacketJava.GetString(strIndex);
+//                text:=PacketJava.GetString(strIndex);
                 s:='proc=0';
                 //складываем на стек
                 PacketJava.fPush(brkLeft, brkRigth, count, index);
@@ -1448,10 +1475,10 @@ begin
               begin
                 if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
                 begin
-                  text:=GetMsgIDA(strtoint(value));
-                  if (Pos('Unkn', text)>0) then
-                    text:=GetFuncStrAion(strtoint(value));
-                  value:=text;
+                  s:=GetMsgIDA(strtoint(value));
+                  if (Pos('Unkn', s)>0) then
+                    s:=GetFuncStrAion(strtoint(value));
+                  value:=s;
                 end
                 else
                   value:=GetMsgID(strtoint(value));
@@ -1513,7 +1540,7 @@ begin
           strIndex:=PacketJava.GetStrIndex;
           text:=PacketJava.GetString(PacketJava.GetStrIndex);
           PacketJava.ParseString;
-          if (PosInPkt>size+10) then
+          if (PosInPkt>size+11) then
             isEnd:=true;
         end;
       end;
@@ -1707,27 +1734,30 @@ begin
       blockmask := '';
       //в јйоне во всех пакетах идет h(id2), которого в исходниках нет, поэтому добавим это сами
 //      if ((GlobalProtocolVersion<CHRONICLE4))then // дл€ јйон
-      if ((GlobalProtocolVersion<CHRONICLE4) and (wSubID=0))then // дл€ јйон и однобайтный ID
+      if (GlobalProtocolVersion<CHRONICLE4) then // дл€ јйон и однобайтный ID
       begin
-        typ:='h';
-        name_:='id2';
-        fParseJ();  //печатаем HEX строку
-        addToDescr(offset, typ, name_, value+hexvalue); //подробна€ расшифровка
-        typ:='';
-        name_:='';
-      end
-      else // двухбайтный ID
-      begin
-        typ:='c';
-        name_:='static';
-        fParseJ();  //печатаем HEX строку
-        addToDescr(offset, typ, name_, value+hexvalue); //подробна€ расшифровка
-        typ:='h';
-        name_:='id2';
-        fParseJ();  //печатаем HEX строку
-        addToDescr(offset, typ, name_, value+hexvalue); //подробна€ расшифровка
-        typ:='';
-        name_:='';
+        if (wSubID=0) then // дл€ јйон и однобайтный ID
+        begin
+          typ:='h';
+          name_:='id2';
+          fParseJ();  //печатаем HEX строку
+          addToDescr(offset, typ, name_, value+hexvalue); //подробна€ расшифровка
+          typ:='';
+          name_:='';
+        end
+        else // двухбайтный ID
+        begin
+          typ:='c';
+          name_:='static';
+          fParseJ();  //печатаем HEX строку
+          addToDescr(offset, typ, name_, value+hexvalue); //подробна€ расшифровка
+          typ:='h';
+          name_:='id2';
+          fParseJ();  //печатаем HEX строку
+          addToDescr(offset, typ, name_, value+hexvalue); //подробна€ расшифровка
+          typ:='';
+          name_:='';
+        end;
       end;
       //LineageII в серверных пакетах в исходнике есть сведени€ об c(ID) его надо игнорировать
       if (GlobalProtocolVersion>Aion27) and FromServer then // дл€ LineageII
