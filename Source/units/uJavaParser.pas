@@ -241,7 +241,7 @@ begin
     Fvars[i]:=s    //если уже есть, то обновляем
   else
     Fvars.Append(s);  //дописываем новую переменную
-  Fvars.SaveToFile(AppPath+'Fvars.txt');
+//  Fvars.SaveToFile(AppPath+'Fvars.txt');
 end;
 //******************************************************************************
 function TJavaParser.GetVar(name: string): string;
@@ -490,20 +490,20 @@ begin
   FStack.Add(inttostr(brkRigth));
   FStack.Add(inttostr(count));
   FStack.Add(inttostr(idx));
-  FStack.SaveToFile(AppPath+'FStack.txt');
+//  FStack.SaveToFile(AppPath+'FStack.txt');
 end;
 //******************************************************************************
 procedure TJavaParser.fPush1(str: string);
 begin
   FStack.Add(str);
-  FStack.SaveToFile(AppPath+'FStack.txt');
+//  FStack.SaveToFile(AppPath+'FStack.txt');
 end;
 //******************************************************************************
 procedure TJavaParser.fPop1(var str: string);
 begin
   str:=FStack.Strings[FStack.Count-1];
   Fstack.Delete(FStack.Count-1);
-  FStack.SaveToFile(AppPath+'FStack.txt');
+//  FStack.SaveToFile(AppPath+'FStack.txt');
 end;
 //******************************************************************************
 procedure TJavaParser.fPop(var brkLeft, brkRigth, count, idx: integer);
@@ -516,7 +516,7 @@ begin
   Fstack.Delete(FStack.Count-1);
   brkLeft:=strtoint(FStack.Strings[FStack.Count-1]);
   Fstack.Delete(FStack.Count-1);
-  FStack.SaveToFile(AppPath+'FStack.txt');
+//  FStack.SaveToFile(AppPath+'FStack.txt');
 end;
 //******************************************************************************
 function TJavaParser.fSwitch(var brkLeft, brkRigth, count: integer): boolean;
@@ -558,7 +558,7 @@ begin
           isEnd:=false;
           if idx=1 then
           begin
-            brkLeft:=FPosition-1;
+            brkLeft:=FPosition;
           end;
         end;
         while (FPosition < FTotal-1) and (not isEnd) do
@@ -922,7 +922,7 @@ begin
     end;
   end;
   FPosition:=tmpPosition;
-  FProc.SaveToFile(AppPath+'FProc.txt');
+//  FProc.SaveToFile(AppPath+'FProc.txt');
 end;
 //******************************************************************************
 function TJavaParser.fProcExec(var brkLeft, brkRigth: integer): boolean;
@@ -1160,7 +1160,7 @@ begin
             isEnd:=false;
             if idx=1 then
             begin
-              brkLeft:=FPosition-1;
+              brkLeft:=FPosition;
             end;
           end;
           while (FPosition < FTotal-1) and (not isEnd) do
